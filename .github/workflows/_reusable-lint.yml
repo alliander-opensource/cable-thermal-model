@@ -1,0 +1,43 @@
+name: Lint (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: Python version to lint against.
+        required: false
+        type: string
+        default: "3.12"
+      poetry-version:
+        description: Poetry version to install.
+        required: false
+        type: string
+        default: "2.4.1"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ruff + mypy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Python and Poetry
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ inputs.python-version }}
+          poetry-version: ${{ inputs.poetry-version }}
+          install-args: "--with dev --no-interaction"
+          cache-key-suffix: lint
+
+      - name: Ruff (lint)
+        run: poetry run ruff check .
+
+      - name: Ruff (format check)
+        run: poetry run ruff format --check .
+
+      - name: Mypy
+        run: poetry run mypy .
