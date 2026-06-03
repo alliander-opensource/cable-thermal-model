@@ -1,0 +1,47 @@
+name: Security (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      severity:
+        description: Severities that should fail the build.
+        required: false
+        type: string
+        default: "CRITICAL,HIGH"
+      scanners:
+        description: Comma-separated Trivy scanners to enable.
+        required: false
+        type: string
+        default: "vuln,misconfig,secret"
+      ignore-unfixed:
+        description: Ignore vulnerabilities that have no fix available.
+        required: false
+        type: boolean
+        default: true
+      upload-sarif:
+        description: Upload the SARIF report to GitHub code scanning.
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  fs-scan:
+    name: Trivy filesystem
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Trivy filesystem scan
+        uses: ./.github/actions/trivy-fs-scan
+        with:
+          severity: ${{ inputs.severity }}
+          scanners: ${{ inputs.scanners }}
+          ignore-unfixed: ${{ inputs.ignore-unfixed }}
+          upload-sarif: ${{ inputs.upload-sarif }}
