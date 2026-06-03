@@ -1,0 +1,176 @@
+#!/usr/bin/env python
+
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# -*- coding: utf-8 -*-
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+name = "cable-thermal-model"
+requires-python = ">= 3.11"
+version = "1.15.2"
+description = "The DKM (dynamisch kabeltemperatuur model) is a physical model used for computing dynamic cable temperatures."
+readme = "README.md"
+license = "MPL-2.0"
+license-files = ["LICENSE"]
+
+dependencies = [
+"pandas (>=2.2.3,<3.0.0)",
+"scipy  (>=1.15.0,<2.0.0)",
+"structlog (>=25.0.0,<26.0.0)",
+"pydantic (>=2.13.4,<3.0.0)",
+"numpy (>=2.4.6,<3.0.0)",
+"pandera (>=0.31.1)",
+]
+
+[tool.poetry]
+packages = [
+    { include = "data" },
+    { include = "cable_thermal_model" },
+]
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pytest-xdist = ">=3.6.1,<4.0.0"
+mypy = "^2.0.0"
+pandas-stubs = "^3.0.0.260204"
+ruff = "^0.15.14"
+pre-commit = "^4.6.0"
+scipy-stubs = "^1.17.1.5"
+pytest = "^9.0.3"
+openpyxl = "^3.1.5"
+pytest-mock = "^3.15.1"
+pytest-cov = "^7.1.0"
+reuse = "^6.2.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.1"
+mkdocstrings-python = "^2.0.0"
+mkdocs-exclude = "^1.0.2"
+mkdocs-llmstxt = "^0.5.0"
+mkdocs-material = "^9.6.11"
+mkdocs-mermaid2-plugin = "^1.2.1"
+mkdocs-jupyter = "^0.26.3"
+matplotlib = "^3.10.9"
+jupyter = "^1.1.1"
+ipython = ">=9.13.0,<10.0.0"
+ipykernel = ">=7.2.0,<8.0.0"
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflake
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # pydocstyle
+    "D",
+    # flake8-bandit
+    "S",
+    # flake8-logging
+    "LOG"
+]
+ignore = ["D100", "D104"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "D100", "D101", "D102", "D103", "D104", "D105", "D107"]
+
+[tool.ruff.format]
+# Use double quotes for strings.
+quote-style = "double"
+
+# Indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+#
+# This is currently disabled by default, but it is planned for this
+# to be opt-out in the future.
+docstring-code-format = false
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
+
+[tool.ruff.lint.pylint]
+max-args = 10
+
+[tool.pytest.ini_options]
+addopts = [
+  "-rfEX -p pytester --strict-markers -n auto",
+  "--cov",
+  "--cov-branch",
+  "--cov-report=xml",
+  "--cov-report=term-missing"  # Coverage report incl missing lines in terminal
+]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.paths]
+source = ["cable_thermal_model"]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't reach defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod", # Disabled for now
+]
+ignore_errors = true
+
+[tool.coverage.html]
+directory = "coverage_html_report"
+
+[tool.mypy]
+plugins = ['pydantic.mypy']

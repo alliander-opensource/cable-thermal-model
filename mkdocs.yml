@@ -1,0 +1,96 @@
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
+site_name: Cable Thermal Model
+site_description: Simulate thermal behavior of power and distribution cables.
+site_author: Contributors to the Cable Thermal Model project
+site_url: https://github.com/Alliander/cable-thermal-model
+
+# https://www.mkdocs.org/user-guide/configuration/#validation
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+theme:
+  name: material
+  # favicon: img/favicon.ico
+  # logo: img/logo-white.png
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
+  - attr_list
+  - md_in_html
+  - pymdownx.blocks.caption
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/katex.js
+  - https://unpkg.com/katex@0.16.42/dist/katex.min.js
+  - https://unpkg.com/katex@0.16.42/dist/contrib/auto-render.min.js
+
+extra_css:
+  - stylesheets/extra.css
+  - https://unpkg.com/katex@0.16.42/dist/katex.min.css
+
+nav:
+  - Welcome to Cable Thermal Model: index.md
+  - Get Started:
+      - Installation and overview: get_started/installation_and_overview.md
+      - Model input: get_started/model_input.md
+  - Developer Guidelines:
+      - Math and physics: developer_guidelines/math_and_physics.md
+  - Examples:
+      - Example calculation: examples/example_calculation.ipynb
+      - Add cables: examples/build_cable_example.ipynb
+      - External heat sources: examples/external_heat_sources_example.ipynb
+
+plugins:
+  - llmstxt:
+      enabled: !ENV [CI, false]
+      full_output: llms-full.txt
+      markdown_description: |-
+        Documentation for the Cable Thermal Model project that can be used
+        to simulate the thermal behaviour of electrical cables.
+        The documentation includes example calculations, API reference and
+        technical details about the model.
+      sections:
+        API documentation:
+          - api_reference/*.md
+  - search
+  - mermaid2
+  - exclude:
+      glob:
+        - theme/announce.html
+        - plugins/*
+        - __pycache__/*
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            show_root_full_path: false
+            members_order: source
+            separate_signature: true
+            filters: ["!^_"]
+            docstring_options:
+              ignore_init_summary: true
+            show_docstring_examples: true
+            merge_init_into_class: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+          import:
+            - url: https://docs.python.org/3/objects.inv
+              domains: [py, std]
+  - mkdocs-jupyter:
+      include_source: true
