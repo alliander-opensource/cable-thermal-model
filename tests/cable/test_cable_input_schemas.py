@@ -6,6 +6,7 @@
 
 # -*- coding: utf-8 -*-
 from pathlib import Path
+from typing import cast
 from unittest.mock import patch
 
 import pytest
@@ -226,9 +227,13 @@ def test_t1_computation(cable_id: str, expected_t1: float):
     cable_constructional_information = cable_spec_parser.get_cable_constructional_input()
 
     normalized_t1 = cable_constructional_information.compute_normalized_lumped_sum_thermal_resistance_insulation()
-    insulation_thermal_resistivity = CableBuilder.MATERIALS_DF.loc[
-        cable_constructional_information.insulation_input.material.value, "thermal resistivity"
-    ]
+    assert normalized_t1 is not None
+    insulation_thermal_resistivity = cast(
+        float,
+        CableBuilder.MATERIALS_DF.loc[
+            cable_constructional_information.insulation_input.material.value, "thermal resistivity"
+        ],
+    )
     computed_t1 = normalized_t1 * insulation_thermal_resistivity
 
     # Evaluation

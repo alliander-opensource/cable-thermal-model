@@ -19,12 +19,14 @@ from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.abstract_model import AbstractModel
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import State
-from cable_thermal_model.model.schemas.model_input_schemas import AbstractScenarioSchema
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 
 
-class Model(AbstractModel[ModelRunOptionsT, StateT], Generic[ModelRunOptionsT, StateT]):
+class Model(
+    AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT], Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]
+):
     """Finite Difference Model for Thermal Cable Model.
 
     This class implements a model based on the finite difference (FD) method for simulating
@@ -34,7 +36,7 @@ class Model(AbstractModel[ModelRunOptionsT, StateT], Generic[ModelRunOptionsT, S
     This class contains shared functionality for different Models, such as ModelAir and ModelSoil.
     """
 
-    def __init__(self, static_env: StaticEnv, scenario: DataFrame[AbstractScenarioSchema]):
+    def __init__(self, static_env: StaticEnv, scenario: DataFrame[ScenarioSchemaT]):
         """Initialize the model with a static environment and a scenario DataFrame.
 
         Args:

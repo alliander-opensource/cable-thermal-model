@@ -13,17 +13,17 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.schemas import ModelOutputSchema
-from cable_thermal_model.model.schemas.model_input_schemas import AbstractScenarioSchema
+from cable_thermal_model.model.schemas.model_input_schemas import AbstractScenarioSchema, ScenarioSchemaT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
-class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT]):
+class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
     """Abstract base class for thermal cable models."""
 
     static_env: StaticEnv
-    scenario: DataFrame[AbstractScenarioSchema]
+    scenario: DataFrame[ScenarioSchemaT]
 
     _SOIL_DRYING_TEMPERATURE = 30
     THERMAL_RESISTIVITY_COLUMN = "soil_thermal_resistivity"
@@ -45,7 +45,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT]):
             + f"{tab_lines(tab_lines(repr(self.scenario.describe())))}\n"
         )
 
-    def __init__(self, static_env: StaticEnv, scenario: DataFrame[AbstractScenarioSchema]):
+    def __init__(self, static_env: StaticEnv, scenario: DataFrame[ScenarioSchemaT]):
         """Initialise the model with a static environment and scenario DataFrame."""
         # Validate if the scenario dataframe provides the required data on cable loads and ambient temperature
         self.static_env = static_env
@@ -71,7 +71,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT]):
 
         AbstractScenarioSchema.validate(self.scenario)
 
-    def set_scenario(self, scenario: DataFrame[AbstractScenarioSchema]):
+    def set_scenario(self, scenario: DataFrame[ScenarioSchemaT]):
         """Sets a new scenario and validates it.
 
         Args:

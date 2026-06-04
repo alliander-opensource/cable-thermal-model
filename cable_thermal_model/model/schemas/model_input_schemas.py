@@ -7,6 +7,8 @@
 # -*- coding: utf-8 -*-
 
 
+from typing import TypeVar
+
 import pandas as pd
 import pandera.pandas as pa
 
@@ -98,3 +100,6 @@ class ScenarioSchemaSoil(AbstractScenarioSchema):
             if not pd.api.types.is_numeric_dtype(df[col]):
                 raise ValueError(f"Column {col} must contain numeric values.")
         return True
+
+
+ScenarioSchemaT = TypeVar("ScenarioSchemaT", bound=AbstractScenarioSchema)

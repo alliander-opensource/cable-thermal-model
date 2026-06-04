@@ -462,7 +462,7 @@ def scenario_dynamic(load_series_dynamic, frequency) -> pd.DataFrame:
 @pytest.fixture(scope="function")
 def scenario_dynamic_soil_prop(
     load_series_constant, dynamic_soil_resistivitiy_series, dynamic_soil_capacity_series
-) -> pd.DataFrame:
+) -> DataFrame[ScenarioSchemaSoil]:
     scenario_dynamic = pd.DataFrame(
         data={
             "load_c1": load_series_constant,
@@ -472,51 +472,57 @@ def scenario_dynamic_soil_prop(
         },
         index=load_series_constant.index,
     )
-    return scenario_dynamic
+    return ScenarioSchemaSoil.validate(scenario_dynamic)
 
 
 @pytest.fixture(scope="function")
-def scenario_constant(load_series_constant) -> pd.DataFrame:
-    return pd.DataFrame(
-        data={
-            "load_c1": load_series_constant,
-            "ambient_temperature": 10,
-            "soil_thermal_resistivity": 0.75,
-            "soil_thermal_capacity": 2e6,
-        },
-        index=load_series_constant.index,
+def scenario_constant(load_series_constant) -> DataFrame[ScenarioSchemaSoil]:
+    return ScenarioSchemaSoil.validate(
+        pd.DataFrame(
+            data={
+                "load_c1": load_series_constant,
+                "ambient_temperature": 10,
+                "soil_thermal_resistivity": 0.75,
+                "soil_thermal_capacity": 2e6,
+            },
+            index=load_series_constant.index,
+        )
     )
 
 
 @pytest.fixture(scope="function")
-def scenario_constant_multi(load_series_constant) -> pd.DataFrame:
-    return pd.DataFrame(
-        data={
-            "load_c0": load_series_constant,
-            "load_c1": load_series_constant,
-            "ambient_temperature": 10,
-            "soil_thermal_resistivity": 0.75,
-            "soil_thermal_capacity": 2e6,
-        },
-        index=load_series_constant.index,
+def scenario_constant_multi(load_series_constant) -> DataFrame[ScenarioSchemaSoil]:
+    return ScenarioSchemaSoil.validate(
+        pd.DataFrame(
+            data={
+                "load_c0": load_series_constant,
+                "load_c1": load_series_constant,
+                "ambient_temperature": 10,
+                "soil_thermal_resistivity": 0.75,
+                "soil_thermal_capacity": 2e6,
+            },
+            index=load_series_constant.index,
+        )
     )
 
 
 @pytest.fixture(scope="function")
-def scenario_steady_state() -> pd.DataFrame:
-    return pd.DataFrame(
-        data={
-            "load_c1": 0,
-            "ambient_temperature": 10,
-            "soil_thermal_resistivity": 0.75,
-            "soil_thermal_capacity": 2e6,
-        },
-        index=pd.timedelta_range(start="0D", end="30000D", periods=5),
+def scenario_steady_state() -> DataFrame[ScenarioSchemaSoil]:
+    return ScenarioSchemaSoil.validate(
+        pd.DataFrame(
+            data={
+                "load_c1": 0,
+                "ambient_temperature": 10,
+                "soil_thermal_resistivity": 0.75,
+                "soil_thermal_capacity": 2e6,
+            },
+            index=pd.timedelta_range(start="0D", end="30000D", periods=5),
+        )
     )
 
 
 @pytest.fixture(scope="function")
-def b5901_scenario_steady_state(scenario_steady_state) -> pd.DataFrame:
+def b5901_scenario_steady_state(scenario_steady_state: DataFrame[ScenarioSchemaSoil]) -> DataFrame[ScenarioSchemaSoil]:
     scenario_steady_state["ambient_temperature"] = 15
     return scenario_steady_state
 
@@ -601,7 +607,7 @@ def TB880_case_10_model(TB880_case_10_fd_cable: FDCable) -> ModelSoil:
         },
         index=pd.timedelta_range(start="0D", end="30000D", periods=100),
     )
-    return ModelSoil(static_env, scenario)
+    return ModelSoil(static_env, ScenarioSchemaSoil.validate(scenario))
 
 
 @pytest.fixture(scope="module")

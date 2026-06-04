@@ -9,6 +9,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from pandera.typing import DataFrame
 
 from cable_thermal_model import CableLayer, CircuitType, ModelFactory, StaticEnvAir, StaticEnvSoil
 from cable_thermal_model.cable.cable_circuit import (
@@ -22,6 +23,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
 )
 from cable_thermal_model.model.model_air import ModelAir, StateAir
 from cable_thermal_model.model.model_soil import StateSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir, ScenarioSchemaSoil
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
 
@@ -58,11 +60,9 @@ def test_model_steady_state(
         },
     )
 
-    model = ModelAir(env, scenario)
+    model = ModelAir(env, ScenarioSchemaAir.validate(scenario))
     solution = model.run()
     result = solution.result
-
-    # take steady state temperature of the conductor
     # First we get all the cables for test circuit 'c'
     circuit_c_cables = list(set(list(result.columns.get_level_values(1))))
     dkm_temp = max([result["c"][cable_key][CableLayer.Conductor].iloc[-1] for cable_key in circuit_c_cables])
@@ -94,7 +94,7 @@ def test_model_steady_state(
     assert np.isclose(total_heat_generation, heat_flow_for_sheath)
 
 
-def test_single_cable_in_air_compare_to_soil(scenario_steady_state: pd.DataFrame):
+def test_single_cable_in_air_compare_to_soil(scenario_steady_state: DataFrame[ScenarioSchemaSoil]):
     """Compare single cables in air and soil.
 
     When we ignore the effect of temperature-dependent resistance, the heat flux at the cable boundary should be
@@ -129,7 +129,7 @@ def test_single_cable_in_air_compare_to_soil(scenario_steady_state: pd.DataFrame
     model_soil = ModelFactory.create_model(static_env_soil, scenario_steady_state)
     steady_state_soil = model_soil.run(run_options={"temperature_dependent_electric_resistance": False}).state
 
-    model_air = ModelFactory.create_model(static_env_air, scenario_steady_state)
+    model_air = ModelFactory.create_model(static_env_air, ScenarioSchemaAir.validate(scenario_steady_state))
     steady_state_air = model_air.run(run_options={"temperature_dependent_electric_resistance": False}).state
 
     # Select the single cable from both circuits and collect their steady state solutions
@@ -212,7 +212,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
         data={"ambient_temperature": 30, f"load_{circuit_name}": 100.0},
     )
 
-    model = ModelAir(env, scenario)
+    model = ModelAir(env, ScenarioSchemaAir.validate(scenario))
     # Mock the output of model.compute_temperature_result() to prevent the need for a full model run
     model.compute_temperature_solution = lambda initial_state: None
 

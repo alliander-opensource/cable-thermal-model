@@ -4,15 +4,19 @@
 
 # #!/usr/bin/env python
 # # -*- coding: utf-8 -*-
+from typing import cast
+
 import numpy as np
 import pandas as pd
 import pytest
 from pandera.errors import SchemaError
+from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition, PosCable
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import AbstractModel
 from cable_thermal_model.model.model_factory import ModelFactory
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 from cable_thermal_model.model.schemas.state_schemas import State
 
 
@@ -153,7 +157,7 @@ def test_validate_scenario(env: StaticEnvSoil, scenario: pd.DataFrame):
     - missing values (NaNs).
     """
     with pytest.raises(SchemaError):
-        ModelFactory.create_model(static_env=env, scenario=scenario)
+        ModelFactory.create_model(static_env=env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario))
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])

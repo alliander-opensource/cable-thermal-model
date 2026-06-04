@@ -18,7 +18,7 @@ from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchema
 from cable_thermal_model.model.schemas.run_options import ModelAirRunOptions
 
 
-class ModelAir(Model[ModelAirRunOptions, StateAir]):
+class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir]):
     """The ModelAir is used to compute temperature of using the finite differences methodology.
 
     In finite differences a 1D approach is taken to modelling the environment
