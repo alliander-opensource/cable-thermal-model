@@ -41,7 +41,7 @@ optional = true
 pytest-xdist = ">=3.6.1,<4.0.0"
 mypy = "^2.0.0"
 pandas-stubs = "^3.0.0.260204"
-ruff = "^0.15.14"
+ruff = "^0.15.15"
 pre-commit = "^4.6.0"
 scipy-stubs = "^1.17.1.5"
 pytest = "^9.0.3"
