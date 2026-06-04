@@ -1,0 +1,3 @@
+circuit_name;cable_id;x;y;circuit_type;dist;pipe
+ELT2.24;YMeKrvaslqwd 12/20kV 1x630 Alrm + as50;0;-1.15;Trefoil;0;1
+ELT2.26;YMeKrvaslqwd 12/20kV 1x630 Alrm + as50;0.23;-1.15;Trefoil;0;1

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
 name: Setup Python environment
 description: >
   Set up Python and Poetry, restore the virtualenv cache keyed on poetry.lock,
