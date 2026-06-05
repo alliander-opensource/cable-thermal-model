@@ -1,0 +1,51 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Cable Thermal Model
+message: >-
+  If you're using this model in your software and projects,
+  please cite it as follows:
+type: software
+authors:
+  - given-names: Raoul
+    family-names: Linnenbank
+    email: raoul.linnenbank@alliander.com
+    affiliation: Alliander
+  - given-names: Jesse
+    family-names: Tjebbes
+    email: jesse.tjebbes@alliander.com
+    affiliation: Alliander
+  - given-names: Bram
+    family-names: Vloedgraven
+    email: bram.vloedgraven@alliander.com
+    affiliation: Alliander
+  - given-names: Tey
+    family-names: Berendschot
+    email: tey.berendschot@alliander.com
+    affiliation: Alliander
+  - given-names: Nidhi
+    family-names: Sharma
+    email: nidhi.sharma@alliander.com
+    affiliation: Alliander
+  - given-names: Jurriaan
+    family-names: Ten Brinke
+    email: jurriaan.ten.brinke@alliander.com
+    affiliation: Alliander
+  - family-names: Weijers
+    given-names: Derk
+    affiliation: Qstars
+    email: d.weijers@qstars.nl
+repository-code: >-
+  https://github.com/alliander-opensource/cable-thermal-model
+abstract: >-
+  Cable Thermal Model is a Python library for modelling
+  cable conductor and sheath temperatures based on cable
+  specifications, circuit configuration, load profiles, and
+  ambient conditions. The model computes cable temperatures
+  by approximating the heat equation iteratively throughout
+  time, enabling dynamic temperature calculations in various
+  operational scenarios.
+license: MPL-2.0
+version: 1.0.0
+date-released: '2026-06-26'
