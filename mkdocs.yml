@@ -5,7 +5,7 @@
 site_name: Cable Thermal Model
 site_description: Simulate thermal behavior of power and distribution cables.
 site_author: Contributors to the Cable Thermal Model project
-site_url: https://github.com/Alliander/cable-thermal-model
+site_url: https://alliander-opensource.github.io/cable-thermal-model/
 
 # https://www.mkdocs.org/user-guide/configuration/#validation
 validation:
@@ -49,6 +49,7 @@ nav:
       - Model input: get_started/model_input.md
   - Developer Guidelines:
       - Math and physics: developer_guidelines/math_and_physics.md
+      - Schemas: schemas.md
   - Examples:
       - Example calculation: examples/example_calculation.ipynb
       - Add cables: examples/build_cable_example.ipynb
@@ -89,8 +90,5 @@ plugins:
             merge_init_into_class: true
             show_signature_annotations: true
             signature_crossrefs: true
-          import:
-            - url: https://docs.python.org/3/objects.inv
-              domains: [py, std]
   - mkdocs-jupyter:
       include_source: true
