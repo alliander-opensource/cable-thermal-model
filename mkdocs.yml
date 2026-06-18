@@ -92,3 +92,6 @@ plugins:
             signature_crossrefs: true
   - mkdocs-jupyter:
       include_source: true
+  - gen-files:
+      scripts:
+        - docs/scripts/gen_ref_pages.py
