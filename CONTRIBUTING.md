@@ -24,13 +24,13 @@ We recognize different levels of contributions as shown below in increasing orde
 
 ## Filing bugs, security vulnerability or feature requests
 
-You can file bugs against and feature requests for the project via github
+You can file bugs against and feature requests for the project via Github
 issues. Consult [GitHub
 Help](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/creating-an-issue)
-for more information on using github issues.
+for more information on using Github issues.
 
 If you think you've found a potential vulnerability in this project, please
-email <vbd@alliander.com> to responsibly disclose it.
+email <cable-thermal-model@alliander.com> to responsibly disclose it.
 
 ## Develop new features
 

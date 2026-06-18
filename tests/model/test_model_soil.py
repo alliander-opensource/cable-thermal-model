@@ -107,8 +107,8 @@ def test_model_steady_state_linear_circuit(
     result = model.run(run_options={"neglect_dielectric_loss": True}).result
     # take steady state temperature of the conductor
     for vca_temp, pos in zip(expected_temperatures, ["left", "center", "right"], strict=True):
-        dkm_temp = result[("c", f"linear_{pos}")].Conductor.iloc[-1]
-        assert np.isclose(vca_temp, dkm_temp, atol=max_absolute_temperature_error)
+        ctm_temp = result[("c", f"linear_{pos}")].Conductor.iloc[-1]
+        assert np.isclose(vca_temp, ctm_temp, atol=max_absolute_temperature_error)
 
 
 def test_model_validate_steady_state(scenario_steady_state: DataFrame[ScenarioSchemaSoil]):
