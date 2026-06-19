@@ -6,6 +6,12 @@ SPDX-License-Identifier: MPL-2.0
 
 # Dynamic cable temperature model
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Alliander_cable-thermal-model&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=alliander_cable-thermal-model)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Alliander_cable-thermal-model&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=alliander_cable-thermal-model)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Alliander_cable-thermal-model&metric=coverage)](https://sonarcloud.io/summary/new_code?id=alliander_cable-thermal-model)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Alliander_cable-thermal-model&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=alliander_cable-thermal-model)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Alliander_cable-thermal-model&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=alliander_cable-thermal-model)
+
 The DKM (dynamisch kabeltemperatuur model) is a physical model used for computing dynamic cable temperatures.
 The model computes cable temperatures by approximating the heat equation iteratively throughout time. This makes it
 possible to find cable temperature profiles in situations with dynamic profiles for loads, ambient temperature, soil
