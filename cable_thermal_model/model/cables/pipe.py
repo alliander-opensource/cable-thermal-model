@@ -160,7 +160,7 @@ class Pipe:
     def get_thermal_resistivity_pipe_fill(
         self,
         T: float = 20,
-    ):
+    ) -> float:
         """This method computes the thermal resistivity by extracting it from the lump sum resistivity.
 
         Args:

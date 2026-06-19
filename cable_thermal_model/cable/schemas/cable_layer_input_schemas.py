@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
+from typing import Self
+
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -54,7 +56,7 @@ class AbstractLayerInputSchema(BaseModel):
 
     @field_validator("thickness", mode="after")
     @classmethod
-    def validate_thickness(cls, thickness):
+    def validate_thickness(cls, thickness: float | None = None) -> float | None:
         """Validate that thickness is strictly positive when provided.
 
         Args:
@@ -72,7 +74,7 @@ class AbstractLayerInputSchema(BaseModel):
         return thickness
 
     @model_validator(mode="after")
-    def validate_inner_radius(self):
+    def validate_inner_radius(self) -> Self:
         """Validate that the inner radius is non-negative.
 
         Returns:
@@ -88,7 +90,7 @@ class AbstractLayerInputSchema(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def validate_dimension_consistency(self):
+    def validate_dimension_consistency(self) -> Self:
         """Validate and derive consistent radial dimensions.
 
         Returns:
@@ -125,7 +127,7 @@ class AbstractLayerInputSchema(BaseModel):
 
     @field_validator("material", mode="after")
     @classmethod
-    def validate_layer_material(cls, material: Material):
+    def validate_layer_material(cls, material: Material) -> Material:
         """Validate that a layer material is not explicitly set to `NONE`.
 
         Args:
@@ -153,7 +155,7 @@ class ConductingLayerInputSchema(AbstractLayerInputSchema):
     )
 
     @model_validator(mode="after")
-    def validate_conducting_surface_area(self):
+    def validate_conducting_surface_area(self) -> Self:
         """Validate that conducting surface area does not exceed layer area.
 
         Returns:
@@ -197,7 +199,7 @@ class ConductorInputSchema(ConductingLayerInputSchema):
     material: CableConductorMaterial = Field(..., description="Conductor material.")
 
     @model_validator(mode="after")
-    def validate_single_conductor_radius(self):
+    def validate_single_conductor_radius(self) -> Self:
         """Validate that conducting surface area does not exceed area calculated from single conductor radius.
 
         Returns:
@@ -227,7 +229,7 @@ class ConductorInputSchema(ConductingLayerInputSchema):
         return self
 
     @model_validator(mode="after")
-    def validate_conductor_shape_and_radius(self):
+    def validate_conductor_shape_and_radius(self) -> Self:
         """Validate that if inner_radius is not zero, the conductor shape is hollow.
 
         Returns:
@@ -307,7 +309,7 @@ class ThreeCoreCableInsulationInputSchema(InsulationInputSchema):
     )
 
     @model_validator(mode="after")
-    def compute_inner_radius(self):
+    def compute_inner_radius(self) -> Self:
         """Compute or validate the equivalent inner insulation radius.
 
         When both `outer_radius` and `insulation_equivalent_radius_ratio` are
@@ -339,7 +341,7 @@ class ThreeCoreCableInsulationInputSchema(InsulationInputSchema):
 
     @field_validator("diameter_over_stranded_conductors", mode="after")
     @classmethod
-    def validate_diameter_over_stranded_conductors(cls, diameter_over_stranded_conductors):
+    def validate_diameter_over_stranded_conductors(cls, diameter_over_stranded_conductors: float) -> float:
         """Validate the stranded-conductor diameter value.
 
         Args:
@@ -362,7 +364,7 @@ class ThreeCoreCableInsulationInputSchema(InsulationInputSchema):
 
     @field_validator("single_conductor_insulation_thickness", mode="after")
     @classmethod
-    def validate_single_conductor_insulation_thickness(cls, single_conductor_insulation_thickness):
+    def validate_single_conductor_insulation_thickness(cls, single_conductor_insulation_thickness: float) -> float:
         """Validate the single-conductor insulation thickness.
 
         Args:
@@ -398,7 +400,7 @@ class ScreenInputSchema(ConductingLayerInputSchema):
 
     @field_validator("screen_type", mode="after")
     @classmethod
-    def validate_screen_type(cls, screen_type):
+    def validate_screen_type(cls, screen_type: CableScreenType) -> CableScreenType:
         """Validate supported screen types.
 
         Args:

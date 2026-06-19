@@ -45,7 +45,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir]):
         Args:
             static_env: A StaticEnvAir instance containing the circuit configuration and cable properties.
             scenario:   A pandera DataFrame[ScenarioSchemaAir] containing the dynamic data i.e. loads of the
-            cable circuits and the ambient temperature
+                        cable circuits and the ambient temperature
 
         """
         if not isinstance(static_env, StaticEnvAir):
@@ -102,7 +102,6 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir]):
         """Computes the temperature solutions for all cable objects.
 
         Args:
-            run_options: Options for running the model.
             initial_state: Heating information from a previous computation, if available.
 
         Returns:

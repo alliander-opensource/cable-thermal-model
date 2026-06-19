@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 # -*- coding: utf-8 -*-
+from typing import Self
+
 import numpy as np
 from pydantic import BaseModel, Field, computed_field, model_validator
 
@@ -221,7 +223,7 @@ class CableConstructionalInputSchema(BaseModel):
         return inner_radii
 
     @model_validator(mode="after")
-    def validate_cable_specs(self):
+    def validate_cable_specs(self) -> Self:
         """Run global cable-level validations after model creation.
 
         Returns:

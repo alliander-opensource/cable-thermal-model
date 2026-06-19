@@ -25,7 +25,7 @@ class State(BaseModel):
     Attributes:
        cable_representations: list[PosCable]:
               List of cable representations with their properties and positions in the environment.
-        full_solution: dict[CableKey, np.ndarray]:
+       full_solution: dict[CableKey, np.ndarray]:
             Combines the internal heating solution with the ambient
             temperature profile and, for a StateSoil object, the mutual
             heating solution.

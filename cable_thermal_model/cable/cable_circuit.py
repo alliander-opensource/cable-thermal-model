@@ -156,7 +156,7 @@ def add_soil_layer(
     soil_capacity: float,
     logarithmic_soil_gridpoint_density: float,
     soil_radius: float,
-):
+) -> PosCable:
     """Add soil layers to cable attribute of the given PosCable.
 
     Args:

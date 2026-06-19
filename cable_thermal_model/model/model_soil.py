@@ -153,12 +153,11 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         """This method computes the dry soil radii around the cables in the environment.
 
         Args:
-            time_idx (int):             Index of the current time step
             full_solutions (dict[CableKey, np.ndarray]):    Full heating solutions for all cables in the environment
 
         Returns:
              dict[CableKey, float]: A dictionary of radii describing the amount of dried-out soil surrounding each
-                cable in the same order as [self.cables].
+                                    cable in the same order as [self.cables].
 
         """
         dry_soil_radii = {}
@@ -181,7 +180,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         self,
         cables: list[PosCable],
         full_solutions: list[np.ndarray],
-    ):
+    ) -> float:
         """Computes an approximation to the radius of dried out soil surrounding a selected cable.
 
         This radius is determined through IEC/NPR norms: all soil with a temperature of 30 degrees or more is dried out.
@@ -456,7 +455,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         """Computes the temperature solutions for all cable objects.
 
         Args:
-            run_options: Options for running the model.
             initial_state: Heating information from a previous computation, if available.
 
         Returns:
