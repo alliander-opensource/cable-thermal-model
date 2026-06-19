@@ -118,7 +118,6 @@ class Pipe:
         default_inner_radii = [r - 2 * r / self.sdr for r in default_outer_radii]
 
         # leave at least 30% wiggle room for the cable inside the pipe
-        # 30% was chosen to translate Alliander policy (S7002) to a numeric rule
         wiggle_room = 1.30
         minimum_inner_radius = self.outer_radius_cable * self.radius_factor * wiggle_room
 

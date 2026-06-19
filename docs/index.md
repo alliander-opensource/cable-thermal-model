@@ -6,7 +6,7 @@ SPDX-License-Identifier: MPL-2.0
 
 # Welcome to Cable Thermal Model
 
-**Cable Thermal Model** is a Python library for modelling cable conductor and sheath temperatures based on cable specifications, circuit configuration, load profiles, and ambient conditions. The model computes cable temperatures by approximating the heat equation iteratively throughout time, enabling dynamic temperature calculations in various operational scenarios.
+**Cable Thermal Model** is a Python library for modeling cable conductor and sheath temperatures based on cable specifications, circuit configuration, load profiles, and ambient conditions. The model uses an implicit Euler finite difference approach to discretize the heat equation, enabling dynamic temperature calculations in various operational scenarios.
 
 ## Features
 
