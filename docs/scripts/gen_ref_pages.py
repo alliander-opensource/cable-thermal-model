@@ -13,7 +13,7 @@ nav = mkdocs_gen_files.Nav()
 root = Path(__file__).parent.parent.parent
 src = root / "cable_thermal_model"
 
-EXCLUDED_MODULE_NAMES = "_version"
+EXCLUDED_MODULE_NAMES = ("_version",)
 
 for path in sorted(src.rglob("*.py")):
     module_path = path.relative_to(root).with_suffix("")
@@ -23,14 +23,21 @@ for path in sorted(src.rglob("*.py")):
     parts = tuple(module_path.parts)
     if parts[-1] == "__init__":
         parts = parts[:-1]
-        doc_path = doc_path.with_name("index.md")
-        full_doc_path = full_doc_path.with_name("index.md")
+        # Check if the file contains an __all__ definition
+        # If not, we do not render the __init__.py file in the documentation
+        with open((Path(root) / module_path).with_suffix(".py")) as f:
+            if "__all__" in f.read():
+                doc_path = doc_path.with_name("index.md")
+                full_doc_path = full_doc_path.with_name("index.md")
+            else:
+                continue
+
     elif parts[-1] == "__main__":
         continue
 
     # Exclude specified modules
     if parts[-1] in EXCLUDED_MODULE_NAMES:
-        parts = parts[:-1]
+        continue
 
     nav[parts] = doc_path.as_posix()
 
