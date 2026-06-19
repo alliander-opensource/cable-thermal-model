@@ -65,8 +65,8 @@ def test_model_steady_state(
     result = solution.result
     # First we get all the cables for test circuit 'c'
     circuit_c_cables = list(set(list(result.columns.get_level_values(1))))
-    dkm_temp = max([result["c"][cable_key][CableLayer.Conductor].iloc[-1] for cable_key in circuit_c_cables])
-    assert np.isclose(expected_temperature, dkm_temp, atol=max_absolute_temperature_error)
+    ctm_temp = max([result["c"][cable_key][CableLayer.Conductor].iloc[-1] for cable_key in circuit_c_cables])
+    assert np.isclose(expected_temperature, ctm_temp, atol=max_absolute_temperature_error)
 
     cable_key = list(model.cables.keys())[0]
     cable = model.cables[cable_key].cable

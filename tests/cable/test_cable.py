@@ -360,8 +360,8 @@ def test_T4_pipe_fill(cable_outer_diameter_mm, temp, fill_type, expected_T4):
         ),
         outer_radius_cable=cable_outer_diameter_mm / 2e3,
     )
-    dkm_T4 = pipe._get_lump_sum_resistivity_pipe_fill(temp)
-    assert np.isclose(dkm_T4, expected_T4, rtol=0.01)
+    ctm_T4 = pipe._get_lump_sum_resistivity_pipe_fill(temp)
+    assert np.isclose(ctm_T4, expected_T4, rtol=0.01)
 
 
 def test_integrate_timestep_internal_heating_warning():
