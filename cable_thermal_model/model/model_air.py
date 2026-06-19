@@ -43,8 +43,8 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir]):
         temperature (in degrees Celsius)
 
         Args:
-            static_env: an StaticEnvAir instance containing the circuit configuration and cable properties.
-            scenario:   a pandera DataFrame[ScenarioSchemaAir] containing the dynamic data i.e. loads of the
+            static_env: A StaticEnvAir instance containing the circuit configuration and cable properties.
+            scenario:   A pandera DataFrame[ScenarioSchemaAir] containing the dynamic data i.e. loads of the
             cable circuits and the ambient temperature
 
         """

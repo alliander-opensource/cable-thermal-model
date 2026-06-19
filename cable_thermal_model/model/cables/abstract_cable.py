@@ -468,7 +468,7 @@ class AbstractCable:
         """Calculation of y_s.
 
         Args:
-            x_s (float): factor used for calculating y_s
+            x_s (float): Factor used for calculating y_s
 
         Returns:
             float: Skin effect factor y_s.

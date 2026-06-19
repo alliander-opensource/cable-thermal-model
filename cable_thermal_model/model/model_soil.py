@@ -41,21 +41,21 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         Celsius).
 
         Args:
-            static_env: an StaticEnvSoil instance containing the soil thermal parameters and information of cables,
+            static_env: A StaticEnvSoil instance containing the soil thermal parameters and information of cables,
                         lying configuration
-            scenario:   a pandera DataFrame[ScenarioSchemaSoil] containing the dynamic data i.e. loads of the
+            scenario:   A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic data i.e. loads of the
                         cable circuits and the soil temperature
 
         Attributes:
-            mirror_cables_with_soil:            a dict containing the mirror cables with soil for each cable in the
+            mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
                                                 environment
-            logarithmic_soil_gridpoint_density: the density of grid points in the soil layers, this is used to compute
+            logarithmic_soil_gridpoint_density: The density of grid points in the soil layers, this is used to compute
                                                 the number of grid points in the soil layers based on their thickness.
                                                 The default value is 20 grid points per factor 2 increase in soil layer
                                                 thickness. For a cable with radius of 3.1 cm and a soil layer radius
                                                 1 m,
                                                 this would result in 100 grid points in the soil layer.
-            minimal_soil_radius:                the minimal soil radius around a cable. For deeply buried cables, the
+            minimal_soil_radius:                The minimal soil radius around a cable. For deeply buried cables, the
                                                 soil radius is set to 2.5 times the cable depth, this parameter sets
                                                 a lower bound to prevent very small soil layers for shallow cables.
 
@@ -157,7 +157,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
             full_solutions (dict[CableKey, np.ndarray]):    Full heating solutions for all cables in the environment
 
         Returns:
-             dict[CableKey, float]: a dictionary of radii describing the amount of dried-out soil surrounding each
+             dict[CableKey, float]: A dictionary of radii describing the amount of dried-out soil surrounding each
                 cable in the same order as [self.cables].
 
         """
@@ -218,11 +218,11 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         instance variable to the environment cable.
 
         Args:
-            solutions (dict[CableKey, np.ndarray]): the complete dict of solutions at a given timestep corresponding to
+            solutions (dict[CableKey, np.ndarray]): The complete dict of solutions at a given timestep corresponding to
                 all cables in the environment.
 
         Returns:
-            dict[CableKey, float]: a dictionary of the temperature increases
+            dict[CableKey, float]: A dictionary of the temperature increases
                 (°C) due to mutual heating, one number per cable.
 
         """

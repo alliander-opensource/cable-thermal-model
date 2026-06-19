@@ -777,9 +777,9 @@ def compute_distance_between_cables(two_circuit_fd_env, cable1_index, cable2_ind
 
     Args:
         two_circuit_fd_env: FD environment with two trefoil circuits
-        cable1_index: the index of the first cable to use in distance computation
-        cable2_index: the index of the second cable to use in distance computation
-        expected_distance: expected computed distance
+        cable1_index: The index of the first cable to use in distance computation
+        cable2_index: The index of the second cable to use in distance computation
+        expected_distance: Expected computed distance
 
     """
     cables = list(two_circuit_fd_env.cables())

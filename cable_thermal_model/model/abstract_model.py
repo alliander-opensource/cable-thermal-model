@@ -75,7 +75,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
         """Sets a new scenario and validates it.
 
         Args:
-            scenario: the new scenario dataframe
+            scenario: The new scenario dataframe
 
         """
         self.scenario = scenario

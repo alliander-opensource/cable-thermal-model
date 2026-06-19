@@ -134,7 +134,7 @@ def return_mirror_cable(pos_cable: PosCable) -> PosCable:
     Mirror cables are essential in guaranteeing that the boundary conditions are satisfied.
 
     Args:
-        pos_cable: cable positioned in the static environment
+        pos_cable: Cable positioned in the static environment
 
     Returns:
         'mirrored' positioned cable
@@ -161,17 +161,17 @@ def add_soil_layer(
 
     Args:
         pos_cable:
-            positioned cable instance without any soil layers
+            Positioned cable instance without any soil layers
         soil_rho:
-            thermal resistivity of the soil layer to add in Km/W
+            Thermal resistivity of the soil layer to add in Km/W
         soil_capacity:
-            thermal capacity of the soil layer to add in J/(m³K)
+            Thermal capacity of the soil layer to add in J/(m³K)
         logarithmic_soil_gridpoint_density:
-            the density of grid points in the soil layer, this is used to compute the number of grid points in the
+            The density of grid points in the soil layer, this is used to compute the number of grid points in the
             soil layer based on its thickness. The density represents the number of grid points per factor 2 increase
             in soil layer thickness.
         soil_radius:
-            the outer radius of the soil layer to add.
+            The outer radius of the soil layer to add.
 
     Returns:
         New PosCable instance where the only difference is that the cable now has soil layers.
@@ -198,7 +198,7 @@ def remove_soil(
     """Remove soil layers from cable attribute of the given PosCable.
 
     Args:
-        pos_cable:          positioned cable instance with soil layers
+        pos_cable: Positioned cable instance with soil layers
 
     Returns:
         New PosCable instance where the only difference is that the cable now has no soil layers.
@@ -715,15 +715,15 @@ class CircuitBuilder:
         circuit using that cable instance.
 
         Args:
-            x: horizontal position of circuit in environment in meters
-            y: vertical position (depth) of circuit in environment in meters
-            circuit_type: type of circuit
-            cable_id: identifier of cable type
-            circuit_name: name of the circuit
-            dist: distance between cables, relevant for CircuitType.Linear
+            x: Horizontal position of circuit in environment in meters
+            y: Vertical position (depth) of circuit in environment in meters
+            circuit_type: Type of circuit
+            cable_id: Identifier of cable type
+            circuit_name: Name of the circuit
+            dist: Distance between cables, relevant for CircuitType.Linear
             pipe: Pipe object with pipe parameters, if None, no pipe is added to the cables
-            bonding_type: type of bonding used in the cable circuit
-            y_ref: reference of the circuit y position, either
+            bonding_type: Type of bonding used in the cable circuit
+            y_ref: Reference of the circuit y position, either
                 CircuitYReference.Center, CircuitYReference.Top or
                 CircuitYReference.Bottom
                 y_ref defines y: y is the distance from the ground surface level to y_ref

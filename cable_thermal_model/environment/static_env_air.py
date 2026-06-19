@@ -82,10 +82,10 @@ class StaticEnvAir(
         """Adds convection parameters to the cables.
 
         Args:
-            circuit_type: type of circuit, one of 'single', 'trefoil', 'linear'
-            dist: distance between cables, relevant for 'linear' circuits
+            circuit_type: Type of circuit, one of 'single', 'trefoil', 'linear'
+            dist: Distance between cables, relevant for 'linear' circuits
             cable: FDCable instance
-            clipped_to_wall: indicator if the circuit is clipped to a wall
+            clipped_to_wall: Indicator if the circuit is clipped to a wall
 
         References:
             - NEN-IEC 60287-2-1 (2023) - [table 3]

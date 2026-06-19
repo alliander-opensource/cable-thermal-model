@@ -348,7 +348,7 @@ class StaticEnv(
         """Checks if circuits are realistic and throws warnings if they're not.
 
         Args:
-            cable: a cable object that is checked for number of conductors
+            cable: A cable object that is checked for number of conductors
             circuit_type: a string of the circuit type that can be checked against the cable
 
         """
@@ -399,7 +399,7 @@ class StaticEnv(
             multiple_configurations_from_cable_id: A list of
                 CircuitConfigurationFromCableId, specifying the cable ids and
                 lengths of the different configurations.
-            cable_source_file_path: name of the file containing the cable
+            cable_source_file_path: Name of the file containing the cable
                 specifications. This file has to be located in the data
                 directory and must either be an excel or csv file.
 

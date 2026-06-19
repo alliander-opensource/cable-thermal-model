@@ -59,7 +59,7 @@ class Model(
         using the run method. Used to add, for example, the insulation layer as solution location.
 
         Args:
-            layer_name: the name of a cable layer, the temperatures of added layers will be returned in the
+            layer_name: The name of a cable layer, the temperatures of added layers will be returned in the
                         ModelOutputSchema under the layer name
         Returns:
             self
@@ -292,8 +292,8 @@ class Model(
         """Compute the heart-to-heart distance (m) between two cables.
 
         Args:
-            cable:          positioned cable object
-            other_cable:    second positioned cable object
+            cable:          Positioned cable object
+            other_cable:    Second positioned cable object
 
         Returns:
             float: Distance between two cable objects in meters.
