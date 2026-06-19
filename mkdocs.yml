@@ -47,6 +47,7 @@ nav:
   - Get Started:
       - Installation and overview: get_started/installation_and_overview.md
       - Model input: get_started/model_input.md
+  - API Reference: api_reference/
   - Developer Guidelines:
       - Math and physics: developer_guidelines/math_and_physics.md
       - Schemas: schemas.md
@@ -95,3 +96,5 @@ plugins:
   - gen-files:
       scripts:
         - docs/scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
