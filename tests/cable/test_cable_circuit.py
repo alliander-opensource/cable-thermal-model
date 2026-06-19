@@ -128,9 +128,9 @@ def test_screen_loss_function_linear_1x630(
     for circuit_cable, Ts, Tc, l1 in zip(
         test_circuit.cables, screen_temperature, conductor_temperature, expected_lambda1, strict=True
     ):
-        dkm_lambda1 = circuit_cable.cable.get_cable_screen_loss_factor(Ts, Tc)
+        ctm_lambda1 = circuit_cable.cable.get_cable_screen_loss_factor(Ts, Tc)
 
-        assert np.isclose(dkm_lambda1, l1, atol=0.005)
+        assert np.isclose(ctm_lambda1, l1, atol=0.005)
 
 
 @pytest.mark.parametrize(
@@ -160,8 +160,8 @@ def test_screen_loss_function_trefoil_1x630(
     for circuit_cable, Ts, Tc, l1 in zip(
         circuit.cables, screen_temperature, conductor_temperature, expected_lambda1, strict=True
     ):
-        dkm_lambda1 = circuit_cable.cable.get_cable_screen_loss_factor(Ts, Tc)
-        assert np.isclose(dkm_lambda1, l1, rtol=0.02)
+        ctm_lambda1 = circuit_cable.cable.get_cable_screen_loss_factor(Ts, Tc)
+        assert np.isclose(ctm_lambda1, l1, rtol=0.02)
 
 
 @pytest.mark.parametrize(
@@ -218,8 +218,8 @@ def test_screen_loss_function_linear(
     for circuit_cable, Ts, Tc, l1 in zip(
         circuit.cables, screen_temperature, conductor_temperature, lambda1, strict=True
     ):
-        dkm_lambda1 = circuit_cable.cable.get_cable_screen_loss_factor(Ts, Tc)
-        assert np.isclose(dkm_lambda1, l1, rtol=0.03)
+        ctm_lambda1 = circuit_cable.cable.get_cable_screen_loss_factor(Ts, Tc)
+        assert np.isclose(ctm_lambda1, l1, rtol=0.03)
 
 
 @pytest.mark.parametrize(
@@ -255,8 +255,8 @@ def test_screen_loss_function_trefoil(
 
     Ts = screen_temperature
     Tc = conductor_temperature
-    dkm_lambda1 = circuit_cable.get_cable_screen_loss_factor(Ts, Tc)
-    assert np.isclose(dkm_lambda1, expected_lambda1, rtol=0.02)
+    ctm_lambda1 = circuit_cable.get_cable_screen_loss_factor(Ts, Tc)
+    assert np.isclose(ctm_lambda1, expected_lambda1, rtol=0.02)
 
 
 def test_initialize_screen_loss_functions_with_erroneous_parameters():
@@ -290,7 +290,7 @@ def test_cable_circuit_builder_basic_usage_using_cable_id():
     test_circuit = CircuitBuilder.from_cable_id(
         x=0, y=0, circuit_type=CircuitType.Trefoil, cable_id=cable_id, circuit_name="Test circuit"
     )
-    dkm_lambda1 = test_circuit.cables[0].cable.get_cable_screen_loss_factor(screen_temp, conductor_temp)
+    ctm_lambda1 = test_circuit.cables[0].cable.get_cable_screen_loss_factor(screen_temp, conductor_temp)
 
     # Evaluation
     # Verify Radii to confirm the building of the proper cable
@@ -300,7 +300,7 @@ def test_cable_circuit_builder_basic_usage_using_cable_id():
         atol=_RADIAL_APPROXIMATION_RESOLUTION_IN_METERS,
     )
     # Verify initialize_screen_loss_functions
-    assert np.isclose(dkm_lambda1, 0.107, rtol=0.02)
+    assert np.isclose(ctm_lambda1, 0.107, rtol=0.02)
 
 
 @pytest.mark.parametrize(

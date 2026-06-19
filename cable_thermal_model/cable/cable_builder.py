@@ -380,8 +380,6 @@ class CableBuilder:
             )
 
             if cable_constructional_input.conductor_input.shape == CableConductorShape.Sector:
-                # The steps come from calculating the conductor_distance; refer to for more details:
-                # (https://alliander.atlassian.net/wiki/spaces/INNO/pages/3262907722)
                 insulation_outer_radius = cable_constructional_input.get_outer_radii()[CableLayer.Insulation]
                 insulation_input = cable_constructional_input.validate_three_core_cable_insulation()
                 t1 = insulation_input.single_conductor_insulation_thickness

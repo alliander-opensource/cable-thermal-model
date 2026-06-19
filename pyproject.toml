@@ -14,7 +14,7 @@ build-backend = "poetry.core.masonry.api"
 name = "cable-thermal-model"
 requires-python = ">= 3.11"
 version = "1.15.2"
-description = "The DKM (dynamisch kabeltemperatuur model) is a physical model used for computing dynamic cable temperatures."
+description = "Cable Thermal Model (CTM) is a physical model used to calculate dynamic cable temperatures."
 readme = "README.md"
 license = "MPL-2.0"
 license-files = ["LICENSE"]
