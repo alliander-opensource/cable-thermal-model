@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 #
 # SPDX-License-Identifier: MPL-2.0
-
 """Automatically generate the code for the API reference pages."""
 
+import ast
 from pathlib import Path
 
 import mkdocs_gen_files
@@ -23,12 +23,21 @@ for path in sorted(src.rglob("*.py")):
     parts = tuple(module_path.parts)
     if parts[-1] == "__init__":
         parts = parts[:-1]
-        # Check if the file contains an __all__ definition
-        # If not, we do not render the __init__.py file in the documentation
         with open((Path(root) / module_path).with_suffix(".py")) as f:
-            if "__all__" in f.read():
+            # Create the abstract syntax tree of the file
+            tree = ast.parse(f.read())
+
+            # Look for any assignments of the __all__ attribute
+            if "__all__" in [
+                target.id
+                for node in ast.iter_child_nodes(tree)
+                if isinstance(node, ast.Assign)
+                for target in node.targets
+                if isinstance(target, ast.Name)
+            ]:
                 doc_path = doc_path.with_name("index.md")
                 full_doc_path = full_doc_path.with_name("index.md")
+            # Ignore the file if none can be found
             else:
                 continue
 
