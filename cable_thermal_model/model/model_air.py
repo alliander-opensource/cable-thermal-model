@@ -57,13 +57,13 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir]):
 
         super().__init__(static_env=static_env, scenario=scenario)
 
-    def validate_scenario(self):
+    def _validate_scenario(self):
         """Validates the scenario DataFrame.
 
         Ensures that the scenario contains the required columns
         for the model to operate correctly. Issues warnings if unused columns are present.
         """
-        super().validate_scenario()
+        super()._validate_scenario()
 
         for column in [self.THERMAL_RESISTIVITY_COLUMN, self.THERMAL_CAPACITY_COLUMN]:
             if column in self.scenario.columns:
@@ -95,7 +95,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir]):
         full_solution = temp_solution + ambient_temperature  # Full solution includes ambient temperature
         return solution, full_solution
 
-    def compute_temperature_solution(
+    def _compute_temperature_solution(
         self,
         initial_state: StateAir | None = None,
     ) -> ModelOutputSchema[StateAir]:
