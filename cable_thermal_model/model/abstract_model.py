@@ -49,10 +49,10 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
         """Initialise the model with a static environment and scenario DataFrame."""
         # Validate if the scenario dataframe provides the required data on cable loads and ambient temperature
         self.static_env = static_env
-        self.set_scenario(scenario=scenario)
+        self._set_scenario(scenario=scenario)
         self._set_run_options(run_options=None)
 
-    def validate_scenario(self):
+    def _validate_scenario(self):
         """Validates that the scenario DataFrame contains all required columns and no missing values.
 
         This method validates the scenario against the AbstractScenarioSchema (context independent)
@@ -71,7 +71,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
 
         AbstractScenarioSchema.validate(self.scenario)
 
-    def set_scenario(self, scenario: DataFrame[ScenarioSchemaT]):
+    def _set_scenario(self, scenario: DataFrame[ScenarioSchemaT]):
         """Sets a new scenario and validates it.
 
         Args:
@@ -79,7 +79,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
 
         """
         self.scenario = scenario
-        self.validate_scenario()
+        self._validate_scenario()
 
         # Set up time grids
         self.time_max: float = (scenario.index[-1] - scenario.index[0]).total_seconds()
@@ -119,7 +119,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
         self._validate_initial_state(initial_state=initial_state)
 
         # compute temperature solution
-        result = self.compute_temperature_solution(
+        result = self._compute_temperature_solution(
             initial_state=initial_state,
         )
 
@@ -130,7 +130,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
         self.run_options: ModelRunOptionsT
 
     @abstractmethod
-    def compute_temperature_solution(
+    def _compute_temperature_solution(
         self,
         initial_state: StateT | None = None,
     ) -> ModelOutputSchema[StateT]:

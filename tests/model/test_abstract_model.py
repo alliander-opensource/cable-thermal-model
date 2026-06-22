@@ -64,7 +64,7 @@ def test_model_init_without_arguments():
 def test_set_scenario(model, new_scenario):
     """Tests whether the updated scenario is set in the model object."""
     model.run()
-    model.set_scenario(new_scenario)
+    model._set_scenario(new_scenario)
     assert model.scenario.equals(new_scenario)
 
     model.run()

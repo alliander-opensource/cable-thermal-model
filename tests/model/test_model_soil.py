@@ -404,7 +404,7 @@ def test_get_dry_soil_radius_around_circuit(
         expected_soil_radius = radii_grid[expected_soil_radius_index]
 
     # Check the result for the first cable
-    dry_soil_result = model.get_dry_soil_radius_around_circuit(
+    dry_soil_result = model._get_dry_soil_radius_around_circuit(
         full_solutions=full_solutions,
         cables=[cable for cable in model.cables.values()],
     )
@@ -469,9 +469,9 @@ def test_compute_temperature_solution(
     )
 
     # Fill the initial state variable with either the state or None depending on what we are testing.
-    initial_state_val = model.compute_temperature_solution().state if initial_state is True else None
+    initial_state_val = model._compute_temperature_solution().state if initial_state is True else None
 
-    result = model.compute_temperature_solution(initial_state=initial_state_val)
+    result = model._compute_temperature_solution(initial_state=initial_state_val)
 
     # Loop over the cable results (e.g. cable_key could be "(c1, trefoil_top)"")
     for column in result.result.columns.droplevel(2).unique():
