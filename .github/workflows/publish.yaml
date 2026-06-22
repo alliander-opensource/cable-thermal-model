@@ -37,8 +37,8 @@ jobs:
     - build-package
     runs-on: ubuntu-latest
     environment:
-      name: pypi
-      url: https://pypi.org/p/cable-thermal-model
+      name: pypi-test #pypi
+      url: https://test.pypi.org/p/cable-thermal-model #https://pypi.org/project/cable-thermal-model
     permissions:
       id-token: write
     steps:
@@ -47,8 +47,10 @@ jobs:
       with:
         name: cable-thermal-model-package
         path: dist/
-    - name: Publish distribution 📦 to PyPI
+    - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b #v1.14.0
+      with:
+        repository-url: https://test.pypi.org/legacy/ #https://upload.pypi.org/legacy/
   publish-to-github:
     name: Publish to GitHub Releases
     needs:
