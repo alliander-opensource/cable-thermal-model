@@ -2433,6 +2433,22 @@ files = [
 mkdocs = "*"
 
 [[package]]
+name = "mkdocs-gen-files"
+version = "0.6.1"
+description = "MkDocs plugin to programmatically generate documentation pages during the build"
+optional = false
+python-versions = ">=3.9"
+groups = ["docs"]
+files = [
+    {file = "mkdocs_gen_files-0.6.1-py3-none-any.whl", hash = "sha256:b3182bfc6219e35b8d26658cb988368659d5d023aac30c2a819247558fc12189"},
+    {file = "mkdocs_gen_files-0.6.1.tar.gz", hash = "sha256:57d7ff2229e23d077e46d14a33db6d37c8823f6ce1a503c874c1764a71679763"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.4.1,<=1.6.1"
+properdocs = ">=1.6.5"
+
+[[package]]
 name = "mkdocs-get-deps"
 version = "0.2.2"
 description = "An extra command for MkDocs that infers required PyPI packages from `plugins` in mkdocs.yml"
@@ -2468,6 +2484,22 @@ mkdocs = ">=1.4.0,<2"
 mkdocs-material = ">9.0.0"
 nbconvert = ">=7.2.9,<8"
 pygments = ">2.12.0"
+
+[[package]]
+name = "mkdocs-literate-nav"
+version = "0.6.3"
+description = "MkDocs plugin to specify the navigation in Markdown instead of YAML"
+optional = false
+python-versions = ">=3.9"
+groups = ["docs"]
+files = [
+    {file = "mkdocs_literate_nav-0.6.3-py3-none-any.whl", hash = "sha256:2c421561280fa9184f88cbf399bebbd4cc17ee507e978a31ce11fd6f3aabf233"},
+    {file = "mkdocs_literate_nav-0.6.3.tar.gz", hash = "sha256:edbaca22343f861fe4e34aac47d55a0c9955c640dbf02eea99fe631e914cf9ee"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.4.1,<=1.6.1"
+properdocs = ">=1.6.5"
 
 [[package]]
 name = "mkdocs-llmstxt"
@@ -4901,4 +4933,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">= 3.11"
-content-hash = "b15567f51f1373f841164027748d148f83eacc07d905fa413fb19a50e88b88e1"
+content-hash = "3416c02d6cf94969b430793d1e571ee816d9ccf786cedbfad2ecfe19a8278743"

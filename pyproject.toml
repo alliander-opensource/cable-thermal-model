@@ -66,6 +66,8 @@ jupyter = "^1.1.1"
 ipython = ">=9.14.0,<10.0.0"
 ipykernel = ">=7.2.0,<8.0.0"
 mkdocs-section-index = "^0.3.12"
+mkdocs-gen-files = "^0.6.1"
+mkdocs-literate-nav = "^0.6.3"
 
 [tool.ruff]
 line-length = 120
