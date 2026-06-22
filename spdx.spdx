@@ -1,0 +1,1796 @@
+SPDXVersion: SPDX-2.1
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: cable-thermal-model
+DocumentNamespace: http://spdx.org/spdxdocs/spdx-v2.1-8b533fcb-023a-4976-8655-134fbf67192a
+Creator: Person: Anonymous ()
+Creator: Organization: Anonymous ()
+Creator: Tool: reuse-6.2.0
+Created: 2026-04-16T12:31:08Z
+CreatorComment: <text>This document was created automatically using available reuse information consistent with REUSE.</text>
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ee00df649d89b528dd3bf3660971085c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fd865b2cde78101dd550cb8ce6bc1134
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-42abfbd65b51d250241a8ba89403850c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0ee027c1e593e43dbbf7c8fd894ce04b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6afe24ac3f9b60a8c9a378f4c1291fbe
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-391efea64431a13c8e40d0af8fda8916
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e62b5ec7886654ef0568d1694fce19d5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f7cbcbc5a77e8d13bf527729b5ea488c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a13dc0f9500b5f3014039012c629187f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a7d8ddc5f8ac919509bbd6d6aa3b6b02
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fe6ac9aabe7e909e1b148377c825d093
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-da13f8aa1e1a1f3369bc9d8d4eebdea6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8c0904c7dc9386fe1de7403895899307
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-515d59d1c04da4150f5efe846ed2c000
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-18a326bcd54d30b1cd6ce1f2d657417a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-58e14d09329e22bb4dfb9606ab86643e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b18e017571f87c61b099b826b00a547d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1d7cb15ac69b107293f7a081c50b33f2
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a4fe28ff3bab0d39e0d2732f4fdff9a6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0246d4c2fcbfecb7293aebea11ac0134
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-915fc90e4c3e9d1207fce8225a2bd04e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7339e9eec0620cfa4fe1119e7efed6f1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ac8fe1328e634d66765552adff3c98c9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-66b0f5fb03f13a9f7990db30e7616505
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-09afc23857b123e2f932e5d7b66008c5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-014ca6d54b3184c724bc8befa85ab518
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3327abbee6c74b92a608b7be987ed826
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-831683bff96f7f5199fcf02263d1cd5b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ce5a67aa1d40eecbaead797f687216d7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e78a12527bbaa60608e05eb481a19d0a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-419f924d36aae942fb5db0f4bed895c0
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-001ddf405527975eb0c7a6c41b592108
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-122fbce69b041ade6e4e6e5c56f7089f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b9f0707f02cc6c916611f718a57907d6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-22c19939831da70fb62c88945794aba6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6fdeadd1b932c3fc08e9b059c7d45a87
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-146903327da64af08bf4c1110e5c183e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a959293ef21621ed806955060ecc9463
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c1a5ab2f37fcf970507593c8562c61ec
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7ffb61794a99fa3fb0eab3d1e7666691
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fdf49fe2933e60737aa1e5bc21e0a116
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1deaf19b24034435b2d208c64c55656f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-067ab39550d9e265ead18c8eacde1d27
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2ec3caed4b1ec1b8a2c338ebfab1e3f6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-456b60595f311bc643211eacfb9391b1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-545da91503297c150318211f2de62400
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4d5ceb4d7571815be51eacf27e224aa9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-88d8637eca4b2524d9c93a0774b1d505
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f099e1631691683084b0d3ace4bbb305
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7c29e26da15f8d517cdd21bd95646fdf
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-14526a279c75fe23f516892ea054d9e6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b3ab6b309c4fa7fb6ba79e8690c05384
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5c0088349753e62f35ac49edce5febde
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8eabd3c11b96e9ca030a7b8f9800bf43
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2c2de4192f1f861eb7a8d2c25e9a1de6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5ffc18d7c0f2b2e492d1b937e8ea5386
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f106f5b395f6b5e40b0c79b90c811c30
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-02c87a893676b2c56729a854b98b0c4a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8e9d90e2da0281e94622eb5947f754bf
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1211cf04f43c1bd80831a0302e442fa9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2fb5af4f5bbe1bf53b7b10e2f16b73bb
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-46e02d28441f92d67f00cd634d5c0797
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0500323a24c3fe596fa0242d3b46ee8d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-58838536b1161779d324419c43cd6b89
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fbef58b20db47bac88916671f95fd199
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-bad846d20711b98959031cd0611a31cd
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3e4233d578653eca26d5455dd2d80021
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-88b0e7372f778f2fe09085f17561944a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-72e68c8e8ca671b890723847205b0725
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e07fbf23b7344f0191f844b44d4f14e4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-55d3fed4b7b6986e32184a480c9af64f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4990db60cdf36e11d3fedf0086485e2f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-56f66bc9d69971f1a36082e0b9b4725b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e2608646e68d03b94949c709bd4e9f03
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-18d817de9eef5eaab163a1f67814c012
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b52b1c7a3e503da5da6f0bbe71e44881
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9aabf002a5e2387c9d20ec4b42a030af
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-800214034e6bd82e06a28a5705bcfe5b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c3d5e1e0b7a624a751c5a2c605bd6e81
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a2d23f2df93bf619d34165288ee714d4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d547fc0e4e286070b718c45a9a8920a4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-21d9c6dfc87ed1fbe6c343c35b9add1c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f01f63eb642869c00de82cde04bba92a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-88d605e3600967da87d99aa8ac386bb0
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-bc4ccb30094bdf6ad160ba844f4f03b7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9140f227f442f9e576cc3cfb325a1c54
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0af7de76eb77e051bc8d691d3efe76f1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e0d9995e5fe7644bb4cd31afec46e27c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2553b098bfd96b6fcf6a043dec91795c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2b8fa5c7dda14a40ebfd683ae7f188d5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3b11baf370753bdf88435bdd1f6342de
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1c41d5963c27a27bc7af27aa116c8914
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-be90e0aa54ed1a74b7e2836be6b5eca7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-84bb44749568295a374008a2be070ad6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e4a314a9d4d251f7f336a60975440944
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0946a92f8b70289d4fa6c22e305c3032
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-be4df8fe7fecb3faaba0edf37bcd2b2b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d6c6787c64736246e8ff07e073fc4be9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-241ad92178837d393faa8a09e1892169
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8f4a8d27b8065ee7aec6cf7774d9c34e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-654f7b0125d3e89a6162bc01aacecb93
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a98e52a5c73185a80473716546aca0e6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8766d0610016fe09d7c011acf1afbc40
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5d16b1370d4ea5e527298e68a2d64412
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-54fb655fbde9b4622acf81de46f940cd
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6a2d4eea505f7277b17e2d2de3a2bf45
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-60c62426e3d8990339a0e683b1a7023e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-af3301bd36c361dfce2c32e789b308b1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-912ae15d61adac5ddbfe61579e0d516f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2ee5a82a26a1607b721117b9710db254
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d4d5e73aa597ce1b8cc11bcf6b64b2c7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7e46ea4ad117660331a533ce9c8f6256
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-94d4e28b50ddeba4d065ebbe7bf2844f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f83ec92076e210daa9d048e6b9de8c88
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d4050d46cf8e7912f14dc0c0213d5c17
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c1d9d39648c518aee49dbac9fca0edda
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2faa9dd69f080d99b1909d9fc6abdab3
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-bf3f6cf7e54fee21588619765600c0b5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-23da1047aa1956eaab49f5275e5b0085
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4908857fac9be0ea96e4dfa75c2db9a7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9ef556d65b8acec8b49ed8ae20807034
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6853654285596101e71f159f9dea12c4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-909489092455ee5fbfa14bc34337c1b0
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f46aa7478ce8ee36e295e9e1e8af385d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6b8dde3b472341d167d67795f6f2a84e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-00873fa29e804784fd29ba94ec5914b7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d236b70712b5c347ed509e88148a44a7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2cce928c813e284380ecf9d07727c968
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d5e0b0c8e51c0a011a7fd693d1d46f5c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7c565a0253ece8b0884d6f1a23af93a6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7d4353f0867aef6061b995e6deb84560
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3acbe392f3acb5b29121d10366591e78
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-400d590cf45835f6a0a4b7ffcc3a4515
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2c4e6f81de547b6b04d659e33b112762
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c343568186a1dbeb8250526319f1e167
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9bd105bd9fb9bde5da35ac7f35b3217c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3db26ede93814abc8293a461f629b84b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ad20912babcf227ae93429048f005436
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e8789be9c5828deef4a7f1005d305458
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0087c4d0bd52139e09cd14ab1d907a5e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c867f39f1b42300a9587200a738cd3e5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-990d212e9c7e8e13021ddadb9c254a54
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e831cdd8cfe9ba514a22e85e16afd372
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a234959c3e04675f01de368653f80a86
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f2237a02e130c9ff02413b2bd9b243a9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1c4f49dfc6d895c419958c595c2a3932
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-23d29118035dc241de1e9893f9295611
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-caff3135ee59e9eabc2ae440b37814f4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d13d5ff14feada4ca8f28bf10b6b7360
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5468e3af4fdf1738df4ab3238d534021
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fc50699439f75d448f7c0666d8f38d04
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9ffe8995e0afa50f537183e6d37b048f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-28e2a4df42c1bdd0aaada78f795534a2
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d638b71537be714d1548f69e7475d11e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1ddd195c8aa5d5b8197df17f36180aa0
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b0983edfe08a2ce4180beedf6da13ca2
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-35e8f69c4bb46dede9b6ab1c65d10212
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1872e64e36204371e3bf7da9a53dd34d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-abf64a460fdbb8b46cdcb08f2653dd6f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7cacf8b32555aa40a986a995748ea353
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8c65d1f18d602a627314fe403450acd5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-592fafd2ee3c72184716172383b2e085
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-76e50fe41f5a7b166405a3f08d3aae46
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-50350d99382cca6072f7df2fd66279f4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-37cfccc3a184164d5dd61dc328e04fda
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-37ca7fe0fa3cbd4aa4731e440e0ea6ea
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b2dc58040107d0751f33c31d52a1d12f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5051cc782f42feeac6ae816c83adef40
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b1830381488384ac7917468313b28681
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b5ff61a85229c3ee5e1358a9df3854c5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-76316b7a338afb1b0c5debb95a5302d7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8025f2a43d64b3440a716c24250c1347
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-08e67703d3412b1dbd1087d14cd00ecf
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-66b7c5eb55de9426b730594df400f33a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-96b7a8ae33def62002c8960fc610e7d7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5d4d9f7d89881f7668fc5abbdf2d7d28
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-85c47b08162dd004b34d904f73cada11
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f67237d702728cf50e0fc5f1b5576397
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b6c928b5860fbbfc9e35fa358b04afe9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-855f3f067390e5e7c123d02e5b478b2b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ebaac2d9c0ac00346824d5dda12a9703
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-71b1cc31a872b889220a70a78d967312
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8ac82e076ebacfe35f7b17945e26d278
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fc7c164d7449cdd8e62efd65e1dd6fb1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-26569d0e079dac754e29362cd3481a0a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2003733f7180a6932eb56c2d1afc51b3
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5b1f3d26e54dae5f04db7d25f60f391d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0c70a691ae8739760677e2e636ccf519
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-85de2c28aa489b2b68195b1bd2554530
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ab5d0e5d9cca362b4b1538943fe9adde
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5f9d6c6a6d6d8a4d4a22b3fe02a4d28b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4180ef5943e51af1ca00c5cd768a568f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-059b833d209434481f2046b905142888
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a425baef22acbe85ef27780be6eec921
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-49d599530ba16a13961dd25f2714d2e2
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6c8a2c4ffceeb41910cc35b7f16d6145
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c82a7cde855032b22488ed14a47e6310
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-645af3fd83e56178c610cf2f139b5f1d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9dd07c8d737120f26eaab72000192e7a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ccf46e426dea8e92fdb566138021f17c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-64e73dade982045633650c094fe3628a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5f0e3b19706e7283ba2b675d1c01574b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6726f7f67f746e18ed3f480218f570bb
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-59d203eb331d960df960ef7994b16149
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-270b8f8412e5a1d249bde14266f8299b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6b2dc39e84d89ccd6d9e29836253e834
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5a6cc3919c4db56f62153ba90bf680ec
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-20bf27c8469dd006dbd3f75c44ec3c90
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b4a3061083cdab82b36f104e21df43c5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3f5ad2da990e8f590a408168ae3c1b16
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7fcd04f25ff6916b6e32a17ce6118401
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-27899e7613b0dfa59fb839de64f46cd5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-68609d23d9d92a5cc30249791e48971a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f3c9943d511ae8adde1aa28736677607
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6189d5f7255d9d5b3f9d1506080ad32a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1f0b4ee474f79b07e081ef0eecb8a12f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1b84d4a5c871b2ff42b09fde29f1cf55
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3c50860622f126840e48c7afbdb77212
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ffe1d5a277c6c2080ee92940419bcff5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5cf7cde260e43750fb41a9817a272acb
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fbbe62553de81e0133777b1cc6f98979
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4db43ac7a686c3001803995777e6683a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a49a44a905915fa87d69b713f473e88d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e26315d7a2129eabfcd765be24948e9f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-720f44cb6275b9705d672e00c5837fe5
+
+FileName: ./.coveragerc
+SPDXID: SPDXRef-ee00df649d89b528dd3bf3660971085c
+FileChecksum: SHA1: 44a8e496a469dcfc4ba39bfa45dd7ac5d307bafb
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.github/dependabot.yml
+SPDXID: SPDXRef-fd865b2cde78101dd550cb8ce6bc1134
+FileChecksum: SHA1: 41fb05b52952f10b8758ea9ef08647d181148a89
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.github/scripts/check_cables.py
+SPDXID: SPDXRef-42abfbd65b51d250241a8ba89403850c
+FileChecksum: SHA1: 34212e5253aeee855c945f39bb857c4353dbc708
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.github/workflows/check-cables.yaml
+SPDXID: SPDXRef-0ee027c1e593e43dbbf7c8fd894ce04b
+FileChecksum: SHA1: 05d92c4d497d2256797729e842845a42ec882aaf
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.github/workflows/check-example-calculation.yaml
+SPDXID: SPDXRef-6afe24ac3f9b60a8c9a378f4c1291fbe
+FileChecksum: SHA1: 1a0840d208262caee24900f7d4bddf71e056e3e6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.github/workflows/python-ci-flow-package.yml
+SPDXID: SPDXRef-391efea64431a13c8e40d0af8fda8916
+FileChecksum: SHA1: 0001f4c4a31f7a73ff948dbf6cb6c2241d0c5a70
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.github/workflows/release.yaml
+SPDXID: SPDXRef-e62b5ec7886654ef0568d1694fce19d5
+FileChecksum: SHA1: d5d829636679771c4be8d0c9bc01efa71b4a1024
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.github/workflows/setup-release.yaml
+SPDXID: SPDXRef-f7cbcbc5a77e8d13bf527729b5ea488c
+FileChecksum: SHA1: e10827ae0a9364a3d1ba76d17c7c46e5cd5e64a0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.gitignore
+SPDXID: SPDXRef-a13dc0f9500b5f3014039012c629187f
+FileChecksum: SHA1: ac9abbb92e9581ba3e19c293e4624d2de97e2073
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./.pre-commit-config.yaml
+SPDXID: SPDXRef-a7d8ddc5f8ac919509bbd6d6aa3b6b02
+FileChecksum: SHA1: f6cb20a39350e3082c8720720c1a50b90fc2e2a3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./CODEOWNERS
+SPDXID: SPDXRef-fe6ac9aabe7e909e1b148377c825d093
+FileChecksum: SHA1: dfa3251f51cd9ec53f4819f4a8a1e94287ea5f09
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./MANIFEST.in
+SPDXID: SPDXRef-da13f8aa1e1a1f3369bc9d8d4eebdea6
+FileChecksum: SHA1: 2e00f581866a86fbe67523ba07a46391605ec7db
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./PROJECT_GOVERNANCE.md
+SPDXID: SPDXRef-8c0904c7dc9386fe1de7403895899307
+FileChecksum: SHA1: 224237e72df0c99a428df5de89c7885e87385b34
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2026 Contributors to the Cable Thermal Model project</text>
+
+FileName: ./README.md
+SPDXID: SPDXRef-515d59d1c04da4150f5efe846ed2c000
+FileChecksum: SHA1: 5292a816d4a60ecc2efa934e63adee1cbe480833
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./catalog-info.yaml
+SPDXID: SPDXRef-18a326bcd54d30b1cd6ce1f2d657417a
+FileChecksum: SHA1: b51cb6c8e63a9e4c3c54de46029ea5df7e8b8ad5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/ANDES_profiles.csv
+SPDXID: SPDXRef-58e14d09329e22bb4dfb9606ab86643e
+FileChecksum: SHA1: d6dbae992833757a160a3b907ddd5ada1ce976a3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/IEC_conductor_resistance_table.csv
+SPDXID: SPDXRef-b18e017571f87c61b099b826b00a547d
+FileChecksum: SHA1: 70c1c71a3a2145187ea325b9e4b2738e3e4d835d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/README.md
+SPDXID: SPDXRef-1d7cb15ac69b107293f7a081c50b33f2
+FileChecksum: SHA1: 52e7865154c64c5b6efb323e5ef2446ee98063de
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/cable_specs_TB880.csv
+SPDXID: SPDXRef-a4fe28ff3bab0d39e0d2732f4fdff9a6
+FileChecksum: SHA1: 3a23a99f9879ff031ac48283017db5e4faadff71
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/cables.xlsx
+SPDXID: SPDXRef-0246d4c2fcbfecb7293aebea11ac0134
+FileChecksum: SHA1: 15cdcef51173fc43be2ad5a4b2d7405088ea489a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/checked_cables.csv
+SPDXID: SPDXRef-915fc90e4c3e9d1207fce8225a2bd04e
+FileChecksum: SHA1: 3b7cb344f2d4ef54b05d97242c87301469994bdd
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/circuits/elst_five.csv
+SPDXID: SPDXRef-7339e9eec0620cfa4fe1119e7efed6f1
+FileChecksum: SHA1: ea2dc0827e793681e4e09e0ef7ace7a017190302
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/circuits/elst_four.csv
+SPDXID: SPDXRef-ac8fe1328e634d66765552adff3c98c9
+FileChecksum: SHA1: 121a080cd3e04bf96faf1cc0dfe53fae36d30e05
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/circuits/elst_six.csv
+SPDXID: SPDXRef-66b0f5fb03f13a9f7990db30e7616505
+FileChecksum: SHA1: f5254251974c4f474c8c6f022d087aa18eed3bbc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/circuits/elst_two.csv
+SPDXID: SPDXRef-09afc23857b123e2f932e5d7b66008c5
+FileChecksum: SHA1: a066258d1b0d6d6e05e82bce1cb95fa098430d10
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/circuits/elst_two_real.csv
+SPDXID: SPDXRef-014ca6d54b3184c724bc8befa85ab518
+FileChecksum: SHA1: bd0150bf07758984846f436c16ab753e1a864b35
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/material_properties.csv
+SPDXID: SPDXRef-3327abbee6c74b92a608b7be987ed826
+FileChecksum: SHA1: e2591455b39e786302236c8dcb8b6c301ccbd3c4
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/pipe_filling_material_properties.csv
+SPDXID: SPDXRef-831683bff96f7f5199fcf02263d1cd5b
+FileChecksum: SHA1: efce555a958eda98046858ab3f4db4ad87eb2731
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./data/settings.py
+SPDXID: SPDXRef-ce5a67aa1d40eecbaead797f687216d7
+FileChecksum: SHA1: 4b6d1877f6acd436649ea6f7b73154a6e4bc3f1d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./docs/README.md
+SPDXID: SPDXRef-e78a12527bbaa60608e05eb481a19d0a
+FileChecksum: SHA1: 6dc3aebf04a3b919ea7fba8939c744d07f0d1907
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./docs/example_calculation.py
+SPDXID: SPDXRef-419f924d36aae942fb5db0f4bed895c0
+FileChecksum: SHA1: 49f7df761ea2904572e49872f267b40b077f938f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./docs/index.md
+SPDXID: SPDXRef-001ddf405527975eb0c7a6c41b592108
+FileChecksum: SHA1: 1f3344385a68418450f0f6db2e37de86836021a6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./docs/javascripts/katex.js
+SPDXID: SPDXRef-122fbce69b041ade6e4e6e5c56f7089f
+FileChecksum: SHA1: 08d741f30b450dec5a17e4c969e41ca5cb4dd8fb
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./docs/stylesheets/extra.css
+SPDXID: SPDXRef-b9f0707f02cc6c916611f718a57907d6
+FileChecksum: SHA1: 56bd8ddd080aeb864c656185dc20b81e6ee79b01
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./docs/verified_cables.cmf
+SPDXID: SPDXRef-22c19939831da70fb62c88945794aba6
+FileChecksum: SHA1: ca7119e5e6779338bc1993849d6f9a917bfa39ed
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./mkdocs.yml
+SPDXID: SPDXRef-6fdeadd1b932c3fc08e9b059c7d45a87
+FileChecksum: SHA1: 16ef1deefd556274aee0f197735bce8c08764be6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./poetry.lock
+SPDXID: SPDXRef-146903327da64af08bf4c1110e5c183e
+FileChecksum: SHA1: 69861b2ddef503926161e17565265617dd818205
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./pyproject.toml
+SPDXID: SPDXRef-a959293ef21621ed806955060ecc9463
+FileChecksum: SHA1: 09c7fe418f091a869f12412534e98d5a1ee1b55d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./sonar-project.properties
+SPDXID: SPDXRef-c1a5ab2f37fcf970507593c8562c61ec
+FileChecksum: SHA1: 6582f56fc984ceb7b9f7d32e2da3efe79a8cb6b7
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-7ffb61794a99fa3fb0eab3d1e7666691
+FileChecksum: SHA1: 0e723b7ab9af3d72a88d1c0fb67dce6180a8000d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-fdf49fe2933e60737aa1e5bc21e0a116
+FileChecksum: SHA1: 2dd9911dcdf0191cc0d44bd283ad61d79fcb08fc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-1deaf19b24034435b2d208c64c55656f
+FileChecksum: SHA1: 2dd9911dcdf0191cc0d44bd283ad61d79fcb08fc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-067ab39550d9e265ead18c8eacde1d27
+FileChecksum: SHA1: 74d421e20dddb1b698781e021950819d63759e4a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-2ec3caed4b1ec1b8a2c338ebfab1e3f6
+FileChecksum: SHA1: 0d13ab1756fbdefad13b8a7fddc4c630d7e496b2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-456b60595f311bc643211eacfb9391b1
+FileChecksum: SHA1: c60bbdb5e4267f68b17a34940f1cd832e910ba55
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-545da91503297c150318211f2de62400
+FileChecksum: SHA1: c60bbdb5e4267f68b17a34940f1cd832e910ba55
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-4d5ceb4d7571815be51eacf27e224aa9
+FileChecksum: SHA1: 8521b3d6885ae53c99e6ab01a64bdd42af8b7e14
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-88d8637eca4b2524d9c93a0774b1d505
+FileChecksum: SHA1: 2dbd5738e5dffcdd2eec5da52e26e37d19bc7c78
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-f099e1631691683084b0d3ace4bbb305
+FileChecksum: SHA1: bbf600f74018807242c2dea4708fd7a333bc689f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-7c29e26da15f8d517cdd21bd95646fdf
+FileChecksum: SHA1: bbf600f74018807242c2dea4708fd7a333bc689f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-14526a279c75fe23f516892ea054d9e6
+FileChecksum: SHA1: 58a8a5119e316a5442a748ebaf90c814dc80ce2b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-b3ab6b309c4fa7fb6ba79e8690c05384
+FileChecksum: SHA1: d00aa27434ecf51e4cf8b51054db9b73776a5ee0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-5c0088349753e62f35ac49edce5febde
+FileChecksum: SHA1: 923e4b9bc8f571c5fea95409fc4d2e982366370a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-8eabd3c11b96e9ca030a7b8f9800bf43
+FileChecksum: SHA1: 923e4b9bc8f571c5fea95409fc4d2e982366370a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-2c2de4192f1f861eb7a8d2c25e9a1de6
+FileChecksum: SHA1: 0847126618561e6b92d2b7bc6dab87a93c3c96a7
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-5ffc18d7c0f2b2e492d1b937e8ea5386
+FileChecksum: SHA1: 0e723b7ab9af3d72a88d1c0fb67dce6180a8000d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-f106f5b395f6b5e40b0c79b90c811c30
+FileChecksum: SHA1: 2dd9911dcdf0191cc0d44bd283ad61d79fcb08fc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-02c87a893676b2c56729a854b98b0c4a
+FileChecksum: SHA1: 2dd9911dcdf0191cc0d44bd283ad61d79fcb08fc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-8e9d90e2da0281e94622eb5947f754bf
+FileChecksum: SHA1: 74d421e20dddb1b698781e021950819d63759e4a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-1211cf04f43c1bd80831a0302e442fa9
+FileChecksum: SHA1: 0d13ab1756fbdefad13b8a7fddc4c630d7e496b2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-2fb5af4f5bbe1bf53b7b10e2f16b73bb
+FileChecksum: SHA1: c60bbdb5e4267f68b17a34940f1cd832e910ba55
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-46e02d28441f92d67f00cd634d5c0797
+FileChecksum: SHA1: c60bbdb5e4267f68b17a34940f1cd832e910ba55
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-0500323a24c3fe596fa0242d3b46ee8d
+FileChecksum: SHA1: 8521b3d6885ae53c99e6ab01a64bdd42af8b7e14
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-58838536b1161779d324419c43cd6b89
+FileChecksum: SHA1: 2dbd5738e5dffcdd2eec5da52e26e37d19bc7c78
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-fbef58b20db47bac88916671f95fd199
+FileChecksum: SHA1: bbf600f74018807242c2dea4708fd7a333bc689f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-bad846d20711b98959031cd0611a31cd
+FileChecksum: SHA1: bbf600f74018807242c2dea4708fd7a333bc689f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-3e4233d578653eca26d5455dd2d80021
+FileChecksum: SHA1: 58a8a5119e316a5442a748ebaf90c814dc80ce2b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-88b0e7372f778f2fe09085f17561944a
+FileChecksum: SHA1: d00aa27434ecf51e4cf8b51054db9b73776a5ee0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-72e68c8e8ca671b890723847205b0725
+FileChecksum: SHA1: 923e4b9bc8f571c5fea95409fc4d2e982366370a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-e07fbf23b7344f0191f844b44d4f14e4
+FileChecksum: SHA1: 923e4b9bc8f571c5fea95409fc4d2e982366370a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_n_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-55d3fed4b7b6986e32184a480c9af64f
+FileChecksum: SHA1: 0847126618561e6b92d2b7bc6dab87a93c3c96a7
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-4990db60cdf36e11d3fedf0086485e2f
+FileChecksum: SHA1: afbaa53951148523feacaac4e2a4a35174628c2a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-56f66bc9d69971f1a36082e0b9b4725b
+FileChecksum: SHA1: fa0c11f9f2e796aaa10586c235ebd6e497b4ca18
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-e2608646e68d03b94949c709bd4e9f03
+FileChecksum: SHA1: fa0c11f9f2e796aaa10586c235ebd6e497b4ca18
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-18d817de9eef5eaab163a1f67814c012
+FileChecksum: SHA1: 37d3e1760e10b2fc791c64d233c9526da6285aec
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-b52b1c7a3e503da5da6f0bbe71e44881
+FileChecksum: SHA1: b79edbd9cb38b853eca2f7507695c4265153b9ce
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-9aabf002a5e2387c9d20ec4b42a030af
+FileChecksum: SHA1: 6d9153190d3e8a1e37311f0238788bd7bc7fab57
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-800214034e6bd82e06a28a5705bcfe5b
+FileChecksum: SHA1: 6d9153190d3e8a1e37311f0238788bd7bc7fab57
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-c3d5e1e0b7a624a751c5a2c605bd6e81
+FileChecksum: SHA1: 63eb279e86be8d6b65f705d3fa22e5f1bb897ae7
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-a2d23f2df93bf619d34165288ee714d4
+FileChecksum: SHA1: 2cc1f1b4437355131a16d3660d699e813667e2bd
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-d547fc0e4e286070b718c45a9a8920a4
+FileChecksum: SHA1: f77664e220c680b73f635a19fa44444300aab2af
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-21d9c6dfc87ed1fbe6c343c35b9add1c
+FileChecksum: SHA1: f77664e220c680b73f635a19fa44444300aab2af
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-f01f63eb642869c00de82cde04bba92a
+FileChecksum: SHA1: 93106ad3d0817a76d9cf60e4dadc30bc5aed79c1
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-88d605e3600967da87d99aa8ac386bb0
+FileChecksum: SHA1: 3e465f3a79e72e770f194cd4e44a783b09f91007
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-bc4ccb30094bdf6ad160ba844f4f03b7
+FileChecksum: SHA1: c5c0f6a4a91364fd248dfb5d05a5d23cf493173d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-9140f227f442f9e576cc3cfb325a1c54
+FileChecksum: SHA1: c5c0f6a4a91364fd248dfb5d05a5d23cf493173d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-0af7de76eb77e051bc8d691d3efe76f1
+FileChecksum: SHA1: 72a009963beff8dd9fba6f460bdca3bcd0843977
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-e0d9995e5fe7644bb4cd31afec46e27c
+FileChecksum: SHA1: afbaa53951148523feacaac4e2a4a35174628c2a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-2553b098bfd96b6fcf6a043dec91795c
+FileChecksum: SHA1: fa0c11f9f2e796aaa10586c235ebd6e497b4ca18
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-2b8fa5c7dda14a40ebfd683ae7f188d5
+FileChecksum: SHA1: fa0c11f9f2e796aaa10586c235ebd6e497b4ca18
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-3b11baf370753bdf88435bdd1f6342de
+FileChecksum: SHA1: 37d3e1760e10b2fc791c64d233c9526da6285aec
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-1c41d5963c27a27bc7af27aa116c8914
+FileChecksum: SHA1: b79edbd9cb38b853eca2f7507695c4265153b9ce
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-be90e0aa54ed1a74b7e2836be6b5eca7
+FileChecksum: SHA1: 6d9153190d3e8a1e37311f0238788bd7bc7fab57
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-84bb44749568295a374008a2be070ad6
+FileChecksum: SHA1: 6d9153190d3e8a1e37311f0238788bd7bc7fab57
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-e4a314a9d4d251f7f336a60975440944
+FileChecksum: SHA1: 63eb279e86be8d6b65f705d3fa22e5f1bb897ae7
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-0946a92f8b70289d4fa6c22e305c3032
+FileChecksum: SHA1: 2cc1f1b4437355131a16d3660d699e813667e2bd
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-be4df8fe7fecb3faaba0edf37bcd2b2b
+FileChecksum: SHA1: f77664e220c680b73f635a19fa44444300aab2af
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-d6c6787c64736246e8ff07e073fc4be9
+FileChecksum: SHA1: f77664e220c680b73f635a19fa44444300aab2af
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-241ad92178837d393faa8a09e1892169
+FileChecksum: SHA1: 93106ad3d0817a76d9cf60e4dadc30bc5aed79c1
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-8f4a8d27b8065ee7aec6cf7774d9c34e
+FileChecksum: SHA1: 3e465f3a79e72e770f194cd4e44a783b09f91007
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-654f7b0125d3e89a6162bc01aacecb93
+FileChecksum: SHA1: c5c0f6a4a91364fd248dfb5d05a5d23cf493173d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-a98e52a5c73185a80473716546aca0e6
+FileChecksum: SHA1: c5c0f6a4a91364fd248dfb5d05a5d23cf493173d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/n_y_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-8766d0610016fe09d7c011acf1afbc40
+FileChecksum: SHA1: 72a009963beff8dd9fba6f460bdca3bcd0843977
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-5d16b1370d4ea5e527298e68a2d64412
+FileChecksum: SHA1: 633b73fa7177494a915e145668623787b1fdd24c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-54fb655fbde9b4622acf81de46f940cd
+FileChecksum: SHA1: 66877d1a51c7cdf6aaf559048f35487cb5bda941
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-6a2d4eea505f7277b17e2d2de3a2bf45
+FileChecksum: SHA1: 66877d1a51c7cdf6aaf559048f35487cb5bda941
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-60c62426e3d8990339a0e683b1a7023e
+FileChecksum: SHA1: 672dd0aceec18ed92341dc49f268c4d78d73c07b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-af3301bd36c361dfce2c32e789b308b1
+FileChecksum: SHA1: 1f96a3dbd8e04fcdd431edde7eb6e96c3a03b328
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-912ae15d61adac5ddbfe61579e0d516f
+FileChecksum: SHA1: 9d2fcac86300fbead68c4cdc10e1aee5a10b798e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-2ee5a82a26a1607b721117b9710db254
+FileChecksum: SHA1: 9d2fcac86300fbead68c4cdc10e1aee5a10b798e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-d4d5e73aa597ce1b8cc11bcf6b64b2c7
+FileChecksum: SHA1: 32806faea2bec6ebf15ef33bc0c210224b80ebe9
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-7e46ea4ad117660331a533ce9c8f6256
+FileChecksum: SHA1: 4bd0e4aeca7d92e4a82dc42fa80d3a94a4fe9b96
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-94d4e28b50ddeba4d065ebbe7bf2844f
+FileChecksum: SHA1: e6d8d09f6dafd58c0b1cc3310bebbfb3b8cbbb71
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-f83ec92076e210daa9d048e6b9de8c88
+FileChecksum: SHA1: e6d8d09f6dafd58c0b1cc3310bebbfb3b8cbbb71
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-d4050d46cf8e7912f14dc0c0213d5c17
+FileChecksum: SHA1: 66ce37844116301749e2b04070ec16f92b9157f0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-c1d9d39648c518aee49dbac9fca0edda
+FileChecksum: SHA1: 4afa13db3dfa311e730e4ed17ff4cbdc15169eab
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-2faa9dd69f080d99b1909d9fc6abdab3
+FileChecksum: SHA1: ed981ee0bc928b1e2dd9676f25692c370852646b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-bf3f6cf7e54fee21588619765600c0b5
+FileChecksum: SHA1: ed981ee0bc928b1e2dd9676f25692c370852646b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-23da1047aa1956eaab49f5275e5b0085
+FileChecksum: SHA1: 666c1443378a6e1a63850f48bab4d6b6805c575c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-4908857fac9be0ea96e4dfa75c2db9a7
+FileChecksum: SHA1: 633b73fa7177494a915e145668623787b1fdd24c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-9ef556d65b8acec8b49ed8ae20807034
+FileChecksum: SHA1: 66877d1a51c7cdf6aaf559048f35487cb5bda941
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-6853654285596101e71f159f9dea12c4
+FileChecksum: SHA1: 66877d1a51c7cdf6aaf559048f35487cb5bda941
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-909489092455ee5fbfa14bc34337c1b0
+FileChecksum: SHA1: 672dd0aceec18ed92341dc49f268c4d78d73c07b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-f46aa7478ce8ee36e295e9e1e8af385d
+FileChecksum: SHA1: 1f96a3dbd8e04fcdd431edde7eb6e96c3a03b328
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-6b8dde3b472341d167d67795f6f2a84e
+FileChecksum: SHA1: 9d2fcac86300fbead68c4cdc10e1aee5a10b798e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-00873fa29e804784fd29ba94ec5914b7
+FileChecksum: SHA1: 9d2fcac86300fbead68c4cdc10e1aee5a10b798e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-d236b70712b5c347ed509e88148a44a7
+FileChecksum: SHA1: 32806faea2bec6ebf15ef33bc0c210224b80ebe9
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-2cce928c813e284380ecf9d07727c968
+FileChecksum: SHA1: 4bd0e4aeca7d92e4a82dc42fa80d3a94a4fe9b96
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-d5e0b0c8e51c0a011a7fd693d1d46f5c
+FileChecksum: SHA1: e6d8d09f6dafd58c0b1cc3310bebbfb3b8cbbb71
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-7c565a0253ece8b0884d6f1a23af93a6
+FileChecksum: SHA1: e6d8d09f6dafd58c0b1cc3310bebbfb3b8cbbb71
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-7d4353f0867aef6061b995e6deb84560
+FileChecksum: SHA1: 66ce37844116301749e2b04070ec16f92b9157f0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-3acbe392f3acb5b29121d10366591e78
+FileChecksum: SHA1: 4afa13db3dfa311e730e4ed17ff4cbdc15169eab
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-400d590cf45835f6a0a4b7ffcc3a4515
+FileChecksum: SHA1: ed981ee0bc928b1e2dd9676f25692c370852646b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-2c4e6f81de547b6b04d659e33b112762
+FileChecksum: SHA1: ed981ee0bc928b1e2dd9676f25692c370852646b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_n_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-c343568186a1dbeb8250526319f1e167
+FileChecksum: SHA1: 666c1443378a6e1a63850f48bab4d6b6805c575c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-9bd105bd9fb9bde5da35ac7f35b3217c
+FileChecksum: SHA1: f7261274ef53cfdf1ccfdbd074b7076a39a2e7f0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-3db26ede93814abc8293a461f629b84b
+FileChecksum: SHA1: fa16067710048c04d915d5bd2d65e5e9faa5b6c3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-ad20912babcf227ae93429048f005436
+FileChecksum: SHA1: fa16067710048c04d915d5bd2d65e5e9faa5b6c3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-e8789be9c5828deef4a7f1005d305458
+FileChecksum: SHA1: a2a8ef620e214ab5e831203b40ac21f541df88c6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-0087c4d0bd52139e09cd14ab1d907a5e
+FileChecksum: SHA1: 5283968161737e840ea5ca7b7a70b1f59ad006f3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-c867f39f1b42300a9587200a738cd3e5
+FileChecksum: SHA1: 9aa78138829f1b1ed00ac09654fa47563566bcdf
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-990d212e9c7e8e13021ddadb9c254a54
+FileChecksum: SHA1: 9aa78138829f1b1ed00ac09654fa47563566bcdf
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-e831cdd8cfe9ba514a22e85e16afd372
+FileChecksum: SHA1: 76bd217cdb296231ddc55540755c0fdb18189fd5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-a234959c3e04675f01de368653f80a86
+FileChecksum: SHA1: 0d5cafe622e34d6eabd7608c219e9a9167084ff6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-f2237a02e130c9ff02413b2bd9b243a9
+FileChecksum: SHA1: 0e5a41b5a637c666d5d661471c4e5f07b5ae0bc2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-1c4f49dfc6d895c419958c595c2a3932
+FileChecksum: SHA1: 0e5a41b5a637c666d5d661471c4e5f07b5ae0bc2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-23d29118035dc241de1e9893f9295611
+FileChecksum: SHA1: b822f930d2c2ae2552df2d0d07b6b341818a2bac
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-caff3135ee59e9eabc2ae440b37814f4
+FileChecksum: SHA1: c47fdf11da5885bc39b51927859bd1634799d5aa
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-d13d5ff14feada4ca8f28bf10b6b7360
+FileChecksum: SHA1: 73893371f5f2862ddb033f22fef16f6227d6bae5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-5468e3af4fdf1738df4ab3238d534021
+FileChecksum: SHA1: 73893371f5f2862ddb033f22fef16f6227d6bae5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_n_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-fc50699439f75d448f7c0666d8f38d04
+FileChecksum: SHA1: fd7c558af99455ffba5e22a7f85072ba61094e72
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-9ffe8995e0afa50f537183e6d37b048f
+FileChecksum: SHA1: f7261274ef53cfdf1ccfdbd074b7076a39a2e7f0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-28e2a4df42c1bdd0aaada78f795534a2
+FileChecksum: SHA1: fa16067710048c04d915d5bd2d65e5e9faa5b6c3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-d638b71537be714d1548f69e7475d11e
+FileChecksum: SHA1: fa16067710048c04d915d5bd2d65e5e9faa5b6c3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-1ddd195c8aa5d5b8197df17f36180aa0
+FileChecksum: SHA1: a2a8ef620e214ab5e831203b40ac21f541df88c6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-b0983edfe08a2ce4180beedf6da13ca2
+FileChecksum: SHA1: 5283968161737e840ea5ca7b7a70b1f59ad006f3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-35e8f69c4bb46dede9b6ab1c65d10212
+FileChecksum: SHA1: 9aa78138829f1b1ed00ac09654fa47563566bcdf
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-1872e64e36204371e3bf7da9a53dd34d
+FileChecksum: SHA1: 9aa78138829f1b1ed00ac09654fa47563566bcdf
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_n_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-abf64a460fdbb8b46cdcb08f2653dd6f
+FileChecksum: SHA1: 76bd217cdb296231ddc55540755c0fdb18189fd5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_n_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-7cacf8b32555aa40a986a995748ea353
+FileChecksum: SHA1: 0d5cafe622e34d6eabd7608c219e9a9167084ff6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-8c65d1f18d602a627314fe403450acd5
+FileChecksum: SHA1: 0e5a41b5a637c666d5d661471c4e5f07b5ae0bc2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-592fafd2ee3c72184716172383b2e085
+FileChecksum: SHA1: 0e5a41b5a637c666d5d661471c4e5f07b5ae0bc2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_n_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-76e50fe41f5a7b166405a3f08d3aae46
+FileChecksum: SHA1: b822f930d2c2ae2552df2d0d07b6b341818a2bac
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_y_GPLK10_10kV3x185Al_c1_single.csv
+SPDXID: SPDXRef-50350d99382cca6072f7df2fd66279f4
+FileChecksum: SHA1: c47fdf11da5885bc39b51927859bd1634799d5aa
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_left.csv
+SPDXID: SPDXRef-37cfccc3a184164d5dd61dc328e04fda
+FileChecksum: SHA1: 73893371f5f2862ddb033f22fef16f6227d6bae5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_right.csv
+SPDXID: SPDXRef-37ca7fe0fa3cbd4aa4731e440e0ea6ea
+FileChecksum: SHA1: 73893371f5f2862ddb033f22fef16f6227d6bae5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_compute_temperature_solution/y_y_y_y_y_YMeKrvaslqwd12_20kV1x630Alrm+as50_TKF_2018_c1_trefoil_top.csv
+SPDXID: SPDXRef-b2dc58040107d0751f33c31d52a1d12f
+FileChecksum: SHA1: fd7c558af99455ffba5e22a7f85072ba61094e72
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./test_results/test_pipe_model/vca_pipe_results.csv
+SPDXID: SPDXRef-5051cc782f42feeac6ae816c83adef40
+FileChecksum: SHA1: f9c1439d8a165d941468e72e21920b09933c2a6f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/README.md
+SPDXID: SPDXRef-b1830381488384ac7917468313b28681
+FileChecksum: SHA1: a00922200504b5dbfe3637117909825ab575dd19
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/cable/__init__.py
+SPDXID: SPDXRef-b5ff61a85229c3ee5e1358a9df3854c5
+FileChecksum: SHA1: d9f5bc2197406db3bfb2d3a0602d60263bb6fb12
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/cable/test_TB880_case_0.py
+SPDXID: SPDXRef-76316b7a338afb1b0c5debb95a5302d7
+FileChecksum: SHA1: ccec60b004e5d345ad0dd8608bb88d5378d6f0ac
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/cable/test_TB880_case_10.py
+SPDXID: SPDXRef-8025f2a43d64b3440a716c24250c1347
+FileChecksum: SHA1: e86aa9314ff6be016e681712df62019e43b3c7b7
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/cable/test_cable.py
+SPDXID: SPDXRef-08e67703d3412b1dbd1087d14cd00ecf
+FileChecksum: SHA1: ec41e2d146d4ed7c178252fea2634164c0326068
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/cable/test_cable_circuit.py
+SPDXID: SPDXRef-66b7c5eb55de9426b730594df400f33a
+FileChecksum: SHA1: f68331e1f14076ea4e24237f254b26723d1b9be2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/cable/test_cable_spec_parsers.py
+SPDXID: SPDXRef-96b7a8ae33def62002c8960fc610e7d7
+FileChecksum: SHA1: 47f6ed13ab618c3741ffd36179fc712ac2ecf13a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/conftest.py
+SPDXID: SPDXRef-5d4d9f7d89881f7668fc5abbdf2d7d28
+FileChecksum: SHA1: ce85990b4ae442cdaab2bfca28c7af93b1983760
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/data/test_checked_cables.csv
+SPDXID: SPDXRef-85c47b08162dd004b34d904f73cada11
+FileChecksum: SHA1: 6a559dc720f538aab580527cd25ba302062fccb0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/environment/__init__.py
+SPDXID: SPDXRef-f67237d702728cf50e0fc5f1b5576397
+FileChecksum: SHA1: d9f5bc2197406db3bfb2d3a0602d60263bb6fb12
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/environment/test_fd_static_env.py
+SPDXID: SPDXRef-855f3f067390e5e7c123d02e5b478b2b
+FileChecksum: SHA1: ed8c45281fa73a5e4139e4d60e172a200829927f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/environment/test_staticenv.py
+SPDXID: SPDXRef-ebaac2d9c0ac00346824d5dda12a9703
+FileChecksum: SHA1: a5a1aa71596b0dd96947fabdef316fd28f307c37
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/__init__.py
+SPDXID: SPDXRef-71b1cc31a872b889220a70a78d967312
+FileChecksum: SHA1: d9f5bc2197406db3bfb2d3a0602d60263bb6fb12
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/cables/__init__.py
+SPDXID: SPDXRef-8ac82e076ebacfe35f7b17945e26d278
+FileChecksum: SHA1: d9f5bc2197406db3bfb2d3a0602d60263bb6fb12
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/cables/test_3cores.py
+SPDXID: SPDXRef-fc7c164d7449cdd8e62efd65e1dd6fb1
+FileChecksum: SHA1: 63afafdb3a9ead237965449ca0d650e872feb7d2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/cables/test_abstract_cable.py
+SPDXID: SPDXRef-26569d0e079dac754e29362cd3481a0a
+FileChecksum: SHA1: f0f6a656996d1730d0935e6a4944b08e708afd32
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/cables/test_fd_cable.py
+SPDXID: SPDXRef-2003733f7180a6932eb56c2d1afc51b3
+FileChecksum: SHA1: fa752e727ada77a5bc6c9f0a1c978524967349eb
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/cables/test_pipes.py
+SPDXID: SPDXRef-5b1f3d26e54dae5f04db7d25f60f391d
+FileChecksum: SHA1: 4375457bf254239356854c168d2e04e3436f8b2a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/solvers/__init__.py
+SPDXID: SPDXRef-0c70a691ae8739760677e2e636ccf519
+FileChecksum: SHA1: d9f5bc2197406db3bfb2d3a0602d60263bb6fb12
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/solvers/test_abstract_solver.py
+SPDXID: SPDXRef-85de2c28aa489b2b68195b1bd2554530
+FileChecksum: SHA1: 570b97494ecf2fbfac0fbb8b4b949a963c2a8aa4
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/solvers/test_fd_solver.py
+SPDXID: SPDXRef-ab5d0e5d9cca362b4b1538943fe9adde
+FileChecksum: SHA1: b6159ae83013ec9c71d48c241ab4f505fbae1143
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/solvers/test_fdsolverair.py
+SPDXID: SPDXRef-5f9d6c6a6d6d8a4d4a22b3fe02a4d28b
+FileChecksum: SHA1: 0bc92bd24561f4b11da99d57ab2947a0e31d8f4c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/solvers/test_fdsolversoil.py
+SPDXID: SPDXRef-4180ef5943e51af1ca00c5cd768a568f
+FileChecksum: SHA1: 32b0df17ac59438343c75ac9e1fce60fc685e2d0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/solvers/test_pipes.py
+SPDXID: SPDXRef-059b833d209434481f2046b905142888
+FileChecksum: SHA1: 880ce7ecd99dc79ce9f91483a8997da78e7792be
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/model/solvers/test_uncertainty.py
+SPDXID: SPDXRef-a425baef22acbe85ef27780be6eec921
+FileChecksum: SHA1: b724e8b4c10fbd46a35673655ffc1d6fa8dceb9f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./tests/validation/test_cable_analysis.py
+SPDXID: SPDXRef-49d599530ba16a13961dd25f2714d2e2
+FileChecksum: SHA1: 7407a138a70cb8d8556a504ce4f6b233ee54cc91
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/README.md
+SPDXID: SPDXRef-6c8a2c4ffceeb41910cc35b7f16d6145
+FileChecksum: SHA1: f2e8145cab959ef364644c99dc956c8e05f59717
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/__init__.py
+SPDXID: SPDXRef-c82a7cde855032b22488ed14a47e6310
+FileChecksum: SHA1: 36c66599730f11b64cb849f7bc3bb7b75a7016db
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/_version.py
+SPDXID: SPDXRef-645af3fd83e56178c610cf2f139b5f1d
+FileChecksum: SHA1: 074efcb72c4041a331db4799b857144536892ca3
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/cable/README.md
+SPDXID: SPDXRef-9dd07c8d737120f26eaab72000192e7a
+FileChecksum: SHA1: 0fcd345b0332f0e394ea8188e8e4d32c45e8b427
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/cable/cable_builder.py
+SPDXID: SPDXRef-ccf46e426dea8e92fdb566138021f17c
+FileChecksum: SHA1: 1c046df7e0ca001ec5d1b2951ad15d789bafeed1
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/cable/cable_circuit.py
+SPDXID: SPDXRef-64e73dade982045633650c094fe3628a
+FileChecksum: SHA1: 478f34888ac9301dabdf0f34804c202dd2ac494f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/cable/cable_spec_parsers.py
+SPDXID: SPDXRef-5f0e3b19706e7283ba2b675d1c01574b
+FileChecksum: SHA1: 2cf937bda340d9cc9888d35e0250367e9301425e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/cable/pipe.py
+SPDXID: SPDXRef-6726f7f67f746e18ed3f480218f570bb
+FileChecksum: SHA1: 5ebc50ecf6835ed834f8f08a7b3744dc84fda7e9
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/environment/README.md
+SPDXID: SPDXRef-59d203eb331d960df960ef7994b16149
+FileChecksum: SHA1: bd914777b5d885ccf56778060270b0cc332f384a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/environment/fd_static_env.py
+SPDXID: SPDXRef-6b2dc39e84d89ccd6d9e29836253e834
+FileChecksum: SHA1: 2b763285aced829df04ff8ac0558b6f7a88c07aa
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/environment/static_env.py
+SPDXID: SPDXRef-5a6cc3919c4db56f62153ba90bf680ec
+FileChecksum: SHA1: 889fb5b15bd2394283e4b76540872a17e0478182
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/cables/README.md
+SPDXID: SPDXRef-20bf27c8469dd006dbd3f75c44ec3c90
+FileChecksum: SHA1: a8592959c6cc9901cadeae59d45fd1aa4d54042a
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/cables/abstract_cable.py
+SPDXID: SPDXRef-b4a3061083cdab82b36f104e21df43c5
+FileChecksum: SHA1: 9198bbc8db31f135addd6447b6cd60613029d427
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/cables/enum_classes_cable.py
+SPDXID: SPDXRef-3f5ad2da990e8f590a408168ae3c1b16
+FileChecksum: SHA1: 8d3d1eb3d597542eaf41ffc64be5b46304ad7bd6
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/cables/fd_cable.py
+SPDXID: SPDXRef-7fcd04f25ff6916b6e32a17ce6118401
+FileChecksum: SHA1: 9491497cf27e175b592d8382e87e64eb6deaee46
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/cables/pipe.py
+SPDXID: SPDXRef-27899e7613b0dfa59fb839de64f46cd5
+FileChecksum: SHA1: dcb49fa3097dddd7a3269b2f4b7b83120b8c29b0
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/README.md
+SPDXID: SPDXRef-68609d23d9d92a5cc30249791e48971a
+FileChecksum: SHA1: e558df7c8f421492516a4acb7d039b65f8b99019
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/abstract_solver.py
+SPDXID: SPDXRef-f3c9943d511ae8adde1aa28736677607
+FileChecksum: SHA1: 74303f19c0c8303f6b1047267347c7232239763c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/fd_solver.py
+SPDXID: SPDXRef-6189d5f7255d9d5b3f9d1506080ad32a
+FileChecksum: SHA1: d3ae60daa1ed5369779471446e851b3803152c56
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/fd_solver_air.py
+SPDXID: SPDXRef-1f0b4ee474f79b07e081ef0eecb8a12f
+FileChecksum: SHA1: 20fd46ca2f3dd59475e4a8f3320b525980c23ca4
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/fd_solver_factory.py
+SPDXID: SPDXRef-1b84d4a5c871b2ff42b09fde29f1cf55
+FileChecksum: SHA1: 1d8c783ec54b6363159ac1e257c41fcd007dd450
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/fd_solver_soil.py
+SPDXID: SPDXRef-3c50860622f126840e48c7afbdb77212
+FileChecksum: SHA1: 9baa66c1c2266d3ce6f47ba76f583fae35a86734
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/uncertainty.py
+SPDXID: SPDXRef-ffe1d5a277c6c2080ee92940419bcff5
+FileChecksum: SHA1: ff1ce9ea65612af71da1a33a10669f1822a69fa1
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/model/solvers/uncertainty_config.py
+SPDXID: SPDXRef-5cf7cde260e43750fb41a9817a272acb
+FileChecksum: SHA1: e4b1a43eda172e9fbe2bb61a84eec6e04ec20c63
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/utils/exceptions.py
+SPDXID: SPDXRef-fbbe62553de81e0133777b1cc6f98979
+FileChecksum: SHA1: 78484c4cf9279dd849308cba3bc6ccaaaece0c2c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/utils/str_utils.py
+SPDXID: SPDXRef-4db43ac7a686c3001803995777e6683a
+FileChecksum: SHA1: b96beeab66c8b09991b2fc41aff570fa8826d024
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/validation/__init__.py
+SPDXID: SPDXRef-a49a44a905915fa87d69b713f473e88d
+FileChecksum: SHA1: d9f5bc2197406db3bfb2d3a0602d60263bb6fb12
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/validation/cable_analysis.py
+SPDXID: SPDXRef-e26315d7a2129eabfcd765be24948e9f
+FileChecksum: SHA1: e37adcd2a5ca3292c66d002337bbc7e7ca4e86d4
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>
+
+FileName: ./cable_thermal_model/validation/iec_60287_parameter_extractor.py
+SPDXID: SPDXRef-720f44cb6275b9705d672e00c5837fe5
+FileChecksum: SHA1: 442e828a830fbed663088811c86e9fd2621b81ae
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: MPL-2.0
+FileCopyrightText: <text>SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project</text>

@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
+include data/material_properties.csv
+include data/example_cables.csv
+include data/IEC_conductor_resistance_table.csv
