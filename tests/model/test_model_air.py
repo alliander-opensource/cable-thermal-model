@@ -214,7 +214,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
 
     model = ModelAir(env, ScenarioSchemaAir.validate(scenario))
     # Mock the output of model.compute_temperature_result() to prevent the need for a full model run
-    model.compute_temperature_solution = lambda initial_state: None
+    model._compute_temperature_solution = lambda initial_state: None
 
     # Test 1: state=None should pass
     model.run(initial_state=None)
