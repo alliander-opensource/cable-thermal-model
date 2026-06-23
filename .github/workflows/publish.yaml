@@ -14,15 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 #v6.2.0
+      - name: Set up Python and Poetry
+        uses: ./.github/actions/setup-python-env
         with:
-          python-version: 3.13
+          python-version: "3.13"
+          install-args: "--only-root --no-interaction"
 
-      - name: Install Poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
       - name: Build package
         run: poetry build
 
@@ -73,8 +70,8 @@ jobs:
       run: |
         # Extract version from pyproject.toml
         VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-        echo "version=v$VERSION" >> $GITHUB_OUTPUT
-        echo "Package version: v$VERSION"
+        echo "package_version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Package version: $VERSION"
 
     - name: Generate changelog
       id: generate_changelog
@@ -111,17 +108,17 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda #v3.0.0
       with:
-        tag_name: ${{ steps.get_version.outputs.version }}
-        name: Release ${{ steps.get_version.outputs.version }}
+        tag_name: v${{ steps.get_version.outputs.package_version }}
+        name: Release v${{ steps.get_version.outputs.package_version }}
         files: |
           dist/*.tar.gz
           dist/*.whl
         body: |
-          ## Release ${{ steps.get_version.outputs.version }}
+          ## Release v${{ steps.get_version.outputs.package_version }}
 
           ### Installation
           ```bash
-          pip install cable-thermal-model==${{ steps.get_version.outputs.version }}
+          pip install cable-thermal-model==${{ steps.get_version.outputs.package_version }}
           ```
 
           ### Package Files
@@ -133,4 +130,4 @@ jobs:
           ${{ steps.generate_changelog.outputs.changelog }}
         draft: false
         prerelease: false
-        generate_release_notes: true
+        generate_release_notes: false # Redundant because we are providing a custom release notes body
