@@ -1,7 +1,7 @@
 <!--
-SPDX-FileCopyrightText: 2014 Coraline Ada Ehmke
+SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 
-SPDX-License-Identifier: CC-BY-4.0
+SPDX-License-Identifier: MPL-2.0
 -->
 
 # Changelog
