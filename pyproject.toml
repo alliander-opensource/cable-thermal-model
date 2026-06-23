@@ -28,6 +28,14 @@ dependencies = [
 "pandera (>=0.31.1)",
 ]
 
+[project.urls]
+Homepage = "https://alliander-opensource.github.io/cable-thermal-model"
+Repository = "https://github.com/alliander-opensource/cable-thermal-model"
+Documentation = "https://alliander-opensource.github.io/cable-thermal-model/"
+Changelog = "https://github.com/alliander-opensource/cable-thermal-model/blob/main/CHANGELOG.md"
+Issues = "https://github.com/alliander-opensource/cable-thermal-model/issues"
+
+
 [tool.poetry]
 packages = [
     { include = "data" },
