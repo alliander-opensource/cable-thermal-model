@@ -10,4 +10,4 @@ In a stateless computation (which is the default) the initial temperature of all
 In a stateful computation you can use the results from a previous computation (the state) as a starting point for your calculations.
 
 Refer to [this example calculation](./../../examples/example_calculation#stateful-computations) for example usage and
-to the [API Docementation](./../../api_reference/cable_thermal_model/model/schemas/state_schemas) for information about the `State` object.
+to the [API Documentation](./../../api_reference/cable_thermal_model/model/schemas/state_schemas) for information about the `State` object.
