@@ -55,6 +55,8 @@ nav:
       - Example calculation: examples/example_calculation.ipynb
       - Add cables: examples/build_cable_example.ipynb
       - External heat sources: examples/external_heat_sources_example.ipynb
+  - Theoretical Documentation:
+      - Stateful computations: theoretical_documentation/stateful_computations.md
 
 plugins:
   - llmstxt:
