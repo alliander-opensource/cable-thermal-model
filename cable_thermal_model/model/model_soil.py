@@ -74,14 +74,14 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
 
         super().__init__(static_env=static_env, scenario=scenario)
 
-    def validate_scenario(self):
+    def _validate_scenario(self):
         """Validate the scenario DataFrame for required columns.
 
         Raises:
             ValueError: If required columns are missing from the scenario DataFrame.
 
         """
-        super().validate_scenario()
+        super()._validate_scenario()
         ScenarioSchemaSoil.validate(self.scenario)
 
     def _initialize_cables(self):
@@ -149,7 +149,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
 
         return mutual_heating_solutions
 
-    def get_dry_soil_radius_for_all_cables(self, full_solutions: dict[CableKey, np.ndarray]) -> dict[CableKey, float]:
+    def _get_dry_soil_radius_for_all_cables(self, full_solutions: dict[CableKey, np.ndarray]) -> dict[CableKey, float]:
         """This method computes the dry soil radii around the cables in the environment.
 
         Args:
@@ -168,7 +168,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
             circuit_solutions = [full_solutions[cable_key] for cable_key in circuit_cables]
             cables_with_soil = [self.cables[cable_key] for cable_key in circuit_cables]
 
-            dry_soil_radius = self.get_dry_soil_radius_around_circuit(
+            dry_soil_radius = self._get_dry_soil_radius_around_circuit(
                 full_solutions=circuit_solutions, cables=cables_with_soil
             )
             for cable_key in circuit_cables:
@@ -176,7 +176,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
 
         return dry_soil_radii
 
-    def get_dry_soil_radius_around_circuit(
+    def _get_dry_soil_radius_around_circuit(
         self,
         cables: list[PosCable],
         full_solutions: list[np.ndarray],
@@ -210,7 +210,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
             return radii_grid[0]
         return radii_grid[idxs[-1]]
 
-    def compute_external_temps(self, solutions: dict[CableKey, np.ndarray]) -> dict[CableKey, float]:
+    def _compute_external_temps(self, solutions: dict[CableKey, np.ndarray]) -> dict[CableKey, float]:
         """Computes the heating of a cable due to other cables in the environment.
 
         These contributions are stored in an array "external_heat" and added as an
@@ -302,7 +302,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         """
         if daily_update:
             dry_soil_radii = (
-                self.get_dry_soil_radius_for_all_cables(full_solutions=full_solutions) if soil_drying else None
+                self._get_dry_soil_radius_for_all_cables(full_solutions=full_solutions) if soil_drying else None
             )
 
             # If a dynamic series of soil thermal resistivity values is present, update the soil layers
@@ -448,7 +448,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
 
         return temp
 
-    def compute_temperature_solution(
+    def _compute_temperature_solution(
         self,
         initial_state: StateSoil | None = None,
     ) -> ModelOutputSchema[StateSoil]:
@@ -511,7 +511,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
                 temp_solutions[cable_key] = np.append(temp_solution, 0.0)
             # Compute the mutual heating solutions of cables for the new timestep
             # First compute the heating of a cable due to other cables in the environment
-            external_temps = self.compute_external_temps(solutions=temp_solutions)
+            external_temps = self._compute_external_temps(solutions=temp_solutions)
 
             # Enforce heat exchange from outer boundary (and inner boundary if cable has an inner boundary)
             mutual_heating_temp_solutions = {}
