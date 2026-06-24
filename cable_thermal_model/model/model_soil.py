@@ -24,7 +24,7 @@ from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
     """ModelSoil is used to compute temperature of underground power cables using the finite differences methodology.
 
-    A 1D approach is taken to modelling the environment and the cables, pipes and soil within it. The finite differences
+    A 1D approach is taken to modeling the environment and the cables, pipes and soil within it. The finite differences
     computations are fast and efficient.
 
     In most cases the model is used by instantiating it using a StaticEnvSoil and a valid scenario and calling the run()
@@ -85,10 +85,11 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         ScenarioSchemaSoil.validate(self.scenario)
 
     def _initialize_cables(self):
-        """This functions copies the cables as defined in the static_env into the model.
+        """Initialize cables with soil layers and mirror cables for boundary conditions.
 
-        A set of properties, such as pipes, number of cables and conductor indices are
-        set as well.
+        This method copies the cables from the static environment into the model, adding soil layers and creating
+        mirror cables to enforce boundary conditions. It also sets properties such as pipes, number of cables, and
+        conductor indices.
         """
         # The static_env comes with cable instances without soil, this is first added
         # We use two soil layers with each 100 grid points at 1m and 5m respectively,

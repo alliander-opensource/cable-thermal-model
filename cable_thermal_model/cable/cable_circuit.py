@@ -98,7 +98,7 @@ class PosCable(BaseModel):
 
 
 class CircuitInitData(BaseModel):
-    """A data class containing the necessary information to initialize ..."""
+    """Data class for initializing a cable circuit, encapsulating position, type, and bonding information."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
