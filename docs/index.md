@@ -34,8 +34,9 @@ The Cable Thermal Model is designed with three major use cases in mind:
 ## Getting Started
 
 For installation instructions and usage examples, please visit our documentation:
-
-- [Example calculations](examples/example_calculation.ipynb) - Complete worked examples showing basic usage
+- [Installation instructions](get_started/installation_and_overview.md) - Everything you need to get up and running
+- [Model input](get_started/model_input.md) - How to prepare the input parameters for the model
+- [Example calculations](examples/example_calculation.ipynb) - Complete working examples showing basic usage
 - [Building custom cables](examples/build_cable_example.ipynb) - How to define cable specifications
 - [External heat sources](examples/external_heat_sources_example.ipynb) - Advanced modeling techniques
 
