@@ -509,10 +509,10 @@ class FDCable(AbstractCable):
         time_step: float,
         internal_heating: bool | None = None,
     ) -> np.ndarray:
-        """This method solves the finite-difference approximation to the heat equation using the imiplicit Euler method.
+        """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
 
         For optimization purposes, the method uses the scipy.linalg.solve_banded method to solve the linear system.
-        This means the the three diagonals of finite-differences matrix A are instead stored in a (3, N) array, where
+        This means the three diagonals of finite-differences matrix A are instead stored in a (3, N) array, where
         N is the length of the diagonal.
 
         Args:

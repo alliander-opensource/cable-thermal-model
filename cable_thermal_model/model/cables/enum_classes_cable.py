@@ -155,7 +155,7 @@ class CableArmourType(StrEnum):
 
 
 class CableWireTapeLay(StrEnum):
-    """Enum class for possible cable wire trap lay configurations. Values derived from example_cables.csv."""
+    """Enum class for possible cable wire tape lay configurations. Values derived from example_cables.csv."""
 
     ContactLay = "alContactLay"
     LongLay = "alLongLay"

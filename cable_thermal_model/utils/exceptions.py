@@ -10,6 +10,6 @@ class MissingMaterialException(Exception):
 
 
 class MissingAttributeException(Exception):
-    """Exception thrown in case there are circuits has not yet been initialized."""
+    """Exception thrown in case there are circuits that have not yet been initialized."""
 
     pass

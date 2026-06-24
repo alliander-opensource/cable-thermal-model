@@ -21,7 +21,7 @@ def circuits_path():
     path = Path.cwd()
     path_end = path.parts[-1]
 
-    # Traverse path upwards to get to root folder
+    # Traverse path upwards to get to root directory
     while path_end != "cable-thermal-model":
         path = path.parent
         path_end = path.parts[-1]
