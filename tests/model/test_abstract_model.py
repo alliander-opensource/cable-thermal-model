@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# #!/usr/bin/env python
-# # -*- coding: utf-8 -*-
 from typing import cast
 
 import numpy as np
