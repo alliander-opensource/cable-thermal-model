@@ -10,7 +10,5 @@ In the environment directory the environment around the cable is constructed.
 
 The model directory contains the classes for the cables and models that are used to solve the heat equation using FD.
 
-Directories that are included but are not actively being used at the moment are:
-
-- utils which contains utility functions that are only used by code that is not actively being used
-These are not deleted as we might reuse this logic in the future.
+The utils directory contains functionality that is exclusively used by code not actively being used.
+We include the directory nonetheless to enable future reuse of the logic.
