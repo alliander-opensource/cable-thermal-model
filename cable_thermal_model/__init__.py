@@ -1,10 +1,7 @@
-#!/usr/bin/env python
-
 # SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# -*- coding: utf-8 -*-
 from cable_thermal_model._version import __version__
 from cable_thermal_model.cable.cable_circuit import (
     CableKey,
