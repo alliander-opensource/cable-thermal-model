@@ -65,7 +65,7 @@ pre-commit install --install-hooks
 
 The **reuse** pre-commit hook ensures that all files have proper copyright headers (MPL-2.0 license).
 
-## Verifying Your Installation
+### Verifying Your Installation
 
 After installation, verify that the package is correctly installed by importing some of the main classes:
 
@@ -85,5 +85,8 @@ print(f"Cable Thermal Model version: {__version__}")
 ```
 
 If the import succeeds without errors, your installation is complete!
-## Privates and Publics
-The package exports both private and public interfaces. Public interfaces are intended for use by users of the package, while private interfaces are meant for internal use within the package. Calling/modifying private interfaces may lead to unexpected behavior and is not recommended. Private interfaces are denoted by a leading underscore in their name (e.g., `_private_function`). Contributors are welcome to modify private interfaces if they are contributing to the internal development of the package.
+
+# Documentation
+For more information regarding the model, technical documentation and working examples, please visit the documentation:
+
+[https://alliander-opensource.github.io/cable-thermal-model/](https://alliander-opensource.github.io/cable-thermal-model/)
