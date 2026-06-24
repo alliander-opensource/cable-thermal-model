@@ -11,8 +11,6 @@ source =
 omit =
     data/
     tests/
-    cable_thermal_model/model/soil_thermal_conductivity.py
-    cable_thermal_model/data_sourcing/weather.py
 
 [report]
 ; Regexes for lines to exclude from consideration

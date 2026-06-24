@@ -12,9 +12,5 @@ The model directory contains the classes for the cables and models that are used
 
 Directories that are included but are not actively being used at the moment are:
 
-- data_sourcing which contains methods to gather weather and soil data
 - utils which contains utility functions that are only used by code that is not actively being used
 These are not deleted as we might reuse this logic in the future.
-
-TODO:
-Explain what the differences are between the folders and how they interact.
