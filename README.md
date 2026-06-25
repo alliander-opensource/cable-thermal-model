@@ -25,11 +25,37 @@ circuit types and environments in soil as well as in air.
 
 ### For Users
 
+#### Installation via pip
+
+Install the package from PyPI:
+
+```bash
+pip install cable-thermal-model
+```
+
 #### Installation via Poetry (Recommended)
 
 For better dependency management, use Poetry:
 
+**Adding to an Existing Poetry Project:**
+
 ```bash
+poetry add cable-thermal-model
+```
+
+**Creating a New Poetry Project:**
+
+If you're starting from scratch, first create a new Poetry project:
+
+```bash
+# Create a new Poetry project
+poetry new my-cable-thermal-model
+cd my-cable-thermal-model
+
+# Install the project dependencies
+poetry install
+
+# Add cable-thermal-model
 poetry add cable-thermal-model
 ```
 
