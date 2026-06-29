@@ -56,6 +56,7 @@ nav:
       - Add cables: examples/build_cable_example.ipynb
       - External heat sources: examples/external_heat_sources_example.ipynb
   - Theoretical Documentation:
+      - The heat equation: theoretical_documentation/heat_equation.md
       - Stateful computations: theoretical_documentation/stateful_computations.md
 
 plugins:

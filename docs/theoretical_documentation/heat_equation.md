@@ -9,9 +9,9 @@ In order to compute real-time cable temperatures the temperature model has been 
 
 The heat equation is given by
 
-```math
+$$
 c\frac{\partial \theta}{\partial t} = \nabla \cdot \left(\frac{1}{\rho}\nabla \theta\right) +W_{int}\,
-```
+$$
 where
 
 - $\theta$ is the temperature of the medium in K.
@@ -23,13 +23,13 @@ Note that both $c$ and $\rho$ may depend on the position. In particular we canno
 
 We use polar coordinates to exploit the radial symmetry of power cables. The heat equation in polar coordinates becomes
 
-```math
+$$
 c\frac{\partial \theta}{\partial t}(r, \phi, t) = \frac{1}{r}\frac{\partial}{\partial r}\left(\frac{r}{\rho}\frac{\partial\theta}{\partial r}\right) + \frac{1}{r^2} \frac{\partial}{\partial \phi}\left(\frac{r}{\rho}\frac{\partial\theta}{\partial \phi}\right) +W_{int}\,,
-```
+$$
 where $\phi$ represents the angle and $r$ the distance to the origin. We furthermore assume that the solution is radially symmetric, so that the term $\frac{1}{r^2} \frac{\partial}{\partial \phi}\left(\frac{r}{\rho}\frac{\partial\theta}{\partial \phi}\right)$ vanishes. We are left with the equation
-```math
+$$
 c\frac{\partial \theta}{\partial t} = \frac{1}{r}\frac{\partial}{\partial r}\left(\frac{r}{\rho}\frac{\partial\theta}{\partial r}\right) + W_{int}\,.
-```
+$$
 The choice of $\theta$ for the temperature is standard in the literature for power cables, where $T$ is reserved for thermal resistance. In CTM we write $\theta$ for the temperature difference with respect to the ambient temperature.
 
 ## Influence of parameters
