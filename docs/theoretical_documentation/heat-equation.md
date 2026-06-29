@@ -2,7 +2,8 @@
 SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 
 SPDX-License-Identifier: MPL-2.0
---># The heat equation
+-->
+# The heat equation
 
 In order to compute real-time cable temperatures the temperature model has been designed to be able to handle dynamic loads and changing environmental conditions. The foundation of these dynamic computations is the heat equation. The heat equation is a partial differential equation which completely controls heat flow in a closed system.
 
