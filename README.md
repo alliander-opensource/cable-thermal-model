@@ -6,6 +6,12 @@ SPDX-License-Identifier: MPL-2.0
 
 # Cable thermal model
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=coverage)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+
 Cable Thermal Model is a physical model which can be used to calculate cable
 temperature profiles in situations with dynamic profiles for loads, ambient temperature,
 soil properties. The model uses an implicit Euler finite difference approach to discretize the heat equation.
