@@ -14,7 +14,7 @@ c\frac{\partial \theta}{\partial t} = \nabla \cdot \left(\frac{1}{\rho}\nabla \t
 $$
 where
 
-- $\theta$ is the temperature of the medium in K.
+- $\theta$ is the temperature of the medium in K. In CTM, $\theta$ is actually defined as the temperature difference with respect to the ambient temperature.
 - $\rho$ is the thermal resistivity of the medium in Km/W.
 - $c$ is the volumetric heat capacity of the medium in J/m<sup>3</sup>K.
 - $W_{int}$ is the internal heat generated in the medium in W/m<sup>3</sup>.
@@ -30,7 +30,7 @@ where $\phi$ represents the angle and $r$ the distance to the origin. We further
 $$
 c\frac{\partial \theta}{\partial t} = \frac{1}{r}\frac{\partial}{\partial r}\left(\frac{r}{\rho}\frac{\partial\theta}{\partial r}\right) + W_{int}\,.
 $$
-The choice of $\theta$ for the temperature is standard in the literature for power cables, where $T$ is reserved for thermal resistance. In CTM we write $\theta$ for the temperature difference with respect to the ambient temperature.
+The choice of $\theta$ for the temperature is standard in the literature for power cables, where $T$ is reserved for thermal resistance.
 
 ## Influence of parameters
 
