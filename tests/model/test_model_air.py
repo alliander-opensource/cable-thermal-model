@@ -131,7 +131,7 @@ def test_single_cable_in_air_compare_to_soil(scenario_steady_state: DataFrame[Sc
     # Select the single cable from both circuits and collect their steady state solutions
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.Single)
 
-    cable_soil = model_soil.cables[cable_key].cable
+    cable_soil = model_soil.cables_with_soil[cable_key].cable
     steady_state_solution_soil = steady_state_soil.internal_heating_solution[cable_key]
 
     cable_air = model_air.cables[cable_key].cable

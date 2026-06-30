@@ -150,28 +150,6 @@ class FDCable(AbstractCable):
 
         return surface_area_grid
 
-    def update_vector_with_heat_generation(
-        self, vector: np.ndarray, heat_generation: float, start_index: int, end_index: int
-    ) -> np.ndarray:
-        """Updates the given vector with the given heat generation value.
-
-        The heat generation is distributed over the grid points between the given start and end indices.
-
-        Args:
-            vector (np.ndarray): The vector to update.
-            heat_generation (float): The heat generation value in W/m to distribute over the grid points.
-            start_index (int): The start index of the grid points to update.
-            end_index (int): The end index of the grid points to update.
-
-        Returns:
-            np.ndarray: The updated vector with the heat generation distributed over the specified grid points.
-
-        """
-        vector[start_index : end_index + 1] = (
-            heat_generation / self.surface_area_grid[start_index : end_index + 1].sum()
-        )
-        return vector
-
     def get_redefined_cable(self, **kwargs) -> Self:
         """Get a new cable instance based on the current self, but with changed cable attributes.
 
@@ -307,15 +285,15 @@ class FDCable(AbstractCable):
         layer_end_index = layer_start_index + self.grid_counts[layer] - 1
         return layer_start_index, layer_end_index
 
-    def _get_finite_differences_matrix_upper_diagonal(self) -> np.ndarray:
-        """This method returns the upper diagonal component for the finite-differences matrix.
+    def _get_finite_difference_matrix_upper_diagonal(self) -> np.ndarray:
+        """This method returns the upper diagonal component for the finite-difference matrix.
 
-        This method computes the upper "off" diagonal of the finite-differences matrix. For more information on the
-        finite-differences matrix, please check the method [get_finite_differences_matrix()].
+        This method computes the upper "off" diagonal of the finite-difference matrix. For more information on the
+        finite-difference matrix, please check the method [get_finite_difference_matrix()].
 
         Returns:
             np.ndarray: A Numpy array representing the upper "off" diagonal of
-                the finite-differences matrix, as calculated for the current cable.
+                the finite-difference matrix, as calculated for the current cable.
 
         """
         radii = self.radii_grid
@@ -335,15 +313,15 @@ class FDCable(AbstractCable):
 
         return upper_diagonal
 
-    def _get_finite_differences_matrix_base_diagonal(self) -> np.ndarray:
-        """This method returns the base diagonal component for the finite-differences matrix.
+    def _get_finite_difference_matrix_base_diagonal(self) -> np.ndarray:
+        """This method returns the base diagonal component for the finite-difference matrix.
 
-        This method computes the base diagonal of the finite-differences matrix. For more information on the
-        finite-differences matrix, please check the method [get_finite_differences_matrix()].
+        This method computes the base diagonal of the finite-difference matrix. For more information on the
+        finite-difference matrix, please check the method [get_finite_difference_matrix()].
 
         Returns:
             np.ndarray: A Numpy array representing the base diagonal of the
-                finite-differences matrix, as calculated for the current cable.
+                finite-difference matrix, as calculated for the current cable.
 
         """
         radii = self.radii_grid
@@ -369,15 +347,15 @@ class FDCable(AbstractCable):
 
         return base_diagonal
 
-    def _get_finite_differences_matrix_lower_diagonal(self) -> np.ndarray:
-        """This method returns the lower "off" diagonal component for the finite-differences matrix.
+    def _get_finite_difference_matrix_lower_diagonal(self) -> np.ndarray:
+        """This method returns the lower "off" diagonal component for the finite-difference matrix.
 
-        This method computes the lower "off" diagonal of the finite-differences matrix. For more information on the
-        finite-differences matrix, please check the method [get_finite_differences_matrix()].
+        This method computes the lower "off" diagonal of the finite-difference matrix. For more information on the
+        finite-difference matrix, please check the method [get_finite_difference_matrix()].
 
         Returns:
             np.ndarray: A Numpy array representing the lower "off" diagonal of
-                the finite-differences matrix, as calculated for the current cable.
+                the finite-difference matrix, as calculated for the current cable.
 
         """
         radii = self.radii_grid
@@ -440,33 +418,77 @@ class FDCable(AbstractCable):
             radii[1:] / radii[:-1]
         )
 
-    def get_finite_differences_matrix(self) -> np.ndarray:
-        """Calculates and returns the finite-differences matrix.
+    def get_finite_difference_matrix_with_outer_boundary_coupling(self) -> tuple[np.ndarray, float]:
+        """Calculate and return matrix and outer-boundary coupling coefficient.
 
-        The finite-differences matrix is central to the linearized heat equation. It is a matrix with one base
-        diagonal and two "off" diagonals (one above and
-        one below the base diagonal), and otherwise only zeros. We represent this matrix as a 3xN numpy array, where N
-        is the length of the base diagonal.
+        The returned tuple consists of:
+            - A banded matrix for the unknown temperatures.
+            - The coupling coefficient to the known outer boundary temperature.
 
         Notes:
-            In the finite differences (FD) approximation, this single matrix combined with a vector control the
+            In the finite difference (FD) approximation, this single matrix combined with a vector control the
             linearized heat equation.
 
         Returns:
-            np.ndarray: The (3xN) matrix representing the finite-differences matrix
-                [W/(°C*m³)].
+            tuple[np.ndarray, float]:
+                A tuple containing the banded matrix and the outer-boundary coupling coefficient.
 
         """
-        upper_diagonal = self._get_finite_differences_matrix_upper_diagonal()
-        base_diagonal = self._get_finite_differences_matrix_base_diagonal()
-        lower_diagonal = self._get_finite_differences_matrix_lower_diagonal()
+        upper_diagonal = self._get_finite_difference_matrix_upper_diagonal()
+        base_diagonal = self._get_finite_difference_matrix_base_diagonal()
+        lower_diagonal = self._get_finite_difference_matrix_lower_diagonal()
 
         matrix = np.zeros((3, len(base_diagonal)))
         matrix[0, 1:] = upper_diagonal[:-1]
         matrix[1, :] = base_diagonal
         matrix[2, :-1] = lower_diagonal
 
+        outer_boundary_coupling_coefficient = float(upper_diagonal[-1])
+
+        return matrix, outer_boundary_coupling_coefficient
+
+    def get_finite_difference_matrix(self) -> np.ndarray:
+        """Calculates and returns the finite-difference matrix.
+
+        The finite-difference matrix is central to the linearized heat equation. It is a matrix with one base
+        diagonal and two "off" diagonals (one above and
+        one below the base diagonal), and otherwise only zeros. We represent this matrix as a 3xN numpy array, where N
+        is the length of the base diagonal.
+
+        Notes:
+            In the finite difference (FD) approximation, this single matrix combined with a vector control the
+            linearized heat equation.
+
+        Returns:
+            np.ndarray: The (3xN) matrix representing the finite-difference matrix
+                [W/(°C*m³)].
+
+        """
+        matrix, _ = self.get_finite_difference_matrix_with_outer_boundary_coupling()
         return matrix
+
+    def get_finite_difference_vector(self, neglect_dielectric_loss: bool = False) -> np.ndarray:
+        """This method calculates and returns the finite-difference vector.
+
+        Args:
+            neglect_dielectric_loss (bool): A boolean representing whether to
+                neglect the dielectric losses in the calculation of the vector.
+                Default is False.
+
+        Returns:
+            np.ndarray: A Numpy array representing the finite-difference vector [W/m³].
+        """
+        vector = np.zeros(self.radii_grid.size - 1)
+
+        if not neglect_dielectric_loss:
+            dielectric_loss = self.get_dielectric_loss_for_cable()
+            vector = self.update_vector_with_heat_generation_for_layer(
+                vector=vector,
+                heat_generation=dielectric_loss,
+                layer=CableLayer.Insulation,
+            )
+
+        return vector
 
     def get_linear_system(
         self,
@@ -475,31 +497,41 @@ class FDCable(AbstractCable):
         """This method retrieves the two elements that control the linearized heat equation.
 
         These are:
-            - The finite-differences matrix, which contains the linearized interaction terms between grid points defined
+            - The finite-difference matrix, which contains the linearized interaction terms between grid points defined
               by material properties.
             - The vector, which contains the energy that would be released and internally generated heat terms. In this
               step, only the time-independent dielectric losses are added.
 
         Returns:
             tuple[np.ndarray, np.ndarray]:
-                A tuple of two Numpy arrays, representing the finite-differences matrix and the vector,
+                A tuple of two Numpy arrays, representing the finite-difference matrix and the vector,
                 respectively.
 
         """
-        vector = np.zeros(self.radii_grid.size - 1)
+        matrix = self.get_finite_difference_matrix()
+        vector = self.get_finite_difference_vector(neglect_dielectric_loss=neglect_dielectric_loss)
 
-        if not neglect_dielectric_loss:
-            # Account for dielectric losses
-            insulation_start_index, insulation_end_index = self.get_layer_indices_for_layer(CableLayer.Insulation)
-            Wd = self.get_dielectric_loss_for_cable()  # Dielectric loss in W/m
-
-            # The generated heat is added to the loss vector
-            vector = self.update_vector_with_heat_generation(
-                vector=vector, heat_generation=Wd, start_index=insulation_start_index, end_index=insulation_end_index
-            )
-
-        matrix = self.get_finite_differences_matrix()
         return matrix, vector
+
+    def update_vector_with_heat_generation_for_layer(
+        self, vector: np.ndarray, heat_generation: float, layer: CableLayer
+    ) -> np.ndarray:
+        """Update the vector with heat generation distributed over one cable layer.
+
+        Args:
+            vector (np.ndarray): The vector to update.
+            heat_generation (float): The heat generation value in W/m.
+            layer (CableLayer): The cable layer over which to distribute the heat generation.
+
+        Returns:
+            np.ndarray: The updated vector with heat generation distributed across the selected layer.
+
+        """
+        start_index, end_index = self.get_layer_indices_for_layer(layer)
+        vector[start_index : end_index + 1] = (
+            heat_generation / self.surface_area_grid[start_index : end_index + 1].sum()
+        )
+        return vector
 
     def integrate_timestep(
         self,
@@ -512,15 +544,15 @@ class FDCable(AbstractCable):
         """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
 
         For optimization purposes, the method uses the scipy.linalg.solve_banded method to solve the linear system.
-        This means the three diagonals of finite-differences matrix A are instead stored in a (3, N) array, where
+        This means the three diagonals of finite-difference matrix A are instead stored in a (3, N) array, where
         N is the length of the diagonal.
 
         Args:
             s (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            A_banded (np.ndarray): The finite-differences matrix [W/(°C*m³)]
+            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
                 represented as a banded matrix.
-            b (np.ndarray): The finite-differences vector [W/m³].
+            b (np.ndarray): The finite-difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
             internal_heating (bool | None): A boolean representing whether
@@ -672,6 +704,22 @@ class FDCable(AbstractCable):
             grid_counts=grid_counts,
         )
 
+    def get_mean_temperature_cable_layer(self, temperature_grid: np.ndarray, layer: CableLayer) -> float:
+        """Calculate the mean temperature for a cable layer.
+
+        Args:
+            temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.
+            layer (CableLayer): The cable layer for which the mean temperature needs to be calculated.
+
+        Returns:
+            float: The mean temperature for the given layer.
+        """
+        if layer not in self.layers:
+            raise ValueError(f"Layer {layer} is not present in the cable.")
+
+        layer_start, layer_end = self.get_layer_indices_for_layer(layer)
+        return float((temperature_grid[layer_start] + temperature_grid[layer_end]) / 2.0)
+
 
 class FDCableTrefoilCircuitInSinglePipe(FDCable):
     """Class that represents a finite-difference cable trefoil circuit that lies in a single pipe."""
@@ -698,9 +746,9 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
         Args:
             s (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            A_banded (np.ndarray): The finite-differences matrix [W/(°C*m³)]
+            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
                 represented as a banded matrix.
-            b (np.ndarray): The finite-differences vector [W/m³].
+            b (np.ndarray): The finite-difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
             internal_heating (bool): A boolean indicating whether internal
@@ -735,7 +783,7 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
         )
 
     def _update_system_with_heat_source(self, A_sparse: sparse.lil_matrix) -> sparse.lil_matrix:
-        """Add coefficients to the finite-differences matrix.
+        """Add coefficients to the finite-difference matrix.
 
         The added coefficients represent an internal heat source between the
         pipe and the equivalent cable representing the trefoil circuit. The
@@ -744,12 +792,12 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
         generate together.
 
         Args:
-            A_sparse (sparse.lil_matrix): The finite-differences matrix
+            A_sparse (sparse.lil_matrix): The finite-difference matrix
                 [W/(°C*m³)] represented as a sparse lil matrix.
 
         Returns:
             sparse.lil_matrix:
-                The updated finite-differences matrix [W/(°C*m³)] represented as a sparse lil matrix.
+                The updated finite-difference matrix [W/(°C*m³)] represented as a sparse lil matrix.
 
         """
         # Determine the indices m (filling_heat_source_layer) and s (outer_sheath_index) where r_s<r_cable<r_{s+1}
@@ -860,9 +908,9 @@ class FDCableInAir(FDCable):
         Args:
             s (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            A_banded (np.ndarray): The finite-differences matrix [W/(°C*m³)]
+            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
                 represented as a banded matrix.
-            b (np.ndarray): The finite-differences vector [W/m³].
+            b (np.ndarray): The finite-difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
             internal_heating (bool | None): A boolean representing whether
@@ -883,7 +931,7 @@ class FDCableInAir(FDCable):
         A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
 
         A[:, :-1] = A_banded
-        A[0, -1] = self._get_finite_differences_matrix_upper_diagonal()[-1]
+        A[0, -1] = self._get_finite_difference_matrix_upper_diagonal()[-1]
         A = -A * time_step
         A[1, :-1] += self.capacity_grid[:-1]
         A[2, -2] = 1
@@ -949,9 +997,9 @@ class FDCableTrefoilCircuitInSinglePipeInAir(FDCableTrefoilCircuitInSinglePipe, 
         Args:
             s (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            A_banded (np.ndarray): The finite-differences matrix [W/(°C*m³)]
+            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
                 represented as a banded matrix.
-            b (np.ndarray): The finite-differences vector [W/m³].
+            b (np.ndarray): The finite-difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
             internal_heating (bool | None): A boolean indicating whether
@@ -979,7 +1027,7 @@ class FDCableTrefoilCircuitInSinglePipeInAir(FDCableTrefoilCircuitInSinglePipe, 
         A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
 
         A[:, :-1] = A_banded
-        A[0, -1] = self._get_finite_differences_matrix_upper_diagonal()[-1]
+        A[0, -1] = self._get_finite_difference_matrix_upper_diagonal()[-1]
         A[2, -2] = 1
 
         # Convert the banded matrix to a sparse matrix

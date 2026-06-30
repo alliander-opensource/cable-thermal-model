@@ -12,8 +12,8 @@ from pandera.typing import DataFrame
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel, StaticEnvT
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
-from cable_thermal_model.model.schemas import State
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
+from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 
@@ -73,20 +73,8 @@ class Model(
             - Indices for conductor and screen layers for each cable, using the dict-based CableLayerProperties.
             - A flag for the presence of pipes in any cable.
         """
-        # For the different cables in a circuit, the same thermal behaviour is assumed.
-        self.cables = self.static_env.get_cables()
-        self.cables_full_solutions = deepcopy(self.cables)
+        self.cables = deepcopy(self.static_env.get_cables())
         self.number_of_cables = len(self.cables)
-
-        self.conductor_start_end_indices = {
-            cable_key: cable.cable.get_layer_indices_for_layer(CableLayer.Conductor)
-            for cable_key, cable in self.cables.items()
-        }
-        self.screen_start_end_indices = {
-            cable_key: cable.cable.get_layer_indices_for_layer(CableLayer.Screen)
-            for cable_key, cable in self.cables.items()
-            if CableLayer.Screen in cable.cable.layers
-        }
 
         # Check for pipes. This boolean is used in the run-loop to update the resistivity of the pipe
         self.pipes_present = False
@@ -95,68 +83,122 @@ class Model(
                 self.pipes_present = True
                 break
 
-    def _initialize_linear_system(self) -> tuple[dict[CableKey, np.ndarray], dict[CableKey, np.ndarray]]:
-        """Initializes the matrices and vectors that define the linear system for each cable.
+    def _initialize_vector_state(self, cables: dict[CableKey, PosCable]) -> dict[CableKey, np.ndarray]:
+        """Initialize the vectors for the linear system for each cable.
+
+        Args:
+            cables (dict[CableKey, PosCable]): A dictionary of positioned cables.
 
         Returns:
-            tuple: (matrices, vectors) where each is a dict mapping CableKey to np.ndarray for each cable.
-
+            dict[CableKey, np.ndarray]: A dictionary containing the initialized vector for each cable.
         """
-        # Define lists to contain solutions, matrices, vectors, etc per cable
-        matrices = {}
         vectors = {}
 
-        for cable_key, cable in self.cables.items():
-            matrices[cable_key], vectors[cable_key] = cable.cable.get_linear_system(
+        for cable_key, cable in cables.items():
+            vectors[cable_key] = cable.cable.get_finite_difference_vector(
                 neglect_dielectric_loss=self.run_options.neglect_dielectric_loss
             )
 
-        return matrices, vectors
+        return vectors
 
-    def _update_vectors_per_timestep(
+    def _initialize_self_heating_state(
+        self, cables: dict[CableKey, PosCable], initial_state: StateT | None
+    ) -> dict[CableKey, np.ndarray]:
+        self_heating_state = {cable_key: np.zeros(cable.cable.radii_grid.size) for cable_key, cable in cables.items()}
+
+        if initial_state is not None:
+            for cable_key, internal_heating_solution in initial_state.internal_heating_solution.items():
+                self_heating_state[cable_key] += internal_heating_solution
+
+        return self_heating_state
+
+    def _initialize_temperature_state(self, initial_state: StateT | None) -> dict[CableKey, np.ndarray]:
+        temperature_state = {}
+
+        if initial_state is None:
+            # If no initial state is provided, initialize temperature_state with the ambient temperature for each cable
+            ambient_temperature = self.scenario["ambient_temperature"].iloc[0]
+            for cable_key in self.cables:
+                grid_size = self.cables[cable_key].cable.radii_grid.size
+                temperature_state[cable_key] = np.full(grid_size, ambient_temperature)
+        else:
+            # If an initial state is provided, initialize temperature_state with the initial_state
+            for cable_key, full_heating_solution in initial_state.full_solution.items():
+                temperature_state[cable_key] = full_heating_solution
+
+        return temperature_state
+
+    def _initialize_temperature_result(
+        self,
+        temperature_state: dict[CableKey, np.ndarray],
+    ) -> dict[CableKey, dict[CableLayer, np.ndarray]]:
+        """Initializes a nested dictionary to store temperature results for each cable and each relevant layer.
+
+        Args:
+            temperature_state (dict[CableKey, np.ndarray]):
+                A dictionary containing the initial temperature state for each cable, used to initialize the results.
+
+        Returns:
+            dict[CableKey, dict[CableLayer, np.ndarray]]:
+                Outer dict maps CableKey to an inner dict, which maps
+                CableLayer to a numpy array of temperature values over time.
+
+        """
+        n_steps = len(self.scenario.index)
+        temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]] = {}
+
+        for cable_key, _ in self.cables.items():
+            temperature_result[cable_key] = {}
+            for layer in [CableLayer.Conductor, CableLayer.Sheath, CableLayer.Pipe] + self.extra_solution_layers:
+                if layer in self.cables[cable_key].cable.layers:
+                    temperature_result[cable_key][layer] = np.full(n_steps, np.nan, dtype=float)
+
+        # Add initial temperature state to the results
+        self._update_temperature_result(
+            temperature_result=temperature_result,
+            temperature_state=temperature_state,
+            step_idx=0,
+        )
+
+        return temperature_result
+
+    def _get_circuit_loads_from_scenario_row(self, scenario_row) -> dict[str, float]:
+        """Extract circuit loads from a scenario row produced by iterrows()."""
+        return {name: scenario_row[f"load_{name}"] for name in self.static_env.circuits}
+
+    def _update_vector_state(
         self,
         vectors: dict[CableKey, np.ndarray],
-        full_solutions: dict[CableKey, np.ndarray],
-        scenario_row: pd.Series,
+        temperature_state: dict[CableKey, np.ndarray],
+        circuit_loads: dict[str, float],
     ) -> dict[CableKey, np.ndarray]:
         """Updates the vectors (right-hand side) of the linear system for each cable at a given timestep.
 
         Args:
             vectors (dict[CableKey, np.ndarray]):
                 The current vectors for each cable, to be updated in-place.
-            full_solutions (dict[CableKey, np.ndarray]):
-                The temperature solution for each cable at the current timestep.
-            temperature_dependent_electric_resistance (bool):
-                Whether to use temperature-dependent electric resistance.
-            ac_resistance (bool):
-                Whether to use AC resistance (skin/proximity effects) or only DC resistance.
-            current_in_screen (bool):
-                Whether to include induced current in the screen layer.
-            scenario_row (pd.Series):
-                The scenario data for the current timestep.
+            temperature_state (dict[CableKey, np.ndarray]):
+                The temperature state for each cable at the current timestep.
+            circuit_loads (dict[str, float]):
+                The load for each circuit at the current timestep.
 
         Returns:
             dict[CableKey, np.ndarray]:
                 The updated vectors for each cable.
 
         """
-        for cable_key, cable in self.cables_full_solutions.items():
+        for cable_key, cable in self.cables.items():
             circuit_name = cable_key.circuit_name
-            conductor_load = scenario_row["load_" + circuit_name]
+            conductor_load = circuit_loads[circuit_name]
 
-            # Get layer start and end indices
-            conductor_start_index, conductor_end_index = self.conductor_start_end_indices[cable_key]
-
-            # Calculate conductor and screen average temperature
-            conductor_temperature = (
-                full_solutions[cable_key][conductor_start_index] + full_solutions[cable_key][conductor_end_index]
-            ) / 2
+            conductor_temperature = cable.cable.get_mean_temperature_cable_layer(
+                temperature_grid=temperature_state[cable_key], layer=CableLayer.Conductor
+            )
 
             if CableLayer.Screen in cable.cable.layers and self.run_options.ac_current:
-                screen_start_index, screen_end_index = self.screen_start_end_indices[cable_key]
-                screen_temperature = (
-                    full_solutions[cable_key][screen_start_index] + full_solutions[cable_key][screen_end_index]
-                ) / 2
+                screen_temperature = cable.cable.get_mean_temperature_cable_layer(
+                    temperature_grid=temperature_state[cable_key], layer=CableLayer.Screen
+                )
 
                 # Compute the heat that is generated in the conductor and screen
                 heat_generation_conductor, heat_generation_screen = (
@@ -169,11 +211,10 @@ class Model(
                     )
                 )
 
-                vectors[cable_key] = cable.cable.update_vector_with_heat_generation(
+                vectors[cable_key] = cable.cable.update_vector_with_heat_generation_for_layer(
                     vector=vectors[cable_key],
                     heat_generation=heat_generation_screen,
-                    start_index=screen_start_index,
-                    end_index=screen_end_index,
+                    layer=CableLayer.Screen,
                 )
             else:
                 heat_generation_conductor = cable.cable.get_heat_generation_conductor(
@@ -184,70 +225,89 @@ class Model(
                 )
 
             # Distribute the heat generation over the conductor and screen layer grid points
-            vectors[cable_key] = cable.cable.update_vector_with_heat_generation(
+            vectors[cable_key] = cable.cable.update_vector_with_heat_generation_for_layer(
                 vector=vectors[cable_key],
                 heat_generation=heat_generation_conductor,
-                start_index=conductor_start_index,
-                end_index=conductor_end_index,
+                layer=CableLayer.Conductor,
             )
 
         return vectors
 
-    def _initialize_solutions_lists(
-        self, initial_state: State | None = None
-    ) -> tuple[dict[CableKey, np.ndarray], dict[CableKey, np.ndarray]]:
-        """Initializes solution arrays for each cable for the time integration loop.
+    def _update_temperature_result(
+        self,
+        temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
+        temperature_state: dict[CableKey, np.ndarray],
+        step_idx: int,
+    ) -> dict[CableKey, dict[CableLayer, np.ndarray]]:
+        """Store one timestep of temperatures in the accumulated result dictionary.
+
+        For layers other than the conductor, sheath, and pipe, the
+        temperature is fetched for the center of the layer. The conductor
+        temperature is taken from the first grid point of the conductor
+        (center or inside for hollow conductors).
 
         Args:
-            initial_state (State | None):
-                Optional initial state to initialize the temperature arrays.
+            temperature_result (dict[CableKey, dict[CableLayer, np.ndarray]]):
+                The dictionary to store temperature results for each cable and layer.
+            temperature_state (dict[CableKey, np.ndarray]):
+                The full temperature solution for each cable at the current timestep.
+            step_idx (int):
+                The index of the current timestep in the scenario.
 
         Returns:
-            tuple[dict[CableKey, np.ndarray], dict[CableKey, np.ndarray]]:
-                (solutions, full_solutions) where each dict maps CableKey to
-                a numpy array of temperatures for each grid point.
+            dict[CableKey, dict[CableLayer, np.ndarray]]:
+                The updated temperature result dictionary.
 
         """
-        # Initiate a dict to contain the temperature solutions due to solely internal Ohmic heating
-        solutions = {cable_key: np.zeros(cable.cable.radii_grid.size) for cable_key, cable in self.cables.items()}
+        for cable_key, cable in self.cables.items():
+            cable_temperatures = temperature_state[cable_key]
 
-        # Initiate a dict with temperature solutions of actual temperature inside a cable i.e. combining internal
-        # heating and background ambient temperature
-        full_solutions = {
-            cable_key: np.zeros(cable.cable.radii_grid.size) for cable_key, cable in self.cables_full_solutions.items()
+            conductor_index_inner = cable.cable.get_layer_indices_for_layer(CableLayer.Conductor)[0]
+            sheath_index_outer = cable.cable.get_layer_indices_for_layer(CableLayer.Sheath)[-1]
+
+            temperature_result[cable_key][CableLayer.Conductor][step_idx] = cable_temperatures[conductor_index_inner]
+            temperature_result[cable_key][CableLayer.Sheath][step_idx] = cable_temperatures[sheath_index_outer]
+            for extra_solution_layer in self.extra_solution_layers:
+                if extra_solution_layer in cable.cable.layers:
+                    layer_start_index, layer_end_index = cable.cable.get_layer_indices_for_layer(extra_solution_layer)
+                    layer_index_center = int((layer_start_index + layer_end_index) / 2)
+
+                    temperature_result[cable_key][extra_solution_layer][step_idx] = cable_temperatures[
+                        layer_index_center
+                    ]
+            if cable.cable.layer_metrics.pipe is not None:
+                # Fetch temperature of pipe sheath
+                pipe_index_outer = cable.cable.get_layer_indices_for_layer(CableLayer.Pipe)[-1]
+                temperature_result[cable_key][CableLayer.Pipe][step_idx] = cable_temperatures[pipe_index_outer]
+
+        return temperature_result
+
+    def _build_temperature_result_dataframe(
+        self, temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]]
+    ) -> DataFrame[TemperatureResultSchema]:
+        """Builds a DataFrame from the temperature results for each cable and layer.
+
+        Args:
+            temperature_result (dict[CableKey, dict[CableLayer, np.ndarray]]):
+                A nested dictionary containing temperature results for each cable and layer.
+
+        Returns:
+            DataFrame[TemperatureResultSchema]:
+                A Pandas DataFrame with a MultiIndex of (circuit_name, cable_position, cable_layer) for the columns,
+                    containing the temperature results over time.
+        """
+        temperature_result_dfs = {
+            (cable_key.circuit_name, cable_key.cable_position): pd.DataFrame(
+                temperature_result[cable_key], index=self.scenario.index
+            )
+            for cable_key in temperature_result
         }
 
-        # If state information was provided it is used to initialize the temperature solutions with
-        if initial_state is not None:
-            full_heating = initial_state.full_solution
-            internal_heating = initial_state.internal_heating_solution
-            for cable_key, full_heating_solution in full_heating.items():
-                full_solutions[cable_key] += full_heating_solution
-                solutions[cable_key] += internal_heating[cable_key]
-        else:
-            for cable_key in full_solutions:
-                full_solutions[cable_key] += self.scenario["ambient_temperature"].iloc[0]
+        combined_temperature_result_df = pd.concat(
+            temperature_result_dfs.values(), keys=temperature_result_dfs.keys(), axis=1
+        )
 
-        return solutions, full_solutions
-
-    def _initialize_temperature_results(
-        self,
-    ) -> dict[CableKey, dict[CableLayer, list[float]]]:
-        """Initializes a nested dictionary to store temperature results for each cable and each relevant layer.
-
-        Returns:
-            dict[CableKey, dict[CableLayer, list[float]]]:
-                Outer dict maps CableKey to an inner dict, which maps
-                CableLayer to a list of temperature values over time.
-
-        """
-        temperature_result: dict[CableKey, dict[CableLayer, list[float]]] = {}
-        for cable_key, _ in self.cables_full_solutions.items():
-            temperature_result[cable_key] = {}
-            for layer in [CableLayer.Conductor, CableLayer.Sheath, CableLayer.Pipe] + self.extra_solution_layers:
-                if layer in self.cables_full_solutions[cable_key].cable.layers:
-                    temperature_result[cable_key][layer] = []
-        return temperature_result
+        return TemperatureResultSchema.validate(combined_temperature_result_df)
 
     def integrate_timestep(
         self,
@@ -298,82 +358,28 @@ class Model(
 
     def _update_pipe_resistivity_for_all_cables(
         self,
-        full_solutions: dict[CableKey, np.ndarray],
-        update_matrices: dict[CableKey, bool],
-    ) -> dict[CableKey, bool]:
-        """Updates the pipe fill resistivity for all cables that have a pipe, based on the current temperature solution.
+        temperature_state: dict[CableKey, np.ndarray],
+    ) -> set[CableKey]:
+        """Update pipe-fill resistivity for both no-soil and with-soil cable representations.
 
         Args:
-            full_solutions (dict[CableKey, np.ndarray]):
-                The full temperature solution for each cable at the current timestep.
-            update_matrices (dict[CableKey, bool]):
-                Dictionary to track which cables require their matrices to be updated.
+            temperature_state: Full temperature state per cable at the current timestep.
 
         Returns:
-            dict[CableKey, bool]:
-                Updated dictionary indicating which cables require matrix updates.
-
+            set[CableKey]: Set of cables for which the pipe-fill resistivity was updated.
         """
-        for key, cable in self.cables_full_solutions.items():
-            if cable.cable.layer_metrics.pipe is not None:
-                # We want to update the pipe resistivity based on the average temperature of the outer sheath and the
-                # inside of the physical pipe. This method is described in TB880 case 0-2.
-                pipe_fill_start_index, pipe_fill_end_index = cable.cable.get_layer_indices_for_layer(
-                    CableLayer.PipeFill
-                )
+        updated_cables = set()
+        for cable_key, cable in self.cables.items():
+            if cable.cable.layer_metrics.pipe is None:
+                continue
 
-                cable_sheath_temperature = full_solutions[key][pipe_fill_start_index]
-                pipe_inside_temperature = full_solutions[key][pipe_fill_end_index]
-
-                mean_pipe_fill_temp = (cable_sheath_temperature + pipe_inside_temperature) / 2
-
-                cable.cable.update_pipe_resistivity(Tfill=mean_pipe_fill_temp)
-                update_matrices[key] = self.cables[key].cable.update_pipe_resistivity(Tfill=mean_pipe_fill_temp)
-
-        return update_matrices
-
-    def update_temperature_result(
-        self,
-        temperature_result: dict[CableKey, dict[CableLayer, list[float]]],
-        full_solutions: dict[CableKey, np.ndarray],
-    ) -> dict[CableKey, dict[CableLayer, list[float]]]:
-        """Stores the temperature over time for a set of layers in a nested dictionary.
-
-        For layers other than the conductor, sheath, and pipe, the
-        temperature is fetched for the center of the layer. The conductor
-        temperature is taken from the first grid point of the conductor
-        (center or inside for hollow conductors).
-
-        Args:
-            temperature_result (dict[CableKey, dict[CableLayer, list[float]]]):
-                The dictionary to store temperature results for each cable and layer.
-            full_solutions (dict[CableKey, np.ndarray]):
-                The full temperature solution for each cable at the current timestep.
-
-        Returns:
-            dict[CableKey, dict[CableLayer, list[float]]]:
-                The updated temperature result dictionary.
-
-        """
-        for cable_key, cable in self.cables_full_solutions.items():
-            # Fetch conductor temperatures
-            temperature_result[cable_key][CableLayer.Conductor].append(
-                full_solutions[cable_key][cable.cable.get_layer_indices_for_layer(CableLayer.Conductor)[0]]
+            mean_pipe_fill_temp = cable.cable.get_mean_temperature_cable_layer(
+                temperature_grid=temperature_state[cable_key],
+                layer=CableLayer.PipeFill,
             )
-            temperature_result[cable_key][CableLayer.Sheath].append(
-                full_solutions[cable_key][cable.cable.get_layer_indices_for_layer(CableLayer.Sheath)[-1]]
-            )
-            for extra_solution_layer in self.extra_solution_layers:
-                if extra_solution_layer in cable.cable.layers:
-                    layer_start_index, layer_end_index = cable.cable.get_layer_indices_for_layer(extra_solution_layer)
-                    # Get index of the center of the layer:
-                    layer_center_index = int((layer_start_index + layer_end_index) / 2)
-                    temperature_result[cable_key][extra_solution_layer].append(
-                        full_solutions[cable_key][layer_center_index]
-                    )
-            if cable.cable.layer_metrics.pipe is not None:
-                # Fetch temperature of pipe sheath
-                temperature_result[cable_key][CableLayer.Pipe].append(
-                    full_solutions[cable_key][cable.cable.get_layer_indices_for_layer(CableLayer.Pipe)[-1]]
-                )
-        return temperature_result
+
+            cable_updated = cable.cable.update_pipe_resistivity(Tfill=mean_pipe_fill_temp)
+            if cable_updated:
+                updated_cables.add(cable_key)
+
+        return updated_cables

@@ -96,6 +96,14 @@ class PosCable(BaseModel):
         """Return a string representation of this positioned cable for serialisation."""
         return f"Cable(cable=FDCable({self.cable_info}, x={self.x}, y={self.y}, name={self.name}))"
 
+    def distance_to_point(self, x: float, y: float) -> float:
+        """Return the distance from this cable center to a point in meters."""
+        return float(np.hypot(self.x - x, self.y - y))
+
+    def distance_to(self, other_cable: "PosCable") -> float:
+        """Return the heart-to-heart distance to another positioned cable in meters."""
+        return self.distance_to_point(other_cable.x, other_cable.y)
+
 
 class CircuitInitData(BaseModel):
     """Data class for initializing a cable circuit, encapsulating position, type, and bonding information."""

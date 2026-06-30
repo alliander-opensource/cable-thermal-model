@@ -54,8 +54,8 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: DataFrame[Scena
     steady_state = model.run().state
 
     # Select a cable from the circuit
-    cable_key = list(model.cables.keys())[0]
-    cable = model.cables[cable_key].cable
+    cable_key = list(model.cables_with_soil.keys())[0]
+    cable = model.cables_with_soil[cable_key].cable
     steady_state_solution = steady_state.internal_heating_solution[cable_key]
     steady_state_full_solution = steady_state.full_solution[cable_key]
 
@@ -142,7 +142,7 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: Da
     # Select the single cable from both circuits and collect their steady state solutions
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
 
-    cable_soil = model_soil.cables[cable_key].cable
+    cable_soil = model_soil.cables_with_soil[cable_key].cable
     steady_state_solution_soil = steady_state_soil.internal_heating_solution[cable_key]
 
     cable_air = model_air.cables[cable_key].cable
