@@ -86,7 +86,7 @@ class BaseCircuitInputSchema(BaseModel, Generic[BaseCircuitConfigurationT]):
     )
 
 
-class Cable(BaseModel, Generic[CableT]):
+class CableInput(BaseModel, Generic[CableT]):
     """Schema carrying a pre-built cable instance."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -119,7 +119,7 @@ class CircuitInAirProperties(BaseModel):
     clipped_to_wall: bool = Field(default=False, description="Indicator if the circuit is clipped to a wall")
 
 
-class CircuitFromCableInputSchema(BaseCircuitInputSchema[CircuitConfiguration], Cable[CableT], Generic[CableT]):
+class CircuitFromCableInputSchema(BaseCircuitInputSchema[CircuitConfiguration], CableInput[CableT], Generic[CableT]):
     """Input schema for the `add_circuit_from_cable` method of the StaticEnvironment class."""
 
 
