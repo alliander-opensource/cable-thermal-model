@@ -47,6 +47,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         >> result = model.run()
     """
 
+    _run_options_class = ModelSoilRunOptions
+    _state_class = StateSoil
+
     def __init__(self, static_env: StaticEnvSoil, scenario: DataFrame[ScenarioSchemaSoil]):
         """To initialize a ModelSoil instance two inputs are required: a static environment and a scenario dataframe.
 
@@ -344,36 +347,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                 )
 
         return mutual_heating_effect
-
-    def _update_solution(
-        self,
-        temp_solution: np.ndarray,
-        mutual_heating_temp_solution: np.ndarray,
-        ambient_temperature: float,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Update the internal and mutual heating dicts and combine into dict with full temperature solutions.
-
-        Computes the full temperature solution for a cable at the given timestamp.
-        The update is done given the solution (both internal heating and
-        mutual heating) and the background temperature. These are added into the full solution.
-
-        Args:
-            temp_solution: The internal heating of the cable for the current time step.
-            mutual_heating_temp_solution: The external heating of the cable for the current time step.
-            ambient_temperature: The background/ambient temperature in degrees Celsius.
-
-        Returns:
-            The updated solutions
-
-        """
-        solution = temp_solution  # Internal heating
-        mutual_heating_solution = mutual_heating_temp_solution  # external heating
-        # Calculate the temperature of the cable at the current timestep for all grid points based on the inner heating
-        # the external heating and the background temperature:
-        full_solution = (
-            temp_solution[: mutual_heating_temp_solution.size] + mutual_heating_temp_solution + ambient_temperature
-        )
-        return solution, mutual_heating_solution, full_solution
 
     def _update_soil_resistivity_for_all_cables(
         self,
@@ -809,32 +782,3 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         # Finalize the calculation by combining the results in the dataclass.
         return ModelOutputSchema[StateSoil](result=temperature_result_df, state=state)
-
-    def _set_run_options(self, run_options: ModelSoilRunOptions | dict | None) -> None:
-        """Define run options for ModelSoil.
-
-        Run options that are not provided will be set to their default
-        value.
-        """
-        if run_options is None:
-            self.run_options = ModelSoilRunOptions()
-        elif isinstance(run_options, ModelSoilRunOptions):
-            self.run_options = run_options
-        else:
-            self.run_options = ModelSoilRunOptions(**run_options)
-
-    def _validate_state_model_consistency(self, state: StateSoil | None):
-        """Validate that the provided initial state is consistent with ModelSoil.
-
-        Args:
-            state: The state to validate.
-
-        Raises:
-            ValueError: If the provided state information does not match the used environment.
-
-        """
-        if state is not None and not isinstance(state, StateSoil):
-            raise ValueError(
-                f"{self.__class__.__name__} requires a {StateSoil.__name__} "
-                f"instance, but received {type(state).__name__}."
-            )

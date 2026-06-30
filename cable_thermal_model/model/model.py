@@ -31,6 +31,9 @@ class Model(
     This class contains shared functionality for different Models, such as ModelAir and ModelSoil.
     """
 
+    _run_options_class: type[ModelRunOptionsT]
+    _state_class: type[StateT]
+
     def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
         """Initialize the model with a static environment and a scenario DataFrame.
 
@@ -82,6 +85,28 @@ class Model(
             if pos_cable.cable.layer_metrics.pipe:
                 self.pipes_present = True
                 break
+
+    def _set_run_options(self, run_options: ModelRunOptionsT | dict | None) -> None:
+        """Define run options for the model.
+
+        Run options that are not provided are set to their default values.
+        """
+        if run_options is None:
+            self.run_options = self._run_options_class()
+        elif isinstance(run_options, self._run_options_class):
+            self.run_options = run_options
+        elif isinstance(run_options, dict):
+            self.run_options = self._run_options_class(**run_options)
+        else:
+            raise TypeError("run_options must be None, a dict, or an instance of the model run-options schema")
+
+    def _validate_state_model_consistency(self, state: StateT | None):
+        """Validate that the provided initial state is consistent with the model type."""
+        if state is not None and not isinstance(state, self._state_class):
+            raise ValueError(
+                f"{self.__class__.__name__} requires a {self._state_class.__name__} "
+                f"instance, but received {type(state).__name__}."
+            )
 
     def _initialize_vector_state(self, cables: dict[CableKey, PosCable]) -> dict[CableKey, np.ndarray]:
         """Initialize the vectors for the linear system for each cable.

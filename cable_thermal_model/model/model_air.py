@@ -29,6 +29,9 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         >> result = model.run()
     """
 
+    _run_options_class = ModelAirRunOptions
+    _state_class = StateAir
+
     def __init__(self, static_env: StaticEnvAir, scenario: DataFrame[ScenarioSchemaAir]):
         """Initializes the ModelAir instance with a static environment and scenario.
 
@@ -295,32 +298,3 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
 
         # Finalize the calculation by combining the results in the dataclass.
         return ModelOutputSchema[StateAir](result=temperature_result_df, state=state)
-
-    def _set_run_options(self, run_options: ModelAirRunOptions | dict | None) -> None:
-        """Define run options for ModelAir.
-
-        Run options that are not provided will be set to their default
-        value.
-        """
-        if run_options is None:
-            self.run_options = ModelAirRunOptions()
-        elif isinstance(run_options, ModelAirRunOptions):
-            self.run_options = run_options
-        else:
-            self.run_options = ModelAirRunOptions(**run_options)
-
-    def _validate_state_model_consistency(self, state: StateAir | None):
-        """Validate that the provided initial state is consistent with ModelAir.
-
-        Args:
-            state: The state to validate.
-
-        Raises:
-            ValueError: If the provided state information does not match the used environment.
-
-        """
-        if state is not None and not isinstance(state, StateAir):
-            raise ValueError(
-                f"{self.__class__.__name__} requires a {StateAir.__name__} "
-                f"instance, but received {type(state).__name__}."
-            )
