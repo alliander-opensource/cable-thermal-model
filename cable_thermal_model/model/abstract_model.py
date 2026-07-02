@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
-from typing import Generic
+from typing import Generic, TypeVar
 
 from pandera.typing import DataFrame
 
@@ -14,11 +14,13 @@ from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
 
+StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)
 
-class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
+
+class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT]):
     """Abstract base class for thermal cable models."""
 
-    static_env: StaticEnv
+    static_env: StaticEnvT
     scenario: DataFrame[ScenarioSchemaT]
 
     _SOIL_DRYING_TEMPERATURE = 30
@@ -41,7 +43,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]):
             + f"{tab_lines(tab_lines(repr(self.scenario.describe())))}\n"
         )
 
-    def __init__(self, static_env: StaticEnv, scenario: DataFrame[ScenarioSchemaT]):
+    def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
         """Initialise the model with a static environment and scenario DataFrame."""
         # Validate if the scenario dataframe provides the required data on cable loads and ambient temperature
         self.static_env = static_env

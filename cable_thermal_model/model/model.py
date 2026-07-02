@@ -10,8 +10,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
-from cable_thermal_model.environment.static_env import StaticEnv
-from cable_thermal_model.model.abstract_model import AbstractModel
+from cable_thermal_model.model.abstract_model import AbstractModel, StaticEnvT
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import State
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
@@ -20,7 +19,8 @@ from cable_thermal_model.model.schemas.state_schemas import StateT
 
 
 class Model(
-    AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT], Generic[ModelRunOptionsT, StateT, ScenarioSchemaT]
+    AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
+    Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
 ):
     """Finite Difference Model for Thermal Cable Model.
 
@@ -31,7 +31,7 @@ class Model(
     This class contains shared functionality for different Models, such as ModelAir and ModelSoil.
     """
 
-    def __init__(self, static_env: StaticEnv, scenario: DataFrame[ScenarioSchemaT]):
+    def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
         """Initialize the model with a static environment and a scenario DataFrame.
 
         Args:
