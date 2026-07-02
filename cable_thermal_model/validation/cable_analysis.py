@@ -7,14 +7,14 @@ from dataclasses import dataclass
 import numpy as np
 
 from cable_thermal_model import CableLayer
-from cable_thermal_model.model.cables.fd_cable import FDCable
+from cable_thermal_model.model.cables.cable import Cable
 
 
 @dataclass(frozen=True)
 class CableAnalysis:
     """Post-processing and validation helpers for one cable solution state."""
 
-    cable: FDCable  # The finite-difference representation of the cable.
+    cable: Cable  # The finite-difference representation of the cable.
     solution: np.ndarray  # The grid of temperatures for the cable.
 
     @staticmethod

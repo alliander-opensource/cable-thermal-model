@@ -13,13 +13,13 @@ import pytest
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.cable_spec_parsers import SingleCoreSpecParser, SpecParserFactory, ThreeCoreSpecParser
 from cable_thermal_model.model.cables.abstract_cable import CableConductorType, CableType
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorMaterial,
     CableConductorShape,
     CableConductorSurfaceType,
     CableLayer,
 )
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from tests.conftest import mock_load_cable_data_from_file
 
 """
@@ -36,7 +36,7 @@ def test_single_core_sector_shaped_exception():
         ),
         pytest.raises(ValueError, match="Single-core cables can not have sector shaped conductors."),
     ):
-        CableBuilder.build_cable_from_cable_id(cable_id="sector_shaped_single_core", fd_cable_class=FDCable)
+        CableBuilder.build_cable_from_cable_id(cable_id="sector_shaped_single_core", cable_class=CableSoil)
 
 
 def test_circular_conductor_zero_diameter_exception():
@@ -47,7 +47,7 @@ def test_circular_conductor_zero_diameter_exception():
         ),
         pytest.raises(ValueError, match="Invalid dimensions: outer_radius"),
     ):
-        CableBuilder.build_cable_from_cable_id(cable_id="circular_shaped_zero_diameter", fd_cable_class=FDCable)
+        CableBuilder.build_cable_from_cable_id(cable_id="circular_shaped_zero_diameter", cable_class=CableSoil)
 
 
 def test_zero_conductor_area_exception():
@@ -58,7 +58,7 @@ def test_zero_conductor_area_exception():
         ),
         pytest.raises(ValueError, match="Invalid conducting_surface_area: 0.0, must be strictly positive."),
     ):
-        CableBuilder.build_cable_from_cable_id(cable_id="zero_conductor_area", fd_cable_class=FDCable)
+        CableBuilder.build_cable_from_cable_id(cable_id="zero_conductor_area", cable_class=CableSoil)
 
 
 def test_consistence_conductor_area_and_diameter_exception():
@@ -72,7 +72,7 @@ def test_consistence_conductor_area_and_diameter_exception():
             match="Invalid conducting_surface_area",
         ),
     ):
-        CableBuilder.build_cable_from_cable_id(cable_id="inconsistent_conductor_diameter", fd_cable_class=FDCable)
+        CableBuilder.build_cable_from_cable_id(cable_id="inconsistent_conductor_diameter", cable_class=CableSoil)
 
     with (
         patch(
@@ -85,7 +85,7 @@ def test_consistence_conductor_area_and_diameter_exception():
         ),
     ):
         CableBuilder.build_cable_from_cable_id(
-            cable_id="inconsistent_conductor_diameter_three_core_cable", fd_cable_class=FDCable
+            cable_id="inconsistent_conductor_diameter_three_core_cable", cable_class=CableSoil
         )
 
 
@@ -103,7 +103,7 @@ def test_single_core_cable_with_armour_exception():
             ),
         ),
     ):
-        CableBuilder.build_cable_from_cable_id(cable_id="armoured_single_core_cable", fd_cable_class=FDCable)
+        CableBuilder.build_cable_from_cable_id(cable_id="armoured_single_core_cable", cable_class=CableSoil)
 
 
 @pytest.fixture(scope="module")
@@ -321,4 +321,4 @@ def test_scSL_screen_type_not_implemented_exception():
             match="Screen type scSL is not supported by the model.",
         ),
     ):
-        CableBuilder.build_cable_from_cable_id(cable_id="screen_type_SL", fd_cable_class=FDCable)
+        CableBuilder.build_cable_from_cable_id(cable_id="screen_type_SL", cable_class=CableSoil)

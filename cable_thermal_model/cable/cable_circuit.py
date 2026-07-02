@@ -18,12 +18,13 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableType, WeightedScreenImpedance
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
-from cable_thermal_model.model.cables.fd_cable import (
-    FDCable,
-    FDCableTrefoilCircuitInSinglePipe,
-    FDCableTrefoilCircuitInSinglePipeInAir,
+from cable_thermal_model.model.cables.cable import (
+    Cable,
+    CableSoil,
+    CableTrefoilCircuitSinglePipeInAir,
+    CableTrefoilCircuitSinglePipeInSoil,
 )
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
@@ -60,7 +61,7 @@ class PosCable(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     circuit_name: str
     cable_position: CablePosition
-    cable: FDCable
+    cable: Cable
     x: float
     y: float
 
@@ -93,8 +94,8 @@ class PosCable(BaseModel):
     @computed_field  # type: ignore[misc]
     @property
     def cable_representation(self) -> str:
-        """Return a string representation of this positioned cable for serialisation."""
-        return f"Cable(cable=FDCable({self.cable_info}, x={self.x}, y={self.y}, name={self.name}))"
+        """Return a string representation of this positioned cable for serialization."""
+        return f"Cable(cable=Cable({self.cable_info}, x={self.x}, y={self.y}, name={self.name}))"
 
 
 class CircuitInitData(BaseModel):
@@ -105,14 +106,14 @@ class CircuitInitData(BaseModel):
     x: float
     y: float
     circuit_type: CircuitType | None = None
-    cable: FDCable
+    cable: Cable
     circuit_name: str
     dist: float | None = None
     y_ref: CircuitYReference = CircuitYReference.Center
     bonding_type: BondingType | None = None
 
     @classmethod
-    def from_schema(cls, schema: CircuitFromCableInputSchema[FDCable]) -> "CircuitInitData":
+    def from_schema(cls, schema: CircuitFromCableInputSchema[Cable]) -> "CircuitInitData":
         """Create CircuitInitData from CircuitFromCableInputSchema."""
         return cls(
             x=float(getattr(schema, "x", 0.0)),
@@ -178,13 +179,15 @@ def add_soil_layer(
 
     """
     pos_cable_ = deepcopy(pos_cable)
+    cable_in_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=pos_cable_.cable,
+        soil_rho=soil_rho,
+        soil_capacity=soil_capacity,
+        soil_radius=soil_radius,
+        logarithmic_soil_gridpoint_density=logarithmic_soil_gridpoint_density,
+    )
     return PosCable(
-        cable=pos_cable_.cable.get_cable_copy_with_added_soil_layer(
-            soil_rho=soil_rho,
-            soil_capacity=soil_capacity,
-            soil_radius=soil_radius,
-            logarithmic_soil_gridpoint_density=logarithmic_soil_gridpoint_density,
-        ),
+        cable=cable_in_soil,
         x=pos_cable_.x,
         y=pos_cable_.y,
         circuit_name=pos_cable_.circuit_name,
@@ -309,13 +312,13 @@ class CableCircuit(ABC):
 
     def initialize_pos_cables(
         self,
-        cable: FDCable,
+        cable: Cable,
         cable_centers: dict[CablePosition, tuple[float, float]],
     ) -> list[PosCable]:
         """Initialize the PosCable instances for the circuit based on the given cable and cable centers.
 
         Args:
-            cable:          FDCable instance to use in the circuit
+            cable:          Cable instance to use in the circuit
             cable_centers:  Dictionary mapping CablePosition to (x, y) coordinates for each cable in the circuit
 
         Returns:
@@ -350,7 +353,7 @@ class CableCircuit(ABC):
             cable.cable.weighted_screen_impedance = weighted_screen_impedance
         self.initialize_screen_loss_functions()
 
-    def validate_no_screen_no_bonding(self, bonding_type: BondingType, cable: FDCable):
+    def validate_no_screen_no_bonding(self, bonding_type: BondingType, cable: Cable):
         """Validate that if no screen is present, no bonding is applied."""
         if CableLayer.Screen not in cable.layers and bonding_type != BondingType.NoBonding:
             warnings.warn(
@@ -734,10 +737,10 @@ class CircuitBuilder:
         """
         cable = CableBuilder.build_cable_from_cable_id(
             cable_id=cable_id,
-            fd_cable_class=(
-                FDCableTrefoilCircuitInSinglePipe
+            cable_class=(
+                CableTrefoilCircuitSinglePipeInSoil
                 if cls._is_trefoil_circuit_in_single_pipe(circuit_type, pipe)
-                else FDCable
+                else CableSoil
             ),
             pipe=pipe,
         )
@@ -757,7 +760,7 @@ class CircuitBuilder:
 
     @staticmethod
     def from_cable(
-        circuit_input: CircuitFromCableInputSchema[FDCable],
+        circuit_input: CircuitFromCableInputSchema[Cable],
     ) -> CableCircuit:
         """Build circuit from cable.
 
@@ -795,7 +798,7 @@ class CircuitBuilder:
                     f"{touching} are desired, dist should be set to {None}."
                 )
             if isinstance(
-                circuit_input.cable, FDCableTrefoilCircuitInSinglePipe | FDCableTrefoilCircuitInSinglePipeInAir
+                circuit_input.cable, CableTrefoilCircuitSinglePipeInSoil | CableTrefoilCircuitSinglePipeInAir
             ):
                 circuit = TrefoilCircuitInSinglePipe(circuit_init_data)
             else:
@@ -813,7 +816,7 @@ class CircuitBuilder:
         circuit_type: CircuitType | None,
         pipe: PipeInputSchema | None = None,
     ) -> bool:
-        """Determine if the the circuit is a trefoil circuit in a single pipe.
+        """Determine if the circuit is a trefoil circuit in a single pipe.
 
         Args:
             circuit_type:   Type of circuit.

@@ -35,7 +35,7 @@ class Cable(AbstractCable):
         cable_type: CableType,
         grid_counts: dict[CableLayer, int],
     ) -> None:
-        """Initialize the FDCable with conductor properties, layer data, and grid resolution.
+        """Initialize the Cable with conductor properties, layer data, and grid resolution.
 
         Args:
             conductor (CableConductorProperties): Conductor properties of the cable.
@@ -215,14 +215,14 @@ class Cable(AbstractCable):
                     (Some examples of parameters that could be changed in this way: 'rhos','radii','grid_counts')
 
         Returns:
-            FDCable:
-                    A completely new FDCable instance based on the FDCable the method was called from, but with
+            Cable:
+                    A completely new Cable instance based on the Cable the method was called from, but with
                     changed cable properties based on the passed [**kwargs] parameters.
 
         Notes:
             There are two reasons this method should be re-evaluated in the future. First of all this method uses
             kwargs to pass along an unknown combination of parameters, which is only evaluated by parameter name.
-            Secondly this method is found in the FDCable class, but it is not specific to the FDCable class.
+            Secondly this method is found in the Cable class, but it is not specific to the Cable class.
 
         """
         new_cable = deepcopy(self)
@@ -249,7 +249,7 @@ class Cable(AbstractCable):
             pipe (Pipe): A pipe instance
 
         Returns:
-            (FDCable): A new FDCable instance based on the FDCable instance the method was called from, but with
+            (Cable): A new Cable instance based on the Cable instance the method was called from, but with
                         the added pipe layers, as if the cable had an outer pipe added.
 
         """
@@ -544,6 +544,22 @@ class Cable(AbstractCable):
 class CableSoil(Cable):
     """Finite-difference cable model with soil discretization."""
 
+    def update_soil_capacity(self, soil_c: float):
+        """This method updates the soil capacity values around a cable.
+
+        If multiple soil layers are present, it sets them all (the entire soil).
+
+        Args:
+            soil_c (float): A float representing the thermal capacity of the
+                (entire) soil.
+
+        """
+        if not isinstance(soil_c, (int, float, np.integer, np.floating)):
+            raise ValueError("The soil_c argument must be of type int or float!")
+
+        start_index = (self.radii_grid <= self.layer_metrics.outer_radius).sum()
+        self.capacity_grid[start_index:] = soil_c
+
     def update_soil_resistivity(self, soil_rho: float, dry_soil_radius: float | None = None):
         """This method updates the soil resistivity values around a cable.
 
@@ -583,7 +599,7 @@ class CableSoil(Cable):
                     self.layer_properties[layer].rho = dry_soil_rho
 
     def get_cable_copy_without_soil(self) -> Self:
-        """This method returns a new FDCable object with the soil layer removed."""
+        """This method returns a new CableSoil object with the soil layer removed."""
         if CableLayer.SoilOne not in self.layers:
             raise ValueError("No soil layers detected!")
 
@@ -617,12 +633,20 @@ class CableSoil(Cable):
         layer_end_index = layer_start_index + self.grid_counts[layer] - 1
         return layer_start_index, layer_end_index
 
-    def get_cable_copy_with_added_soil_layer(
-        self, soil_rho: float, soil_capacity: float, soil_radius: float, logarithmic_soil_gridpoint_density: float
-    ) -> Self:
+    @classmethod
+    def from_cable_with_added_soil_layer(
+        cls,
+        cable: Cable,
+        soil_rho: float,
+        soil_capacity: float,
+        soil_radius: float,
+        logarithmic_soil_gridpoint_density: float,
+    ) -> "CableSoil":
         """This method creates a copy of the current cable object this was run from, but with an extra added soil layer.
 
         Args:
+            cable (Cable):
+                    The cable object to create a CableSoil instance from.
             soil_rho (float):
                     The thermal resistivity of the soil layer to add.
             soil_capacity (float):
@@ -637,19 +661,21 @@ class CableSoil(Cable):
                     thickness.
 
         Returns:
-            FDCable:
-                    A completely new FDCable instance based on the FDCable the method was called from, but with
+            CableSoil:
+                    A completely new CableSoil instance based on the Cable object the method was called from, but with
                     the added soil layers.
 
         """
-        new_cable = deepcopy(self)
-        outer_layer = new_cable.layers[-1]
-        current_outer_radius = new_cable.layer_properties[outer_layer].outer_radius
+        # copy source data so we don't mutate the original cable
+        layer_properties = deepcopy(cable.layer_properties)
+        grid_counts = deepcopy(cable.grid_counts)
+
+        outer_layer = list(layer_properties.keys())[-1]
+        current_outer_radius = layer_properties[outer_layer].outer_radius
         if soil_radius <= current_outer_radius:
             raise ValueError("The soil radius must be larger than the outer radius of the current outer layer!")
 
         soil_layers = CableLayer.soil_layers()
-
         if outer_layer in soil_layers:
             if outer_layer == soil_layers[-1]:
                 raise ValueError(
@@ -660,20 +686,24 @@ class CableSoil(Cable):
         else:
             new_layer = soil_layers[0]
 
-        grid_counts = new_cable.grid_counts
-        new_cable.layer_properties[new_layer] = CableLayerProperties(
+        layer_properties[new_layer] = CableLayerProperties(
             layer=new_layer,
             inner_radius=current_outer_radius,
             outer_radius=soil_radius,
             rho=soil_rho,
             capacity=soil_capacity,
         )
-        new_cable.layers.append(new_layer)
 
         radius_factor = soil_radius / current_outer_radius
         grid_counts[new_layer] = max(2, int(logarithmic_soil_gridpoint_density * np.log2(radius_factor)))
 
-        return new_cable.get_redefined_cable(layer_properties=new_cable.layer_properties, grid_counts=grid_counts)
+        return cls(
+            conductor=deepcopy(cable.conductor),
+            layer_properties=layer_properties,
+            layer_metrics=deepcopy(cable.layer_metrics),
+            cable_type=cable.cable_type,
+            grid_counts=grid_counts,
+        )
 
     def integrate_timestep(
         self,
@@ -728,7 +758,7 @@ class CableAir(Cable):
         cable_type: CableType,
         grid_counts: dict[CableLayer, int],
     ):
-        """Initialize FDCableInAir with convection parameters set to None until explicitly configured.
+        """Initialize CableAir with convection parameters set to None until explicitly configured.
 
         Args:
             conductor: Conductor properties of the cable.
@@ -877,7 +907,7 @@ class CableTrefoilCircuitSinglePipeInSoil(CableSoil):
 
         """
         if internal_heating is None:
-            raise ValueError("The internal_heating parameter must be provided for FDCableTrefoilCircuitInSinglePipe.")
+            raise ValueError("The internal_heating parameter must be provided for CableTrefoilCircuitSinglePipeInSoil.")
 
         # Only add an extra heat source if internal heating is considered
         if not internal_heating:

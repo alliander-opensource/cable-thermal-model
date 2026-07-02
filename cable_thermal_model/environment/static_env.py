@@ -32,11 +32,11 @@ from cable_thermal_model.model.cables.abstract_cable import (
     AbstractCable,
     WeightedScreenImpedance,
 )
-from cable_thermal_model.model.cables.enum_classes_cable import CableConductorCount
-from cable_thermal_model.model.cables.fd_cable import (
-    FDCableTrefoilCircuitInSinglePipe,
-    FDCableTrefoilCircuitInSinglePipeInAir,
+from cable_thermal_model.model.cables.cable import (
+    CableTrefoilCircuitSinglePipeInAir,
+    CableTrefoilCircuitSinglePipeInSoil,
 )
+from cable_thermal_model.model.cables.enum_classes_cable import CableConductorCount
 from cable_thermal_model.utils.str_utils import tab_lines
 
 CircuitFromCableInputSchemaT = TypeVar("CircuitFromCableInputSchemaT", bound=CircuitFromCableInputSchema)
@@ -219,12 +219,12 @@ class StaticEnv(
             A cable object built based on the input parameters.
 
         """
-        # Determine appropriate FDCable class
+        # Determine appropriate Cable class
         fd_cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
 
         return CableBuilder.build_cable_from_cable_id(
             cable_id=circuit_input.cable_id,
-            fd_cable_class=fd_cable_cls,
+            cable_class=fd_cable_cls,
             pipe=circuit_input.pipe,
             cable_source_file_path=circuit_input.cable_source_file_path,
         )
@@ -243,18 +243,18 @@ class StaticEnv(
             A cable object built based on the input parameters.
 
         """
-        # Determine appropriate FDCable class
+        # Determine appropriate Cable class
         fd_cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
 
         return CableBuilder.build_cable(
             cable_constructional_input=circuit_input.cable_constructional_information,
-            fd_cable_class=fd_cable_cls,
+            cable_class=fd_cable_cls,
             pipe=circuit_input.pipe,
         )
 
     @abstractmethod
     def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableT]:
-        """Determines the appropriate FDCable class based on the circuit input schema.
+        """Determines the appropriate Cable class based on the circuit input schema.
 
         This is implemented in the subclass since the cable class can differ per environment (Air/Soil).
 
@@ -262,7 +262,7 @@ class StaticEnv(
             circuit_input: Circuit input schema containing the input parameters for the circuit.
 
         Returns:
-            The FDCable class that should be used to build the cable based on the input parameters.
+            The Cable class that should be used to build the cable based on the input parameters.
 
         """
         raise NotImplementedError("This method should be implemented in the subclass of StaticEnv.")
@@ -368,7 +368,7 @@ class StaticEnv(
     @staticmethod
     def get_circuit_type(cable: AbstractCable) -> CircuitType:
         """Determines probable circuit type by number of conductors in the cable."""
-        if isinstance(cable, FDCableTrefoilCircuitInSinglePipe | FDCableTrefoilCircuitInSinglePipeInAir):
+        if isinstance(cable, CableTrefoilCircuitSinglePipeInSoil | CableTrefoilCircuitSinglePipeInAir):
             return CircuitType.Trefoil
         if cable.conductor.number_of_conductors == CableConductorCount.Three:
             return CircuitType.Single
@@ -410,7 +410,7 @@ class StaticEnv(
         for config in multiple_configurations_from_cable_id:
             cable = CableBuilder.build_cable_from_cable_id(
                 cable_id=config.cable_id,
-                fd_cable_class=config.fd_cable_class,
+                cable_class=config.cable_class,
                 pipe=config.pipe,
                 cable_source_file_path=cable_source_file_path,
             )
@@ -448,7 +448,7 @@ class StaticEnv(
         for config in multiple_configurations_from_cable_constructional_input:
             cable = CableBuilder.build_cable(
                 cable_constructional_input=config.cable_constructional_information,
-                fd_cable_class=config.fd_cable_class,
+                cable_class=config.cable_class,
                 pipe=config.pipe,
             )
             multiple_configurations.append(

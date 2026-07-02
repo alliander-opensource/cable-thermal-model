@@ -27,8 +27,8 @@ from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import ModelOutputSchema
+from cable_thermal_model.model.cables.cable import Cable, CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import StateAir
 from cable_thermal_model.model.model_soil import ModelSoil, StateSoil
@@ -1051,19 +1051,19 @@ def test_different_screen_resistance_in_multiple_configurations(
     else:
         if local_cable_id == first_cable_id == second_cable_id:
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert np.isclose(cable.weighted_screen_impedance.weighted_resistance_factor, 1.0)
 
         elif local_cable_id == "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50":
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert cable.weighted_screen_impedance.weighted_resistance_factor > 1.0
 
         elif local_cable_id == "YMeKrvaslqwd 12/20kV 1x630 Alrm + as35":
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert cable.weighted_screen_impedance.weighted_resistance_factor < 1.0
 
@@ -1172,7 +1172,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         model._validate_initial_state(invalid_state_air)
 
 
-def test_cable_without_screen(simple_cable: FDCable):
+def test_cable_without_screen(simple_cable: CableSoil):
     """Test that when adding a cable without screen, the bonding type is set to NoBonding."""
     # No screen input provided, should be able to create a cable without
     # screen and model should set bonding type to NoBonding.

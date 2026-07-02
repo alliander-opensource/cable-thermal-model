@@ -102,7 +102,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
         for key, cable in self.cables.items():
             soil_radius = max(self.minimal_soil_radius, 2.5 * abs(cable.y))
 
-            # Instantiate FDCable objects with the added soil layer
+            # Instantiate Cable objects with the added soil layer
             cables_with_soil[key] = add_soil_layer(
                 cable,
                 soil_rho=self.scenario[self.THERMAL_RESISTIVITY_COLUMN].iloc[0],

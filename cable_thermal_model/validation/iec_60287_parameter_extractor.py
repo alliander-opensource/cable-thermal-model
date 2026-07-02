@@ -10,8 +10,8 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model import ModelFactory, StaticEnvSoil
 from cable_thermal_model.cable.cable_circuit import CableKey
+from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.model.schemas import StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 from cable_thermal_model.model.schemas.model_output_schemas import ModelOutputSchema
@@ -79,7 +79,7 @@ class _CableContext:
     """Context object containing all relevant information for a single cable."""
 
     cable_key: CableKey
-    cable: FDCable
+    cable: Cable
     analysis: CableAnalysis
     conductor_temperature: float
     screen_temperature: float
@@ -90,7 +90,7 @@ class _CableContext:
 
 
 def _get_cable_context(
-    cable: FDCable,
+    cable: Cable,
     cable_key: CableKey,
     scenario: DataFrame[ScenarioSchemaSoil],
     model_output: ModelOutputSchema[StateSoil],

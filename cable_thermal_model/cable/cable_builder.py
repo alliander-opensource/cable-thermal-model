@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Module responsible for building FDCable objects based on given cable specifications."""
+"""Module responsible for building Cable objects based on given cable specifications."""
 
 from pathlib import Path
 from typing import TypeVar
@@ -19,6 +19,11 @@ from cable_thermal_model.model.cables.abstract_cable import (
     CableLayerMetrics,
     CableLayerProperties,
 )
+from cable_thermal_model.model.cables.cable import (
+    Cable,
+    CableTrefoilCircuitSinglePipeInAir,
+    CableTrefoilCircuitSinglePipeInSoil,
+)
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorCount,
     CableConductorShape,
@@ -27,19 +32,14 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableScreenType,
     CableSheathMaterial,
 )
-from cable_thermal_model.model.cables.fd_cable import (
-    FDCable,
-    FDCableTrefoilCircuitInSinglePipe,
-    FDCableTrefoilCircuitInSinglePipeInAir,
-)
 from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.utils.exceptions import MissingMaterialException
 
-CableT = TypeVar("CableT", bound=FDCable)
+CableT = TypeVar("CableT", bound=Cable)
 
 
 class CableBuilder:
-    """Utility class responsible for constructing FDCable objects based on various input specifications."""
+    """Utility class responsible for constructing Cable objects based on various input specifications."""
 
     __PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
     _SHEATH_CABLE_TYPE_STRING: str = "Sheath/cable type"
@@ -54,31 +54,28 @@ class CableBuilder:
     def build_cable_from_cable_id(
         cls,
         cable_id: str,
-        fd_cable_class: type[CableT],
+        cable_class: type[CableT],
         grid_points_per_layer: int = 10,
         pipe: PipeInputSchema | None = None,
         cable_source_file_path: Path = __PROJECT_ROOT / "data" / "example_cables.csv",
     ) -> CableT:
-        """Builds a new FDCable instance based on a cable_id.
+        """Builds a new Cable instance based on a cable_id.
 
         Args:
             cable_id (str): The name of a cable mentioned in the file specified by `cable_source_file_path`.
             grid_points_per_layer (int): The number of points per cable layer.
             pipe (PipeInputSchema | None): A pipe instance to be added around the cable.
-            fd_cable_class (type[FDCable]): The FDCable class to instantiate.
+            cable_class (type[Cable]): The Cable class to instantiate.
             cable_source_file_path (Path): The path to the cable source file.
                 Defaults to "data/example_cables.csv". The file can be either
                 a CSV or an Excel file.
 
         Returns:
-                TFDCable: A new FDCable instance (based on a Cable instance).
+                TCable: A new Cable instance (based on a Cable instance).
 
         """
-        if (
-            fd_cable_class in [FDCableTrefoilCircuitInSinglePipe, FDCableTrefoilCircuitInSinglePipeInAir]
-            and pipe is None
-        ):
-            raise ValueError(f"When using FDCable class '{fd_cable_class.__name__}', a pipe must be provided.")
+        if cable_class in [CableTrefoilCircuitSinglePipeInSoil, CableTrefoilCircuitSinglePipeInAir] and pipe is None:
+            raise ValueError(f"When using Cable class '{cable_class.__name__}', a pipe must be provided.")
 
         # load the cable data from the specified file
         cable_specs = cls._load_cable_data_from_file(cable_source_file_path, cable_id)
@@ -86,7 +83,7 @@ class CableBuilder:
         # build the cable based on the loaded data
         return cls.build_cable_from_cable_specs(
             cable_specs=cable_specs,
-            fd_cable_class=fd_cable_class,
+            cable_class=cable_class,
             grid_points_per_layer=grid_points_per_layer,
             pipe=pipe,
         )
@@ -95,20 +92,20 @@ class CableBuilder:
     def build_cable_from_cable_specs(
         cls,
         cable_specs: pd.Series,
-        fd_cable_class: type[CableT],
+        cable_class: type[CableT],
         grid_points_per_layer: int = 10,
         pipe: PipeInputSchema | None = None,
     ) -> CableT:
-        """Builds a new FDCable instance based on a given set of cable specifications.
+        """Builds a new Cable instance based on a given set of cable specifications.
 
         Args:
             cable_specs (pd.Series): A Pandas Series holding the cable specification.
             grid_points_per_layer (int | None): The number of points per layer to use in FD grids
             pipe (PipeInputSchema | None): A pipe instance to be added around the cable.
-            fd_cable_class (type[FDCable]): The FDCable class to instantiate.
+            cable_class (type[Cable]): The Cable class to instantiate.
 
         Returns:
-                TFDCable: A new FDCable instance (based on a Cable instance).
+                TCable: A new Cable instance (based on a Cable instance).
 
         """
         cable_spec_parser = SpecParserFactory.get_spec_parser(cable_specs)
@@ -117,7 +114,7 @@ class CableBuilder:
         # build the cable based on the parsed specifications
         return cls.build_cable(
             cable_constructional_input=cable_constructional_input,
-            fd_cable_class=fd_cable_class,
+            cable_class=cable_class,
             grid_points_per_layer=grid_points_per_layer,
             pipe=pipe,
         )
@@ -126,7 +123,7 @@ class CableBuilder:
     def build_cable(
         cls,
         cable_constructional_input: CableConstructionalInputSchema,
-        fd_cable_class: type[CableT],
+        cable_class: type[CableT],
         grid_points_per_layer: int = 10,
         pipe: PipeInputSchema | None = None,
     ) -> CableT:
@@ -137,7 +134,7 @@ class CableBuilder:
                 A CableConstructionalInputSchema object holding the cable
                 specification.
             grid_points_per_layer (int): The number of points per layer to use in FD grids
-            fd_cable_class (type[FDCable]): The FDCable class to instantiate.
+            cable_class (type[Cable]): The Cable class to instantiate.
             pipe (PipeInputSchema | None): A pipe instance to be added around the cable.
 
         Returns:
@@ -158,7 +155,7 @@ class CableBuilder:
         cable_layer_metrics: CableLayerMetrics = cls._get_cable_layer_metrics(cable_constructional_input)
 
         # instantiate the cable
-        fd_cable = fd_cable_class(
+        fd_cable = cable_class(
             conductor=cable_conductor_properties,
             layer_properties=cable_layer_properties_by_layer,
             layer_metrics=cable_layer_metrics,

@@ -14,7 +14,7 @@ TO TEST:
 Notes:
     FDCable's __init__() sets a lot of attributes as [None] objects. This heavily messed up IDE value evaluation and
      results in a lot of test and similar contexts expecting there to be a None value at these places. If these get
-     initialized in the [finalize_init()] method anyway, we should probably not pre-initialise these as None. If
+     initialized in the [finalize_init()] method anyway, we should probably not pre-initialize these as None. If
      initialization in __init__() is needed or desired regardless, then initialize by type as well, rather than only by
      value. (for example: [[-- radii_grid = None --]] becomes [[-- radii_grid: list[float] | None = None --]])
      This should solve a lot of the issues showing later in the file in the form of ".sum()" getting a warning because
@@ -42,8 +42,8 @@ import numpy as np
 import pytest
 
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
+from cable_thermal_model.model.cables.cable import Cable, CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 from tests.conftest import test_cable_fixtures
 
@@ -53,7 +53,7 @@ from tests.conftest import test_cable_fixtures
     test_cable_fixtures,
 )
 def test_fd_cable_get_layer_indices_radii(fd_cable_fixture: str, request):
-    cable: FDCable = request.getfixturevalue(fd_cable_fixture)
+    cable: Cable = request.getfixturevalue(fd_cable_fixture)
 
     # Test conductor radii are compatible with computed indices for radii-grid
     conductor_start_index = (cable.radii_grid < cable.layer_properties[CableLayer.Conductor].inner_radius).sum()
@@ -74,7 +74,7 @@ def test_fd_cable_get_layer_indices_radii(fd_cable_fixture: str, request):
     test_cable_fixtures,
 )
 def test_fd_cable_get_layer_indices_material_properties(fd_cable_fixture: str, request):
-    cable: FDCable = request.getfixturevalue(fd_cable_fixture)
+    cable: Cable = request.getfixturevalue(fd_cable_fixture)
 
     s, e = cable.get_layer_indices_for_layer(CableLayer.Conductor)
     # Test thermal resistance conductor is constant along slice from start to end indices
@@ -88,7 +88,7 @@ def test_fd_cable_get_layer_indices_material_properties(fd_cable_fixture: str, r
     assert np.isclose(np.abs(np.diff(cable.alpha_grid[s:e])).sum(), 0, atol=1e-3)
 
 
-def test_cable_radius(single_core_cable_xlpe: FDCable, single_circuit_with_pipe_env: StaticEnvSoil):
+def test_cable_radius(single_core_cable_xlpe: CableSoil, single_circuit_with_pipe_env: StaticEnvSoil):
     # Test that the cable radius equals the outer radius when no pipe is present
     assert np.isclose(
         single_core_cable_xlpe.layer_metrics.cable_radius, single_core_cable_xlpe.layer_metrics.outer_radius
@@ -104,7 +104,7 @@ def test_cable_radius(single_core_cable_xlpe: FDCable, single_circuit_with_pipe_
     test_cable_fixtures,
 )
 def test_construct_radii_grid(fd_cable_fixture: str, request):
-    cable: FDCable = request.getfixturevalue(fd_cable_fixture)
+    cable: Cable = request.getfixturevalue(fd_cable_fixture)
     # Test that the radii grid starts at 0
     assert np.isclose(cable.radii_grid[0], 0)
     # Test that the radii grid ends at the outer radius of the outermost layer
@@ -127,7 +127,7 @@ def test_construct_radii_grid(fd_cable_fixture: str, request):
             )
 
 
-def test_get_heat_flow_value_error(single_core_cable_xlpe: FDCable):
+def test_get_heat_flow_value_error(single_core_cable_xlpe: CableSoil):
     """Test that ValueError is raised when invalid index is provided to get_heat_flow()."""
     analysis = CableAnalysis(cable=single_core_cable_xlpe, solution=MagicMock())
 
@@ -144,7 +144,7 @@ def test_get_heat_flow_value_error(single_core_cable_xlpe: FDCable):
         analysis.get_heat_flow(inner_index=100)
 
 
-def test_calculate_inner_rhos(single_core_cable_xlpe: FDCable):
+def test_calculate_inner_rhos(single_core_cable_xlpe: CableSoil):
     """Test the _calculate_inter_rhos() method for calculating interstitial resistivity."""
     radii = np.array([0.01, 0.02, 0.03])
     inter_radii = np.array([0.015, 0.025])
@@ -158,7 +158,7 @@ def test_calculate_inner_rhos(single_core_cable_xlpe: FDCable):
     assert np.allclose(constant_rhos, 2.0)
 
 
-def test_calculate_inner_rhos_inconsistent_length(single_core_cable_xlpe: FDCable):
+def test_calculate_inner_rhos_inconsistent_length(single_core_cable_xlpe: CableSoil):
     """Test that ValueError is raised for inconsistent input lengths in _calculate_inter_rhos()."""
     radii = np.array([0.01, 0.02])
     inter_radii = np.array([0.015, 0.025])
@@ -168,7 +168,7 @@ def test_calculate_inner_rhos_inconsistent_length(single_core_cable_xlpe: FDCabl
         single_core_cable_xlpe._calculate_inter_rhos(radii, inter_radii, rhos)
 
 
-def test_calculate_inner_rhos_constant_violation_near_zero(single_core_cable_xlpe: FDCable):
+def test_calculate_inner_rhos_constant_violation_near_zero(single_core_cable_xlpe: CableSoil):
     """Test that ValueError is raised for inconsistent input lengths in _calculate_inter_rhos()."""
     radii = np.array([0.0, 0.01, 0.02])
     inter_radii = np.array([0.005, 0.015])
@@ -185,7 +185,7 @@ def test_calculate_inner_rhos_constant_violation_near_zero(single_core_cable_xlp
         single_core_cable_xlpe._calculate_inter_rhos(radii, inter_radii, rhos)
 
 
-def test_calculate_inner_rhos_non_increasing_radii(single_core_cable_xlpe: FDCable):
+def test_calculate_inner_rhos_non_increasing_radii(single_core_cable_xlpe: CableSoil):
     """Test that ValueError is raised for non-increasing radii in _calculate_inter_rhos()."""
     radii = np.array([0.01, 0.02, 0.02])
     inter_radii = np.array([0.015, 0.025])
@@ -195,7 +195,7 @@ def test_calculate_inner_rhos_non_increasing_radii(single_core_cable_xlpe: FDCab
         single_core_cable_xlpe._calculate_inter_rhos(radii, inter_radii, rhos)
 
 
-def test_calculate_inner_rhos_negative_radii(single_core_cable_pilc: FDCable):
+def test_calculate_inner_rhos_negative_radii(single_core_cable_pilc: CableSoil):
     """Test that ValueError is raised for non-increasing inter_radii in _calculate_inter_rhos()."""
     radii = np.array([-0.01, 0.02, 0.03])
     inter_radii = np.array([-0.015, 0.025])
@@ -205,7 +205,7 @@ def test_calculate_inner_rhos_negative_radii(single_core_cable_pilc: FDCable):
         single_core_cable_pilc._calculate_inter_rhos(radii, inter_radii, rhos)
 
 
-def test_calculate_inner_rho_alternating_values(single_core_cable_od: FDCable):
+def test_calculate_inner_rho_alternating_values(single_core_cable_od: CableSoil):
     """Test that _calculate_inter_rhos() handles alternating high and low resistivity values correctly."""
     radii = np.array([0.01, 0.02, 0.03, 0.04])
     inter_radii = np.array([0.005, 0.015, 0.035])
@@ -215,8 +215,8 @@ def test_calculate_inner_rho_alternating_values(single_core_cable_od: FDCable):
         single_core_cable_od._calculate_inter_rhos(radii, inter_radii, rhos)
 
 
-def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: FDCable):
-    """Test the get_cable_copy_with_added_soil_layer() method for adding one or multiple soil layers to a cable."""
+def test_from_cable_with_added_soil_layer(three_core_cable_pilc: CableSoil):
+    """Test the from_cable_with_added_soil_layer() method for adding one or multiple soil layers to a cable."""
     for layer in CableLayer.soil_layers():
         assert layer not in three_core_cable_pilc.layer_properties, (
             f"Soil layer '{layer}' already exists in original cable"
@@ -229,7 +229,8 @@ def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: FDCable):
 
     fd_cables = [three_core_cable_pilc]
     for soil_radius, soil_rho, soil_capacity in zip(soil_radii, soil_rhos, soil_capacities, strict=True):
-        new_cable = fd_cables[-1].get_cable_copy_with_added_soil_layer(
+        new_cable = CableSoil.from_cable_with_added_soil_layer(
+            cable=fd_cables[-1],
             soil_radius=soil_radius,
             soil_rho=soil_rho,
             soil_capacity=soil_capacity,
@@ -276,7 +277,8 @@ def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: FDCable):
             "This method cannot be used to add more soil layers!"
         ),
     ):
-        fd_cables[-1].get_cable_copy_with_added_soil_layer(
+        CableSoil.from_cable_with_added_soil_layer(
+            cable=fd_cables[-1],
             soil_radius=20.0,
             soil_rho=0.5,
             soil_capacity=2e6,
@@ -289,7 +291,8 @@ def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: FDCable):
             ValueError,
             match="The soil radius must be larger than the outer radius of the current outer layer!",
         ):
-            fd_cables[2].get_cable_copy_with_added_soil_layer(
+            CableSoil.from_cable_with_added_soil_layer(
+                cable=fd_cables[2],
                 soil_radius=soil_radius,
                 soil_rho=0.5,
                 soil_capacity=2e6,

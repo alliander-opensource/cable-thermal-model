@@ -5,15 +5,15 @@
 import numpy as np
 import pytest
 
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableScreenLossType
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import ModelAir
 from cable_thermal_model.model.model_soil import ModelSoil
 
 
 def test_get_heat_generation_conductor_and_screen(
-    three_core_cable_pilc: FDCable,
+    three_core_cable_pilc: CableSoil,
 ):
     # Set the screen loss function
     three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter

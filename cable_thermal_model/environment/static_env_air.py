@@ -14,12 +14,12 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInAirFromCableInputSchema,
 )
 from cable_thermal_model.environment.static_env import StaticEnv
-from cable_thermal_model.model.cables.fd_cable import FDCableInAir, FDCableTrefoilCircuitInSinglePipeInAir
+from cable_thermal_model.model.cables.cable import CableAir, CableTrefoilCircuitSinglePipeInAir
 
 
 class StaticEnvAir(
     StaticEnv[
-        FDCableInAir,
+        CableAir,
         CircuitInAirFromCableInputSchema,
         CircuitInAirFromCableConstructionalInputSchema,
         CircuitInAirFromCableIdInputSchema,
@@ -61,18 +61,18 @@ class StaticEnvAir(
 
         return super().add_circuit_from_cable(circuit_input)
 
-    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[FDCableInAir]:
+    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableAir]:
         return (
-            FDCableTrefoilCircuitInSinglePipeInAir
+            CableTrefoilCircuitSinglePipeInAir
             if CircuitBuilder._is_trefoil_circuit_in_single_pipe(circuit_input.circuit_type, circuit_input.pipe)
-            else FDCableInAir
+            else CableAir
         )
 
     def set_environment_convection_parameters(
         self,
         circuit_type: CircuitType | None,
         dist: float | None,
-        cable: FDCableInAir,
+        cable: CableAir,
         clipped_to_wall: bool,
     ):
         """Adds convection parameters to the cables.
@@ -80,7 +80,7 @@ class StaticEnvAir(
         Args:
             circuit_type: Type of circuit, one of 'single', 'trefoil', 'linear'
             dist: Distance between cables, relevant for 'linear' circuits
-            cable: FDCable instance
+            cable: Cable instance
             clipped_to_wall: Indicator if the circuit is clipped to a wall
 
         References:
@@ -95,7 +95,7 @@ class StaticEnvAir(
         self,
         circuit_type: CircuitType | None,
         dist: float | None,
-        cable: FDCableInAir,
+        cable: CableAir,
         clipped_to_wall: bool,
     ):
         if clipped_to_wall:
