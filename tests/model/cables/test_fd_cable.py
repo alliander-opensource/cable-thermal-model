@@ -254,6 +254,18 @@ def test_calculate_inner_rho_alternating_values(single_core_cable_od: FDCable):
         single_core_cable_od._calculate_inter_rhos(radii, inter_radii, rhos)
 
 
+def test_get_outer_boundary_coupling_coefficient_from_matrix(single_core_cable_xlpe: FDCable):
+    """Test that the matrix-based outer-boundary coupling matches the final upper diagonal term."""
+    upper_diagonal, _, _ = single_core_cable_xlpe._get_finite_difference_matrix_diagonals()
+    A_banded = single_core_cable_xlpe.get_finite_difference_matrix()
+
+    outer_boundary_coupling_coefficient = single_core_cable_xlpe.get_outer_boundary_coupling_coefficient_from_matrix(
+        A_banded
+    )
+
+    assert np.isclose(outer_boundary_coupling_coefficient, upper_diagonal[-1])
+
+
 def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: FDCable):
     """Test the get_cable_copy_with_added_soil_layer() method for adding one or multiple soil layers to a cable."""
     for layer in CableLayer.soil_layers():

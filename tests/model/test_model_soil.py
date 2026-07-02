@@ -531,7 +531,6 @@ def test_initializing_matrix_state(model: ModelSoil):
     cable_count = len(model.cables_with_soil)
     assert len(matrices.matrices_with_soil) == cable_count
     assert len(matrices.matrices_without_soil) == cable_count
-    assert len(matrices.outer_boundary_coupling_coefficients) == cable_count
     assert model.last_soil_property_update_day == 0
 
     for cable_key in model.cables_with_soil:
@@ -539,7 +538,6 @@ def test_initializing_matrix_state(model: ModelSoil):
         grid_size_full_solutions = model.cables[cable_key].cable.radii_grid.size
         assert matrices.matrices_with_soil[cable_key].shape == (3, grid_size_count - 1)
         assert matrices.matrices_without_soil[cable_key].shape == (3, grid_size_full_solutions - 1)
-        assert isinstance(matrices.outer_boundary_coupling_coefficients[cable_key], float)
 
 
 def test_update_matrix_state_without_daily_soil_refresh(model: ModelSoil):
@@ -693,7 +691,6 @@ def test_update_thermal_state(
         matrices_without_soil={
             cable_key: np.zeros((3, model.cables[cable_key].cable.radii_grid.size - 1)) for cable_key in model.cables
         },
-        outer_boundary_coupling_coefficients={cable_key: 0.0 for cable_key in model.cables},
     )
 
     model._update_self_heating_state = mock.Mock(return_value=self_heating_state_map)

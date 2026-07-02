@@ -285,15 +285,15 @@ class FDCable(AbstractCable):
         layer_end_index = layer_start_index + self.grid_counts[layer] - 1
         return layer_start_index, layer_end_index
 
-    def _get_finite_difference_matrix_upper_diagonal(self) -> np.ndarray:
-        """This method returns the upper diagonal component for the finite-difference matrix.
+    def _get_finite_difference_matrix_diagonals(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Compute the upper, base, and lower diagonals of the finite-difference matrix.
 
-        This method computes the upper "off" diagonal of the finite-difference matrix. For more information on the
-        finite-difference matrix, please check the method [get_finite_difference_matrix()].
+        The three diagonals share the same grid geometry and interstitial resistivity values.
+        This method computes those shared terms and derives the three diagonals from them.
 
         Returns:
-            np.ndarray: A Numpy array representing the upper "off" diagonal of
-                the finite-difference matrix, as calculated for the current cable.
+            tuple[np.ndarray, np.ndarray, np.ndarray]:
+                The upper, base, and lower diagonals, in that order.
 
         """
         radii = self.radii_grid
@@ -301,35 +301,6 @@ class FDCable(AbstractCable):
         delta_minus = self.grid_deltas[:-1]
         inter_radii = radii[:-1] + 0.5 * self.grid_deltas
 
-        # Calculate interstitial resistivity values
-        inter_rhos = self._calculate_inter_rhos(radii, inter_radii, self.rho_grid)
-        rho_plus = inter_rhos[1:]
-
-        r = radii[1:-1]
-        r_plus = r + 0.5 * delta_plus
-
-        upper_diagonal = r_plus / (rho_plus * r * 0.5 * (delta_plus + delta_minus) * delta_plus)
-        upper_diagonal = np.append([4 / (self.rho_grid[0] * delta_minus[0] ** 2)], upper_diagonal)
-
-        return upper_diagonal
-
-    def _get_finite_difference_matrix_base_diagonal(self) -> np.ndarray:
-        """This method returns the base diagonal component for the finite-difference matrix.
-
-        This method computes the base diagonal of the finite-difference matrix. For more information on the
-        finite-difference matrix, please check the method [get_finite_difference_matrix()].
-
-        Returns:
-            np.ndarray: A Numpy array representing the base diagonal of the
-                finite-difference matrix, as calculated for the current cable.
-
-        """
-        radii = self.radii_grid
-        delta_plus = self.grid_deltas[1:]
-        delta_minus = self.grid_deltas[:-1]
-        inter_radii = radii[:-1] + 0.5 * self.grid_deltas
-
-        # Calculate interstitial resistivity values
         inter_rhos = self._calculate_inter_rhos(radii, inter_radii, self.rho_grid)
         rho_plus = inter_rhos[1:]
         rho_minus = inter_rhos[:-1]
@@ -337,40 +308,17 @@ class FDCable(AbstractCable):
         r = radii[1:-1]
         r_plus = r + 0.5 * delta_plus
         r_minus = r - 0.5 * delta_minus
+        common_factor = 1 / (r * 0.5 * (delta_plus + delta_minus))
 
-        base_diagonal = (-1 / (r * 0.5 * (delta_plus + delta_minus))) * (
-            r_plus / (rho_plus * delta_plus) + r_minus / (rho_minus * delta_minus)
-        )
+        upper_inner = r_plus * common_factor / (rho_plus * delta_plus)
+        lower_diagonal = r_minus * common_factor / (rho_minus * delta_minus)
+        base_inner = -(upper_inner + lower_diagonal)
 
-        # Exception situation for the grid point at r=0:
-        base_diagonal = np.append([-4 / (self.rho_grid[0] * delta_minus[0] ** 2)], base_diagonal)
+        boundary_value = 4 / (self.rho_grid[0] * delta_minus[0] ** 2)
+        upper_diagonal = np.append([boundary_value], upper_inner)
+        base_diagonal = np.append([-boundary_value], base_inner)
 
-        return base_diagonal
-
-    def _get_finite_difference_matrix_lower_diagonal(self) -> np.ndarray:
-        """This method returns the lower "off" diagonal component for the finite-difference matrix.
-
-        This method computes the lower "off" diagonal of the finite-difference matrix. For more information on the
-        finite-difference matrix, please check the method [get_finite_difference_matrix()].
-
-        Returns:
-            np.ndarray: A Numpy array representing the lower "off" diagonal of
-                the finite-difference matrix, as calculated for the current cable.
-
-        """
-        radii = self.radii_grid
-        delta_plus = self.grid_deltas[1:]
-        delta_minus = self.grid_deltas[:-1]
-        inter_radii = radii[:-1] + 0.5 * self.grid_deltas
-
-        rho_minus = self._calculate_inter_rhos(radii, inter_radii, self.rho_grid)[:-1]
-
-        r = radii[1:-1]
-        r_minus = r - 0.5 * delta_minus
-
-        lower_diagonal = r_minus / (rho_minus * r * 0.5 * (delta_plus + delta_minus) * delta_minus)
-
-        return lower_diagonal
+        return upper_diagonal, base_diagonal, lower_diagonal
 
     def _calculate_inter_rhos(self, radii: np.ndarray, inter_radii: np.ndarray, rhos: np.ndarray) -> np.ndarray:
         """This method calculates the interstitial resistivity values between grid points.
@@ -418,41 +366,24 @@ class FDCable(AbstractCable):
             radii[1:] / radii[:-1]
         )
 
-    def get_finite_difference_matrix_with_outer_boundary_coupling(self) -> tuple[np.ndarray, float]:
-        """Calculate and return matrix and outer-boundary coupling coefficient.
+    @staticmethod
+    def get_outer_boundary_coupling_coefficient_from_matrix(A_banded: np.ndarray) -> float:
+        """Extract the outer-boundary coupling coefficient from a banded FD matrix.
 
-        The returned tuple consists of:
-            - A banded matrix for the unknown temperatures.
-            - The coupling coefficient to the known outer boundary temperature.
-
-        Notes:
-            In the finite difference (FD) approximation, this single matrix combined with a vector control the
-            linearized heat equation.
-
-        Returns:
-            tuple[np.ndarray, float]:
-                A tuple containing the banded matrix and the outer-boundary coupling coefficient.
-
+        The banded matrix stores the main diagonal and lower diagonal for the
+        final unknown node, while the upper coupling to the known boundary is
+        omitted from the stored upper diagonal. For that last row, the base
+        diagonal equals the negative sum of the lower coupling and the known
+        outer-boundary coupling.
         """
-        upper_diagonal = self._get_finite_difference_matrix_upper_diagonal()
-        base_diagonal = self._get_finite_difference_matrix_base_diagonal()
-        lower_diagonal = self._get_finite_difference_matrix_lower_diagonal()
-
-        matrix = np.zeros((3, len(base_diagonal)))
-        matrix[0, 1:] = upper_diagonal[:-1]
-        matrix[1, :] = base_diagonal
-        matrix[2, :-1] = lower_diagonal
-
-        outer_boundary_coupling_coefficient = float(upper_diagonal[-1])
-
-        return matrix, outer_boundary_coupling_coefficient
+        return float(-(A_banded[1, -1] + A_banded[2, -2]))
 
     def get_finite_difference_matrix(self) -> np.ndarray:
         """Calculates and returns the finite-difference matrix.
 
         The finite-difference matrix is central to the linearized heat equation. It is a matrix with one base
-        diagonal and two "off" diagonals (one above and
-        one below the base diagonal), and otherwise only zeros. We represent this matrix as a 3xN numpy array, where N
+        diagonal and two "off" diagonals (one above and one below the base diagonal),
+        and otherwise only zeros. We represent this matrix as a 3xN numpy array, where N
         is the length of the base diagonal.
 
         Notes:
@@ -460,11 +391,16 @@ class FDCable(AbstractCable):
             linearized heat equation.
 
         Returns:
-            np.ndarray: The (3xN) matrix representing the finite-difference matrix
-                [W/(°C*m³)].
+            np.ndarray: The (3xN) matrix representing the finite-difference matrix [W/(°C*m³)].
 
         """
-        matrix, _ = self.get_finite_difference_matrix_with_outer_boundary_coupling()
+        upper_diagonal, base_diagonal, lower_diagonal = self._get_finite_difference_matrix_diagonals()
+
+        matrix = np.zeros((3, len(base_diagonal)))
+        matrix[0, 1:] = upper_diagonal[:-1]
+        matrix[1, :] = base_diagonal
+        matrix[2, :-1] = lower_diagonal
+
         return matrix
 
     def get_finite_difference_vector(self, neglect_dielectric_loss: bool = False) -> np.ndarray:
@@ -931,7 +867,7 @@ class FDCableInAir(FDCable):
         A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
 
         A[:, :-1] = A_banded
-        A[0, -1] = self._get_finite_difference_matrix_upper_diagonal()[-1]
+        A[0, -1] = self.get_outer_boundary_coupling_coefficient_from_matrix(A_banded)
         A = -A * time_step
         A[1, :-1] += self.capacity_grid[:-1]
         A[2, -2] = 1
@@ -1027,7 +963,7 @@ class FDCableTrefoilCircuitInSinglePipeInAir(FDCableTrefoilCircuitInSinglePipe, 
         A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
 
         A[:, :-1] = A_banded
-        A[0, -1] = self._get_finite_difference_matrix_upper_diagonal()[-1]
+        A[0, -1] = self.get_outer_boundary_coupling_coefficient_from_matrix(A_banded)
         A[2, -2] = 1
 
         # Convert the banded matrix to a sparse matrix

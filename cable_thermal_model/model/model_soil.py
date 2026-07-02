@@ -27,18 +27,16 @@ from cable_thermal_model.model.schemas.state_schemas import build_environment_fi
 
 @dataclass
 class _SoilMatrices:
-    """Finite-difference matrices and outer boundary coupling coefficients for the cables with and without soil.
+    """Finite-difference matrices for the cables with and without soil.
 
     Args:
         matrices_with_soil: Banded finite-difference matrices for the soil-extended cable representations.
         matrices_without_soil: Banded finite-difference matrices for the cable representations without soil.
-        outer_boundary_coupling_coefficients: Coupling coefficients for the known outer boundary of the cable.
 
     """
 
     matrices_with_soil: dict[CableKey, np.ndarray]
     matrices_without_soil: dict[CableKey, np.ndarray]
-    outer_boundary_coupling_coefficients: dict[CableKey, float]
 
 
 class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil, _SoilMatrices]):
@@ -138,18 +136,12 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         matrices_with_soil, vectors = self._build_linear_system_for_cables(cables=self.cables_with_soil)
 
         matrices_without_soil: dict[CableKey, np.ndarray] = {}
-        outer_boundary_coupling_coefficients: dict[CableKey, float] = {}
         for key, cable in self.cables.items():
-            matrix_without_soil, outer_boundary_coupling_coefficient = (
-                cable.cable.get_finite_difference_matrix_with_outer_boundary_coupling()
-            )
-            matrices_without_soil[key] = matrix_without_soil
-            outer_boundary_coupling_coefficients[key] = outer_boundary_coupling_coefficient
+            matrices_without_soil[key] = cable.cable.get_finite_difference_matrix()
 
         soil_matrices = _SoilMatrices(
             matrices_with_soil=matrices_with_soil,
             matrices_without_soil=matrices_without_soil,
-            outer_boundary_coupling_coefficients=outer_boundary_coupling_coefficients,
         )
 
         return soil_matrices, vectors
@@ -468,7 +460,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         self_heating_state: dict[CableKey, np.ndarray],
         mutual_heating_state: dict[CableKey, np.ndarray],
         matrices_without_soil: dict[CableKey, np.ndarray],
-        outer_boundary_coupling_coefficients: dict[CableKey, float],
         time_step: float,
     ) -> dict[CableKey, np.ndarray]:
         """Update the mutual heating state for all cables in the environment for a given time step.
@@ -477,8 +468,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             self_heating_state: The current self-heating state.
             mutual_heating_state: The current mutual heating state.
             matrices_without_soil: The finite-difference matrices for the cable representations without soil layers.
-            outer_boundary_coupling_coefficients: Coefficients that couple the last solved node to the
-                known outer boundary temperature per cable representation without soil layers.
             time_step: The time step for the integration.
 
         Returns:
@@ -490,13 +479,18 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         new_mutual_heating_state = {}
         for cable_key, cable in self.cables.items():
+            matrix_without_soil = matrices_without_soil[cable_key]
+            outer_boundary_coupling_coefficient = cable.cable.get_outer_boundary_coupling_coefficient_from_matrix(
+                A_banded=matrix_without_soil
+            )
+
             # Add the mutual heating to the outermost grid point of the vector
             vector_without_soil = np.zeros(cable.cable.radii_grid.size - 1)
-            vector_without_soil[-1] = outer_boundary_coupling_coefficients[cable_key] * mutual_heating_effect[cable_key]
+            vector_without_soil[-1] = outer_boundary_coupling_coefficient * mutual_heating_effect[cable_key]
 
             heat_equation_solution = cable.cable.integrate_timestep(
                 s=mutual_heating_state[cable_key][:-1],
-                A_banded=matrices_without_soil[cable_key],
+                A_banded=matrix_without_soil,
                 b=vector_without_soil,
                 time_step=time_step,
                 internal_heating=False,
@@ -570,11 +564,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
             if cable_key in cables_with_updated_pipe_fill:
                 # If pipe-fill resistivity changed, the no-soil matrix also needs to be refreshed.
-                matrix_without_soil, outer_boundary_coupling_coefficient = self.cables[
-                    cable_key
-                ].cable.get_finite_difference_matrix_with_outer_boundary_coupling()
+                matrix_without_soil = self.cables[cable_key].cable.get_finite_difference_matrix()
                 matrices.matrices_without_soil[cable_key] = matrix_without_soil
-                matrices.outer_boundary_coupling_coefficients[cable_key] = outer_boundary_coupling_coefficient
 
         return matrices, updated_cables
 
@@ -598,7 +589,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             self_heating_state=new_self_heating_state,
             mutual_heating_state=thermal_state.mutual_heating,
             matrices_without_soil=matrices.matrices_without_soil,
-            outer_boundary_coupling_coefficients=matrices.outer_boundary_coupling_coefficients,
             time_step=time_step,
         )
 

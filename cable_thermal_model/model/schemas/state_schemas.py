@@ -47,7 +47,7 @@ class State(BaseModel):
     self_heating: dict[CableKey, np.ndarray] = Field(default_factory=dict)
 
     # Pydantic class configuration
-    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
 
     @model_validator(mode="after")
     def check_solution_consistency(self):
