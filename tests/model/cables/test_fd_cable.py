@@ -20,17 +20,8 @@ Notes:
      This should solve a lot of the issues showing later in the file in the form of ".sum()" getting a warning because
      the evaluation it's "sum"-ing is considered boolean in nature.
 
-    FDCable's finalize_init() has an odd name. If it is only used to finalize initialization, it should have a
-     prefixing underscore, but if it is used in other circumstances as well, it shouldn't be called "finalize_init()".
-
-    FDCable's finalize_init() uses a lot of confusing value representation. A lot of the "for ... in ..." clauses could
-     probably be clarified.
-
     FDCable's get_redefined_cable() method uses a [cable_] variable. This should be replaced with a more Pythonesque
      name for clarity.
-
-    FDCable's _add_outer_pipe() method uses [print()]. This should be replaced with either a logging or warning
-     construction.
 
     FDCable's get_linear_system() method is way too long and complex. Split it into pieces.
 
@@ -42,10 +33,58 @@ import numpy as np
 import pytest
 
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
 from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 from tests.conftest import test_cable_fixtures
+
+
+@pytest.mark.parametrize("load", [250.0, 500.0, 1000.0])
+def test_get_heat_generation_conductor_and_screen(three_core_cable_pilc: FDCable, load: float):
+    # Set the screen loss function.
+    three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter
+    no_load_heat_generation_conductor, no_load_heat_generation_screen = (
+        three_core_cable_pilc.get_heat_generation_conductor_and_screen(
+            load=0.0,
+            conductor_temperature=50.0,
+            screen_temperature=40.0,
+            temperature_dependent_electric_resistance=True,
+            ac_current=True,
+        )
+    )
+
+    assert np.isclose(no_load_heat_generation_conductor, 0.0)
+    assert np.isclose(no_load_heat_generation_screen, 0.0)
+
+    # Check that more heat is generated when incorporating AC effects.
+    ac_heat_generation_conductor, ac_heat_generation_screen = (
+        three_core_cable_pilc.get_heat_generation_conductor_and_screen(
+            load=load,
+            conductor_temperature=50.0,
+            screen_temperature=40.0,
+            temperature_dependent_electric_resistance=True,
+            ac_current=True,
+        )
+    )
+
+    dc_heat_generation_conductor, dc_heat_generation_screen = (
+        three_core_cable_pilc.get_heat_generation_conductor_and_screen(
+            load=load,
+            conductor_temperature=50.0,
+            screen_temperature=40.0,
+            temperature_dependent_electric_resistance=True,
+            ac_current=False,
+        )
+    )
+
+    # Check that AC heat generation is higher than DC heat generation.
+    assert ac_heat_generation_conductor > dc_heat_generation_conductor
+
+    # Check that the heat generated in the screen is strictly positive in the AC case.
+    assert ac_heat_generation_screen > 0.0
+
+    # Check that no heat is generated in the screen in the DC case, where we set current_in_screen=False.
+    assert np.isclose(dc_heat_generation_screen, 0.0)
 
 
 @pytest.mark.parametrize(
@@ -78,14 +117,14 @@ def test_fd_cable_get_layer_indices_material_properties(fd_cable_fixture: str, r
 
     s, e = cable.get_layer_indices_for_layer(CableLayer.Conductor)
     # Test thermal resistance conductor is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.rho_grid[s:e])).sum(), 0, atol=1e-3)
+    assert np.isclose(np.abs(np.diff(cable.rho_grid[s : e + 1])).sum(), 0, atol=1e-3)
     # Test electric resistance conductor is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.alpha_grid[s:e])).sum(), 0, atol=1e-3)
+    assert np.isclose(np.abs(np.diff(cable.alpha_grid[s : e + 1])).sum(), 0, atol=1e-3)
     s, e = cable.get_layer_indices_for_layer(CableLayer.Screen)
     # Test thermal resistance screen is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.rho_grid[s:e])).sum(), 0, atol=1e-3)
+    assert np.isclose(np.abs(np.diff(cable.rho_grid[s : e + 1])).sum(), 0, atol=1e-3)
     # Test electric resistance screen is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.alpha_grid[s:e])).sum(), 0, atol=1e-3)
+    assert np.isclose(np.abs(np.diff(cable.alpha_grid[s : e + 1])).sum(), 0, atol=1e-3)
 
 
 def test_cable_radius(single_core_cable_xlpe: FDCable, single_circuit_with_pipe_env: StaticEnvSoil):

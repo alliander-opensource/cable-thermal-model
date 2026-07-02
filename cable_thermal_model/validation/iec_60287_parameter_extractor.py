@@ -99,7 +99,7 @@ def _get_cable_context(
     if load_column not in scenario.columns:
         raise KeyError(f"Missing load column '{load_column}' in scenario.")
 
-    analysis = CableAnalysis(cable=cable, solution=model_output.state.full_solution[cable_key])
+    analysis = CableAnalysis(cable=cable, solution=model_output.state.temperature[cable_key])
 
     screen_temperature = analysis.get_mean_temperature_cable_layer(layer=CableLayer.Screen)
     if screen_temperature is None:

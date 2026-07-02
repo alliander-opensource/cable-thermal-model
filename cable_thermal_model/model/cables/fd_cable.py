@@ -268,14 +268,14 @@ class FDCable(AbstractCable):
         )
 
     def get_layer_indices_for_layer(self, layer: CableLayer) -> tuple[int, int]:
-        """This method fetches the start and end indices of the grid points for a given layer.
+        """This method fetches the inclusive start and end indices of the grid points for a given layer.
 
         Args:
             layer (CableLayer): A CableLayer object representing the layer for
                 which the indices need to be fetched.
 
         Returns:
-            tuple[int, int]: A tuple of integers representing the start and end
+            tuple[int, int]: A tuple of integers representing the inclusive start and end
                 indices of the grid points for the given layer, in that order.
 
         """

@@ -11,7 +11,7 @@ from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.schemas import ModelOutputSchema
 from cable_thermal_model.model.schemas.model_input_schemas import AbstractScenarioSchema, ScenarioSchemaT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
-from cable_thermal_model.model.schemas.state_schemas import StateT
+from cable_thermal_model.model.schemas.state_schemas import StateT, build_environment_fingerprint
 from cable_thermal_model.utils.str_utils import tab_lines
 
 StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)
@@ -45,7 +45,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
     def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
         """Initialise the model with a static environment and scenario DataFrame."""
-        # Validate if the scenario dataframe provides the required data on cable loads and ambient temperature
+        # Validate that the scenario dataframe provides the required cable loads and ambient temperature.
         self.static_env = static_env
         self._set_scenario(scenario=scenario)
         self._set_run_options(run_options=None)
@@ -53,10 +53,8 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
     def _validate_scenario(self):
         """Validates that the scenario DataFrame contains all required columns and no missing values.
 
-        This method validates the scenario against the AbstractScenarioSchema (context independent)
-        In addition, it checks that for each circuit in the static environment, a corresponding load column exists
-        in the scenario.
-        (context dependent validation)
+        This method validates the scenario against the AbstractScenarioSchema and also checks that the static
+        environment has a matching load column for each circuit.
 
         Raises:
             ValueError: If the index type is incorrect, required columns are
@@ -116,7 +114,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
         self._validate_initial_state(initial_state=initial_state)
 
-        # compute temperature solution
+        # Compute the temperature solution.
         result = self._compute_temperature_solution(
             initial_state=initial_state,
         )
@@ -140,13 +138,10 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         """Validate that the given state is consistent with the current model configuration."""
 
     def _validate_initial_state(self, initial_state: StateT | None) -> None:
-        """Check the initial state information provided. The provided cable representations should match.
-
-        the cables in the static environment.
+        """Check the provided initial state against the current static environment.
 
         Args:
-            initial_state: A State object containing the initial state information with
-                           cable_representations attribute.
+            initial_state: A State object containing runtime solutions and environment metadata.
 
         Raises:
             ValueError: If the provided state information does not match the used environment.
@@ -155,7 +150,17 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         self._validate_state_model_consistency(initial_state)
 
         if initial_state is not None:
-            cables = initial_state.cable_representations
-            current_cables = list(self.static_env.get_cables().values())
-            if current_cables != cables:
-                raise ValueError("Provided state information does not match the used environment.")
+            expected_keys = self.static_env.get_cables().keys()
+            expected_fingerprint = build_environment_fingerprint(self.static_env)
+
+            found_keys = initial_state.temperature.keys()
+            found_fingerprint = initial_state.env_fingerprint
+
+            if found_keys != expected_keys:
+                raise ValueError(
+                    "Provided state cable keys do not match the used environment. "
+                    f"Found keys: {found_keys}, expected keys: {expected_keys}."
+                )
+
+            if found_fingerprint != expected_fingerprint:
+                raise ValueError("Provided state environment fingerprint does not match the used environment.")

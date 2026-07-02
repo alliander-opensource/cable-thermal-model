@@ -9,13 +9,14 @@ import pandas as pd
 import pytest
 from pandera.errors import SchemaError
 from pandera.typing import DataFrame
+from pydantic_core import ValidationError
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition, PosCable
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import AbstractModel
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
-from cable_thermal_model.model.schemas.state_schemas import State
+from cable_thermal_model.model.schemas.state_schemas import State, StateSoil, build_environment_fingerprint
 
 
 def test_model_init_without_arguments():
@@ -24,7 +25,7 @@ def test_model_init_without_arguments():
         # construct model without arguments, should fail as the methods are not defined.
         _ = AbstractModel()
 
-    assert exc_info is not None
+    assert "abstract" in str(exc_info.value).lower()
 
 
 @pytest.mark.parametrize(
@@ -69,83 +70,136 @@ def test_set_scenario(model, new_scenario):
 
 
 @pytest.mark.parametrize(
-    "scenario",
+    ("scenario", "exception", "error_msg"),
     [
         pytest.param(
             pd.DataFrame(
                 index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
-                data={"load_wrong_cable_name": np.linspace(-25, 25, 49) + 100, "ambient_temperature": 10},
+                data={
+                    "load_wrong_cable_name": np.linspace(-25, 25, 49) + 100,
+                    "ambient_temperature": 10,
+                    "soil_thermal_resistivity": 1.0,
+                    "soil_thermal_capacity": 2e6,
+                },
             ),
-            marks=pytest.mark.xfail(reason="Fails as load_c1 is not available in the scenario."),
+            ValueError,
+            "Scenario dataframe does not contain a load column",
+            id="missing_load_column",
         ),
-        pd.DataFrame(
-            index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
-            data={
-                "load_c1": np.linspace(-25, 25, 49) + 100,
-                "soil_thermal_resistivity": 1.0,
-                "soil_thermal_capacity": 2e6,
-            },
+        pytest.param(
+            pd.DataFrame(
+                index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
+                data={
+                    "load_c1": np.linspace(-25, 25, 49) + 100,
+                    "soil_thermal_resistivity": 1.0,
+                    "soil_thermal_capacity": 2e6,
+                },
+            ),
+            SchemaError,
+            "",
+            id="missing_ambient_temperature",
         ),
-        pd.DataFrame(
-            index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
-            data={
-                "load_c1": np.linspace(-25, 25, 49) + 100,
-                "ambient_temperature": 10,
-                "soil_thermal_capacity": 2e6,
-            },
+        pytest.param(
+            pd.DataFrame(
+                index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
+                data={
+                    "load_c1": np.linspace(-25, 25, 49) + 100,
+                    "ambient_temperature": 10,
+                    "soil_thermal_capacity": 2e6,
+                },
+            ),
+            SchemaError,
+            "",
+            id="missing_soil_resistivity",
         ),
-        pd.DataFrame(
-            index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
-            data={
-                "load_c1": np.linspace(-25, 25, 49) + 100,
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 1.0,
-            },
+        pytest.param(
+            pd.DataFrame(
+                index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
+                data={
+                    "load_c1": np.linspace(-25, 25, 49) + 100,
+                    "ambient_temperature": 10,
+                    "soil_thermal_resistivity": 1.0,
+                },
+            ),
+            SchemaError,
+            "",
+            id="missing_soil_capacity",
         ),
-        pd.DataFrame(
-            index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
-            data={
-                "load_c1": pd.Series(np.array(list(np.linspace(-25, 0, 24)) + [None] + list(np.linspace(0, 25, 24)))),
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 1.0,
-                "soil_thermal_capacity": 2e6,
-            },
+        pytest.param(
+            pd.DataFrame(
+                index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
+                data={
+                    "load_c1": pd.Series(
+                        np.array(list(np.linspace(-25, 0, 24)) + [None] + list(np.linspace(0, 25, 24)))
+                    ),
+                    "ambient_temperature": 10,
+                    "soil_thermal_resistivity": 1.0,
+                    "soil_thermal_capacity": 2e6,
+                },
+            ),
+            SchemaError,
+            "",
+            id="none_in_load_series",
         ),
-        pd.DataFrame(
-            index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
-            data={
-                "load_c1": pd.Series(np.array(list(np.linspace(-25, 0, 24)) + [np.nan] + list(np.linspace(0, 25, 24)))),
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 1.0,
-                "soil_thermal_capacity": 2e6,
-            },
+        pytest.param(
+            pd.DataFrame(
+                index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
+                data={
+                    "load_c1": pd.Series(
+                        np.array(list(np.linspace(-25, 0, 24)) + [np.nan] + list(np.linspace(0, 25, 24)))
+                    ),
+                    "ambient_temperature": 10,
+                    "soil_thermal_resistivity": 1.0,
+                    "soil_thermal_capacity": 2e6,
+                },
+            ),
+            SchemaError,
+            "",
+            id="nan_in_load_series",
         ),
-        pd.DataFrame(
-            index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
-            data={
-                "load_c1": pd.Series(
-                    np.array(list(np.linspace(-25, 0, 24)) + [float("nan")] + list(np.linspace(0, 25, 24)))
-                ),
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 1.0,
-                "soil_thermal_capacity": 2e6,
-            },
+        pytest.param(
+            pd.DataFrame(
+                index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
+                data={
+                    "load_c1": pd.Series(
+                        np.array(list(np.linspace(-25, 0, 24)) + [float("nan")] + list(np.linspace(0, 25, 24)))
+                    ),
+                    "ambient_temperature": 10,
+                    "soil_thermal_resistivity": 1.0,
+                    "soil_thermal_capacity": 2e6,
+                },
+            ),
+            SchemaError,
+            "",
+            id="float_nan_in_load_series",
         ),
-        pd.DataFrame(
-            index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
-            data={
-                "load_c1": pd.Series(
-                    np.array(list(np.linspace(-25, 0, 24)) + ["not a number example"] + list(np.linspace(0, 25, 24)))
-                ),
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 1.0,
-                "soil_thermal_capacity": 2e6,
-            },
+        pytest.param(
+            pd.DataFrame(
+                index=pd.timedelta_range("0 days", "48 days", freq=pd.Timedelta("1 days")) + pd.Timestamp("2020-01-01"),
+                data={
+                    "load_c1": pd.Series(
+                        np.array(
+                            list(np.linspace(-25, 0, 24)) + ["not a number example"] + list(np.linspace(0, 25, 24))
+                        )
+                    ),
+                    "ambient_temperature": 10,
+                    "soil_thermal_resistivity": 1.0,
+                    "soil_thermal_capacity": 2e6,
+                },
+            ),
+            SchemaError,
+            "",
+            id="invalid_type_in_load_series",
         ),
     ],
 )
-def test_validate_scenario(env: StaticEnvSoil, scenario: pd.DataFrame):
-    """Tests whether invalid scenarios raise a schema error by plugging in cables and scenarios.
+def test_validate_scenario(
+    single_circuit_env: StaticEnvSoil,
+    scenario: pd.DataFrame,
+    exception: type[Exception],
+    error_msg: str,
+):
+    """Tests whether invalid scenarios raise the expected validation exception.
 
     Checks for:
     - a correct 'load_{cable_name} included in the scenario
@@ -154,8 +208,16 @@ def test_validate_scenario(env: StaticEnvSoil, scenario: pd.DataFrame):
     - soil thermal capacity included in the scenario
     - missing values (NaNs).
     """
-    with pytest.raises(SchemaError):
-        ModelFactory.create_model(static_env=env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario))
+    if error_msg:
+        with pytest.raises(exception, match=error_msg):
+            ModelFactory.create_model(
+                static_env=single_circuit_env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario)
+            )
+    else:
+        with pytest.raises(exception):
+            ModelFactory.create_model(
+                static_env=single_circuit_env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario)
+            )
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])
@@ -190,52 +252,85 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
     valid_solution = {cable_key: np.array([15.0])}
 
     State(
-        cable_representations=[pos_cable],
-        full_solution=valid_full_solution,
-        internal_heating_solution=valid_solution,
+        temperature=valid_full_solution,
+        self_heating=valid_solution,
     )
     # Test 2: Mismatched keys should fail
     wrong_key = CableKey(circuit_name="wrong_circuit", cable_position=CablePosition.TrefoilLeft)
     invalid_solution = {wrong_key: np.array([15.0])}
 
-    with pytest.raises(ValueError, match="Inconsistent keys between full_solution and solution"):
+    with pytest.raises(ValidationError, match="Inconsistent keys between temperature and self_heating"):
         State(
-            cable_representations=[pos_cable],
-            full_solution=valid_full_solution,
-            internal_heating_solution=invalid_solution,
+            temperature=valid_full_solution,
+            self_heating=invalid_solution,
         )
 
 
-def test_state_check_cable_representations_consistency(single_core_cable_xlpe):
-    """Test the check_cable_representations_consistency validator in State class."""
-    # Create test cable representations
-    pos_cable_1 = PosCable(
-        circuit_name="circuit_1", cable_position=CablePosition.TrefoilLeft, cable=single_core_cable_xlpe, x=0.0, y=0.0
+def test_state_check_cable_representations_consistency(model):
+    """Test initial-state validation against the model static environment."""
+    cable_keys = list(model.static_env.get_cables().keys())
+    env_fingerprint = build_environment_fingerprint(model.static_env)
+    state_cls = model._state_class
+
+    # Test 1: Matching static environment keys and fingerprint should pass
+    valid_temperature = {key: np.array([20.0]) for key in cable_keys}
+    valid_self_heating = {key: np.array([15.0]) for key in cable_keys}
+    valid_state_kwargs = {
+        "env_fingerprint": env_fingerprint,
+        "temperature": valid_temperature,
+        "self_heating": valid_self_heating,
+    }
+    if state_cls is StateSoil:
+        valid_state_kwargs["mutual_heating"] = {key: np.array([10.0]) for key in cable_keys}
+    valid_state = state_cls(**valid_state_kwargs)
+    model._validate_initial_state(valid_state)
+
+    # Test 2: Missing cable in state should fail
+    incomplete_temperature = {cable_keys[0]: np.array([20.0])}
+    incomplete_self_heating = {cable_keys[0]: np.array([15.0])}
+    invalid_state_kwargs = {
+        "env_fingerprint": env_fingerprint,
+        "temperature": incomplete_temperature,
+        "self_heating": incomplete_self_heating,
+    }
+    if state_cls is StateSoil:
+        invalid_state_kwargs["mutual_heating"] = {cable_keys[0]: np.array([10.0])}
+    invalid_state = state_cls(**invalid_state_kwargs)
+
+    with pytest.raises(ValueError, match="Provided state cable keys do not match the used environment"):
+        model._validate_initial_state(invalid_state)
+
+
+def test_state_check_environment_fingerprint_consistency(model):
+    """Test that initial-state validation fails if env fingerprint does not match."""
+    cable_keys = list(model.static_env.get_cables().keys())
+    state_cls = model._state_class
+
+    invalid_state_kwargs = {
+        "env_fingerprint": "different-environment-fingerprint",
+        "temperature": {key: np.array([20.0]) for key in cable_keys},
+        "self_heating": {key: np.array([15.0]) for key in cable_keys},
+    }
+    if state_cls is StateSoil:
+        invalid_state_kwargs["mutual_heating"] = {key: np.array([10.0]) for key in cable_keys}
+    invalid_state = state_cls(**invalid_state_kwargs)
+
+    with pytest.raises(ValueError, match="Provided state environment fingerprint does not match the used environment"):
+        model._validate_initial_state(invalid_state)
+
+
+def test_model_str_representation(model):
+    """Test concise model string for short and long scenarios."""
+    assert str(model) == "Model with 1 circuit environment and 2 day scenario"
+
+    long_scenario = pd.DataFrame(
+        index=pd.date_range("2020-01-01", "2020-01-10", freq="1d"),
+        data={
+            "load_c1": np.linspace(90, 110, 10),
+            "ambient_temperature": 10,
+            "soil_thermal_resistivity": 0.75,
+            "soil_thermal_capacity": 2e6,
+        },
     )
-    pos_cable_2 = PosCable(
-        circuit_name="circuit_1", cable_position=CablePosition.TrefoilRight, cable=single_core_cable_xlpe, x=1.0, y=0.0
-    )
-
-    cable_key_1 = pos_cable_1.name
-    cable_key_2 = pos_cable_2.name
-
-    # Test 1: Matching cable representations and solution keys should pass
-    valid_full_solution = {cable_key_1: np.array([20.0]), cable_key_2: np.array([22.0])}
-    valid_solution = {cable_key_1: np.array([15.0]), cable_key_2: np.array([17.0])}
-
-    State(
-        cable_representations=[pos_cable_1, pos_cable_2],
-        full_solution=valid_full_solution,
-        internal_heating_solution=valid_solution,
-    )
-
-    # Test 2: Missing cable in solution should fail
-    incomplete_solution = {cable_key_1: np.array([15.0])}  # Missing cable_key_2
-    incomplete_full_solution = {cable_key_1: np.array([20.0])}  # Missing cable_key_2
-
-    with pytest.raises(ValueError, match="Keys in solution must match cable representations"):
-        State(
-            cable_representations=[pos_cable_1, pos_cable_2],
-            full_solution=incomplete_full_solution,
-            internal_heating_solution=incomplete_solution,
-        )
+    model._set_scenario(cast(DataFrame[ScenarioSchemaSoil], long_scenario))
+    assert str(model) == "Model with 1 circuit environment and 9 day scenario"
