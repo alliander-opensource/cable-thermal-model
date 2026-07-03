@@ -208,16 +208,14 @@ def test_validate_scenario(
     - soil thermal capacity included in the scenario
     - missing values (NaNs).
     """
+    scenario_soil = cast(DataFrame[ScenarioSchemaSoil], scenario)
+
     if error_msg:
         with pytest.raises(exception, match=error_msg):
-            ModelFactory.create_model(
-                static_env=single_circuit_env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario)
-            )
+            ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_soil)
     else:
         with pytest.raises(exception):
-            ModelFactory.create_model(
-                static_env=single_circuit_env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario)
-            )
+            ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_soil)
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])

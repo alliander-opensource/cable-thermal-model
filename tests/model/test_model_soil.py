@@ -382,7 +382,7 @@ def test_get_dry_soil_radius_around_circuit(
     """Tests whether the soil dries out around if the temperature is above a certain limit."""
     assert temperature_solution_max >= temperature_solution_min
 
-    cable_key = list(model.cables_with_soil.keys())[0]
+    cable_key = next(iter(model.cables_with_soil.keys()))
     radii_grid = model.cables_with_soil[cable_key].cable.radii_grid
     temperature_state = [
         np.linspace(temperature_solution_max, temperature_solution_min, len(radii_grid))
@@ -404,7 +404,7 @@ def test_get_dry_soil_radius_around_circuit(
     # Check the result for the first cable
     dry_soil_result = model._get_dry_soil_radius_around_circuit(
         temperature_state=temperature_state,
-        cables_with_soil=[cable for cable in model.cables_with_soil.values()],
+        cables_with_soil=list(model.cables_with_soil.values()),
     )
     assert np.isclose(dry_soil_result, expected_soil_radius)
 
@@ -819,7 +819,8 @@ def test_update_soil_resistivity_for_all_cables(
 
     if expected_updated_cables:
         # Check if the soil resistivity values are updated correctly in the cable properties.
-        first_cable = model.cables_with_soil[list(model.cables_with_soil.keys())[0]]
+        first_cable_key = next(iter(model.cables_with_soil.keys()))
+        first_cable = model.cables_with_soil[first_cable_key]
         assert np.isclose(expected_soil_thermal_resistivity, first_cable.cable.rho_grid[-1], rtol=1e-2)
         assert np.isclose(
             expected_soil_thermal_resistivity, first_cable.cable.layer_properties[CableLayer.SoilOne].rho, rtol=1e-2
@@ -1174,14 +1175,18 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
 
     # Test case 2: Invalid keys should fail
     wrong_key = CableKey(circuit_name="wrong_circuit", cable_position=CablePosition.Single)
-    invalid_mutual_heating_solutions = {wrong_key: np.array([1.0, 2.0, 3.0])}
+    invalid_mutual_heating = {wrong_key: np.array([1.0, 2.0, 3.0])}
+
+    env_fingerprint = build_environment_fingerprint(model.static_env)
+    temperature = {key: np.array([10.0]) for key in cable_keys}
+    self_heating = {key: np.array([10.0]) for key in cable_keys}
 
     with pytest.raises(ValueError, match="CableKeys of mutual_heating should match"):
         StateSoil(
-            env_fingerprint=build_environment_fingerprint(model.static_env),
-            temperature={key: np.array([10.0]) for key in cable_keys},
-            self_heating={key: np.array([10.0]) for key in cable_keys},
-            mutual_heating=invalid_mutual_heating_solutions,
+            env_fingerprint=env_fingerprint,
+            temperature=temperature,
+            self_heating=self_heating,
+            mutual_heating=invalid_mutual_heating,
         )
 
 
@@ -1235,8 +1240,10 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         self_heating={cable_key: np.array([20.0])},
     )
 
+    invalid_state = cast(Any, invalid_state_air)
+
     with pytest.raises(ValueError, match="ModelSoil requires a StateSoil instance, but received StateAir"):
-        model._validate_initial_state(cast(Any, invalid_state_air))
+        model._validate_initial_state(invalid_state)
 
 
 def test_cable_without_screen(simple_cable: FDCable):

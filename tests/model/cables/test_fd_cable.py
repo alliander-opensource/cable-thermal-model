@@ -257,10 +257,10 @@ def test_calculate_inner_rho_alternating_values(single_core_cable_od: FDCable):
 def test_get_outer_boundary_coupling_coefficient_from_matrix(single_core_cable_xlpe: FDCable):
     """Test that the matrix-based outer-boundary coupling matches the final upper diagonal term."""
     upper_diagonal, _, _ = single_core_cable_xlpe._get_finite_difference_matrix_diagonals()
-    A_banded = single_core_cable_xlpe.get_finite_difference_matrix()
+    banded_matrix = single_core_cable_xlpe.get_finite_difference_matrix()
 
     outer_boundary_coupling_coefficient = single_core_cable_xlpe.get_outer_boundary_coupling_coefficient_from_matrix(
-        A_banded
+        banded_matrix
     )
 
     assert np.isclose(outer_boundary_coupling_coefficient, upper_diagonal[-1])

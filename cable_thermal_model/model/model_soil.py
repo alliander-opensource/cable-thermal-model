@@ -481,7 +481,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         for cable_key, cable in self.cables.items():
             matrix_without_soil = matrices_without_soil[cable_key]
             outer_boundary_coupling_coefficient = cable.cable.get_outer_boundary_coupling_coefficient_from_matrix(
-                A_banded=matrix_without_soil
+                banded_matrix=matrix_without_soil
             )
 
             # Add the mutual heating to the outermost grid point of the vector

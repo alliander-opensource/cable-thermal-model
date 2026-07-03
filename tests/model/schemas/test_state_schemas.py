@@ -31,7 +31,7 @@ def test_state_check_solution_consistency_passes():
         self_heating={cable_key: np.array([15.0])},
     )
 
-    assert state.temperature[cable_key][0] == 20.0
+    assert np.isclose(state.temperature[cable_key][0], 20.0)
 
 
 def test_state_check_solution_consistency_raises_on_mismatch():
@@ -39,11 +39,14 @@ def test_state_check_solution_consistency_raises_on_mismatch():
     cable_key_temperature = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
     cable_key_self_heating = CableKey(circuit_name="circuit_2", cable_position=CablePosition.Single)
 
+    temperature = {cable_key_temperature: np.array([20.0])}
+    self_heating = {cable_key_self_heating: np.array([15.0])}
+
     with pytest.raises(ValidationError, match="Inconsistent keys between temperature and self_heating"):
         State(
             env_fingerprint="dummy_fingerprint",
-            temperature={cable_key_temperature: np.array([20.0])},
-            self_heating={cable_key_self_heating: np.array([15.0])},
+            temperature=temperature,
+            self_heating=self_heating,
         )
 
 
@@ -58,7 +61,7 @@ def test_statesoil_validate_mutual_heating_passes():
         mutual_heating={cable_key: np.array([10.0])},
     )
 
-    assert state.mutual_heating[cable_key][0] == 10.0
+    assert np.isclose(state.mutual_heating[cable_key][0], 10.0)
 
 
 def test_statesoil_validate_mutual_heating_raises_on_mismatch():
@@ -66,12 +69,16 @@ def test_statesoil_validate_mutual_heating_raises_on_mismatch():
     cable_key_temperature = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
     cable_key_mutual_heating = CableKey(circuit_name="circuit_2", cable_position=CablePosition.Single)
 
+    temperature = {cable_key_temperature: np.array([20.0])}
+    self_heating = {cable_key_temperature: np.array([15.0])}
+    mutual_heating = {cable_key_mutual_heating: np.array([10.0])}
+
     with pytest.raises(ValidationError, match="CableKeys of mutual_heating should match"):
         StateSoil(
             env_fingerprint="dummy_fingerprint",
-            temperature={cable_key_temperature: np.array([20.0])},
-            self_heating={cable_key_temperature: np.array([15.0])},
-            mutual_heating={cable_key_mutual_heating: np.array([10.0])},
+            temperature=temperature,
+            self_heating=self_heating,
+            mutual_heating=mutual_heating,
         )
 
 
@@ -90,9 +97,12 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
     cable_key_1 = CableKey(circuit_name="circuit_1", cable_position=CablePosition.TrefoilLeft)
     cable_key_2 = CableKey(circuit_name="circuit_2", cable_position=CablePosition.TrefoilRight)
 
+    temperature = {cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])}
+    self_heating = {cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])}
+
     with pytest.raises(ValidationError, match="StateAir should only contain one circuit"):
         StateAir(
             env_fingerprint="dummy_fingerprint",
-            temperature={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
-            self_heating={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
+            temperature=temperature,
+            self_heating=self_heating,
         )

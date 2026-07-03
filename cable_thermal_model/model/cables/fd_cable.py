@@ -367,16 +367,16 @@ class FDCable(AbstractCable):
         )
 
     @staticmethod
-    def get_outer_boundary_coupling_coefficient_from_matrix(A_banded: np.ndarray) -> float:
+    def get_outer_boundary_coupling_coefficient_from_matrix(banded_matrix: np.ndarray) -> float:
         """Extract the outer-boundary coupling coefficient from a banded FD matrix.
 
-        The banded matrix stores the main diagonal and lower diagonal for the
-        final unknown node, while the upper coupling to the known boundary is
-        omitted from the stored upper diagonal. For that last row, the base
-        diagonal equals the negative sum of the lower coupling and the known
-        outer-boundary coupling.
+        Args:
+            banded_matrix (np.ndarray): A 3xN numpy array representing the finite-difference matrix in banded form.
+
+        Returns:
+            float: The outer-boundary coupling coefficient.
         """
-        return float(-(A_banded[1, -1] + A_banded[2, -2]))
+        return float(-(banded_matrix[1, -1] + banded_matrix[2, -2]))
 
     def get_finite_difference_matrix(self) -> np.ndarray:
         """Calculates and returns the finite-difference matrix.
