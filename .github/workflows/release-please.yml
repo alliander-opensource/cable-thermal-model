@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+# Release Please needs to be able to create/update the release PR,
+# push tags, and create GitHub releases.
+permissions:
+  contents: write
+  pull-requests: write
+
+# Prevent overlapping runs from racing on the release PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Release Please
+        uses: googleapis/release-please-action@v4
+        with:
+          # Uses the default GITHUB_TOKEN. If you later want the created
+          # release/tag to trigger other workflows (e.g. publishing to
+          # PyPI), replace this with a PAT or a GitHub App token.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
