@@ -22,7 +22,6 @@ from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
-from cable_thermal_model.model.schemas.state_schemas import build_environment_fingerprint
 
 
 @dataclass
@@ -154,7 +153,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                             self-heating, and mutual-heating states for each cable.
         """
         return StateSoil(
-            env_fingerprint=build_environment_fingerprint(self.static_env),
+            static_env_hash=self.static_env.compute_hash(),
             temperature=self._initialize_temperature_state(),
             self_heating=self._initialize_state_from_cables(cables=self.cables_with_soil),
             mutual_heating=self._initialize_state_from_cables(cables=self.cables),

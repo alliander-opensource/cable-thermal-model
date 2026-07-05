@@ -19,7 +19,6 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
 from cable_thermal_model.model.model_air import ModelAir, StateAir
 from cable_thermal_model.model.model_soil import StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir, ScenarioSchemaSoil
-from cable_thermal_model.model.schemas.state_schemas import build_environment_fingerprint
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
 
@@ -159,7 +158,7 @@ def test_stateair_validate_single_circuit():
     cable_key_single = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     StateAir(
-        env_fingerprint="dummy_fingerprint",
+        static_env_hash="dummy_fingerprint",
         temperature={cable_key_single: np.array([20.0])},
         self_heating={cable_key_single: np.array([20.0])},
     )
@@ -170,7 +169,7 @@ def test_stateair_validate_single_circuit():
 
     with pytest.raises(ValueError, match="StateAir should only contain one circuit"):
         StateAir(
-            env_fingerprint="dummy_fingerprint",
+            static_env_hash="dummy_fingerprint",
             temperature={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
             self_heating={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
         )
@@ -262,7 +261,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
     cable_key = pos_cable.name
 
     valid_state = StateAir(
-        env_fingerprint=build_environment_fingerprint(env),
+        static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating={cable_key: np.array([20.0])},
     )
@@ -271,7 +270,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
 
     # Test 3: state=StateSoil instance should raise ValueError
     invalid_state_soil = StateSoil(
-        env_fingerprint=build_environment_fingerprint(env),
+        static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating={cable_key: np.array([20.0])},
         mutual_heating={cable_key: np.array([15.0])},

@@ -2,23 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from copy import deepcopy
 
 import numpy as np
 import pytest
 from pydantic_core import ValidationError
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition
-from cable_thermal_model.model.schemas.state_schemas import State, StateAir, StateSoil, build_environment_fingerprint
-
-
-def test_build_environment_fingerprint_is_deterministic(single_circuit_env):
-    """Fingerprint generation should be stable for the same environment content."""
-    fingerprint = build_environment_fingerprint(single_circuit_env)
-    fingerprint_copy = build_environment_fingerprint(deepcopy(single_circuit_env))
-
-    assert fingerprint == fingerprint_copy
-    assert len(fingerprint) == 64
+from cable_thermal_model.model.schemas.state_schemas import State, StateAir, StateSoil
 
 
 def test_state_check_solution_consistency_passes():
@@ -26,7 +16,7 @@ def test_state_check_solution_consistency_passes():
     cable_key = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     state = State(
-        env_fingerprint="dummy_fingerprint",
+        static_env_hash="dummy_fingerprint",
         temperature={cable_key: np.array([20.0])},
         self_heating={cable_key: np.array([15.0])},
     )
@@ -44,7 +34,7 @@ def test_state_check_solution_consistency_raises_on_mismatch():
 
     with pytest.raises(ValidationError, match="Inconsistent keys between temperature and self_heating"):
         State(
-            env_fingerprint="dummy_fingerprint",
+            static_env_hash="dummy_fingerprint",
             temperature=temperature,
             self_heating=self_heating,
         )
@@ -55,7 +45,7 @@ def test_statesoil_validate_mutual_heating_passes():
     cable_key = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     state = StateSoil(
-        env_fingerprint="dummy_fingerprint",
+        static_env_hash="dummy_fingerprint",
         temperature={cable_key: np.array([20.0])},
         self_heating={cable_key: np.array([15.0])},
         mutual_heating={cable_key: np.array([10.0])},
@@ -75,7 +65,7 @@ def test_statesoil_validate_mutual_heating_raises_on_mismatch():
 
     with pytest.raises(ValidationError, match="CableKeys of mutual_heating should match"):
         StateSoil(
-            env_fingerprint="dummy_fingerprint",
+            static_env_hash="dummy_fingerprint",
             temperature=temperature,
             self_heating=self_heating,
             mutual_heating=mutual_heating,
@@ -87,7 +77,7 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
     cable_key_single = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     state = StateAir(
-        env_fingerprint="dummy_fingerprint",
+        static_env_hash="dummy_fingerprint",
         temperature={cable_key_single: np.array([20.0])},
         self_heating={cable_key_single: np.array([15.0])},
     )
@@ -102,7 +92,7 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
 
     with pytest.raises(ValidationError, match="StateAir should only contain one circuit"):
         StateAir(
-            env_fingerprint="dummy_fingerprint",
+            static_env_hash="dummy_fingerprint",
             temperature=temperature,
             self_heating=self_heating,
         )

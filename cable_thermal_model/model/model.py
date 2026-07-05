@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from abc import abstractmethod
 from copy import deepcopy
 from typing import Generic, TypeVar, cast
 
@@ -124,14 +125,16 @@ class Model(
 
         return self._build_initial_thermal_state()
 
+    @abstractmethod
     def _build_initial_thermal_state(self) -> StateT:
         """Builds the initial thermal state for the model.
 
         Returns:
             StateT: The initial thermal state for the model.
         """
-        raise NotImplementedError("Subclasses of Model must implement _build_initial_thermal_state().")
+        pass
 
+    @abstractmethod
     def _initialize_linear_system(self) -> tuple[MatricesT, dict[CableKey, np.ndarray]]:
         """Initializes the linear system (matrices and vectors) for each cable in the model.
 
@@ -139,7 +142,7 @@ class Model(
             A tuple containing the initialized matrices and vectors for each cable.
 
         """
-        raise NotImplementedError("Subclasses of Model must implement _initialize_linear_system().")
+        pass
 
     def _build_linear_system_for_cables(
         self, cables: dict[CableKey, PosCable]
@@ -227,6 +230,7 @@ class Model(
         """Extract circuit loads from a scenario row produced by iterrows()."""
         return {name: scenario_row[f"load_{name}"] for name in self.static_env.circuits}
 
+    @abstractmethod
     def _refresh_matrices_if_needed(
         self,
         matrices: MatricesT,
@@ -239,7 +243,7 @@ class Model(
         Returns:
             tuple[MatricesT, set[CableKey]]: Updated matrices and keys for which matrices were refreshed.
         """
-        raise NotImplementedError("Subclasses of Model must implement _refresh_matrices_if_needed().")
+        pass
 
     def _update_vectors(
         self,
@@ -308,6 +312,7 @@ class Model(
 
         return vectors
 
+    @abstractmethod
     def _update_thermal_state(
         self,
         thermal_state: StateT,
@@ -328,7 +333,7 @@ class Model(
         Returns:
             Updated thermal state for the current timestep.
         """
-        raise NotImplementedError("Subclasses of Model must implement _update_thermal_state().")
+        pass
 
     def _update_pipe_resistivity_for_all_cables(
         self,

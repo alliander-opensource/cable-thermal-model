@@ -16,7 +16,7 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import AbstractModel
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
-from cable_thermal_model.model.schemas.state_schemas import State, StateSoil, build_environment_fingerprint
+from cable_thermal_model.model.schemas.state_schemas import State, StateSoil
 
 
 def test_model_init_without_arguments():
@@ -267,14 +267,14 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
 def test_state_check_cable_representations_consistency(model):
     """Test initial-state validation against the model static environment."""
     cable_keys = list(model.static_env.get_cables().keys())
-    env_fingerprint = build_environment_fingerprint(model.static_env)
+    env_hash = model.static_env.compute_hash()
     state_cls = model._state_class
 
     # Test 1: Matching static environment keys and fingerprint should pass
     valid_temperature = {key: np.array([20.0]) for key in cable_keys}
     valid_self_heating = {key: np.array([15.0]) for key in cable_keys}
     valid_state_kwargs = {
-        "env_fingerprint": env_fingerprint,
+        "static_env_hash": env_hash,
         "temperature": valid_temperature,
         "self_heating": valid_self_heating,
     }
@@ -287,7 +287,7 @@ def test_state_check_cable_representations_consistency(model):
     incomplete_temperature = {cable_keys[0]: np.array([20.0])}
     incomplete_self_heating = {cable_keys[0]: np.array([15.0])}
     invalid_state_kwargs = {
-        "env_fingerprint": env_fingerprint,
+        "static_env_hash": env_hash,
         "temperature": incomplete_temperature,
         "self_heating": incomplete_self_heating,
     }
@@ -299,13 +299,13 @@ def test_state_check_cable_representations_consistency(model):
         model._validate_initial_state(invalid_state)
 
 
-def test_state_check_environment_fingerprint_consistency(model):
-    """Test that initial-state validation fails if env fingerprint does not match."""
+def test_state_check_environment_hash_consistency(model):
+    """Test that initial-state validation fails if environment hash does not match."""
     cable_keys = list(model.static_env.get_cables().keys())
     state_cls = model._state_class
 
     invalid_state_kwargs = {
-        "env_fingerprint": "different-environment-fingerprint",
+        "static_env_hash": "different-environment-hash",
         "temperature": {key: np.array([20.0]) for key in cable_keys},
         "self_heating": {key: np.array([15.0]) for key in cable_keys},
     }
@@ -313,7 +313,7 @@ def test_state_check_environment_fingerprint_consistency(model):
         invalid_state_kwargs["mutual_heating"] = {key: np.array([10.0]) for key in cable_keys}
     invalid_state = state_cls(**invalid_state_kwargs)
 
-    with pytest.raises(ValueError, match="Provided state environment fingerprint does not match the used environment"):
+    with pytest.raises(ValueError, match="Provided state environment hash does not match the used environment"):
         model._validate_initial_state(invalid_state)
 
 

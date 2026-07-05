@@ -2,26 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import hashlib
 from typing import TypeVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cable_thermal_model.cable.cable_circuit import CableKey
-from cable_thermal_model.environment.static_env import StaticEnv
 
 StateT = TypeVar("StateT", bound="State")
-
-
-def build_environment_fingerprint(static_env: StaticEnv) -> str:
-    """Build a deterministic environment fingerprint from positioned cable representations."""
-    encoded_representations = []
-    for cable in static_env.get_cables().values():
-        key = cable.name
-        encoded_representations.append(f"{key.circuit_name}|{key.cable_position.value}|{cable.cable_representation}")
-    payload = "\n".join(sorted(encoded_representations)).encode("utf-8")
-    return hashlib.sha256(payload).hexdigest()
 
 
 class State(BaseModel):
@@ -31,8 +19,8 @@ class State(BaseModel):
     the relevant cable representations and their properties are stored.
 
     Attributes:
-        env_fingerprint: str
-            Deterministic fingerprint of the static environment cable configuration.
+        static_env_hash: str
+            Deterministic hash of the static environment, used for validation and consistency checks.
         temperature: dict[CableKey, np.ndarray]:
             Combines the internal heating solution with the ambient
             temperature profile and, for a StateSoil object, the mutual
@@ -42,7 +30,7 @@ class State(BaseModel):
 
     """
 
-    env_fingerprint: str = Field(default_factory=str)
+    static_env_hash: str = Field(default_factory=str)
     temperature: dict[CableKey, np.ndarray] = Field(default_factory=dict)
     self_heating: dict[CableKey, np.ndarray] = Field(default_factory=dict)
 

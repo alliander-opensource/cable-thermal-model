@@ -14,7 +14,6 @@ from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir
 from cable_thermal_model.model.schemas.run_options import ModelAirRunOptions
-from cable_thermal_model.model.schemas.state_schemas import build_environment_fingerprint
 
 
 class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir, dict[CableKey, np.ndarray]]):
@@ -75,7 +74,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
             StateAir: The initialized thermal state for the model.
         """
         return StateAir(
-            env_fingerprint=build_environment_fingerprint(self.static_env),
+            static_env_hash=self.static_env.compute_hash(),
             temperature=self._initialize_temperature_state(),
             self_heating=self._initialize_state_from_cables(cables=self.cables),
         )

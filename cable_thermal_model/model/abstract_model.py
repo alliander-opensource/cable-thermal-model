@@ -11,7 +11,7 @@ from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.schemas import ModelOutputSchema
 from cable_thermal_model.model.schemas.model_input_schemas import AbstractScenarioSchema, ScenarioSchemaT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
-from cable_thermal_model.model.schemas.state_schemas import StateT, build_environment_fingerprint
+from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
 
 StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)
@@ -151,10 +151,10 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
         if initial_state is not None:
             expected_keys = self.static_env.get_cables().keys()
-            expected_fingerprint = build_environment_fingerprint(self.static_env)
+            expected_hash = self.static_env.compute_hash()
 
             found_keys = initial_state.temperature.keys()
-            found_fingerprint = initial_state.env_fingerprint
+            found_hash = initial_state.static_env_hash
 
             if found_keys != expected_keys:
                 raise ValueError(
@@ -162,5 +162,5 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
                     f"Found keys: {found_keys}, expected keys: {expected_keys}."
                 )
 
-            if found_fingerprint != expected_fingerprint:
-                raise ValueError("Provided state environment fingerprint does not match the used environment.")
+            if found_hash != expected_hash:
+                raise ValueError("Provided state environment hash does not match the used environment.")
