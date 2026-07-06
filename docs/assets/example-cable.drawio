@@ -1,0 +1,58 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Pagina-1" id="7z0OxI7C7aIB6IKrKETD">
+    <mxGraphModel dx="1572" dy="1984" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="26-MkZck9_NrucriZubg-4" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#a0522d;strokeColor=#6D1F00;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="813" width="797" x="1.5" y="-166.5" as="geometry" />
+        </mxCell>
+        <mxCell id="26-MkZck9_NrucriZubg-3" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;strokeColor=#B20000;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="400" width="400" x="200" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="26-MkZck9_NrucriZubg-2" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" value="" vertex="1">
+          <mxGeometry height="320" width="320" x="240" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="26-MkZck9_NrucriZubg-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#647687;fontColor=#ffffff;strokeColor=#314354;" value="" vertex="1">
+          <mxGeometry height="160" width="160" x="320" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-2" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=5;" target="26-MkZck9_NrucriZubg-4" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="400" y="240" as="sourcePoint" />
+            <mxPoint x="808.5000000000014" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-15" edge="1" parent="1" source="0yXO8wf_OvHjuOgK2XBr-5" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;elbow=vertical;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Conductor radius = 0.4m" vertex="1">
+          <mxGeometry height="30" width="150" x="380" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-13" edge="1" parent="1" source="0yXO8wf_OvHjuOgK2XBr-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560.037037037037" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Insulation radius = 0.8m" vertex="1">
+          <mxGeometry height="30" width="140" x="490" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-11" edge="1" parent="1" source="0yXO8wf_OvHjuOgK2XBr-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Sheath radius = 1m" vertex="1">
+          <mxGeometry height="30" width="120" x="610" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-10" edge="1" parent="1" source="0yXO8wf_OvHjuOgK2XBr-8" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="26-MkZck9_NrucriZubg-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="0yXO8wf_OvHjuOgK2XBr-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="First soil radius = 2m" vertex="1">
+          <mxGeometry height="30" width="120" x="740" y="290" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
