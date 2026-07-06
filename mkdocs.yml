@@ -7,6 +7,9 @@ site_description: Simulate thermal behavior of power and distribution cables.
 site_author: Contributors to the Cable Thermal Model project
 site_url: https://alliander-opensource.github.io/cable-thermal-model/
 
+repo_url: https://github.com/alliander-opensource/cable-thermal-model
+repo_name: alliander-opensource/cable-thermal-model
+
 # https://www.mkdocs.org/user-guide/configuration/#validation
 validation:
   omitted_files: warn
@@ -16,8 +19,41 @@ validation:
 
 theme:
   name: material
-  # favicon: img/favicon.ico
-  # logo: img/logo-white.png
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  icon:
+    logo: material/cable-data
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    previous: fontawesome/solid/angle-left
+    next: fontawesome/solid/angle-right
+    search: material/magnify
+    close: material/close
+    top: material/arrow-up-bold
 
 markdown_extensions:
   - admonition
