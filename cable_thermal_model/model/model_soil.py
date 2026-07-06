@@ -21,7 +21,7 @@ from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchema
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
-class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil]):
+class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil]):
     """ModelSoil is used to compute temperature of underground power cables using the finite differences methodology.
 
     A 1D approach is taken to modeling the environment and the cables, pipes and soil within it. The finite differences
