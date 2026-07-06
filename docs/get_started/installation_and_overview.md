@@ -46,7 +46,7 @@ uv init my-cable-thermal-model
 cd my-cable-thermal-model
 
 # Install the project dependencies
-uv install
+uv sync
 
 # Add cable-thermal-model
 uv add cable-thermal-model
