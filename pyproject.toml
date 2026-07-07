@@ -186,3 +186,8 @@ directory = "coverage_html_report"
 
 [tool.mypy]
 plugins = ['pydantic.mypy']
+exclude = '^(\.venv/|info/|dist/|coverage_html_report/|tests/)'
+
+[[tool.mypy.overrides]]
+module = ["mkdocs_gen_files"]
+ignore_missing_imports = true
