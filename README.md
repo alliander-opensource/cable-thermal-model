@@ -58,11 +58,11 @@ If you're starting from scratch, first create a new uv project:
 uv init my-cable-thermal-model
 cd my-cable-thermal-model
 
-# Install the project dependencies
-uv sync
-
 # Add cable-thermal-model
 uv add cable-thermal-model
+
+# Install the project dependencies
+uv sync
 ```
 
 ### For Developers
@@ -72,7 +72,7 @@ If you plan to contribute to the Cable Thermal Model, follow these steps to set 
 #### 1. Clone the Repository
 
 ```bash
-git clone git@github.com:alliander-opensource/cable-thermal-model.git
+git clone https://github.com/alliander-opensource/cable-thermal-model
 cd cable-thermal-model
 ```
 
