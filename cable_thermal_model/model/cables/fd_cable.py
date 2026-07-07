@@ -148,10 +148,10 @@ class FDCable(AbstractCable):
         ac_current: bool,
         temperature_dependent_electric_resistance: bool,
     ) -> np.ndarray:
-        """Build the finite-difference vector for a specific thermal state and circuit load.
+        """Build the finite difference vector for a specific thermal state and circuit load.
 
         Args:
-            vector (np.ndarray): The finite-difference vector to be updated.
+            vector (np.ndarray): The finite difference vector to be updated.
             temperature_grid (np.ndarray): The current temperature grid for the cable.
             load (float): The electrical load in amperes.
             ac_current (bool): Whether AC conductor losses are included.
@@ -159,7 +159,7 @@ class FDCable(AbstractCable):
             neglect_dielectric_loss (bool): Whether dielectric loss should be omitted from the baseline vector.
 
         Returns:
-            np.ndarray: A finite-difference vector for the given state and load.
+            np.ndarray: A finite difference vector for the given state and load.
         """
         conductor_temperature = self._get_mean_temperature_cable_layer(
             temperature_grid=temperature_grid, layer=CableLayer.Conductor

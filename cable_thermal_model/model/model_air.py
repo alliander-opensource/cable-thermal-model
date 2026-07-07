@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
 
-from cable_thermal_model.cable.cable_circuit import CableKey
+from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
@@ -56,6 +56,11 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
                     message=f"{column} is provided in the scenario, but is not used in {self.__class__.__name__}",
                     stacklevel=2,
                 )
+
+    @property
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+        """Return the cables used to assemble finite difference vectors."""
+        return self.cables
 
     def _build_initial_thermal_state(self) -> StateAir:
         """Builds the initial thermal state for the model.

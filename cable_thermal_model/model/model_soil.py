@@ -71,6 +71,41 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         super().__init__(static_env=static_env, scenario=scenario)
 
+    def get_temp(
+        self, x: float, y: float, time_sec: float, self_heating_contribution: dict[CableKey, np.ndarray]
+    ) -> float:
+        """Compute the temperature at a point and time in the environment.
+
+        Args:
+            x: x-coordinate of the point.
+            y: y-coordinate of the point.
+            time_sec: Time in seconds at which to evaluate the temperature.
+            self_heating_contribution: Self-heating contributions for each cable at the specified time.
+
+        Returns:
+            float: Temperature in degrees Celsius.
+
+        """
+        time_grid = (self.scenario.index - self.scenario.index[0]).total_seconds()
+        time_idx = np.nonzero(time_grid >= time_sec)[0][0]
+        ambient_temperature = self.scenario["ambient_temperature"].iloc[time_idx]
+
+        heating_from_cables = self._sum_heating_contributions(
+            cables=self.cables_with_soil,
+            self_heating_contribution=self_heating_contribution,
+            x=x,
+            y=y,
+        )
+
+        cooling_from_mirror_cables = self._sum_heating_contributions(
+            cables=self.mirror_cables_with_soil,
+            self_heating_contribution=self_heating_contribution,
+            x=x,
+            y=y,
+        )
+
+        return ambient_temperature + heating_from_cables - cooling_from_mirror_cables
+
     def _validate_scenario(self):
         """Validate the scenario dataframe for required columns.
 
@@ -109,8 +144,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             key: return_mirror_cable(pos_cable) for key, pos_cable in self.cables_with_soil.items()
         }
 
-    def _get_vector_cables(self) -> dict[CableKey, PosCable]:
-        """Return the soil-extended cables used to assemble finite-difference vectors."""
+    @property
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+        """Return the cables used to assemble finite difference vectors."""
         return self.cables_with_soil
 
     def _build_initial_thermal_state(self) -> StateSoil:
@@ -139,7 +175,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         """Sum the heating contributions from a list of cables at a given point in space.
 
         Args:
-            cables: A dictionary of cables to consider for heating contributions.
+            cables: A dictionary of cable keys and their corresponding PosCable instances.
             self_heating_contribution: A dictionary containing the self-heating contributions for each cable.
             x: The x-coordinate of the point in space.
             y: The y-coordinate of the point in space.
@@ -154,41 +190,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             )
             for key, pos_cable in cables.items()
         )
-
-    def get_temp(
-        self, x: float, y: float, time_sec: float, self_heating_contribution: dict[CableKey, np.ndarray]
-    ) -> float:
-        """Compute the temperature at a point and time in the environment.
-
-        Args:
-            x: x-coordinate of the point.
-            y: y-coordinate of the point.
-            time_sec: Time in seconds at which to evaluate the temperature.
-            self_heating_contribution: Self-heating contributions for each cable at the specified time.
-
-        Returns:
-            float: Temperature in degrees Celsius.
-
-        """
-        time_grid = (self.scenario.index - self.scenario.index[0]).total_seconds()
-        time_idx = np.nonzero(time_grid >= time_sec)[0][0]
-        ambient_temperature = self.scenario["ambient_temperature"].iloc[time_idx]
-
-        heating_from_cables = self._sum_heating_contributions(
-            cables=self.cables_with_soil,
-            self_heating_contribution=self_heating_contribution,
-            x=x,
-            y=y,
-        )
-
-        cooling_from_mirror_cables = self._sum_heating_contributions(
-            cables=self.mirror_cables_with_soil,
-            self_heating_contribution=self_heating_contribution,
-            x=x,
-            y=y,
-        )
-
-        return ambient_temperature + heating_from_cables - cooling_from_mirror_cables
 
     def _compute_mutual_heating_effect(
         self,
@@ -208,7 +209,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         mutual_heating_effect = dict.fromkeys(self.cables, 0.0)
 
         for key, pos_cable in self.cables_with_soil.items():
-            other_cables = {k: v for k, v in self.cables_with_soil.items() if k != key}
+            other_cables = self.cables_with_soil.copy()
+            other_cables.pop(key)
 
             heating_from_other_cables = self._sum_heating_contributions(
                 cables=other_cables,

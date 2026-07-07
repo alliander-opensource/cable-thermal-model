@@ -528,7 +528,7 @@ def test_update_thermal_state(
 
 def test_get_vector_cables_returns_cables_with_soil(model: ModelSoil):
     """Test that _get_vector_cables returns the soil-extended cable mapping."""
-    assert model._get_vector_cables() is model.cables_with_soil
+    assert model._cables_for_heat_vectors is model.cables_with_soil
 
 
 @pytest.mark.parametrize(

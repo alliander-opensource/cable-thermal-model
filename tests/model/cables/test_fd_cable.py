@@ -211,13 +211,13 @@ def test_get_heat_flow_value_error(single_core_cable_xlpe: FDCable):
 
     with pytest.raises(
         ValueError,
-        match="The indices must lie within the finite-difference grid of the cable.",
+        match="The indices must lie within the finite difference grid of the cable.",
     ):
         analysis.get_heat_flow(inner_index=-1)
 
     with pytest.raises(
         ValueError,
-        match="The indices must lie within the finite-difference grid of the cable.",
+        match="The indices must lie within the finite difference grid of the cable.",
     ):
         analysis.get_heat_flow(inner_index=100)
 

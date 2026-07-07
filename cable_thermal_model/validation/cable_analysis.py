@@ -82,7 +82,7 @@ class CableAnalysis:
         outer_index = inner_index + 1
 
         if inner_index < 0 or outer_index >= len(self.cable._radii_grid):
-            raise ValueError("The indices must lie within the finite-difference grid of the cable.")
+            raise ValueError("The indices must lie within the finite difference grid of the cable.")
 
         if np.asarray(self.solution).ndim != 1 or outer_index >= len(self.solution):
             raise ValueError("The solution array must be one-dimensional and include values for both grid points.")

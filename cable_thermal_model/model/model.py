@@ -99,6 +99,12 @@ class Model(
         self.cables = deepcopy(self.static_env.get_cables())
         self.number_of_cables = len(self.cables)
 
+    @property
+    @abstractmethod
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+        """Return the cables used to assemble finite difference vectors."""
+        pass
+
     def _initialize_heat_vectors(self) -> dict[CableKey, np.ndarray]:
         """Initialize the heat vectors for each cable.
 
@@ -112,7 +118,7 @@ class Model(
         """
         return {
             cable_key: pos_cable.cable.get_finite_difference_vector(self.run_options.neglect_dielectric_loss)
-            for cable_key, pos_cable in self._get_vector_cables().items()
+            for cable_key, pos_cable in self._cables_for_heat_vectors.items()
         }
 
     def _initialize_thermal_state(
@@ -131,10 +137,6 @@ class Model(
             return initial_state.model_copy(deep=True)
 
         return self._build_initial_thermal_state()
-
-    def _get_vector_cables(self) -> dict[CableKey, PosCable]:
-        """Return the cables used to assemble finite-difference vectors."""
-        return self.cables
 
     @abstractmethod
     def _build_initial_thermal_state(self) -> StateT:
@@ -234,7 +236,7 @@ class Model(
                 The updated vectors for each cable.
 
         """
-        for cable_key, pos_cable in self._get_vector_cables().items():
+        for cable_key, pos_cable in self._cables_for_heat_vectors.items():
             circuit_name = cable_key.circuit_name
             conductor_load = circuit_loads[circuit_name]
 
