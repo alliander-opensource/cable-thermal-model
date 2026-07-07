@@ -4,7 +4,7 @@
 
 name: Setup Python environment
 description: >
-  Set up Python and Poetry, restore the virtualenv cache keyed on poetry.lock,
+  Set up Python and uv, restore the virtualenv cache keyed on uv.lock,
   and install project dependencies. Assumes the repository is already checked out.
 
 inputs:
@@ -12,16 +12,16 @@ inputs:
     description: Python version to install (passed to actions/setup-python).
     required: false
     default: "3.12"
-  poetry-version:
-    description: Poetry version to install.
+  uv-version:
+    description: uv version to install.
     required: false
-    default: "2.4.1"
+    default: "0.11.26"
   install-args:
     description: >
-      Extra arguments forwarded to `poetry install`. Use this to select groups,
-      extras, or `--no-root`. Example: "--with dev,test --no-interaction".
+      Extra arguments forwarded to `uv sync`. Use this to select dependency
+      groups or optional extras. Example: "--group dev --frozen".
     required: false
-    default: "--with dev --no-interaction"
+    default: "--group dev --frozen"
   cache-key-suffix:
     description: Optional suffix to scope the cache (e.g. job name).
     required: false
@@ -32,7 +32,7 @@ outputs:
     description: The resolved Python version that was installed.
     value: ${{ steps.setup-python.outputs.python-version }}
   venv-path:
-    description: Absolute path to the Poetry-managed virtualenv.
+    description: Absolute path to the uv-managed virtualenv.
     value: ${{ steps.venv.outputs.path }}
 
 runs:
@@ -44,31 +44,25 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Install Poetry
+    - name: Install uv
       shell: bash
       run: |
-        pipx install "poetry==${{ inputs.poetry-version }}"
-        poetry --version
-
-    - name: Configure Poetry (in-project virtualenv)
-      shell: bash
-      run: |
-        poetry config virtualenvs.in-project true
-        poetry config virtualenvs.create true
+        python -m pip install --upgrade "uv==${{ inputs.uv-version }}"
+        uv --version
 
     - name: Restore virtualenv cache
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: .venv
-        key: venv-${{ runner.os }}-py${{ inputs.python-version }}-${{ hashFiles('poetry.lock', 'pyproject.toml') }}-${{ inputs.cache-key-suffix }}
+        key: venv-${{ runner.os }}-py${{ inputs.python-version }}-${{ hashFiles('uv.lock', 'pyproject.toml') }}-${{ inputs.cache-key-suffix }}
         restore-keys: |
           venv-${{ runner.os }}-py${{ inputs.python-version }}-
 
     - name: Install dependencies
       shell: bash
-      run: poetry install ${{ inputs.install-args }}
+      run: uv sync ${{ inputs.install-args }}
 
     - name: Resolve venv path
       id: venv
       shell: bash
-      run: echo "path=$(poetry env info --path)" >> "$GITHUB_OUTPUT"
+      run: echo "path=$(uv run python -c 'import sys; print(sys.prefix)')" >> "$GITHUB_OUTPUT"
