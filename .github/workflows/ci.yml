@@ -26,6 +26,7 @@ jobs:
   test:
     name: Test
     uses: ./.github/workflows/_reusable-test.yml
+    secrets: inherit
 
   security:
     name: Security
