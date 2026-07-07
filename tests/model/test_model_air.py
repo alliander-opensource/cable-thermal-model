@@ -131,10 +131,10 @@ def test_single_cable_in_air_compare_to_soil(scenario_steady_state: DataFrame[Sc
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.Single)
 
     cable_soil = model_soil.cables_with_soil[cable_key].cable
-    steady_state_solution_soil = steady_state_soil.self_heating[cable_key]
+    steady_state_solution_soil = steady_state_soil.self_heating_contribution[cable_key]
 
     cable_air = model_air.cables[cable_key].cable
-    steady_state_solution_air = steady_state_air.self_heating[cable_key]
+    steady_state_solution_air = steady_state_air.self_heating_contribution[cable_key]
 
     cable_analysis_soil = CableAnalysis(cable=cable_soil, solution=steady_state_solution_soil)
     cable_analysis_air = CableAnalysis(cable=cable_air, solution=steady_state_solution_air)
@@ -160,7 +160,7 @@ def test_stateair_validate_single_circuit():
     StateAir(
         static_env_hash="dummy_fingerprint",
         temperature={cable_key_single: np.array([20.0])},
-        self_heating={cable_key_single: np.array([20.0])},
+        self_heating_contribution={cable_key_single: np.array([20.0])},
     )
 
     # Test 2: Multiple circuits should fail.
@@ -171,7 +171,7 @@ def test_stateair_validate_single_circuit():
         StateAir(
             static_env_hash="dummy_fingerprint",
             temperature={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
-            self_heating={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
+            self_heating_contribution={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
         )
 
 
@@ -193,42 +193,6 @@ def test_model_air_validate_scenario_warns_for_unused_soil_columns(single_circui
     warning_messages = [str(w.message) for w in warnings_record]
     assert any("soil_thermal_resistivity is provided in the scenario" in message for message in warning_messages)
     assert any("soil_thermal_capacity is provided in the scenario" in message for message in warning_messages)
-
-
-def test_refresh_matrices_if_needed_empty_and_non_empty(single_circuit_in_air_env):
-    """ModelAir matrix refresh should support both no-op and update branches."""
-    scenario = pd.DataFrame(
-        index=pd.timedelta_range("0 days", "1 hour", periods=2),
-        data={"ambient_temperature": 30, "load_c1": 100.0},
-    )
-    model = ModelAir(single_circuit_in_air_env, ScenarioSchemaAir.validate(scenario))
-
-    matrices, _ = model._initialize_linear_system()
-    temperature_state = model._initialize_temperature_state()
-    scenario_row = model.scenario.iloc[0]
-
-    # Branch 1: no matrices updated.
-    model._update_pipe_resistivity_for_all_cables = lambda temperature_state: set()
-    refreshed_matrices, updated_cables = model._refresh_matrices_if_needed(
-        matrices=matrices,
-        temperature_state=temperature_state,
-        scenario_row=scenario_row,
-        elapsed_seconds=0.0,
-    )
-    assert refreshed_matrices is matrices
-    assert updated_cables == set()
-
-    # Branch 2: one matrix reported as updated.
-    cable_key = next(iter(model.cables.keys()))
-    model._update_pipe_resistivity_for_all_cables = lambda temperature_state: {cable_key}
-    refreshed_matrices, updated_cables = model._refresh_matrices_if_needed(
-        matrices=matrices,
-        temperature_state=temperature_state,
-        scenario_row=scenario_row,
-        elapsed_seconds=0.0,
-    )
-    assert refreshed_matrices is matrices
-    assert updated_cables == {cable_key}
 
 
 def test_model_air_validate_state(single_core_cable_xlpe):
@@ -263,7 +227,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
     valid_state = StateAir(
         static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
-        self_heating={cable_key: np.array([20.0])},
+        self_heating_contribution={cable_key: np.array([20.0])},
     )
 
     model.run(initial_state=valid_state)
@@ -272,8 +236,8 @@ def test_model_air_validate_state(single_core_cable_xlpe):
     invalid_state_soil = StateSoil(
         static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
-        self_heating={cable_key: np.array([20.0])},
-        mutual_heating={cable_key: np.array([15.0])},
+        self_heating_contribution={cable_key: np.array([20.0])},
+        mutual_heating_contribution={cable_key: np.array([15.0])},
     )
 
     with pytest.raises(ValueError, match="ModelAir requires a StateAir instance, but received StateSoil"):

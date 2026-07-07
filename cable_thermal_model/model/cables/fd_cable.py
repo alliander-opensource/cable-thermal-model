@@ -20,7 +20,9 @@ from cable_thermal_model.model.cables.pipe import Pipe
 
 
 class FDCable(AbstractCable):
-    """Finite-difference cable model that discretizes cable layers into a radial grid."""
+    """finite difference cable model that discretizes cable layers into a radial grid."""
+
+    _SOIL_DRYING_TEMPERATURE = 30
 
     def __init__(
         self,
@@ -45,154 +47,236 @@ class FDCable(AbstractCable):
         if not isinstance(grid_counts, dict) or not all(isinstance(v, (int, np.integer)) for v in grid_counts.values()):
             raise TypeError("The grid_counts argument must be a dictionary of integers!")
 
-        self.grid_counts = grid_counts
-        self.radii_grid: np.ndarray = np.array([])
-        self.grid_deltas: np.ndarray = np.array([])
-        self.layer_name_grid: np.ndarray = np.array([])
-        self.rho_grid: np.ndarray = np.array([])
-        self.capacity_grid: np.ndarray = np.array([])
-        self.alpha_grid: np.ndarray = np.array([])
-        self.surface_area_grid: np.ndarray = np.array([])
+        self._grid_counts = grid_counts
+        self._radii_grid: np.ndarray = np.array([])
+        self._grid_deltas: np.ndarray = np.array([])
+        self._surface_area_grid: np.ndarray = np.array([])
+        self._capacity_grid: np.ndarray = np.array([])
+        self._rho_grid: np.ndarray = np.array([])
 
-        self.set_calculated_fields()
+        self._upper_diagonal: np.ndarray = np.array([])
+        self._base_diagonal: np.ndarray = np.array([])
+        self._lower_diagonal: np.ndarray = np.array([])
+        self._finite_difference_matrix_diagonals_outdated = True
 
-    def set_calculated_fields(self) -> None:
-        """Initialize derived cable properties.
+        self._set_calculated_fields()
 
-        The properties set in this function depend on the cable layers. When
-        adding soil or pipe layers these need to be reset. This function can be used to do so.
-        """
-        self.radii_grid = self.construct_radii_grid()
-        self.grid_deltas = np.diff(self.radii_grid)
-        self.surface_area_grid = FDCable.construct_surface_area_grid(self.radii_grid)
+    @property
+    def outer_boundary_coupling_coefficient(self) -> float:
+        """Get the outer-boundary coupling coefficient from the finite difference matrix.
 
-        rho_grids = [np.full(self.grid_counts[layer], self.layer_properties[layer].rho) for layer in self.layers]
-        self.rho_grid = np.concatenate(rho_grids)
-
-        capacity_grids = [
-            np.full(self.grid_counts[layer], self.layer_properties[layer].capacity) for layer in self.layers
-        ]
-        self.capacity_grid = np.concatenate(capacity_grids)
-
-        alpha_grids = [np.full(self.grid_counts[layer], self.layer_properties[layer].alpha) for layer in self.layers]
-        self.alpha_grid = np.concatenate(alpha_grids)
-
-    def construct_radii_grid(self, maximal_boundary_distance: float = 0.000_1) -> np.ndarray:
-        """Construct the radii grid for the cable based on the layer properties and grid counts.
-
-        Args:
-            maximal_boundary_distance (float): The maximal distance to use as a
-                boundary distance between layers [m]. Default is 0.1 mm.
+        The outer-boundary coupling coefficient is a value that represents the thermal interaction at the outer boundary
+        of the cable. It is derived from the finite difference matrix and is used in the heat equation calculations.
 
         Returns:
-            np.ndarray: A Numpy array representing the radii grid for the cable.
+            float: The outer-boundary coupling coefficient.
 
         """
-        last_layer = self.layers[-1]
+        self._update_finite_difference_matrix_diagonals_if_needed()
 
-        boundary_distance = 0.0
-        radii_grids = []
-        for layer_idx, layer in enumerate(self.layers):
-            start = self.layer_properties[layer].inner_radius + boundary_distance
+        return float(self._upper_diagonal[-1])
 
-            if layer == last_layer:
-                end = self.layer_properties[layer].outer_radius
-
-            else:
-                next_layer = self.layers[layer_idx + 1]
-                boundary_distance = min(
-                    [
-                        maximal_boundary_distance,
-                        (self.layer_properties[layer].outer_radius - start) / (2 * (self.grid_counts[layer] - 0.5)),
-                        (
-                            self.layer_properties[next_layer].outer_radius
-                            - self.layer_properties[next_layer].inner_radius
-                        )
-                        / (2 * self.grid_counts[next_layer]),
-                    ]
-                )
-                end = self.layer_properties[layer].outer_radius - boundary_distance
-
-            if layer not in CableLayer.soil_layers():
-                radii_grids.append(np.linspace(start=start, stop=end, num=self.grid_counts[layer]))
-            else:
-                # For soil layers, we want to use a logarithmic grid to better
-                # capture the temperature gradients close to the cable.
-                radii_grids.append(
-                    np.logspace(start=0.0, stop=np.log2(end / start), num=self.grid_counts[layer], base=2) * start
-                )
-
-        return np.concatenate(radii_grids)
-
-    @staticmethod
-    def construct_surface_area_grid(radii_grid: np.ndarray) -> np.ndarray:
-        """Construct the surface area grid for the cable based on the radii grid.
-
-        Args:
-            radii_grid (np.ndarray): A Numpy array representing the radii grid
-                for the cable.
+    @property
+    def grid_size(self) -> int:
+        """Get the total number of grid points in the finite difference model.
 
         Returns:
-            np.ndarray: A Numpy array representing the surface area grid for the cable.
+            int: The total number of grid points.
 
         """
-        # The radii_grid should start at 0.0 and be strictly increasing
-        if not np.isclose(radii_grid[0], 0.0):
-            raise ValueError("The first value of the radii grid should be 0.0!")
-        if not np.all(np.diff(radii_grid) > 0):
-            raise ValueError("The radii grid should be strictly increasing!")
+        return len(self._radii_grid)
 
-        # Create a surface area grid of N-1 values
-        surface_area_grid = np.zeros(radii_grid.size - 1)
-        surface_area_grid[0] = np.pi * (radii_grid[1] / 2) ** 2
-
-        surface_area_grid[1:] = np.pi * radii_grid[1:-1] * (radii_grid[2:] - radii_grid[0:-2])
-
-        return surface_area_grid
-
-    def get_redefined_cable(self, **kwargs) -> Self:
-        """Get a new cable instance based on the current self, but with changed cable attributes.
-
-        This method takes the parameters given in the **kwargs and tries to apply those to matching attributes in a
-         copy made of the current self.
-
-        Examples:
-            An example where we create a cable, and then use this method to create a copy of the cable, but with the
-            [rhos] and [capacities] attributes altered from their original values.
-            >>> cable = Cable()
-            >>> new_cable = cable.get_redefined_cable(rhos = (1,1,1), capacities = (5,5,5))
-
-            (For other applications, please check out the 'add_soil' and 'add_outer_tube' methods.)
+    def get_layer_indices_for_layer(self, layer: CableLayer) -> tuple[int, int]:
+        """This method fetches the inclusive start and end indices of the grid points for a given layer.
 
         Args:
-            **kwargs:
-                    Kwargs here is used to pass along cable parameters that would usually be configured using the
-                    initializer. Recognized parameters will overwrite existing values, while other parameters will
-                    be ignored.
-                    (Some examples of parameters that could be changed in this way: 'rhos','radii','grid_counts')
+            layer (CableLayer): A CableLayer object representing the layer for
+                which the indices need to be fetched.
 
         Returns:
-            Self: A completely new cable instance based on the cable the method was
-                called from, but with changed cable properties based on the passed
-                [**kwargs] parameters.
-
-        Notes:
-            There are two reasons this method should be re-evaluated in the future. First of all this method uses
-            kwargs to pass along an unknown combination of parameters, which is only evaluated by parameter name.
-            Secondly this method is found in the FDCable class, but it is not specific to the FDCable class.
+            tuple[int, int]: A tuple of integers representing the inclusive start and end
+                indices of the grid points for the given layer, in that order.
 
         """
-        new_cable = deepcopy(self)
+        layer_index = self.layers.index(layer)
 
-        # Check all the items in the kwargs and apply them to the new cable if they are recognized as existing.
-        for key, value in kwargs.items():
-            if hasattr(new_cable, key):
-                setattr(new_cable, key, value)
+        layer_start_index = sum([self._grid_counts[layer] for layer in self.layers[:layer_index]])
+        layer_end_index = layer_start_index + self._grid_counts[layer] - 1
+        return layer_start_index, layer_end_index
 
-        # Recalculate the calculated fields of the new cable and reset the solution values
-        new_cable.set_calculated_fields()
+    def get_heating_contribution_at_radius(self, radius: float, self_heating_contribution: np.ndarray) -> float:
+        """Interpolate the self-heating contribution at a given radius.
 
-        return new_cable
+        Args:
+            radius (float): Radial distance at which to evaluate the self-heating contribution.
+            self_heating_contribution (np.ndarray): Self-heating contribution state values for the cable.
+
+        Returns:
+            float: Interpolated temperature-rise contribution due to cable self-heating at the requested radius.
+
+        """
+        return float(np.interp(x=[radius], xp=self._radii_grid, fp=self_heating_contribution)[0])
+
+    def get_finite_difference_vector(self, neglect_dielectric_loss: bool = False) -> np.ndarray:
+        """This method calculates and returns the finite difference vector.
+
+        Args:
+            neglect_dielectric_loss (bool): A boolean representing whether to
+                neglect the dielectric losses in the calculation of the vector.
+                Default is False.
+
+        Returns:
+            np.ndarray: A Numpy array representing the finite difference vector [W/m³].
+        """
+        vector = np.zeros(self._radii_grid.size - 1)
+
+        if not neglect_dielectric_loss:
+            dielectric_loss = self.get_dielectric_loss_for_cable()
+            vector = self._update_vector_with_heat_generation_for_layer(
+                vector=vector,
+                heat_generation=dielectric_loss,
+                layer=CableLayer.Insulation,
+            )
+
+        return vector
+
+    def update_finite_difference_vector(
+        self,
+        vector: np.ndarray,
+        temperature_grid: np.ndarray,
+        load: float,
+        ac_current: bool,
+        temperature_dependent_electric_resistance: bool,
+    ) -> np.ndarray:
+        """Build the finite-difference vector for a specific thermal state and circuit load.
+
+        Args:
+            vector (np.ndarray): The finite-difference vector to be updated.
+            temperature_grid (np.ndarray): The current temperature grid for the cable.
+            load (float): The electrical load in amperes.
+            ac_current (bool): Whether AC conductor losses are included.
+            temperature_dependent_electric_resistance (bool): Whether resistance depends on temperature.
+            neglect_dielectric_loss (bool): Whether dielectric loss should be omitted from the baseline vector.
+
+        Returns:
+            np.ndarray: A finite-difference vector for the given state and load.
+        """
+        conductor_temperature = self._get_mean_temperature_cable_layer(
+            temperature_grid=temperature_grid, layer=CableLayer.Conductor
+        )
+
+        if CableLayer.Screen in self.layers and ac_current:
+            screen_temperature = self._get_mean_temperature_cable_layer(
+                temperature_grid=temperature_grid, layer=CableLayer.Screen
+            )
+
+            heat_generation_conductor, heat_generation_screen = self.get_heat_generation_conductor_and_screen(
+                ac_current=ac_current,
+                load=load,
+                conductor_temperature=conductor_temperature,
+                screen_temperature=screen_temperature,
+                temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
+            )
+
+            vector = self._update_vector_with_heat_generation_for_layer(
+                vector=vector,
+                heat_generation=heat_generation_screen,
+                layer=CableLayer.Screen,
+            )
+        else:
+            heat_generation_conductor = self.get_heat_generation_conductor(
+                ac_current=ac_current,
+                load=load,
+                conductor_temperature=conductor_temperature,
+                temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
+            )
+
+        return self._update_vector_with_heat_generation_for_layer(
+            vector=vector,
+            heat_generation=heat_generation_conductor,
+            layer=CableLayer.Conductor,
+        )
+
+    def update_pipe_fill_resistivity(self, temperature_grid: np.ndarray) -> None:
+        """This method updates the (temperature dependent) thermal resistivity of the medium in the pipe of the cable.
+
+        Args:
+            temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.
+
+
+        """
+        if self.layer_metrics.pipe is None:
+            raise ValueError("Pipe is not set. Cannot update pipe fill resistivity.")
+        if self.layer_metrics.pipe.inner_radius is None:
+            raise ValueError("Pipe inner radius is not set. Cannot update pipe fill resistivity.")
+
+        Tfill = self._get_mean_temperature_cable_layer(temperature_grid=temperature_grid, layer=CableLayer.PipeFill)
+
+        new_pipe_fill_rho = self.layer_metrics.pipe.get_thermal_resistivity_pipe_fill(Tfill)
+        pipe_fill_start_index, pipe_fill_end_index = self.get_layer_indices_for_layer(CableLayer.PipeFill)
+        self._update_rho_grid_slice(
+            start_index=pipe_fill_start_index,
+            end_index=pipe_fill_end_index + 1,
+            rho=new_pipe_fill_rho,
+        )
+
+    def update_soil_properties(
+        self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False
+    ):
+        """This method updates the soil properties around a cable.
+
+        Args:
+            soil_rho (float): The thermal resistivity of the soil that is not dried out
+            soil_c (float): The thermal capacity of the soil that is not dried out
+            temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.
+            soil_drying (bool): Whether the scenario takes soil drying into account.
+
+        """
+        dry_soil_radius = self._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=soil_drying)
+
+        self._update_soil_resistivity(
+            soil_rho=soil_rho,
+            dry_soil_radius=dry_soil_radius,
+        )
+
+        self._update_soil_capacity(soil_c=soil_c)
+
+    def integrate_timestep(
+        self,
+        s: np.ndarray,
+        b: np.ndarray,
+        time_step: float,
+        internal_heating: bool | None = None,
+    ) -> np.ndarray:
+        """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
+
+        For optimization purposes, the method uses the scipy.linalg.solve_banded method to solve the linear system.
+        This means the three diagonals of finite difference matrix A are instead stored in a (3, N) array, where
+        N is the length of the diagonal.
+
+        Args:
+            s (np.ndarray): The solution of the heat equation [°C] at the
+                previous timestep (t).
+            b (np.ndarray): The finite difference vector [W/m³].
+            time_step (float): The size of the time steps [s] in the linearized
+                time grid.
+            internal_heating (bool | None): A boolean representing whether
+                internal heating is considered in this timestep.
+                This implementation of the method does not use this parameter, but some child classes do.
+
+        Returns:
+            np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
+                the final grid point, at which a boundary condition is enforced.
+
+        """
+        number_of_non_zero_diagonals = (1, 1)  # one upper and one lower diagonal
+
+        A = self._banded_matrix * -time_step
+        A[1, :] += self._capacity_grid[:-1]
+
+        b = self._capacity_grid[:-1] * s + time_step * b
+
+        return linalg.solve_banded(l_and_u=number_of_non_zero_diagonals, ab=A, b=b)
 
     def get_cable_copy_with_added_soil_layer(
         self, soil_rho: float, soil_capacity: float, soil_radius: float, logarithmic_soil_gridpoint_density: float
@@ -236,7 +320,7 @@ class FDCable(AbstractCable):
         else:
             new_layer = soil_layers[0]
 
-        grid_counts = new_cable.grid_counts
+        grid_counts = new_cable._grid_counts
         new_cable.layer_properties[new_layer] = CableLayerProperties(
             layer=new_layer,
             inner_radius=current_outer_radius,
@@ -249,59 +333,194 @@ class FDCable(AbstractCable):
         radius_factor = soil_radius / current_outer_radius
         grid_counts[new_layer] = max(2, int(logarithmic_soil_gridpoint_density * np.log2(radius_factor)))
 
-        return new_cable.get_redefined_cable(layer_properties=new_cable.layer_properties, grid_counts=grid_counts)
+        return new_cable._get_redefined_cable(layer_properties=new_cable.layer_properties, grid_counts=grid_counts)
 
-    def get_cable_copy_without_soil(self) -> Self:
-        """This method returns a new FDCable object with the soil layer removed."""
-        if CableLayer.SoilOne not in self.layers:
-            raise ValueError("No soil layers detected!")
+    @property
+    def _banded_matrix(self) -> np.ndarray:
+        """Get the finite difference matrix in banded form.
 
-        non_soil_layers = [layer for layer in self.layers if layer not in CableLayer.soil_layers()]
-        grid_count_for_cable_without_soil = {
-            layer: grid_count for layer, grid_count in self.grid_counts.items() if layer in non_soil_layers
-        }
+        The finite difference matrix is central to the linearized heat equation. It is a matrix with one base
+        diagonal and two "off" diagonals (one above and one below the base diagonal),
+        and otherwise only zeros. We represent this matrix as a 3xN numpy array, where N
+        is the length of the base diagonal.
 
-        new_layer_properties = {layer: self.layer_properties[layer] for layer in non_soil_layers}
+        Notes:
+            In the finite difference (FD) approximation, this single matrix combined with a vector control the
+            linearized heat equation.
 
-        return self.get_redefined_cable(
-            layer_properties=new_layer_properties, grid_counts=grid_count_for_cable_without_soil
-        )
+        Returns:
+            np.ndarray: A 3xN numpy array representing the finite difference matrix in banded form.
 
-    def get_layer_indices_for_layer(self, layer: CableLayer) -> tuple[int, int]:
-        """This method fetches the inclusive start and end indices of the grid points for a given layer.
+        """
+        self._update_finite_difference_matrix_diagonals_if_needed()
+
+        matrix = np.zeros((3, len(self._base_diagonal)))
+
+        matrix[0, 1:] = self._upper_diagonal[:-1]
+        matrix[1, :] = self._base_diagonal
+        matrix[2, :-1] = self._lower_diagonal
+
+        return matrix
+
+    def _set_calculated_fields(self) -> None:
+        """Initialize derived cable properties.
+
+        The properties set in this function depend on the cable layers. When
+        adding soil or pipe layers these need to be reset. This function can be used to do so.
+        """
+        self._radii_grid = self._construct_radii_grid()
+        self._grid_deltas = np.diff(self._radii_grid)
+        self._surface_area_grid = self._construct_surface_area_grid(self._radii_grid)
+
+        capacity_grids = [
+            np.full(self._grid_counts[layer], self.layer_properties[layer].capacity) for layer in self.layers
+        ]
+        self._capacity_grid = np.concatenate(capacity_grids)
+
+        rho_grids = [np.full(self._grid_counts[layer], self.layer_properties[layer].rho) for layer in self.layers]
+        self._rho_grid = np.concatenate(rho_grids)
+        self._invalidate_finite_difference_matrix_diagonals()
+
+    def _construct_radii_grid(self, maximal_boundary_distance: float = 0.000_1) -> np.ndarray:
+        """Construct the radii grid for the cable based on the layer properties and grid counts.
 
         Args:
-            layer (CableLayer): A CableLayer object representing the layer for
-                which the indices need to be fetched.
+            maximal_boundary_distance (float): The maximal distance to use as a
+                boundary distance between layers [m]. Default is 0.1 mm.
 
         Returns:
-            tuple[int, int]: A tuple of integers representing the inclusive start and end
-                indices of the grid points for the given layer, in that order.
+            np.ndarray: A Numpy array representing the radii grid for the cable.
 
         """
-        layer_index = self.layers.index(layer)
+        last_layer = self.layers[-1]
 
-        layer_start_index = sum([self.grid_counts[layer] for layer in self.layers[:layer_index]])
-        layer_end_index = layer_start_index + self.grid_counts[layer] - 1
-        return layer_start_index, layer_end_index
+        boundary_distance = 0.0
+        radii_grids = []
+        for layer_idx, layer in enumerate(self.layers):
+            start = self.layer_properties[layer].inner_radius + boundary_distance
+
+            if layer == last_layer:
+                end = self.layer_properties[layer].outer_radius
+
+            else:
+                next_layer = self.layers[layer_idx + 1]
+                boundary_distance = min(
+                    [
+                        maximal_boundary_distance,
+                        (self.layer_properties[layer].outer_radius - start) / (2 * (self._grid_counts[layer] - 0.5)),
+                        (
+                            self.layer_properties[next_layer].outer_radius
+                            - self.layer_properties[next_layer].inner_radius
+                        )
+                        / (2 * self._grid_counts[next_layer]),
+                    ]
+                )
+                end = self.layer_properties[layer].outer_radius - boundary_distance
+
+            if layer not in CableLayer.soil_layers():
+                radii_grids.append(np.linspace(start=start, stop=end, num=self._grid_counts[layer]))
+            else:
+                # For soil layers, we want to use a logarithmic grid to better
+                # capture the temperature gradients close to the cable.
+                radii_grids.append(
+                    np.logspace(start=0.0, stop=np.log2(end / start), num=self._grid_counts[layer], base=2) * start
+                )
+
+        return np.concatenate(radii_grids)
+
+    @staticmethod
+    def _construct_surface_area_grid(radii_grid: np.ndarray) -> np.ndarray:
+        """Construct the surface area grid for the cable based on the radii grid.
+
+        Args:
+            radii_grid (np.ndarray): A Numpy array representing the radii grid
+                for the cable.
+
+        Returns:
+            np.ndarray: A Numpy array representing the surface area grid for the cable.
+
+        """
+        # The radii_grid should start at 0.0 and be strictly increasing
+        if not np.isclose(radii_grid[0], 0.0):
+            raise ValueError("The first value of the radii grid should be 0.0!")
+        if not np.all(np.diff(radii_grid) > 0):
+            raise ValueError("The radii grid should be strictly increasing!")
+
+        # Create a surface area grid of N-1 values
+        surface_area_grid = np.zeros(radii_grid.size - 1)
+        surface_area_grid[0] = np.pi * (radii_grid[1] / 2) ** 2
+
+        surface_area_grid[1:] = np.pi * radii_grid[1:-1] * (radii_grid[2:] - radii_grid[0:-2])
+
+        return surface_area_grid
+
+    def _get_redefined_cable(self, **kwargs) -> Self:
+        """Get a new cable instance based on the current self, but with changed cable attributes.
+
+        This method takes the parameters given in the **kwargs and tries to apply those to matching attributes in a
+         copy made of the current self.
+
+        Examples:
+            An example where we create a cable, and then use this method to create a copy of the cable, but with the
+            [rhos] and [capacities] attributes altered from their original values.
+            >>> cable = Cable()
+            >>> new_cable = cable._get_redefined_cable(rhos = (1,1,1), capacities = (5,5,5))
+
+            (For other applications, please check out the 'add_soil' and 'add_outer_tube' methods.)
+
+        Args:
+            **kwargs:
+                    Kwargs here is used to pass along cable parameters that would usually be configured using the
+                    initializer. Recognized parameters will overwrite existing values, while other parameters will
+                    be ignored.
+                    (Some examples of parameters that could be changed in this way: 'rhos','radii','grid_counts')
+
+        Returns:
+            Self: A completely new cable instance based on the cable the method was
+                called from, but with changed cable properties based on the passed
+                [**kwargs] parameters.
+
+        Notes:
+            There are two reasons this method should be re-evaluated in the future. First of all this method uses
+            kwargs to pass along an unknown combination of parameters, which is only evaluated by parameter name.
+            Secondly this method is found in the FDCable class, but it is not specific to the FDCable class.
+
+        """
+        new_cable = deepcopy(self)
+
+        # Check all the items in the kwargs and apply them to the new cable if they are recognized as existing.
+        for key, value in kwargs.items():
+            if hasattr(new_cable, key):
+                setattr(new_cable, key, value)
+
+        # Recalculate the calculated fields of the new cable and reset the solution values
+        new_cable._set_calculated_fields()
+
+        return new_cable
+
+    def _invalidate_finite_difference_matrix_diagonals(self) -> None:
+        """Invalidate the cached finite difference matrix diagonals.
+
+        This method marks the finite difference matrix diagonals as outdated, indicating that they need to be updated
+        before the next use. This should be called when rho_grid changes, affecting the finite difference matrix.
+
+        """
+        self._finite_difference_matrix_diagonals_outdated = True
 
     def _get_finite_difference_matrix_diagonals(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Compute the upper, base, and lower diagonals of the finite-difference matrix.
-
-        The three diagonals share the same grid geometry and interstitial resistivity values.
-        This method computes those shared terms and derives the three diagonals from them.
+        """Build the three diagonals of the finite difference matrix.
 
         Returns:
-            tuple[np.ndarray, np.ndarray, np.ndarray]:
-                The upper, base, and lower diagonals, in that order.
+            tuple[np.ndarray, np.ndarray, np.ndarray]: A tuple containing the upper diagonal, base diagonal,
+                and lower diagonal of the finite difference matrix.
 
         """
-        radii = self.radii_grid
-        delta_plus = self.grid_deltas[1:]
-        delta_minus = self.grid_deltas[:-1]
-        inter_radii = radii[:-1] + 0.5 * self.grid_deltas
+        radii = self._radii_grid
+        delta_plus = self._grid_deltas[1:]
+        delta_minus = self._grid_deltas[:-1]
+        inter_radii = radii[:-1] + 0.5 * self._grid_deltas
 
-        inter_rhos = self._calculate_inter_rhos(radii, inter_radii, self.rho_grid)
+        inter_rhos = self._calculate_inter_rhos(radii, inter_radii, self._rho_grid)
         rho_plus = inter_rhos[1:]
         rho_minus = inter_rhos[:-1]
 
@@ -314,11 +533,27 @@ class FDCable(AbstractCable):
         lower_diagonal = r_minus * common_factor / (rho_minus * delta_minus)
         base_inner = -(upper_inner + lower_diagonal)
 
-        boundary_value = 4 / (self.rho_grid[0] * delta_minus[0] ** 2)
+        boundary_value = 4 / (self._rho_grid[0] * delta_minus[0] ** 2)
         upper_diagonal = np.append([boundary_value], upper_inner)
         base_diagonal = np.append([-boundary_value], base_inner)
 
         return upper_diagonal, base_diagonal, lower_diagonal
+
+    def _update_finite_difference_matrix_diagonals_if_needed(self) -> None:
+        """This method updates the three diagonals of the finite difference matrix if they are outdated.
+
+        The three diagonals share the same grid geometry and interstitial resistivity values.
+        This method computes those shared terms and derives the three diagonals from them.
+        """
+        if not self._finite_difference_matrix_diagonals_outdated:
+            return
+
+        upper_diagonal, base_diagonal, lower_diagonal = self._get_finite_difference_matrix_diagonals()
+
+        self._upper_diagonal = upper_diagonal
+        self._base_diagonal = base_diagonal
+        self._lower_diagonal = lower_diagonal
+        self._finite_difference_matrix_diagonals_outdated = False
 
     def _calculate_inter_rhos(self, radii: np.ndarray, inter_radii: np.ndarray, rhos: np.ndarray) -> np.ndarray:
         """This method calculates the interstitial resistivity values between grid points.
@@ -366,90 +601,44 @@ class FDCable(AbstractCable):
             radii[1:] / radii[:-1]
         )
 
-    @staticmethod
-    def get_outer_boundary_coupling_coefficient_from_matrix(banded_matrix: np.ndarray) -> float:
-        """Extract the outer-boundary coupling coefficient from a banded FD matrix.
+    def _update_rho_grid_slice(self, start_index: int, end_index: int, rho: float) -> None:
+        """Update a slice of the rho-grid with a new value if significant change is detected.
 
         Args:
-            banded_matrix (np.ndarray): A 3xN numpy array representing the finite-difference matrix in banded form.
-
-        Returns:
-            float: The outer-boundary coupling coefficient.
-        """
-        return float(-(banded_matrix[1, -1] + banded_matrix[2, -2]))
-
-    def get_finite_difference_matrix(self) -> np.ndarray:
-        """Calculates and returns the finite-difference matrix.
-
-        The finite-difference matrix is central to the linearized heat equation. It is a matrix with one base
-        diagonal and two "off" diagonals (one above and one below the base diagonal),
-        and otherwise only zeros. We represent this matrix as a 3xN numpy array, where N
-        is the length of the base diagonal.
-
-        Notes:
-            In the finite difference (FD) approximation, this single matrix combined with a vector control the
-            linearized heat equation.
-
-        Returns:
-            np.ndarray: The (3xN) matrix representing the finite-difference matrix [W/(°C*m³)].
+            start_index (int): The starting index of the slice to update (inclusive).
+            end_index (int): The ending index of the slice to update (exclusive).
+            rho (float): The new resistivity value to set for the specified slice.
 
         """
-        upper_diagonal, base_diagonal, lower_diagonal = self._get_finite_difference_matrix_diagonals()
+        if start_index >= end_index:
+            return
 
-        matrix = np.zeros((3, len(base_diagonal)))
-        matrix[0, 1:] = upper_diagonal[:-1]
-        matrix[1, :] = base_diagonal
-        matrix[2, :-1] = lower_diagonal
+        rho_slice = self._rho_grid[start_index:end_index]
+        if np.all(np.isclose(rho_slice, rho, rtol=1e-2)):
+            return
 
-        return matrix
+        self._rho_grid[start_index:end_index] = rho
+        self._invalidate_finite_difference_matrix_diagonals()
 
-    def get_finite_difference_vector(self, neglect_dielectric_loss: bool = False) -> np.ndarray:
-        """This method calculates and returns the finite-difference vector.
+    def _update_capacity_grid_slice(self, start_index: int, end_index: int, capacity: float) -> None:
+        """Update a slice of the capacity-grid with a new value if significant change is detected.
 
         Args:
-            neglect_dielectric_loss (bool): A boolean representing whether to
-                neglect the dielectric losses in the calculation of the vector.
-                Default is False.
-
-        Returns:
-            np.ndarray: A Numpy array representing the finite-difference vector [W/m³].
-        """
-        vector = np.zeros(self.radii_grid.size - 1)
-
-        if not neglect_dielectric_loss:
-            dielectric_loss = self.get_dielectric_loss_for_cable()
-            vector = self.update_vector_with_heat_generation_for_layer(
-                vector=vector,
-                heat_generation=dielectric_loss,
-                layer=CableLayer.Insulation,
-            )
-
-        return vector
-
-    def get_linear_system(
-        self,
-        neglect_dielectric_loss: bool = False,
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """This method retrieves the two elements that control the linearized heat equation.
-
-        These are:
-            - The finite-difference matrix, which contains the linearized interaction terms between grid points defined
-              by material properties.
-            - The vector, which contains the energy that would be released and internally generated heat terms. In this
-              step, only the time-independent dielectric losses are added.
-
-        Returns:
-            tuple[np.ndarray, np.ndarray]:
-                A tuple of two Numpy arrays, representing the finite-difference matrix and the vector,
-                respectively.
+            start_index (int): The starting index of the slice to update (inclusive).
+            end_index (int): The ending index of the slice to update (exclusive).
+            capacity (float): The new capacity value to set for the specified slice.
 
         """
-        matrix = self.get_finite_difference_matrix()
-        vector = self.get_finite_difference_vector(neglect_dielectric_loss=neglect_dielectric_loss)
+        if start_index >= end_index:
+            return
 
-        return matrix, vector
+        capacity_slice = self._capacity_grid[start_index:end_index]
+        if np.all(np.isclose(capacity_slice, capacity, rtol=1e-2)):
+            return
 
-    def update_vector_with_heat_generation_for_layer(
+        self._capacity_grid[start_index:end_index] = capacity
+
+    def _update_vector_with_heat_generation_for_layer(
         self, vector: np.ndarray, heat_generation: float, layer: CableLayer
     ) -> np.ndarray:
         """Update the vector with heat generation distributed over one cable layer.
@@ -465,51 +654,26 @@ class FDCable(AbstractCable):
         """
         start_index, end_index = self.get_layer_indices_for_layer(layer)
         vector[start_index : end_index + 1] = (
-            heat_generation / self.surface_area_grid[start_index : end_index + 1].sum()
+            heat_generation / self._surface_area_grid[start_index : end_index + 1].sum()
         )
         return vector
 
-    def integrate_timestep(
-        self,
-        s: np.ndarray,
-        A_banded: np.ndarray,
-        b: np.ndarray,
-        time_step: float,
-        internal_heating: bool | None = None,
-    ) -> np.ndarray:
-        """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
+    def _get_soil_grid_start_index(self) -> int:
+        """Return the first grid index that belongs to soil around the cable."""
+        return int((self._radii_grid <= self.layer_metrics.outer_radius).sum())
 
-        For optimization purposes, the method uses the scipy.linalg.solve_banded method to solve the linear system.
-        This means the three diagonals of finite-difference matrix A are instead stored in a (3, N) array, where
-        N is the length of the diagonal.
+    def _get_dry_soil_radius(self, temperature_grid: np.ndarray, soil_drying: bool) -> float | None:
+        """Return the radius of dried-out soil based on temperature and scenario settings."""
+        if not soil_drying:
+            return None
 
-        Args:
-            s (np.ndarray): The solution of the heat equation [°C] at the
-                previous timestep (t).
-            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
-                represented as a banded matrix.
-            b (np.ndarray): The finite-difference vector [W/m³].
-            time_step (float): The size of the time steps [s] in the linearized
-                time grid.
-            internal_heating (bool | None): A boolean representing whether
-                internal heating is considered in this timestep.
-                This implementation of the method does not use this parameter, but some child classes do.
+        dry_idxs = np.nonzero(temperature_grid >= self._SOIL_DRYING_TEMPERATURE)[0]
+        if dry_idxs.size == 0:
+            return None
 
-        Returns:
-            np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
-                the final grid point, at which a boundary condition is enforced.
+        return float(self._radii_grid[dry_idxs[-1]])
 
-        """
-        number_of_non_zero_diagonals = (1, 1)  # one upper and one lower diagonal
-
-        A = A_banded * -time_step
-        A[1, :] += self.capacity_grid[:-1]
-
-        b = self.capacity_grid[:-1] * s + time_step * b
-
-        return linalg.solve_banded(l_and_u=number_of_non_zero_diagonals, ab=A, b=b)
-
-    def update_soil_resistivity(self, soil_rho: float, dry_soil_radius: float | None = None):
+    def _update_soil_resistivity(self, soil_rho: float, dry_soil_radius: float | None = None) -> None:
         """This method updates the soil resistivity values around a cable.
 
         This is meant to represent the IEC dried-out soil model. The soil will consist of an inner part of dried-out
@@ -526,51 +690,23 @@ class FDCable(AbstractCable):
             dry_soil_radius (float | None): A float representing the radius of
                 the dried-out soil around the cable.
 
-        """
-        start_index = (self.radii_grid <= self.layer_metrics.outer_radius).sum()
-        self.rho_grid[start_index:] = soil_rho
+        Returns:
+            bool: Whether any resistivity values in the rho grid changed.
 
-        # Also update the layer properties to keep them consistent
-        for layer in CableLayer.soil_layers():
-            if layer in self.layers:
-                self.layer_properties[layer].rho = soil_rho
+        """
+        start_index = self._get_soil_grid_start_index()
+        self._update_rho_grid_slice(
+            start_index=start_index,
+            end_index=self.grid_size,
+            rho=soil_rho,
+        )
 
         if dry_soil_radius is not None:
             dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
-            end_index = max((self.radii_grid <= dry_soil_radius).sum(), start_index)
+            end_index = max((self._radii_grid <= dry_soil_radius).sum(), start_index)
+            self._update_rho_grid_slice(start_index=start_index, end_index=end_index, rho=dry_soil_rho)
 
-            # Assign the resistivity values
-            self.rho_grid[start_index:end_index] = dry_soil_rho
-
-            for layer in CableLayer.soil_layers():
-                # Only update the layers that are fully within the dry soil radius
-                if (layer in self.layers) and (self.layer_properties[layer].outer_radius <= dry_soil_radius):
-                    self.layer_properties[layer].rho = dry_soil_rho
-
-    def update_pipe_resistivity(self, Tfill: float) -> bool:
-        """This method updates the (temperature dependent) thermal resistivity of the medium in the pipe of the cable.
-
-        Args:
-            Tfill (float): The mean temperature of the medium within the pipe in
-                degree Celsius.
-
-        """
-        if self.layer_metrics.pipe is None:
-            raise ValueError("Pipe is not set. Cannot update pipe resistivity.")
-        if self.layer_metrics.pipe.inner_radius is None:
-            raise ValueError("Pipe inner radius is not set. Cannot update pipe resistivity.")
-
-        old_pipe_fill_rho = self.layer_properties[CableLayer.PipeFill].rho
-        new_pipe_fill_rho = self.layer_metrics.pipe.get_thermal_resistivity_pipe_fill(Tfill)
-        if not np.isclose(old_pipe_fill_rho, new_pipe_fill_rho, rtol=1e-2):
-            pipe_fill_start_index, pipe_fill_end_index = self.get_layer_indices_for_layer(CableLayer.PipeFill)
-            self.rho_grid[pipe_fill_start_index : pipe_fill_end_index + 1] = new_pipe_fill_rho
-            self.layer_properties[CableLayer.PipeFill].rho = new_pipe_fill_rho
-            return True
-        else:
-            return False
-
-    def update_soil_capacity(self, soil_c: float):
+    def _update_soil_capacity(self, soil_c: float):
         """This method updates the soil capacity values around a cable.
 
         If multiple soil layers are present, it sets them all (the entire soil).
@@ -583,8 +719,8 @@ class FDCable(AbstractCable):
         if not isinstance(soil_c, (int, float, np.integer, np.floating)):
             raise ValueError("The soil_c argument must be of type int or float!")
 
-        start_index = (self.radii_grid <= self.layer_metrics.outer_radius).sum()
-        self.capacity_grid[start_index:] = soil_c
+        start_index = self._get_soil_grid_start_index()
+        self._update_capacity_grid_slice(start_index=start_index, end_index=self.grid_size, capacity=soil_c)
 
     def get_cable_copy_with_pipe(self, pipe: Pipe) -> Self:
         """Get a new cable instance based on the current self, but with extra added layers that model a pipe.
@@ -616,7 +752,7 @@ class FDCable(AbstractCable):
 
         # Create a new cable, using the get_redefined_cable() method, with the new values where the cable should be
         # altered to accommodate the pipe.
-        grid_counts = new_cable.grid_counts
+        grid_counts = new_cable._grid_counts
         for layer, layer_outer_radius, rho, capacity in [
             (CableLayer.PipeFill, pipe.inner_radius, pipe.get_thermal_resistivity_pipe_fill(), pipe.pipe_fill_cap),
             (CableLayer.Pipe, pipe.outer_radius, 3.5, 2.4e6),
@@ -634,13 +770,13 @@ class FDCable(AbstractCable):
         new_cable.layer_metrics.pipe = pipe
         new_cable.layer_metrics.outer_radius = pipe.outer_radius
 
-        return new_cable.get_redefined_cable(
+        return new_cable._get_redefined_cable(
             layer_properties=new_cable.layer_properties,
             layer_metrics=new_cable.layer_metrics,
             grid_counts=grid_counts,
         )
 
-    def get_mean_temperature_cable_layer(self, temperature_grid: np.ndarray, layer: CableLayer) -> float:
+    def _get_mean_temperature_cable_layer(self, temperature_grid: np.ndarray, layer: CableLayer) -> float:
         """Calculate the mean temperature for a cable layer.
 
         Args:
@@ -658,17 +794,16 @@ class FDCable(AbstractCable):
 
 
 class FDCableTrefoilCircuitInSinglePipe(FDCable):
-    """Class that represents a finite-difference cable trefoil circuit that lies in a single pipe."""
+    """Class that represents a finite difference cable trefoil circuit that lies in a single pipe."""
 
     def integrate_timestep(
         self,
         s: np.ndarray,
-        A_banded: np.ndarray,
         b: np.ndarray,
         time_step: float,
         internal_heating: bool | None = None,
     ) -> np.ndarray:
-        """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
+        """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
 
         We add a heat source between the pipe and the equivalent cable
         representing the trefoil circuit in the internal heating step. The
@@ -682,9 +817,7 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
         Args:
             s (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
-                represented as a banded matrix.
-            b (np.ndarray): The finite-difference vector [W/m³].
+            b (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
             internal_heating (bool): A boolean indicating whether internal
@@ -695,12 +828,13 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
                 the final grid point, at which a boundary condition is enforced.
 
         """
+        A_banded = self._banded_matrix
         if internal_heating is None:
             raise ValueError("The internal_heating parameter must be provided for FDCableTrefoilCircuitInSinglePipe.")
 
         # Only add an extra heat source if internal heating is considered
         if not internal_heating:
-            return super().integrate_timestep(s, A_banded, b, time_step)
+            return super().integrate_timestep(s, b, time_step)
 
         # Convert the banded matrix to a sparse matrix
         # Use dia format for easy conversion and then convert to lil format to set individual elements
@@ -711,7 +845,7 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
         A_sparse = self._update_system_with_heat_source(A_sparse)
 
         # Compute the other vectors that are required to solve the linear system
-        capacity_vector = self.capacity_grid[:-1]
+        capacity_vector = self._capacity_grid[:-1]
         capacity_diagonal_matrix = sparse.diags(diagonals=capacity_vector)
 
         return sparse.linalg.spsolve(
@@ -719,7 +853,7 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
         )
 
     def _update_system_with_heat_source(self, A_sparse: sparse.lil_matrix) -> sparse.lil_matrix:
-        """Add coefficients to the finite-difference matrix.
+        """Add coefficients to the finite difference matrix.
 
         The added coefficients represent an internal heat source between the
         pipe and the equivalent cable representing the trefoil circuit. The
@@ -728,19 +862,19 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
         generate together.
 
         Args:
-            A_sparse (sparse.lil_matrix): The finite-difference matrix
+            A_sparse (sparse.lil_matrix): The finite difference matrix
                 [W/(°C*m³)] represented as a sparse lil matrix.
 
         Returns:
             sparse.lil_matrix:
-                The updated finite-difference matrix [W/(°C*m³)] represented as a sparse lil matrix.
+                The updated finite difference matrix [W/(°C*m³)] represented as a sparse lil matrix.
 
         """
         # Determine the indices m (filling_heat_source_layer) and s (outer_sheath_index) where r_s<r_cable<r_{s+1}
         # and m (filling_heat_source_layer) is such that r_m^-<2*r_cable < r_m^+.
         # Since r_m^- and r_m^+ lie exactly between grid points, we can find
         # m by searching for the grid point closest to 2*r_cable.
-        filling_heat_source_layer = int(np.abs(self.radii_grid - 2 * self.layer_metrics.cable_radius).argmin())
+        filling_heat_source_layer = int(np.abs(self._radii_grid - 2 * self.layer_metrics.cable_radius).argmin())
         _, outer_sheath_index = self.get_layer_indices_for_layer(CableLayer.Sheath)
 
         # Calculate the filling internal heating coefficient
@@ -771,13 +905,18 @@ class FDCableTrefoilCircuitInSinglePipe(FDCable):
 
         """
         # Calculate the thermal resistivity at the interstitial point between the grid points r_s and r_{s+1}
-        r_s = self.radii_grid[s]
-        inter_radius = np.array([r_s + 0.5 * self.grid_deltas[s]])
-        inter_rho = self._calculate_inter_rhos(self.radii_grid[s : s + 2], inter_radius, self.rho_grid[s : s + 2])[0]
+        r_s = self._radii_grid[s]
+        inter_radius = np.array([r_s + 0.5 * self._grid_deltas[s]])
+        inter_rho = self._calculate_inter_rhos(self._radii_grid[s : s + 2], inter_radius, self._rho_grid[s : s + 2])[0]
         return (
             2
             * self.layer_metrics.cable_radius
-            / (inter_rho * self.radii_grid[m] * self.grid_deltas[s] * (self.radii_grid[m + 1] - self.radii_grid[m - 1]))
+            / (
+                inter_rho
+                * self._radii_grid[m]
+                * self._grid_deltas[s]
+                * (self._radii_grid[m + 1] - self._radii_grid[m - 1])
+            )
         )
 
 
@@ -786,7 +925,7 @@ _MAX_ERROR_SHEATH = 0.001
 
 
 class FDCableInAir(FDCable):
-    """Class that represents a finite-difference cable installed in air.
+    """Class that represents a finite difference cable installed in air.
 
     This class inherits from FDCable, and only differs in the convection parameters used for the cable.
     """
@@ -831,7 +970,6 @@ class FDCableInAir(FDCable):
     def integrate_timestep(
         self,
         s: np.ndarray,
-        A_banded: np.ndarray,
         b: np.ndarray,
         time_step: float,
         internal_heating: bool | None = True,
@@ -839,14 +977,12 @@ class FDCableInAir(FDCable):
         """Computes the temperature solution for the next time step.
 
         Computes the temperature solution at time step [t+1] given the solution at the
-        current time step [t], the finite-difference matrix, and the vector for [t].
+        current time step [t], the finite difference matrix, and the vector for [t].
 
         Args:
             s (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
-                represented as a banded matrix.
-            b (np.ndarray): The finite-difference vector [W/m³].
+            b (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
             internal_heating (bool | None): A boolean representing whether
@@ -864,15 +1000,16 @@ class FDCableInAir(FDCable):
         temp_solution = s.copy()
         theta_N = temp_solution[-1]
 
+        A_banded = self._banded_matrix
         A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
 
         A[:, :-1] = A_banded
-        A[0, -1] = self.get_outer_boundary_coupling_coefficient_from_matrix(A_banded)
+        A[0, -1] = self.outer_boundary_coupling_coefficient
         A = -A * time_step
-        A[1, :-1] += self.capacity_grid[:-1]
+        A[1, :-1] += self._capacity_grid[:-1]
         A[2, -2] = 1
 
-        b = b * time_step + self.capacity_grid[:-1] * s[:-1]
+        b = b * time_step + self._capacity_grid[:-1] * s[:-1]
 
         b = np.append(b, 0.0)
 
@@ -901,25 +1038,24 @@ class FDCableInAir(FDCable):
             float: The boundary condition coefficient for the outer sheath in air.
 
         """
-        r_N = self.radii_grid[-1]
-        delta_min = self.grid_deltas[-1]
+        r_N = self._radii_grid[-1]
+        delta_min = self._grid_deltas[-1]
         r_N_min = r_N - 0.5 * delta_min
 
-        return self.convection_coefficient * delta_min * self.rho_grid[-1] * r_N / r_N_min
+        return self.convection_coefficient * delta_min * self._rho_grid[-1] * r_N / r_N_min
 
 
 class FDCableTrefoilCircuitInSinglePipeInAir(FDCableTrefoilCircuitInSinglePipe, FDCableInAir):
-    """Class that represents a finite-difference cable trefoil circuit that lies in a single pipe in air."""
+    """Class that represents a finite difference cable trefoil circuit that lies in a single pipe in air."""
 
     def integrate_timestep(
         self,
         s: np.ndarray,
-        A_banded: np.ndarray,
         b: np.ndarray,
         time_step: float,
         internal_heating: bool | None = True,
     ) -> np.ndarray:
-        """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
+        """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
 
         We add a heat source between the pipe and the equivalent cable
         representing the trefoil circuit in the internal heating step. The
@@ -933,9 +1069,7 @@ class FDCableTrefoilCircuitInSinglePipeInAir(FDCableTrefoilCircuitInSinglePipe, 
         Args:
             s (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            A_banded (np.ndarray): The finite-difference matrix [W/(°C*m³)]
-                represented as a banded matrix.
-            b (np.ndarray): The finite-difference vector [W/m³].
+            b (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
             internal_heating (bool | None): A boolean indicating whether
@@ -960,10 +1094,11 @@ class FDCableTrefoilCircuitInSinglePipeInAir(FDCableTrefoilCircuitInSinglePipe, 
         temp_solution = s.copy()
         theta_N = temp_solution[-1]
 
+        A_banded = self._banded_matrix
         A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
 
         A[:, :-1] = A_banded
-        A[0, -1] = self.get_outer_boundary_coupling_coefficient_from_matrix(A_banded)
+        A[0, -1] = self.outer_boundary_coupling_coefficient
         A[2, -2] = 1
 
         # Convert the banded matrix to a sparse matrix
@@ -975,7 +1110,7 @@ class FDCableTrefoilCircuitInSinglePipeInAir(FDCableTrefoilCircuitInSinglePipe, 
         A_sparse = self._update_system_with_heat_source(A_sparse)
 
         # Compute the other vectors that are required to solve the linear system
-        capacity_vector = self.capacity_grid[:-1]
+        capacity_vector = self._capacity_grid[:-1]
         capacity_vector = np.append(capacity_vector, 0.0)
         capacity_diagonal_matrix = sparse.diags(diagonals=capacity_vector)
         b = np.append(b, 0.0)

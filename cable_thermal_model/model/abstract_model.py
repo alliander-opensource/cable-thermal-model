@@ -23,7 +23,6 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
     static_env: StaticEnvT
     scenario: DataFrame[ScenarioSchemaT]
 
-    _SOIL_DRYING_TEMPERATURE = 30
     THERMAL_RESISTIVITY_COLUMN = "soil_thermal_resistivity"
     THERMAL_CAPACITY_COLUMN = "soil_thermal_capacity"
 

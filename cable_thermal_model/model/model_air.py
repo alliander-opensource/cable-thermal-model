@@ -16,8 +16,8 @@ from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchema
 from cable_thermal_model.model.schemas.run_options import ModelAirRunOptions
 
 
-class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir, dict[CableKey, np.ndarray]]):
-    """ModelAir computes cable temperatures for installations in air using the finite-difference method.
+class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir]):
+    """ModelAir computes cable temperatures for installations in air using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvAir and a valid scenario, then executed via `run()`.
     """
@@ -57,84 +57,67 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
                     stacklevel=2,
                 )
 
-    def _initialize_linear_system(self) -> tuple[dict[CableKey, np.ndarray], dict[CableKey, np.ndarray]]:
-        """Initializes the linear system (matrices and vectors) for each cable in the model.
-
-        Returns:
-            tuple[dict[CableKey, np.ndarray], dict[CableKey, np.ndarray]]: A tuple containing two dictionaries:
-                - The first dictionary maps each cable key to its corresponding finite difference matrix (A).
-                - The second dictionary maps each cable key to its corresponding right-hand side vector (b).
-        """
-        return self._build_linear_system_for_cables(cables=self.cables)
-
     def _build_initial_thermal_state(self) -> StateAir:
         """Builds the initial thermal state for the model.
 
         Returns:
             StateAir: The initialized thermal state for the model.
         """
+        ambient_temperature = self.scenario["ambient_temperature"].iloc[0]
+
         return StateAir(
             static_env_hash=self.static_env.compute_hash(),
-            temperature=self._initialize_temperature_state(),
-            self_heating=self._initialize_state_from_cables(cables=self.cables),
+            temperature=self._initialize_state_from_cables(cables=self.cables, fill_value=ambient_temperature),
+            self_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
         )
 
-    def _refresh_matrices_if_needed(
+    def _update_thermal_properties_if_needed(
         self,
-        matrices: dict[CableKey, np.ndarray],
         temperature_state: dict[CableKey, np.ndarray],
         scenario_row: pd.Series,
         elapsed_seconds: float,
-    ) -> tuple[dict[CableKey, np.ndarray], set[CableKey]]:
-        """Refresh matrices when cable properties change.
+    ) -> None:
+        """Update the pipe-fill resistivity if changed.
 
         Args:
-            matrices: Current finite-difference matrices.
+            matrices: Current finite difference matrices.
             temperature_state: Current temperature state for all cables.
             scenario_row: Current scenario row.
             elapsed_seconds: Time elapsed since the start of the scenario in seconds.
 
         Notes:
             `scenario_row` and `elapsed_seconds` are accepted for interface compatibility with other model types.
-
-        Returns:
-            tuple[dict[CableKey, np.ndarray], set[CableKey]]: Updated matrices and cable keys that were refreshed.
         """
         _ = (scenario_row, elapsed_seconds)  # Unused in this subclass
 
-        updated_cables = self._update_pipe_resistivity_for_all_cables(
+        self._update_pipe_fill_resistivity(
             temperature_state=temperature_state,
+            cables=self.cables,
         )
-
-        for cable_key in updated_cables:
-            matrices[cable_key] = self.cables[cable_key].cable.get_finite_difference_matrix()
-
-        return matrices, updated_cables
 
     def _update_thermal_state(
         self,
         thermal_state: StateAir,
-        matrices: dict[CableKey, np.ndarray],
-        vectors: dict[CableKey, np.ndarray],
+        heat_vectors: dict[CableKey, np.ndarray],
         ambient_temperature: float,
         time_step: float,
     ) -> StateAir:
         """Update the self-heating and temperature state for the current time step."""
-        new_self_heating_state = {
-            cable_key: cable.cable.integrate_timestep(
-                s=thermal_state.self_heating[cable_key],
-                A_banded=matrices[cable_key],
-                b=vectors[cable_key],
+        new_self_heating_contribution = {
+            cable_key: pos_cable.cable.integrate_timestep(
+                s=thermal_state.self_heating_contribution[cable_key],
+                b=heat_vectors[cable_key],
                 time_step=time_step,
                 internal_heating=True,
             )
-            for cable_key, cable in self.cables.items()
+            for cable_key, pos_cable in self.cables.items()
         }
 
         new_temperature_state = {
-            cable_key: self_heating + ambient_temperature for cable_key, self_heating in new_self_heating_state.items()
+            cable_key: self_heating + ambient_temperature
+            for cable_key, self_heating in new_self_heating_contribution.items()
         }
 
         thermal_state.temperature = new_temperature_state
-        thermal_state.self_heating = new_self_heating_state
+        thermal_state.self_heating_contribution = new_self_heating_contribution
         return thermal_state

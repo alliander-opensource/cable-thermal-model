@@ -56,7 +56,7 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: DataFrame[Scena
     # Select a cable from the circuit
     cable_key = list(model.cables_with_soil.keys())[0]
     cable = model.cables_with_soil[cable_key].cable
-    steady_state_solution = steady_state.self_heating[cable_key]
+    steady_state_solution = steady_state.self_heating_contribution[cable_key]
     steady_state_full_solution = steady_state.temperature[cable_key]
 
     # Get conductor and screen temperatures
@@ -143,10 +143,10 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: Da
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
 
     cable_soil = model_soil.cables_with_soil[cable_key].cable
-    steady_state_solution_soil = steady_state_soil.self_heating[cable_key]
+    steady_state_solution_soil = steady_state_soil.self_heating_contribution[cable_key]
 
     cable_air = model_air.cables[cable_key].cable
-    steady_state_solution_air = steady_state_air.self_heating[cable_key]
+    steady_state_solution_air = steady_state_air.self_heating_contribution[cable_key]
     analysis_soil = CableAnalysis(cable=cable_soil, solution=steady_state_solution_soil)
     analysis_air = CableAnalysis(cable=cable_air, solution=steady_state_solution_air)
 
@@ -187,7 +187,7 @@ def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: DataFram
     # Select a cable from the circuit
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
     cable = model.cables[cable_key].cable
-    steady_state_solution = steady_state.self_heating[cable_key]
+    steady_state_solution = steady_state.self_heating_contribution[cable_key]
     steady_state_full_solution = steady_state.temperature[cable_key]
 
     # Get conductor and screen temperatures
@@ -253,7 +253,7 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: DataFrame[Sce
     cable = model.cables[cable_key].cable
     assert isinstance(cable, FDCableInAir)
     assert cable.convection_coefficient is not None
-    steady_state_solution = steady_state.self_heating[cable_key]
+    steady_state_solution = steady_state.self_heating_contribution[cable_key]
 
     # The expected heat exchange at the boundary is given by the IEC norm as theta_N/T_4
     theta_N = steady_state_solution[-1]

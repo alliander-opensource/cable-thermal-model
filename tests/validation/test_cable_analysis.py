@@ -50,7 +50,7 @@ class TestCableAnalysisMeanTemperature:
 class TestCableAnalysisHeatFlowAtRadius:
     def test_rejects_radius_at_or_below_first_grid_point(self) -> None:
         cable = Mock()
-        cable.radii_grid = np.array([0.0, 0.01, 0.02])
+        cable._radii_grid = np.array([0.0, 0.01, 0.02])
         analysis = CableAnalysis(cable=cable, solution=np.array([80.0, 70.0, 60.0]))
 
         with pytest.raises(ValueError, match="must lie within"):
@@ -58,7 +58,7 @@ class TestCableAnalysisHeatFlowAtRadius:
 
     def test_rejects_radius_above_last_grid_point(self) -> None:
         cable = Mock()
-        cable.radii_grid = np.array([0.0, 0.01, 0.02])
+        cable._radii_grid = np.array([0.0, 0.01, 0.02])
         analysis = CableAnalysis(cable=cable, solution=np.array([80.0, 70.0, 60.0]))
 
         with pytest.raises(ValueError, match="must lie within"):
@@ -66,7 +66,7 @@ class TestCableAnalysisHeatFlowAtRadius:
 
     def test_radius_between_grid_points_uses_enclosing_inner_index(self, monkeypatch: pytest.MonkeyPatch) -> None:
         cable = Mock()
-        cable.radii_grid = np.array([0.0, 0.01, 0.02, 0.03])
+        cable._radii_grid = np.array([0.0, 0.01, 0.02, 0.03])
         analysis = CableAnalysis(cable=cable, solution=np.array([90.0, 80.0, 70.0, 60.0]))
 
         captured: dict[str, int] = {}
@@ -84,7 +84,7 @@ class TestCableAnalysisHeatFlowAtRadius:
 
     def test_radius_equal_to_grid_point_uses_left_interval(self, monkeypatch: pytest.MonkeyPatch) -> None:
         cable = Mock()
-        cable.radii_grid = np.array([0.0, 0.01, 0.02, 0.03])
+        cable._radii_grid = np.array([0.0, 0.01, 0.02, 0.03])
         analysis = CableAnalysis(cable=cable, solution=np.array([90.0, 80.0, 70.0, 60.0]))
 
         captured: dict[str, int] = {}
@@ -101,7 +101,7 @@ class TestCableAnalysisHeatFlowAtRadius:
         assert captured["inner_index"] == 1
 
     def test_integration_radius_between_grid_points_matches_interval_heat_flow(self, single_core_cable_xlpe) -> None:
-        radii_grid = single_core_cable_xlpe.radii_grid
+        radii_grid = single_core_cable_xlpe._radii_grid
         inner_index = 10
         radius = 0.5 * (radii_grid[inner_index] + radii_grid[inner_index + 1])
         solution = np.linspace(90.0, 40.0, len(radii_grid))
@@ -110,7 +110,7 @@ class TestCableAnalysisHeatFlowAtRadius:
         assert analysis.get_heat_flow_at_radius(radius) == pytest.approx(analysis.get_heat_flow(inner_index))
 
     def test_integration_radius_equal_to_grid_point_uses_left_interval(self, single_core_cable_xlpe) -> None:
-        radii_grid = single_core_cable_xlpe.radii_grid
+        radii_grid = single_core_cable_xlpe._radii_grid
         grid_index = 10
         radius = radii_grid[grid_index]
         solution = np.linspace(90.0, 40.0, len(radii_grid))

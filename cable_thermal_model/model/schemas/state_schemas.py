@@ -9,8 +9,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cable_thermal_model.cable.cable_circuit import CableKey
 
-StateT = TypeVar("StateT", bound="State")
-
 
 class State(BaseModel):
     """Stores information about temperatures within cables at the final state.
@@ -22,39 +20,42 @@ class State(BaseModel):
         static_env_hash: str
             Deterministic hash of the static environment, used for validation and consistency checks.
         temperature: dict[CableKey, np.ndarray]:
-            Combines the internal heating solution with the ambient
-            temperature profile and, for a StateSoil object, the mutual
-            heating solution.
-        self_heating: dict[CableKey, np.ndarray]:
+            Combines the self-heating contribution with the ambient temperature profile and,
+                for a StateSoil object, the mutual-heating contribution.
+        self_heating_contribution: dict[CableKey, np.ndarray]:
             The temperature delta profile as a result of self-heating due to the load.
 
     """
 
     static_env_hash: str = Field(default_factory=str)
     temperature: dict[CableKey, np.ndarray] = Field(default_factory=dict)
-    self_heating: dict[CableKey, np.ndarray] = Field(default_factory=dict)
+    self_heating_contribution: dict[CableKey, np.ndarray] = Field(default_factory=dict)
 
     # Pydantic class configuration
     model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
 
     @model_validator(mode="after")
     def check_solution_consistency(self):
-        """Validate that temperature and self_heating share the same cable keys."""
+        """Validate that temperature and self_heating_contribution share the same cable keys."""
         keys_temperature = set(self.temperature.keys())
-        keys_solution = set(self.self_heating.keys())
+        keys_solution = set(self.self_heating_contribution.keys())
         if keys_temperature != keys_solution:
             raise ValueError(
-                f"Inconsistent keys between temperature and self_heating. Keys in temperature: {keys_temperature}, "
-                f"keys in self_heating: {keys_solution}"
+                f"Inconsistent keys between temperature and self_heating_contribution. "
+                f"Keys in temperature: {keys_temperature}, "
+                f"keys in self_heating_contribution: {keys_solution}"
             )
         return self
 
 
+StateT = TypeVar("StateT", bound=State)
+
+
 class StateSoil(State):
-    """Extends upon the base State class. Includes additional attribute mutual_heating and validation thereof.
+    """Extends upon the base State class. Includes additional attribute mutual_heating_contribution and its validation.
 
     Attributes:
-        mutual_heating: dict[CableKey, np.ndarray]
+            mutual_heating_contribution: dict[CableKey, np.ndarray]
             A dictionary containing the temperature increase inside a cable
             due to mutual heating from other cables in the environment.
             This is stored as a dict with CableKey as key and an array of
@@ -62,16 +63,16 @@ class StateSoil(State):
 
     """
 
-    mutual_heating: dict[CableKey, np.ndarray] = Field()
+    mutual_heating_contribution: dict[CableKey, np.ndarray] = Field()
 
     @model_validator(mode="after")
-    def validate_mutual_heating(self):
-        """Validate that mutual_heating keys match cable keys."""
-        found_keys = set(self.mutual_heating.keys())
+    def validate_mutual_heating_contribution(self):
+        """Validate that mutual_heating_contribution keys match cable keys."""
+        found_keys = set(self.mutual_heating_contribution.keys())
         expected_keys = set(self.temperature.keys())
         if found_keys != expected_keys:
             raise ValueError(
-                "CableKeys of mutual_heating should match with cable_keys of temperature."
+                "CableKeys of mutual_heating_contribution should match with cable_keys of temperature."
                 f"Found keys: {found_keys}, expected keys: {expected_keys}"
             )
         return self

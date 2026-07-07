@@ -251,7 +251,7 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
 
     State(
         temperature=valid_full_solution,
-        self_heating=valid_solution,
+        self_heating_contribution=valid_solution,
     )
     # Test 2: Mismatched keys should fail
     wrong_key = CableKey(circuit_name="wrong_circuit", cable_position=CablePosition.TrefoilLeft)
@@ -260,7 +260,7 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
     with pytest.raises(ValidationError, match="Inconsistent keys between temperature and self_heating"):
         State(
             temperature=valid_full_solution,
-            self_heating=invalid_solution,
+            self_heating_contribution=invalid_solution,
         )
 
 
@@ -276,10 +276,10 @@ def test_state_check_cable_representations_consistency(model):
     valid_state_kwargs = {
         "static_env_hash": env_hash,
         "temperature": valid_temperature,
-        "self_heating": valid_self_heating,
+        "self_heating_contribution": valid_self_heating,
     }
     if state_cls is StateSoil:
-        valid_state_kwargs["mutual_heating"] = {key: np.array([10.0]) for key in cable_keys}
+        valid_state_kwargs["mutual_heating_contribution"] = {key: np.array([10.0]) for key in cable_keys}
     valid_state = state_cls(**valid_state_kwargs)
     model._validate_initial_state(valid_state)
 
@@ -289,10 +289,10 @@ def test_state_check_cable_representations_consistency(model):
     invalid_state_kwargs = {
         "static_env_hash": env_hash,
         "temperature": incomplete_temperature,
-        "self_heating": incomplete_self_heating,
+        "self_heating_contribution": incomplete_self_heating,
     }
     if state_cls is StateSoil:
-        invalid_state_kwargs["mutual_heating"] = {cable_keys[0]: np.array([10.0])}
+        invalid_state_kwargs["mutual_heating_contribution"] = {cable_keys[0]: np.array([10.0])}
     invalid_state = state_cls(**invalid_state_kwargs)
 
     with pytest.raises(ValueError, match="Provided state cable keys do not match the used environment"):
@@ -307,10 +307,10 @@ def test_state_check_environment_hash_consistency(model):
     invalid_state_kwargs = {
         "static_env_hash": "different-environment-hash",
         "temperature": {key: np.array([20.0]) for key in cable_keys},
-        "self_heating": {key: np.array([15.0]) for key in cable_keys},
+        "self_heating_contribution": {key: np.array([15.0]) for key in cable_keys},
     }
     if state_cls is StateSoil:
-        invalid_state_kwargs["mutual_heating"] = {key: np.array([10.0]) for key in cable_keys}
+        invalid_state_kwargs["mutual_heating_contribution"] = {key: np.array([10.0]) for key in cable_keys}
     invalid_state = state_cls(**invalid_state_kwargs)
 
     with pytest.raises(ValueError, match="Provided state environment hash does not match the used environment"):

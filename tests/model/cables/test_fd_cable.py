@@ -87,6 +87,49 @@ def test_get_heat_generation_conductor_and_screen(three_core_cable_pilc: FDCable
     assert np.isclose(dc_heat_generation_screen, 0.0)
 
 
+def test_get_finite_difference_vector_for_state(three_core_cable_pilc: FDCable):
+    three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter
+
+    conductor_temperature = 50.0
+    screen_temperature = 40.0
+    load = 500.0
+
+    temperature_grid = np.full(three_core_cable_pilc.grid_size, 25.0)
+    conductor_start_index, conductor_end_index = three_core_cable_pilc.get_layer_indices_for_layer(CableLayer.Conductor)
+    screen_start_index, screen_end_index = three_core_cable_pilc.get_layer_indices_for_layer(CableLayer.Screen)
+    temperature_grid[conductor_start_index : conductor_end_index + 1] = conductor_temperature
+    temperature_grid[screen_start_index : screen_end_index + 1] = screen_temperature
+
+    vector = three_core_cable_pilc.update_finite_difference_vector(
+        vector=three_core_cable_pilc.get_finite_difference_vector(neglect_dielectric_loss=False),
+        temperature_grid=temperature_grid,
+        load=load,
+        ac_current=True,
+        temperature_dependent_electric_resistance=True,
+    )
+
+    expected_vector = three_core_cable_pilc.get_finite_difference_vector(neglect_dielectric_loss=False)
+    heat_generation_conductor, heat_generation_screen = three_core_cable_pilc.get_heat_generation_conductor_and_screen(
+        load=load,
+        conductor_temperature=conductor_temperature,
+        screen_temperature=screen_temperature,
+        temperature_dependent_electric_resistance=True,
+        ac_current=True,
+    )
+    expected_vector = three_core_cable_pilc._update_vector_with_heat_generation_for_layer(
+        vector=expected_vector,
+        heat_generation=heat_generation_screen,
+        layer=CableLayer.Screen,
+    )
+    expected_vector = three_core_cable_pilc._update_vector_with_heat_generation_for_layer(
+        vector=expected_vector,
+        heat_generation=heat_generation_conductor,
+        layer=CableLayer.Conductor,
+    )
+
+    assert np.allclose(vector, expected_vector)
+
+
 @pytest.mark.parametrize(
     "fd_cable_fixture",
     test_cable_fixtures,
@@ -95,14 +138,14 @@ def test_fd_cable_get_layer_indices_radii(fd_cable_fixture: str, request):
     cable: FDCable = request.getfixturevalue(fd_cable_fixture)
 
     # Test conductor radii are compatible with computed indices for radii-grid
-    conductor_start_index = (cable.radii_grid < cable.layer_properties[CableLayer.Conductor].inner_radius).sum()
-    conductor_end_index = (cable.radii_grid < cable.layer_properties[CableLayer.Conductor].outer_radius).sum() - 1
+    conductor_start_index = (cable._radii_grid < cable.layer_properties[CableLayer.Conductor].inner_radius).sum()
+    conductor_end_index = (cable._radii_grid < cable.layer_properties[CableLayer.Conductor].outer_radius).sum() - 1
     s, e = cable.get_layer_indices_for_layer(CableLayer.Conductor)
     assert conductor_start_index == s
     assert conductor_end_index == e
     # Test screen radii are compatible with computed indices for radii-grid
-    screen_start_index = (cable.radii_grid < cable.layer_properties[CableLayer.Screen].inner_radius).sum()
-    screen_end_index = (cable.radii_grid < cable.layer_properties[CableLayer.Screen].outer_radius).sum() - 1
+    screen_start_index = (cable._radii_grid < cable.layer_properties[CableLayer.Screen].inner_radius).sum()
+    screen_end_index = (cable._radii_grid < cable.layer_properties[CableLayer.Screen].outer_radius).sum() - 1
     s, e = cable.get_layer_indices_for_layer(CableLayer.Screen)
     assert screen_start_index == s
     assert screen_end_index == e
@@ -117,14 +160,10 @@ def test_fd_cable_get_layer_indices_material_properties(fd_cable_fixture: str, r
 
     s, e = cable.get_layer_indices_for_layer(CableLayer.Conductor)
     # Test thermal resistance conductor is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.rho_grid[s : e + 1])).sum(), 0, atol=1e-3)
-    # Test electric resistance conductor is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.alpha_grid[s : e + 1])).sum(), 0, atol=1e-3)
+    assert np.isclose(np.abs(np.diff(cable._rho_grid[s : e + 1])).sum(), 0, atol=1e-3)
     s, e = cable.get_layer_indices_for_layer(CableLayer.Screen)
     # Test thermal resistance screen is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.rho_grid[s : e + 1])).sum(), 0, atol=1e-3)
-    # Test electric resistance screen is constant along slice from start to end indices
-    assert np.isclose(np.abs(np.diff(cable.alpha_grid[s : e + 1])).sum(), 0, atol=1e-3)
+    assert np.isclose(np.abs(np.diff(cable._rho_grid[s : e + 1])).sum(), 0, atol=1e-3)
 
 
 def test_cable_radius(single_core_cable_xlpe: FDCable, single_circuit_with_pipe_env: StaticEnvSoil):
@@ -145,24 +184,24 @@ def test_cable_radius(single_core_cable_xlpe: FDCable, single_circuit_with_pipe_
 def test_construct_radii_grid(fd_cable_fixture: str, request):
     cable: FDCable = request.getfixturevalue(fd_cable_fixture)
     # Test that the radii grid starts at 0
-    assert np.isclose(cable.radii_grid[0], 0)
+    assert np.isclose(cable._radii_grid[0], 0)
     # Test that the radii grid ends at the outer radius of the outermost layer
     outermost_layer = max(cable.layer_properties.keys(), key=lambda layer: cable.layer_properties[layer].outer_radius)
-    assert np.isclose(cable.radii_grid[-1], cable.layer_properties[outermost_layer].outer_radius)
+    assert np.isclose(cable._radii_grid[-1], cable.layer_properties[outermost_layer].outer_radius)
     # Test that the radii grid has correct number of points
-    expected_points = sum(cable.grid_counts.values())
-    assert len(cable.radii_grid) == expected_points
+    expected_points = sum(cable._grid_counts.values())
+    assert len(cable._radii_grid) == expected_points
     # Test that the radii grid is strictly increasing
-    assert np.all(np.diff(cable.radii_grid) > 0)
+    assert np.all(np.diff(cable._radii_grid) > 0)
     # Test that each layer boundary is exactly between two grid points
     cumulative_points = 0
     for layer in cable.layer_properties:
-        layer_points = cable.grid_counts[layer]
+        layer_points = cable._grid_counts[layer]
         cumulative_points += layer_points
         if layer != outermost_layer:
             boundary_radius = cable.layer_properties[layer].outer_radius
             assert np.isclose(
-                (cable.radii_grid[cumulative_points - 1] + cable.radii_grid[cumulative_points]) / 2, boundary_radius
+                (cable._radii_grid[cumulative_points - 1] + cable._radii_grid[cumulative_points]) / 2, boundary_radius
             )
 
 
@@ -257,11 +296,8 @@ def test_calculate_inner_rho_alternating_values(single_core_cable_od: FDCable):
 def test_get_outer_boundary_coupling_coefficient_from_matrix(single_core_cable_xlpe: FDCable):
     """Test that the matrix-based outer-boundary coupling matches the final upper diagonal term."""
     upper_diagonal, _, _ = single_core_cable_xlpe._get_finite_difference_matrix_diagonals()
-    banded_matrix = single_core_cable_xlpe.get_finite_difference_matrix()
 
-    outer_boundary_coupling_coefficient = single_core_cable_xlpe.get_outer_boundary_coupling_coefficient_from_matrix(
-        banded_matrix
-    )
+    outer_boundary_coupling_coefficient = single_core_cable_xlpe.outer_boundary_coupling_coefficient
 
     assert np.isclose(outer_boundary_coupling_coefficient, upper_diagonal[-1])
 
@@ -307,14 +343,14 @@ def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: FDCable):
 
     # Test that the rho and capacity grids of the new cable are consistent with the original cable in the inner layers
     for idx in range(len(fd_cables)):
-        rho_grid = fd_cables[idx].rho_grid
-        capacity_grid = fd_cables[idx].capacity_grid
+        rho_grid = fd_cables[idx]._rho_grid
+        capacity_grid = fd_cables[idx]._capacity_grid
         for jdx in range(idx, len(fd_cables)):
-            assert np.isclose(rho_grid, fd_cables[jdx].rho_grid[: len(rho_grid)]).all(), (
+            assert np.isclose(rho_grid, fd_cables[jdx]._rho_grid[: len(rho_grid)]).all(), (
                 f"Rho grid of cable copy with {idx} soil layers does not "
                 f"match expected values in cable copy with {jdx} soil layers"
             )
-            assert np.isclose(capacity_grid, fd_cables[jdx].capacity_grid[: len(capacity_grid)]).all(), (
+            assert np.isclose(capacity_grid, fd_cables[jdx]._capacity_grid[: len(capacity_grid)]).all(), (
                 f"Capacity grid of cable copy with {idx} soil layers does "
                 f"not match expected values in cable copy with {jdx} soil layers"
             )

@@ -18,7 +18,7 @@ def test_state_check_solution_consistency_passes():
     state = State(
         static_env_hash="dummy_fingerprint",
         temperature={cable_key: np.array([20.0])},
-        self_heating={cable_key: np.array([15.0])},
+        self_heating_contribution={cable_key: np.array([15.0])},
     )
 
     assert np.isclose(state.temperature[cable_key][0], 20.0)
@@ -36,7 +36,7 @@ def test_state_check_solution_consistency_raises_on_mismatch():
         State(
             static_env_hash="dummy_fingerprint",
             temperature=temperature,
-            self_heating=self_heating,
+            self_heating_contribution=self_heating,
         )
 
 
@@ -47,11 +47,11 @@ def test_statesoil_validate_mutual_heating_passes():
     state = StateSoil(
         static_env_hash="dummy_fingerprint",
         temperature={cable_key: np.array([20.0])},
-        self_heating={cable_key: np.array([15.0])},
-        mutual_heating={cable_key: np.array([10.0])},
+        self_heating_contribution={cable_key: np.array([15.0])},
+        mutual_heating_contribution={cable_key: np.array([10.0])},
     )
 
-    assert np.isclose(state.mutual_heating[cable_key][0], 10.0)
+    assert np.isclose(state.mutual_heating_contribution[cable_key][0], 10.0)
 
 
 def test_statesoil_validate_mutual_heating_raises_on_mismatch():
@@ -63,12 +63,12 @@ def test_statesoil_validate_mutual_heating_raises_on_mismatch():
     self_heating = {cable_key_temperature: np.array([15.0])}
     mutual_heating = {cable_key_mutual_heating: np.array([10.0])}
 
-    with pytest.raises(ValidationError, match="CableKeys of mutual_heating should match"):
+    with pytest.raises(ValidationError, match="CableKeys of mutual_heating_contribution should match"):
         StateSoil(
             static_env_hash="dummy_fingerprint",
             temperature=temperature,
-            self_heating=self_heating,
-            mutual_heating=mutual_heating,
+            self_heating_contribution=self_heating,
+            mutual_heating_contribution=mutual_heating,
         )
 
 
@@ -79,7 +79,7 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
     state = StateAir(
         static_env_hash="dummy_fingerprint",
         temperature={cable_key_single: np.array([20.0])},
-        self_heating={cable_key_single: np.array([15.0])},
+        self_heating_contribution={cable_key_single: np.array([15.0])},
     )
 
     assert len(state.temperature) == 1
@@ -94,5 +94,5 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
         StateAir(
             static_env_hash="dummy_fingerprint",
             temperature=temperature,
-            self_heating=self_heating,
+            self_heating_contribution=self_heating,
         )
