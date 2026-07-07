@@ -3,25 +3,31 @@
 # SPDX-License-Identifier: MPL-2.0
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11.26,<0.12.0"]
+build-backend = "uv_build"
 
 [project]
 name = "cable-thermal-model"
-requires-python = ">= 3.11"
 version = "1.15.2"
 description = "Cable Thermal Model (CTM) is a physical model used to calculate dynamic cable temperatures."
+requires-python = ">= 3.11, <3.15"
 readme = "README.md"
 license = "MPL-2.0"
 license-files = ["LICENSE"]
-
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 dependencies = [
-"pandas (>=2.2.3,<3.0.0)",
-"scipy  (>=1.15.0,<2.0.0)",
-"structlog (>=25.0.0,<26.0.0)",
-"pydantic (>=2.13.4,<3.0.0)",
-"numpy (>=2.4.6,<3.0.0)",
-"pandera (>=0.31.1)",
+    "pandas>=2.2.3,<3.0.0",
+    "scipy>=1.15.0,<2.0.0",
+    "structlog>=25.0.0,<26.0.0",
+    "pydantic>=2.13.4,<3.0.0",
+    "numpy>=2.4.6,<3.0.0",
+    "pandera>=0.31.1",
 ]
 
 [project.urls]
@@ -31,47 +37,46 @@ Documentation = "https://alliander-opensource.github.io/cable-thermal-model/"
 Changelog = "https://github.com/alliander-opensource/cable-thermal-model/blob/main/CHANGELOG.md"
 Issues = "https://github.com/alliander-opensource/cable-thermal-model/issues"
 
-
-[tool.poetry]
-packages = [
-    { include = "data" },
-    { include = "cable_thermal_model" },
+[dependency-groups]
+dev = [
+    "pytest-xdist>=3.6.1,<4.0.0",
+    "mypy>=2.0.0,<3",
+    "pandas-stubs>=3.0.0.260204,<4",
+    "ruff>=0.15.15,<0.16",
+    "pre-commit>=4.6.0,<5",
+    "scipy-stubs>=1.17.1.5,<2",
+    "pytest>=9.0.3,<10",
+    "openpyxl>=3.1.5,<4",
+    "pytest-mock>=3.15.1,<4",
+    "pytest-cov>=7.1.0,<8",
+    "reuse>=6.2.0,<7",
+]
+docs = [
+    "mkdocs>=1.6.1,<2",
+    "mkdocstrings-python>=2.0.0,<3",
+    "mkdocs-exclude>=1.0.2,<2",
+    "mkdocs-llmstxt>=0.5.0,<0.6",
+    "mkdocs-material>=9.6.11,<10",
+    "mkdocs-mermaid2-plugin>=1.2.1,<2",
+    "mkdocs-jupyter>=0.26.3,<0.27",
+    "matplotlib>=3.10.9,<4",
+    "jupyter>=1.1.1,<2",
+    "ipython>=9.14.0,<10.0.0",
+    "ipykernel>=7.2.0,<8.0.0",
+    "mkdocs-section-index>=0.3.12,<0.4",
+    "mkdocs-gen-files>=0.6.1,<0.7",
+    "mkdocs-literate-nav>=0.6.3,<0.7",
 ]
 
-[tool.poetry.group.dev]
-optional = true
+[tool.uv]
+default-groups = []
 
-[tool.poetry.group.dev.dependencies]
-pytest-xdist = ">=3.6.1,<4.0.0"
-mypy = "^2.0.0"
-pandas-stubs = "^3.0.0.260204"
-ruff = "^0.15.15"
-pre-commit = "^4.6.0"
-scipy-stubs = "^1.17.1.5"
-pytest = "^9.0.3"
-openpyxl = "^3.1.5"
-pytest-mock = "^3.15.1"
-pytest-cov = "^7.1.0"
-reuse = "^6.2.0"
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.1"
-mkdocstrings-python = "^2.0.0"
-mkdocs-exclude = "^1.0.2"
-mkdocs-llmstxt = "^0.5.0"
-mkdocs-material = "^9.6.11"
-mkdocs-mermaid2-plugin = "^1.2.1"
-mkdocs-jupyter = "^0.26.3"
-matplotlib = "^3.10.9"
-jupyter = "^1.1.1"
-ipython = ">=9.14.0,<10.0.0"
-ipykernel = ">=7.2.0,<8.0.0"
-mkdocs-section-index = "^0.3.12"
-mkdocs-gen-files = "^0.6.1"
-mkdocs-literate-nav = "^0.6.3"
+[tool.uv.build-backend]
+module-name = [
+    "data",
+    "cable_thermal_model",
+]
+module-root = ""
 
 [tool.ruff]
 line-length = 120

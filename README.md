@@ -25,7 +25,7 @@ circuit types and environments in soil as well as in air.
 
 - **Python Version**: Python 3.11 or higher
 - **Operating System**: Windows, Linux, or macOS
-- **Package Manager**: Poetry
+- **Package Manager**: uv
 
 ## Installation
 
@@ -39,30 +39,30 @@ Install the package from PyPI:
 pip install cable-thermal-model
 ```
 
-#### Installation via Poetry (Recommended)
+#### Installation via uv (Recommended)
 
-For better dependency management, use Poetry:
+For better dependency management, use uv:
 
-**Adding to an Existing Poetry Project:**
+**Adding to an Existing uv Project:**
 
 ```bash
-poetry add cable-thermal-model
+uv add cable-thermal-model
 ```
 
-**Creating a New Poetry Project:**
+**Creating a New uv Project:**
 
-If you're starting from scratch, first create a new Poetry project:
+If you're starting from scratch, first create a new uv project:
 
 ```bash
-# Create a new Poetry project
-poetry new my-cable-thermal-model
+# Create a new uv project
+uv init my-cable-thermal-model
 cd my-cable-thermal-model
 
-# Install the project dependencies
-poetry install
-
 # Add cable-thermal-model
-poetry add cable-thermal-model
+uv add cable-thermal-model
+
+# Install the project dependencies
+uv sync
 ```
 
 ### For Developers
@@ -76,13 +76,13 @@ git clone https://github.com/alliander-opensource/cable-thermal-model
 cd cable-thermal-model
 ```
 
-#### 2. Install Dependencies with Poetry
+#### 2. Install Dependencies with uv
 
-We recommend using Poetry for development:
+We recommend using uv for development:
 
 ```bash
 # Install all dependencies including development tools
-poetry install --with dev
+uv sync --group dev
 
 ```
 

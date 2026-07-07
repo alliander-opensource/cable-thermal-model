@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-:root>* {
-    --md-primary-fg-color: #006131;
-    --md-accent-fg-color: #e56c00;
+.md-header {
+    background: #006131;
+    color: white;
+}
+
+.md-header .md-search button {
+    background: #004A25;
+    color: white;
 }
