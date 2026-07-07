@@ -58,9 +58,9 @@ repos:
 
 -   repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.11.26
+    rev: 0.11.27
     hooks:
-      - id: uv-lock
+    -   id: uv-lock
 
 -   repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.49.0

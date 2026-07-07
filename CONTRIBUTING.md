@@ -44,9 +44,11 @@ the following for details on how to contribute:
    ([documentation](https://docs.astral.sh/uv/))
 3. Make sure you are on the correctly supported Python version (check
    `pyproject.toml`).
-4. Install dependencies using `uv sync --group dev`.
-    - for contributions to the documentation page, make sure you install
-      the correct dependencies using `uv sync --group docs`, too.
+4. By default only the base dependencies are installed. You can specify additional dependency groups to be installed too:
+    - To install all dependencies, use `uv sync --all-groups`
+    - To install the development dependencies, use `uv sync --group dev`.
+    - If you are only interested in making contributions to the documentation page,
+      you may decide to just install the relevant dependencies using `uv sync --group docs`.
 5. Set up pre-commit hooks: `uv run pre-commit install --install-hooks`. Every time you commit, this
    will run hooks to ensure your code is properly formatted.
 6. Work on your contribution.

@@ -59,7 +59,7 @@ If you plan to contribute to the Cable Thermal Model, follow these steps to set 
 #### 1. Clone the Repository
 
 ```bash
-git clone git@github.com:alliander-opensource/cable-thermal-model.git
+git clone https://github.com/alliander-opensource/cable-thermal-model
 cd cable-thermal-model
 ```
 

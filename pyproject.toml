@@ -22,12 +22,12 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "pandas (>=2.2.3,<3.0.0)",
-    "scipy  (>=1.15.0,<2.0.0)",
-    "structlog (>=25.0.0,<26.0.0)",
-    "pydantic (>=2.13.4,<3.0.0)",
-    "numpy (>=2.4.6,<3.0.0)",
-    "pandera (>=0.31.1)",
+    "pandas>=2.2.3,<3.0.0",
+    "scipy>=1.15.0,<2.0.0",
+    "structlog>=25.0.0,<26.0.0",
+    "pydantic>=2.13.4,<3.0.0",
+    "numpy>=2.4.6,<3.0.0",
+    "pandera>=0.31.1",
 ]
 
 [project.urls]
@@ -69,6 +69,7 @@ docs = [
 ]
 
 [tool.uv]
+default-groups = []
 
 [tool.uv.build-backend]
 module-name = [
