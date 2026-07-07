@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 
 SPDX-License-Identifier: MPL-2.0
 -->
-Any numerical method for solving the heat equation approximates the heat equation by dubdividing the time and spaces domains in a finite amount of cells within which the solution is approximated.
+Any numerical method for solving the heat equation approximates the heat equation by subdividing the time and spaces domains in a finite amount of cells within which the solution is approximated.
 This process of subdividing is called discretizing.
 In every cell the PDE is often linearized and solved with a simple function (typically a low order polynomial).
 These solutions per cell together then form the approximation to the solution of the heat equation.
@@ -19,7 +19,7 @@ We simplify this to a 1-dimensional domain by using polar coordinates.
 To explain this, consider the figure below, which shows how the 2-dimensional domain of a cable lying in soil can be simplified into a one-dimensional domain.
 
 ![Using polar coordinates to model cable temperatures](../assets/cable-in-soil-polar-coordinates.drawio)
-<p align="center"><em>Four images of a cross section of an undergroung power cable shows how the 2-dimensional domain is simplified into a 1-dimensional domain. <strong>A</strong>: Cross section of a cable in soil (brown) under a blue sky. <strong>B</strong>: Consider polar coordinates $r$ and $\phi$. <strong>C &amp; D</strong>: A symmetrical 1-dimensional representation of the domain is deduced from figure <strong>B</strong>.</em></p>
+<figcaption align="center"><em>Four images of a cross section of an underground power cable shows how the 2-dimensional domain is simplified into a 1-dimensional domain. <strong>A</strong>: Cross section of a cable in soil (brown) under a blue sky. <strong>B</strong>: Consider polar coordinates $r$ and $\phi$. <strong>C &amp; D</strong>: A symmetrical 1-dimensional representation of the domain is deduced from figure <strong>B</strong>.</em></figcaption>
 
 Do note that we make the assumption that our domain, the heat generation and therefore also our solution are radially symmetrical. They thus depend on the radius $r$ exclusively. Whenever a more complex asymmetrical situation is considered, the finite difference approach as explained on this page may need some extra steps to yield satisfying results.
 
@@ -78,12 +78,12 @@ In the python code of Cable Thermal Model we refer to $\boldsymbol{r}$ as `radii
 Consider a cable with only three layers: a conductor, insulation and a sheath. Suppose that the three cable layers have radii 0.4, 0.8 and 1m (for the purpose of this example we are dealing with a huge power cable). We also add a soil layer around the cable, with a boundary at 2m.
 
 ![Image of example cable](../assets/example-cable.drawio)
-<p align="center"><em>A picture of the simple cable with three layer and the first soil layer surrounding it.</em></p>
+<figcaption align="center"><em>A picture of the simple cable with three layer and the first soil layer surrounding it.</em></figcaption>
 
 Suppose that we use 5 grid points for each layer, then the distribution of the grid points might look something like in the figure below. When using the a maximal distance to the layer boundaries of 0.1mm, the insulation layer for instance is represented by the vector `radii_grid[5:10] = (0.4001, 0.50005, 0.6, 0.69995, 0.7999)`.
 
 ![Schematic representation of grid points](../assets/arrow.drawio)
-<p align="center"><em>A schematic representation of the grid points in the different layers.</em></p>
+<figcaption align="center"><em>A schematic representation of the grid points in the different layers.</em></figcaption>
 
 Now that we have determined the grid points in the vector $\boldsymbol{r}$, we need to specify the thermal properties at each grid point. These properties depend on the materials that the layers are made of. As an example, consider the thermal resistivity $\boldsymbol{\rho} = (\rho_0, \dots, \rho_n)$. Then $\rho_i$ is the thermal resistivity of the piece of cable that is represented by $r_i$. In our example, suppose that the conductor is made of aluminium, the insulation is made of unfilled XLPE and the sheath is consists of PVC. The thermal resistivity of these materials is recorded in the `material_properties.csv` file in the `data` directory. Let's assume that the theraml resistivity of the soil equals 0.5 J/m<sup>3</sup>K. Then
 
