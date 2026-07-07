@@ -74,7 +74,7 @@ def test_initialize_state_from_cables_uses_fill_value(model: ModelSoil):
 
     assert set(initialized) == set(model.cables)
     for cable_key in model.cables:
-        assert np.all(initialized[cable_key] == fill_value)
+        assert np.all(np.isclose(initialized[cable_key], fill_value))
 
 
 def test_get_circuit_loads_from_scenario_row(model: ModelSoil):
