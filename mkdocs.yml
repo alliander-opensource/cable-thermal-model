@@ -114,6 +114,7 @@ plugins:
         - theme/announce.html
         - plugins/*
         - __pycache__/*
+        - scripts/gen_ref_pages.py
   - mkdocstrings:
       handlers:
         python:
