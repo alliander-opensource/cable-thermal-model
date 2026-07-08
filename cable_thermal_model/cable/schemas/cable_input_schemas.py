@@ -240,7 +240,7 @@ class CableConstructionalInputSchema(BaseModel):
         self.get_and_validate_radii()
         return self
 
-    def validate_three_core_cable_specs(self):
+    def validate_three_core_cable_specs(self) -> Self:
         """Validate and finalize constraints specific to three-core cables.
 
         Returns:
