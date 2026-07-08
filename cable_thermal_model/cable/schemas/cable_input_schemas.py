@@ -254,9 +254,7 @@ class CableConstructionalInputSchema(BaseModel):
         self.validate_three_core_cable_insulation()
 
         if not isinstance(self.insulation_input, ThreeCoreCableInsulationInputSchema):
-            raise ValueError(
-                "insulation_input must be ThreeCoreCableInsulationInputSchema for three-core cables"
-            )
+            raise ValueError("insulation_input must be ThreeCoreCableInsulationInputSchema for three-core cables")
 
         if self.conductor_input.single_conductor_radius is None:
             self.conductor_input.single_conductor_radius = (
