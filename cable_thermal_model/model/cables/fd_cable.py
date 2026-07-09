@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from copy import deepcopy
-from typing import Self
+from typing import Any, Self
 
 import numpy as np
 from scipy import linalg, sparse
