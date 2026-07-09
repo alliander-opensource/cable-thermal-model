@@ -49,7 +49,10 @@ class Model(
         self.extra_solution_layers: list[CableLayer] = []
         self.solution_ = None
 
-    def add_solution_location(self, layer_name: CableLayer):
+    def add_solution_location(
+        self,
+        layer_name: CableLayer,
+    ) -> "Model[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT]":
         """Select an additional solution layer.
 
         The chosen layer is included in the returned temperature results when calling `run()`.

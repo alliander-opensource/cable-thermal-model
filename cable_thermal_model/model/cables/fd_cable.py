@@ -156,7 +156,6 @@ class FDCable(AbstractCable):
             load (float): The electrical load in amperes.
             ac_current (bool): Whether AC conductor losses are included.
             temperature_dependent_electric_resistance (bool): Whether resistance depends on temperature.
-            neglect_dielectric_loss (bool): Whether dielectric loss should be omitted from the baseline vector.
 
         Returns:
             np.ndarray: A finite difference vector for the given state and load.

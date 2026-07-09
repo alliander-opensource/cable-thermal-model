@@ -17,7 +17,7 @@ class State(BaseModel):
     the relevant cable representations and their properties are stored.
 
     Attributes:
-        static_env_hash: str
+        static_env_hash: str:
             Deterministic hash of the static environment, used for validation and consistency checks.
         temperature: dict[CableKey, np.ndarray]:
             Combines the self-heating contribution with the ambient temperature profile and,
@@ -55,11 +55,11 @@ class StateSoil(State):
     """Extends upon the base State class. Includes additional attribute mutual_heating_contribution and its validation.
 
     Attributes:
-            mutual_heating_contribution: dict[CableKey, np.ndarray]
-            A dictionary containing the temperature increase inside a cable
-            due to mutual heating from other cables in the environment.
-            This is stored as a dict with CableKey as key and an array of
-            temperature increases per grid point as value.
+            mutual_heating_contribution: dict[CableKey, np.ndarray]:
+                    A dictionary containing the temperature increase inside a cable
+                    due to mutual heating from other cables in the environment.
+                    This is stored as a dict with CableKey as key and an array of
+                    temperature increases per grid point as value.
 
     """
 
