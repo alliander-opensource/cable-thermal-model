@@ -481,14 +481,34 @@ def test_update_soil_resistivity_with_dry_zone(three_core_cable_pilc: FDCable):
     )
     start_index = cable_with_soil._get_soil_grid_start_index()
     dry_soil_radius = (
-        cable_with_soil.layer_metrics.outer_radius + cable_with_soil.layer_properties[CableLayer.SoilOne].outer_radius
-    ) / 2
+        three_core_cable_pilc.layer_metrics.outer_radius
+        + (
+            cable_with_soil.layer_properties[CableLayer.SoilOne].outer_radius
+            - three_core_cable_pilc.layer_metrics.outer_radius
+        )
+        / 2
+    )
+
+    cable_with_soil._update_soil_resistivity(soil_rho=0.9, dry_soil_radius=dry_soil_radius)
+    end_index = (cable_with_soil._radii_grid <= dry_soil_radius).sum() - 1
+
+    assert np.allclose(cable_with_soil._rho_grid[start_index : end_index + 1], 2.5)
+    assert np.allclose(cable_with_soil._rho_grid[end_index + 1 :], 0.9)
+
+
+def test_update_soil_resistivity_without_dry_zone(three_core_cable_pilc: FDCable):
+    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+        soil_rho=0.7,
+        soil_capacity=2.0e6,
+        soil_radius=0.8,
+        logarithmic_soil_gridpoint_density=8,
+    )
+    start_index = cable_with_soil._get_soil_grid_start_index()
+    dry_soil_radius = three_core_cable_pilc.layer_metrics.outer_radius
 
     cable_with_soil._update_soil_resistivity(soil_rho=0.9, dry_soil_radius=dry_soil_radius)
 
-    dry_end_index = max((cable_with_soil._radii_grid <= dry_soil_radius).sum(), start_index)
-    assert np.allclose(cable_with_soil._rho_grid[start_index : dry_end_index + 1], 2.5)
-    assert np.allclose(cable_with_soil._rho_grid[dry_end_index + 1 :], 0.9)
+    assert np.allclose(cable_with_soil._rho_grid[start_index:], 0.9)
 
 
 def test_update_soil_capacity_invalid_type_raises(three_core_cable_pilc: FDCable):

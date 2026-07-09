@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from copy import deepcopy
-from typing import Any, Self
+from typing import Self
 
 import numpy as np
 from scipy import linalg, sparse
@@ -216,7 +216,7 @@ class FDCable(AbstractCable):
         pipe_fill_start_index, pipe_fill_end_index = self.get_layer_indices_for_layer(CableLayer.PipeFill)
         self._update_rho_grid(
             start_index=pipe_fill_start_index,
-            end_index=pipe_fill_end_index + 1,
+            end_index=pipe_fill_end_index,
             rho=new_pipe_fill_rho,
         )
 
@@ -697,14 +697,19 @@ class FDCable(AbstractCable):
         start_index = self._get_soil_grid_start_index()
         self._update_rho_grid(
             start_index=start_index,
-            end_index=self.grid_size,
+            end_index=self.grid_size - 1,
             rho=soil_rho,
         )
 
         if dry_soil_radius is not None:
             dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
-            end_index = max((self._radii_grid <= dry_soil_radius).sum(), start_index)
-            self._update_rho_grid(start_index=start_index, end_index=end_index, rho=dry_soil_rho)
+            end_index = (self._radii_grid <= dry_soil_radius).sum() - 1
+            if end_index > start_index:
+                self._update_rho_grid(
+                    start_index=start_index,
+                    end_index=end_index,
+                    rho=dry_soil_rho,
+                )
 
     def _update_soil_capacity(self, soil_c: float):
         """This method updates the soil capacity values around a cable.
@@ -720,7 +725,7 @@ class FDCable(AbstractCable):
             raise ValueError("The soil_c argument must be of type int or float!")
 
         start_index = self._get_soil_grid_start_index()
-        self._update_capacity_grid(start_index=start_index, end_index=self.grid_size, capacity=soil_c)
+        self._update_capacity_grid(start_index=start_index, end_index=self.grid_size - 1, capacity=soil_c)
 
     def get_cable_copy_with_pipe(self, pipe: Pipe) -> Self:
         """Get a new cable instance based on the current self, but with extra added layers that model a pipe.
