@@ -38,7 +38,7 @@ class ModelFactory:
 
         Args:
             static_env (StaticEnvT): Static environment configuration for the model.
-            scenario (DataFrame[ScenarioSchemaT] | pd.DataFrame): Scenario data used by the model.
+            scenario (pd.DataFrame): Scenario data used by the model.
 
         Returns:
             Model: An instance of ModelAir or ModelSoil, depending on the type of static_env.
