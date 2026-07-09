@@ -696,7 +696,7 @@ def test_non_uniform_scenario(single_circuit_env: StaticEnvSoil):
 
 def test_add_extra_solution_layer(model: ModelSoil):
     """Test if solution layer is added and is found in the solution of the model."""
-    model = model.add_solution_location(CableLayer.Insulation)
+    model.add_solution_location(CableLayer.Insulation)
     assert CableLayer.Insulation in model.extra_solution_layers
     solution = model.run()
     assert CableLayer.Insulation in solution.result[("c1", "trefoil_left")].columns
