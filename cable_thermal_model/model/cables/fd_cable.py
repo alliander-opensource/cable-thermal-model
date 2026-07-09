@@ -702,7 +702,7 @@ class FDCable(AbstractCable):
 
         if dry_soil_radius is not None:
             dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
-            end_index = (self._radii_grid <= dry_soil_radius).sum() - 1
+            end_index = int((self._radii_grid <= dry_soil_radius).sum() - 1)
             if end_index > start_index:
                 self._update_rho_grid(
                     start_index=start_index,
