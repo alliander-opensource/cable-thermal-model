@@ -5,6 +5,7 @@
 from typing import cast, overload
 
 import pandas as pd
+from pandera.typing import DataFrame
 
 from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
@@ -47,9 +48,9 @@ class ModelFactory:
             ValueError: If static_env is not a supported environment type.
         """
         if isinstance(static_env, StaticEnvAir):
-            return ModelAir(static_env=static_env, scenario=cast(ScenarioSchemaAir, scenario))
+            return ModelAir(static_env=static_env, scenario=cast(DataFrame[ScenarioSchemaAir], scenario))
         elif isinstance(static_env, StaticEnvSoil):
-            return ModelSoil(static_env=static_env, scenario=cast(ScenarioSchemaSoil, scenario))
+            return ModelSoil(static_env=static_env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario))
         else:
             raise ValueError(
                 f"Unsupported static environment type: {type(static_env).__name__}. "
