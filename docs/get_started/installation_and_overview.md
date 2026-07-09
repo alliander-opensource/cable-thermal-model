@@ -12,18 +12,44 @@ This guide will help you install and configure the Cable Thermal Model (CTM) for
 
 - **Python Version**: Python 3.11 or higher
 - **Operating System**: Windows, Linux, or macOS
-- **Package Manager**: Poetry
+- **Package Manager**: uv
 
 ## Installation
 
 ### For Users
 
-#### Installation via Poetry (Recommended)
+#### Installation via pip
 
-For better dependency management, use Poetry:
+Install the package from PyPI:
 
 ```bash
-poetry add cable-thermal-model
+pip install cable-thermal-model
+```
+
+#### Installation via uv (Recommended)
+
+For better dependency management, use uv:
+
+**Adding to an Existing uv Project:**
+
+```bash
+uv add cable-thermal-model
+```
+
+**Creating a New uv Project:**
+
+If you're starting from scratch, first create a new uv project:
+
+```bash
+# Create a new uv project
+uv init my-cable-thermal-model
+cd my-cable-thermal-model
+
+# Install the project dependencies
+uv sync
+
+# Add cable-thermal-model
+uv add cable-thermal-model
 ```
 
 ### For Developers
@@ -37,13 +63,13 @@ git clone https://github.com/alliander-opensource/cable-thermal-model
 cd cable-thermal-model
 ```
 
-#### 2. Install Dependencies with Poetry
+#### 2. Install Dependencies with uv
 
-We recommend using Poetry for development:
+We recommend using uv for development:
 
 ```bash
 # Install all dependencies including development tools
-poetry install --with dev
+uv sync --group dev
 
 ```
 
@@ -203,7 +229,7 @@ Now that you have installed the Cable Thermal Model, continue to:
 If you encounter import errors:
 
 1. Ensure Python 3.11 or higher is installed: `python --version`
-2. Verify the package is installed: `poetry show`
+2. Verify the package is installed: `uv tree`
 3. Check that you're using the correct virtual environment
 
 ### Pre-commit Hook Failures

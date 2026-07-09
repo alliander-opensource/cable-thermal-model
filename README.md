@@ -6,6 +6,12 @@ SPDX-License-Identifier: MPL-2.0
 
 # Cable thermal model
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=coverage)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+
 Cable Thermal Model is a physical model which can be used to calculate cable
 temperature profiles in situations with dynamic profiles for loads, ambient temperature,
 soil properties. The model uses an implicit Euler finite difference approach to discretize the heat equation.
@@ -19,18 +25,44 @@ circuit types and environments in soil as well as in air.
 
 - **Python Version**: Python 3.11 or higher
 - **Operating System**: Windows, Linux, or macOS
-- **Package Manager**: Poetry
+- **Package Manager**: uv
 
 ## Installation
 
 ### For Users
 
-#### Installation via Poetry (Recommended)
+#### Installation via pip
 
-For better dependency management, use Poetry:
+Install the package from PyPI:
 
 ```bash
-poetry add cable-thermal-model
+pip install cable-thermal-model
+```
+
+#### Installation via uv (Recommended)
+
+For better dependency management, use uv:
+
+**Adding to an Existing uv Project:**
+
+```bash
+uv add cable-thermal-model
+```
+
+**Creating a New uv Project:**
+
+If you're starting from scratch, first create a new uv project:
+
+```bash
+# Create a new uv project
+uv init my-cable-thermal-model
+cd my-cable-thermal-model
+
+# Add cable-thermal-model
+uv add cable-thermal-model
+
+# Install the project dependencies
+uv sync
 ```
 
 ### For Developers
@@ -44,13 +76,13 @@ git clone https://github.com/alliander-opensource/cable-thermal-model
 cd cable-thermal-model
 ```
 
-#### 2. Install Dependencies with Poetry
+#### 2. Install Dependencies with uv
 
-We recommend using Poetry for development:
+We recommend using uv for development:
 
 ```bash
 # Install all dependencies including development tools
-poetry install --with dev
+uv sync --group dev
 
 ```
 

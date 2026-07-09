@@ -33,7 +33,7 @@ repos:
     -   id: ruff-format
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.2.0
     hooks:
     -   id: mypy
         additional_dependencies:
@@ -53,14 +53,14 @@ repos:
     rev: v2.4.2
     hooks:
     -   id: codespell
-        exclude: 'data/|poetry.lock|PROJECT_GOVERNANCE.md'
+        exclude: 'data/|uv.lock|PROJECT_GOVERNANCE.md'
         args: ['--ignore-words=codespell.ignore']
 
--   repo: https://gitlab.com/smop/pre-commit-hooks
-    rev: v1.0.0
+-   repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.11.28
     hooks:
-    -   id: check-poetry
-        args: ['--lock']
+    -   id: uv-lock
 
 -   repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.49.0

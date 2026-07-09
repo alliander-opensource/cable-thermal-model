@@ -42,7 +42,9 @@
 #         """
 #         super().__init__(conductor, layer_properties, layer_metrics, cable_type)
 #
-#         if not isinstance(grid_counts, dict) or not all(isinstance(v, (int, np.integer)) for v in grid_counts.values()):
+#         if not isinstance(grid_counts, dict) or not all(
+#           isinstance(v, (int, np.integer)) for v in grid_counts.values()
+#           ):
 #             raise TypeError("The grid_counts argument must be a dictionary of integers!")
 #
 #         self.grid_counts = grid_counts
@@ -219,7 +221,8 @@
 #     def get_cable_copy_with_added_soil_layer(
 #         self, soil_rho: float, soil_capacity: float, soil_radius: float, logarithmic_soil_gridpoint_density: float
 #     ) -> Self:
-#         """This method creates a copy of the current cable object this was run from, but with an extra added soil layer.
+#         """This method creates a copy of the current cable object this was run from, but with an extra added soil
+#         layer.
 #
 #         Args:
 #             soil_rho (float):
@@ -475,10 +478,10 @@
 #         """This method retrieves the two elements that control the linearized heat equation.
 #
 #         These are:
-#             - The finite-differences matrix, which contains the linearized interaction terms between grid points defined
-#               by material properties.
-#             - The vector, which contains the energy that would be released and internally generated heat terms. In this
-#               step, only the time-independent dielectric losses are added.
+#             - The finite-differences matrix, which contains the linearized interaction terms between grid points
+#               defined by material properties.
+#             - The vector, which contains the energy that would be released and internally generated heat terms. In
+#               this step, only the time-independent dielectric losses are added.
 #
 #         Returns:
 #             tuple[np.ndarray, np.ndarray]:
@@ -509,7 +512,8 @@
 #         time_step: float,
 #         internal_heating: bool | None = None,
 #     ) -> np.ndarray:
-#         """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
+#         """This method solves the finite-difference approximation to the heat equation using the implicit Euler
+#         method.
 #
 #         For optimization purposes, the method uses the scipy.linalg.solve_banded method to solve the linear system.
 #         This means the three diagonals of finite-differences matrix A are instead stored in a (3, N) array, where
@@ -684,7 +688,8 @@
 #         time_step: float,
 #         internal_heating: bool | None = None,
 #     ) -> np.ndarray:
-#         """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
+#         """This method solves the finite-difference approximation to the heat equation using the implicit Euler
+#         method.
 #
 #         We add a heat source between the pipe and the equivalent cable
 #         representing the trefoil circuit in the internal heating step. The
@@ -765,7 +770,8 @@
 #         )
 #
 #         # Add matrix entries at coordinates (m, s) and (m, s+1).
-#         # This indicates that the heat added at layer m depends on the temperature difference between layers s and s+1.
+#         # This indicates that the heat added at layer m depends on the temperature difference between layers s and
+#         # s+1.
 #         A_sparse[filling_heat_source_layer, outer_sheath_index] = 2 * filling_internal_heating_coefficient
 #         A_sparse[filling_heat_source_layer, outer_sheath_index + 1] = -2 * filling_internal_heating_coefficient
 #
@@ -793,7 +799,8 @@
 #         return (
 #             2
 #             * self.layer_metrics.cable_radius
-#             / (inter_rho * self.radii_grid[m] * self.grid_deltas[s] * (self.radii_grid[m + 1] - self.radii_grid[m - 1]))
+#             / (inter_rho * self.radii_grid[m] * self.grid_deltas[s] * (self.radii_grid[m + 1] - self.radii_grid[m - 1]
+#             ))
 #         )
 #
 #
@@ -935,7 +942,8 @@
 #         time_step: float,
 #         internal_heating: bool | None = True,
 #     ) -> np.ndarray:
-#         """This method solves the finite-difference approximation to the heat equation using the implicit Euler method.
+#         """This method solves the finite-difference approximation to the heat equation using the implicit Euler
+#         method.
 #
 #         We add a heat source between the pipe and the equivalent cable
 #         representing the trefoil circuit in the internal heating step. The

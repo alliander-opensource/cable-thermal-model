@@ -209,7 +209,7 @@ def remove_soil(
     """
     pos_cable_ = deepcopy(pos_cable)
     return PosCable(
-        cable=pos_cable_.cable.get_cable_copy_without_soil(),
+        cable=pos_cable_.cable.fget_cable_copy_without_soil(),
         x=pos_cable_.x,
         y=pos_cable_.y,
         circuit_name=pos_cable_.circuit_name,
