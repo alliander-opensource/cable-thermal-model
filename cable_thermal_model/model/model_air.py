@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import warnings
-
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
@@ -24,6 +22,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
 
     _run_options_class = ModelAirRunOptions
     _state_class = StateAir
+    _scenario_schema_cls = ScenarioSchemaAir
 
     def __init__(self, static_env: StaticEnvAir, scenario: DataFrame[ScenarioSchemaAir]):
         """Initialize the ModelAir instance with a static environment and scenario.
@@ -45,17 +44,6 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
             )
 
         super().__init__(static_env=static_env, scenario=scenario)
-
-    def _validate_scenario(self):
-        """Validate the scenario dataframe and warn about unused soil columns."""
-        super()._validate_scenario()
-
-        for column in [self.THERMAL_RESISTIVITY_COLUMN, self.THERMAL_CAPACITY_COLUMN]:
-            if column in self.scenario.columns:
-                warnings.warn(
-                    message=f"{column} is provided in the scenario, but is not used in {self.__class__.__name__}",
-                    stacklevel=2,
-                )
 
     @property
     def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:

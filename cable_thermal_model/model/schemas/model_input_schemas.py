@@ -2,10 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import warnings
 from typing import TypeVar
 
 import pandas as pd
 import pandera.pandas as pa
+
+THERMAL_RESISTIVITY_COLUMN = "soil_thermal_resistivity"
+THERMAL_CAPACITY_COLUMN = "soil_thermal_capacity"
 
 
 # Output schema for scenario dataframe:
@@ -69,9 +73,20 @@ class AbstractScenarioSchema(pa.DataFrameModel):
 class ScenarioSchemaAir(AbstractScenarioSchema):
     """Air scenario schema extending the base scenario schema.
 
-    This schema currently does not add extra checks beyond AbstractScenarioSchema,
-    but exists to allow air-specific evolution in the future.
+    This schema currently only warns for unused columns (thermal resistivity and capacity).
     """
+
+    @pa.dataframe_check()
+    @classmethod
+    def check_no_soil_columns(cls, df: pd.DataFrame):
+        """Warn if soil-specific columns are present in the air scenario."""
+        for col in df.columns:
+            if col in [THERMAL_RESISTIVITY_COLUMN, THERMAL_CAPACITY_COLUMN]:
+                warnings.warn(
+                    message=f"Air scenario contains soil-specific column: {col}. This column will be ignored.",
+                    stacklevel=2,
+                )
+        return True
 
 
 class ScenarioSchemaSoil(AbstractScenarioSchema):
