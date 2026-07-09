@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from copy import deepcopy
-from typing import Self
+from typing import Any, Self
 
 import numpy as np
 from scipy import linalg, sparse
@@ -172,7 +172,7 @@ class FDCable(AbstractCable):
         )
         return vector
 
-    def get_redefined_cable(self, **kwargs) -> Self:
+    def get_redefined_cable(self, **kwargs: Any) -> Self:
         """Get a new cable instance based on the current self, but with changed cable attributes.
 
         This method takes the parameters given in the **kwargs and tries to apply those to matching attributes in a
