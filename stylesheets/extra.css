@@ -1,0 +1,15 @@
+/*
+ * SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+.md-header {
+    background: #006131;
+    color: white;
+}
+
+.md-header .md-search button {
+    background: #004A25;
+    color: white;
+}
