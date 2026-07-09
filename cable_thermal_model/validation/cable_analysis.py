@@ -52,7 +52,7 @@ class CableAnalysis:
 
         heat_flow = self.get_heat_flow_cable_layer(layer=layer)
 
-        radii = self.cable.radii_grid
+        radii = self.cable._radii_grid
         rho = self.cable.layer_properties[layer].rho
 
         if start_index == 0:
@@ -81,20 +81,20 @@ class CableAnalysis:
         """Calculate heat flow per unit length between grid points at inner_index and inner_index + 1."""
         outer_index = inner_index + 1
 
-        if inner_index < 0 or outer_index >= len(self.cable.radii_grid):
-            raise ValueError("The indices must lie within the finite-difference grid of the cable.")
+        if inner_index < 0 or outer_index >= len(self.cable._radii_grid):
+            raise ValueError("The indices must lie within the finite difference grid of the cable.")
 
         if np.asarray(self.solution).ndim != 1 or outer_index >= len(self.solution):
             raise ValueError("The solution array must be one-dimensional and include values for both grid points.")
 
-        delta_radius = self.cable.grid_deltas[inner_index]
-        inter_radius = self.cable.radii_grid[inner_index] + 0.5 * delta_radius
+        delta_radius = self.cable._grid_deltas[inner_index]
+        inter_radius = self.cable._radii_grid[inner_index] + 0.5 * delta_radius
 
         # Calculate the interstitial resistivity value between the two grid points
         inter_rho = self.cable._calculate_inter_rhos(
-            radii=self.cable.radii_grid[inner_index : outer_index + 1],
+            radii=self.cable._radii_grid[inner_index : outer_index + 1],
             inter_radii=np.array([inter_radius]),
-            rhos=self.cable.rho_grid[inner_index : outer_index + 1],
+            rhos=self.cable._rho_grid[inner_index : outer_index + 1],
         )[0]
 
         # Calculate the temperature gradient between the two grid points
@@ -109,10 +109,10 @@ class CableAnalysis:
         If radius lies between two grid points r[i] and r[i+1], heat flow between these two points is returned.
         If radius equals a grid point r[i], heat flow between r[i-1] and r[i] is returned.
         """
-        if r <= self.cable.radii_grid[0] or r > self.cable.radii_grid[-1]:
+        if r <= self.cable._radii_grid[0] or r > self.cable._radii_grid[-1]:
             raise ValueError("The radius must lie within the finite-difference grid of the cable.")
 
-        i = np.searchsorted(self.cable.radii_grid, r) - 1
+        i = np.searchsorted(self.cable._radii_grid, r) - 1
 
         return self.get_heat_flow(inner_index=int(i))
 
