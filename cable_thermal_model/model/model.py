@@ -121,7 +121,7 @@ class Model(
             for cable_key, pos_cable in self._cables_for_heat_vectors.items()
         }
 
-    def _initialize_thermal_state(
+    def _initialize_state(
         self,
         initial_state: StateT | None = None,
     ) -> StateT:
@@ -136,10 +136,10 @@ class Model(
         if initial_state is not None:
             return initial_state.model_copy(deep=True)
 
-        return self._build_initial_thermal_state()
+        return self._build_initial_state()
 
     @abstractmethod
-    def _build_initial_thermal_state(self) -> StateT:
+    def _build_initial_state(self) -> StateT:
         """Builds the initial thermal state for the model.
 
         Returns:
@@ -251,9 +251,9 @@ class Model(
         return heat_vectors
 
     @abstractmethod
-    def _update_thermal_state(
+    def _update_state(
         self,
-        thermal_state: StateT,
+        state: StateT,
         heat_vectors: dict[CableKey, np.ndarray],
         ambient_temperature: float,
         time_step: float,
@@ -261,13 +261,13 @@ class Model(
         """Update thermal state for the current timestep.
 
         Args:
-            thermal_state: Current thermal state.
+            state: Current state of the model.
             heat_vectors: Current heat vectors for each cable.
             ambient_temperature: Current ambient temperature.
             time_step: Time step for the current iteration.
 
         Returns:
-            Updated thermal state for the current timestep.
+            Updated state for the current timestep.
         """
         pass
 
@@ -380,8 +380,8 @@ class Model(
             ModelOutputSchema[StateT]: The computed temperature solution and final thermal state.
         """
         heat_vectors = self._initialize_heat_vectors()
-        thermal_state = self._initialize_thermal_state(initial_state=initial_state)
-        temperature_result = self._initialize_temperature_result(temperature_state=thermal_state.temperature)
+        state = self._initialize_state(initial_state=initial_state)
+        temperature_result = self._initialize_temperature_result(temperature_state=state.temperature)
 
         time_grid = (self.scenario.index - self.scenario.index[0]).total_seconds().to_numpy()
         scenario_rows = self.scenario.iloc[1:].iterrows()
@@ -390,19 +390,19 @@ class Model(
             time_step = time_grid[step_idx] - time_grid[step_idx - 1]
 
             self._update_thermal_properties_if_needed(
-                temperature_state=thermal_state.temperature,
+                temperature_state=state.temperature,
                 scenario_row=scenario_row,
                 elapsed_seconds=time_grid[step_idx],
             )
 
             heat_vectors = self._update_heat_vectors(
                 heat_vectors=heat_vectors,
-                temperature_state=thermal_state.temperature,
+                temperature_state=state.temperature,
                 circuit_loads=self._get_circuit_loads_from_scenario_row(scenario_row),
             )
 
-            thermal_state = self._update_thermal_state(
-                thermal_state=thermal_state,
+            state = self._update_state(
+                state=state,
                 heat_vectors=heat_vectors,
                 ambient_temperature=scenario_row["ambient_temperature"],
                 time_step=time_step,
@@ -410,10 +410,10 @@ class Model(
 
             temperature_result = self._update_temperature_result(
                 temperature_result=temperature_result,
-                temperature_state=thermal_state.temperature,
+                temperature_state=state.temperature,
                 step_idx=step_idx,
             )
 
         temperature_result_df = self._build_temperature_result_dataframe(temperature_result=temperature_result)
 
-        return ModelOutputSchema(result=temperature_result_df, state=thermal_state)
+        return ModelOutputSchema(result=temperature_result_df, state=state)

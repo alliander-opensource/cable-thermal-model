@@ -62,7 +62,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         """Return the cables used to assemble finite difference vectors."""
         return self.cables
 
-    def _build_initial_thermal_state(self) -> StateAir:
+    def _build_initial_state(self) -> StateAir:
         """Builds the initial thermal state for the model.
 
         Returns:
@@ -100,9 +100,9 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
             cables=self.cables,
         )
 
-    def _update_thermal_state(
+    def _update_state(
         self,
-        thermal_state: StateAir,
+        state: StateAir,
         heat_vectors: dict[CableKey, np.ndarray],
         ambient_temperature: float,
         time_step: float,
@@ -110,7 +110,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         """Update the self-heating and temperature state for the current time step."""
         new_self_heating_contribution = {
             cable_key: pos_cable.cable.integrate_timestep(
-                s=thermal_state.self_heating_contribution[cable_key],
+                s=state.self_heating_contribution[cable_key],
                 b=heat_vectors[cable_key],
                 time_step=time_step,
                 internal_heating=True,
@@ -123,6 +123,6 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
             for cable_key, self_heating in new_self_heating_contribution.items()
         }
 
-        thermal_state.temperature = new_temperature_state
-        thermal_state.self_heating_contribution = new_self_heating_contribution
-        return thermal_state
+        state.temperature = new_temperature_state
+        state.self_heating_contribution = new_self_heating_contribution
+        return state

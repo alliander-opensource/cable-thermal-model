@@ -89,7 +89,7 @@ def test_get_circuit_loads_from_scenario_row(model: ModelSoil):
 def test_initialize_temperature_result_contains_expected_layers(model: ModelSoil):
     """Ensure initialized result includes standard and requested extra layers, and excludes absent layers."""
     model.add_solution_location(CableLayer.Insulation)
-    initial_state = model._build_initial_thermal_state()
+    initial_state = model._build_initial_state()
 
     temperature_result = model._initialize_temperature_result(temperature_state=initial_state.temperature)
 
@@ -103,7 +103,7 @@ def test_initialize_temperature_result_contains_expected_layers(model: ModelSoil
 
 def test_update_pipe_fill_resistivity_skips_cables_without_pipe(model: ModelSoil):
     """Ensure no pipe-fill updates happen for cables without a pipe layer."""
-    temperature_state = model._build_initial_thermal_state().temperature
+    temperature_state = model._build_initial_state().temperature
 
     mocked_update_methods = {}
     for cable_key, pos_cable in model.cables.items():
@@ -118,7 +118,7 @@ def test_update_pipe_fill_resistivity_skips_cables_without_pipe(model: ModelSoil
 
 def test_update_pipe_fill_resistivity_updates_pipe_cables(model_with_pipe: ModelSoil):
     """Ensure pipe-fill resistivity is updated with the mean PipeFill temperature when a pipe exists."""
-    temperature_state = model_with_pipe._build_initial_thermal_state().temperature
+    temperature_state = model_with_pipe._build_initial_state().temperature
 
     for cable_key, pos_cable in model_with_pipe.cables.items():
         if pos_cable.cable.layer_metrics.pipe is None:
@@ -153,7 +153,7 @@ def test_initialize_thermal_state_returns_deep_copy(model: ModelSoil):
     """Ensure provided initial state is deep-copied before reuse."""
     initial_state = model.run().state
 
-    initialized_state = model._initialize_thermal_state(initial_state=initial_state)
+    initialized_state = model._initialize_state(initial_state=initial_state)
 
     assert initialized_state is not initial_state
 

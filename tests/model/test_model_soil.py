@@ -462,7 +462,7 @@ def test_compute_temperature_solution(
 
 def test_initializing_thermal_state(model: ModelSoil):
     # Check whether the thermal state components have the correct sizes.
-    initial_state = model._build_initial_thermal_state()
+    initial_state = model._build_initial_state()
 
     self_heating_state = initial_state.self_heating_contribution
     temperature_state = initial_state.temperature
@@ -513,8 +513,8 @@ def test_update_thermal_state(
         for cable_key in model.cables_with_soil
     }
 
-    state = model._update_thermal_state(
-        thermal_state=current_state,
+    state = model._update_state(
+        state=current_state,
         heat_vectors=vectors,
         time_step=1.0,
         ambient_temperature=model.scenario["ambient_temperature"].iloc[time_idx],

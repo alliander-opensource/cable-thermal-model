@@ -149,8 +149,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         """Return the cables used to assemble finite difference vectors."""
         return self.cables_with_soil
 
-    def _build_initial_thermal_state(self) -> StateSoil:
-        """Builds the initial thermal state for the model.
+    def _build_initial_state(self) -> StateSoil:
+        """Builds the initial state for the model.
 
         Returns:
             StateSoil: An instance of StateSoil containing the initialized temperature,
@@ -212,21 +212,19 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             other_cables = self.cables_with_soil.copy()
             other_cables.pop(key)
 
-            heating_from_other_cables = self._sum_heating_contributions(
+            mutual_heating_effect[key] += self._sum_heating_contributions(
                 cables=other_cables,
                 self_heating_contribution=self_heating_contribution,
                 x=pos_cable.x,
                 y=pos_cable.y,
             )
 
-            cooling_from_mirror_cables = self._sum_heating_contributions(
+            mutual_heating_effect[key] -= self._sum_heating_contributions(
                 cables=self.mirror_cables_with_soil,
                 self_heating_contribution=self_heating_contribution,
                 x=pos_cable.x,
                 y=pos_cable.y,
             )
-
-            mutual_heating_effect[key] = heating_from_other_cables - cooling_from_mirror_cables
 
         return mutual_heating_effect
 
@@ -364,12 +362,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         """
         new_temperature_state = {}
         for cable_key in self.cables:
-            mutual_heating_cable_state = mutual_heating_contribution[cable_key]
-            self_heating_cable_state = self_heating_contribution[cable_key][: mutual_heating_cable_state.size]
-
-            new_temperature_state[cable_key] = (
-                self_heating_cable_state + mutual_heating_cable_state + ambient_temperature
-            )
+            mutual_heat = mutual_heating_contribution[cable_key]
+            self_heat = self_heating_contribution[cable_key][: mutual_heat.size]
+            new_temperature_state[cable_key] = self_heat + mutual_heat + ambient_temperature
 
         return new_temperature_state
 
@@ -406,23 +401,23 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                 soil_capacity=soil_capacity,
             )
 
-    def _update_thermal_state(
+    def _update_state(
         self,
-        thermal_state: StateSoil,
+        state: StateSoil,
         heat_vectors: dict[CableKey, np.ndarray],
         ambient_temperature: float,
         time_step: float,
     ) -> StateSoil:
         """Update thermal state for one timestep using extracted step variables."""
         new_self_heating_contribution = self._update_self_heating_contribution(
-            self_heating_contribution=thermal_state.self_heating_contribution,
+            self_heating_contribution=state.self_heating_contribution,
             vectors=heat_vectors,
             time_step=time_step,
         )
 
         new_mutual_heating_contribution = self._update_mutual_heating_contribution(
             self_heating_contribution=new_self_heating_contribution,
-            mutual_heating_contribution=thermal_state.mutual_heating_contribution,
+            mutual_heating_contribution=state.mutual_heating_contribution,
             time_step=time_step,
         )
 
@@ -432,8 +427,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             ambient_temperature=ambient_temperature,
         )
 
-        thermal_state.temperature = new_temperature_state
-        thermal_state.self_heating_contribution = new_self_heating_contribution
-        thermal_state.mutual_heating_contribution = new_mutual_heating_contribution
+        state.temperature = new_temperature_state
+        state.self_heating_contribution = new_self_heating_contribution
+        state.mutual_heating_contribution = new_mutual_heating_contribution
 
-        return thermal_state
+        return state

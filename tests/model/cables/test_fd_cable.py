@@ -32,9 +32,13 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
+import cable_thermal_model.model.cables.fd_cable as fd_cable_module
+from cable_thermal_model.cable.cable_builder import CableBuilder
+from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
-from cable_thermal_model.model.cables.fd_cable import FDCable
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType, PipeFillType
+from cable_thermal_model.model.cables.fd_cable import FDCable, FDCableTrefoilCircuitInSinglePipeInAir
+from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 from tests.conftest import test_cable_fixtures
 
@@ -382,6 +386,188 @@ def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: FDCable):
                 soil_capacity=2e6,
                 logarithmic_soil_gridpoint_density=logarithmic_soil_gridpoint_density,
             )
+
+
+def test_fd_cable_init_invalid_grid_counts_type(single_core_cable_xlpe: FDCable):
+    with pytest.raises(TypeError, match="The grid_counts argument must be a dictionary of integers!"):
+        FDCable(
+            conductor=single_core_cable_xlpe.conductor,
+            layer_properties=single_core_cable_xlpe.layer_properties,
+            layer_metrics=single_core_cable_xlpe.layer_metrics,
+            cable_type=single_core_cable_xlpe.cable_type,
+            grid_counts=[1, 2, 3],  # type: ignore[arg-type]
+        )
+
+
+def test_update_pipe_fill_resistivity_without_pipe_raises(single_core_cable_xlpe: FDCable):
+    with pytest.raises(ValueError, match="Pipe is not set. Cannot update pipe fill resistivity."):
+        single_core_cable_xlpe.update_pipe_fill_resistivity(np.zeros(single_core_cable_xlpe.grid_size))
+
+
+def test_update_pipe_fill_resistivity_without_inner_radius_raises(single_core_cable_xlpe: FDCable):
+    pipe = Pipe(
+        pipe_input=PipeInputSchema(fill_type=PipeFillType.Air, inner_radius=0.06),
+        outer_radius_cable=single_core_cable_xlpe.layer_metrics.outer_radius,
+    )
+    cable_with_pipe = single_core_cable_xlpe.get_cable_copy_with_pipe(pipe=pipe)
+    assert cable_with_pipe.layer_metrics.pipe is not None
+    cable_with_pipe.layer_metrics.pipe.inner_radius = None
+
+    with pytest.raises(ValueError, match="Pipe inner radius is not set. Cannot update pipe fill resistivity."):
+        cable_with_pipe.update_pipe_fill_resistivity(np.zeros(cable_with_pipe.grid_size))
+
+
+def test_update_rho_grid(single_core_cable_xlpe: FDCable):
+    with pytest.raises(ValueError, match="The start_index exceeds the end_index. Cannot update the rho grid."):
+        single_core_cable_xlpe._update_rho_grid(start_index=2, end_index=1, rho=1.0)
+
+    # Ensure the cached diagonals are marked up-to-date before testing invalidation behavior.
+    _ = single_core_cable_xlpe._banded_matrix
+    assert not single_core_cable_xlpe._finite_difference_matrix_diagonals_outdated
+
+    start_index, end_index = single_core_cable_xlpe.get_layer_indices_for_layer(CableLayer.Conductor)
+    old_values = single_core_cable_xlpe._rho_grid.copy()
+    rho = float(single_core_cable_xlpe._rho_grid[start_index])
+
+    single_core_cable_xlpe._update_rho_grid(start_index=start_index, end_index=end_index, rho=rho * 1.005)
+    assert np.array_equal(single_core_cable_xlpe._rho_grid, old_values)
+    assert not single_core_cable_xlpe._finite_difference_matrix_diagonals_outdated
+
+    single_core_cable_xlpe._update_rho_grid(start_index=start_index, end_index=end_index, rho=rho * 1.2)
+    assert np.allclose(single_core_cable_xlpe._rho_grid[start_index : end_index + 1], rho * 1.2)
+    assert single_core_cable_xlpe._finite_difference_matrix_diagonals_outdated
+
+
+def test_update_capacity_grid(single_core_cable_xlpe: FDCable):
+    with pytest.raises(ValueError, match="The start_index exceeds the end_index. Cannot update the capacity grid."):
+        single_core_cable_xlpe._update_capacity_grid(start_index=5, end_index=3, capacity=2.0e6)
+
+    start_index, end_index = single_core_cable_xlpe.get_layer_indices_for_layer(CableLayer.Conductor)
+    old_values = single_core_cable_xlpe._capacity_grid.copy()
+    capacity = float(single_core_cable_xlpe._capacity_grid[start_index])
+
+    single_core_cable_xlpe._update_capacity_grid(
+        start_index=start_index, end_index=end_index, capacity=capacity * 1.005
+    )
+    assert np.array_equal(single_core_cable_xlpe._capacity_grid, old_values)
+
+    single_core_cable_xlpe._update_capacity_grid(start_index=start_index, end_index=end_index, capacity=capacity * 1.2)
+    assert np.allclose(single_core_cable_xlpe._capacity_grid[start_index : end_index + 1], capacity * 1.2)
+
+
+def test_get_dry_soil_radius(three_core_cable_pilc: FDCable):
+    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+        soil_rho=0.9,
+        soil_capacity=2.0e6,
+        soil_radius=0.7,
+        logarithmic_soil_gridpoint_density=8,
+    )
+    temperature_grid = np.full(cable_with_soil.grid_size, 20.0)
+
+    assert cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=False) is None
+    assert cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=True) is None
+
+    temperature_grid[-1] = cable_with_soil._SOIL_DRYING_TEMPERATURE + 5
+    dry_radius = cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=True)
+    assert np.isclose(dry_radius, cable_with_soil._radii_grid[-1])
+
+
+def test_update_soil_resistivity_with_dry_zone(three_core_cable_pilc: FDCable):
+    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+        soil_rho=0.7,
+        soil_capacity=2.0e6,
+        soil_radius=0.8,
+        logarithmic_soil_gridpoint_density=8,
+    )
+    start_index = cable_with_soil._get_soil_grid_start_index()
+    dry_soil_radius = (
+        cable_with_soil.layer_metrics.outer_radius + cable_with_soil.layer_properties[CableLayer.SoilOne].outer_radius
+    ) / 2
+
+    cable_with_soil._update_soil_resistivity(soil_rho=0.9, dry_soil_radius=dry_soil_radius)
+
+    dry_end_index = max((cable_with_soil._radii_grid <= dry_soil_radius).sum(), start_index)
+    assert np.allclose(cable_with_soil._rho_grid[start_index : dry_end_index + 1], 2.5)
+    assert np.allclose(cable_with_soil._rho_grid[dry_end_index + 1 :], 0.9)
+
+
+def test_update_soil_capacity_invalid_type_raises(three_core_cable_pilc: FDCable):
+    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+        soil_rho=0.9,
+        soil_capacity=2.0e6,
+        soil_radius=0.7,
+        logarithmic_soil_gridpoint_density=8,
+    )
+    with pytest.raises(ValueError, match="The soil_c argument must be of type int or float!"):
+        cable_with_soil._update_soil_capacity(soil_c="invalid")  # type: ignore[arg-type]
+
+
+def test_get_cable_copy_with_pipe_error(single_core_cable_xlpe: FDCable):
+    pipe = Pipe(
+        pipe_input=PipeInputSchema(fill_type=PipeFillType.Air, inner_radius=0.06),
+        outer_radius_cable=single_core_cable_xlpe.layer_metrics.outer_radius,
+    )
+
+    cable_with_soil = single_core_cable_xlpe.get_cable_copy_with_added_soil_layer(
+        soil_rho=1.0,
+        soil_capacity=2.0e6,
+        soil_radius=0.8,
+        logarithmic_soil_gridpoint_density=8,
+    )
+    with pytest.raises(
+        ValueError,
+        match="Detected soil layers. The add_outer_pipe method is only intended for cable instances without soil.",
+    ):
+        cable_with_soil.get_cable_copy_with_pipe(pipe=pipe)
+
+    cable_with_pipe = single_core_cable_xlpe.get_cable_copy_with_pipe(pipe=pipe)
+    with pytest.raises(ValueError, match="Cannot add a pipe as the cable already has a pipe."):
+        cable_with_pipe.get_cable_copy_with_pipe(pipe=pipe)
+
+
+def test_get_mean_temperature_cable_layer_missing_layer_raises(single_core_cable_xlpe: FDCable):
+    with pytest.raises(ValueError, match="Layer Pipe is not present in the cable."):
+        single_core_cable_xlpe._get_mean_temperature_cable_layer(
+            temperature_grid=np.zeros(single_core_cable_xlpe.grid_size),
+            layer=CableLayer.Pipe,
+        )
+
+
+def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
+    single_core_cable_xlpe_in_air,
+    monkeypatch,
+):
+    single_core_cable_xlpe_in_air.set_convection_parameters(Z=0.91, E=0.0, Cg=0.0)
+    n = single_core_cable_xlpe_in_air.grid_size
+    s = np.zeros(n)
+    b = np.zeros(n - 1)
+
+    call_count = {"n": 0}
+
+    def _non_converging_solver(*args, **kwargs):
+        call_count["n"] += 1
+        out = np.zeros(n)
+        out[-1] = float(call_count["n"])
+        return out
+
+    monkeypatch.setattr(fd_cable_module, "_MAX_ITERATIONS_PER_TIMESTEP", 3)
+    monkeypatch.setattr(fd_cable_module.linalg, "solve_banded", _non_converging_solver)
+
+    with pytest.raises(ValueError, match="Solution did not converge after 3 iterations"):
+        single_core_cable_xlpe_in_air.integrate_timestep(s=s, b=b, time_step=1.0, internal_heating=True)
+
+
+def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
+    cable = CableBuilder.build_cable_from_cable_id(
+        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
+        fd_cable_class=FDCableTrefoilCircuitInSinglePipeInAir,
+        pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+    )
+    s = np.zeros(cable.grid_size)
+    b = np.zeros(cable.grid_size - 1)
+
+    with pytest.raises(ValueError, match="Convection parameters have not been set for this cable in air!"):
+        cable.integrate_timestep(s=s, b=b, time_step=1.0, internal_heating=True)
 
 
 # TODO in refactor:

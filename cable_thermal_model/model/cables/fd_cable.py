@@ -214,7 +214,7 @@ class FDCable(AbstractCable):
 
         new_pipe_fill_rho = self.layer_metrics.pipe.get_thermal_resistivity_pipe_fill(Tfill)
         pipe_fill_start_index, pipe_fill_end_index = self.get_layer_indices_for_layer(CableLayer.PipeFill)
-        self._update_rho_grid_slice(
+        self._update_rho_grid(
             start_index=pipe_fill_start_index,
             end_index=pipe_fill_end_index + 1,
             rho=new_pipe_fill_rho,
@@ -525,8 +525,8 @@ class FDCable(AbstractCable):
         rho_minus = inter_rhos[:-1]
 
         r = radii[1:-1]
-        r_plus = r + 0.5 * delta_plus
-        r_minus = r - 0.5 * delta_minus
+        r_plus = inter_radii[1:]
+        r_minus = inter_radii[:-1]
         common_factor = 1 / (r * 0.5 * (delta_plus + delta_minus))
 
         upper_inner = r_plus * common_factor / (rho_plus * delta_plus)
@@ -601,42 +601,42 @@ class FDCable(AbstractCable):
             radii[1:] / radii[:-1]
         )
 
-    def _update_rho_grid_slice(self, start_index: int, end_index: int, rho: float) -> None:
+    def _update_rho_grid(self, start_index: int, end_index: int, rho: float) -> None:
         """Update a slice of the rho-grid with a new value if significant change is detected.
 
         Args:
             start_index (int): The starting index of the slice to update (inclusive).
-            end_index (int): The ending index of the slice to update (exclusive).
+            end_index (int): The ending index of the slice to update (inclusive).
             rho (float): The new resistivity value to set for the specified slice.
 
         """
-        if start_index >= end_index:
-            return
+        if start_index > end_index:
+            raise ValueError("The start_index exceeds the end_index. Cannot update the rho grid.")
 
-        rho_slice = self._rho_grid[start_index:end_index]
+        rho_slice = self._rho_grid[start_index : end_index + 1]
         if np.all(np.isclose(rho_slice, rho, rtol=1e-2)):
             return
 
-        self._rho_grid[start_index:end_index] = rho
+        self._rho_grid[start_index : end_index + 1] = rho
         self._invalidate_finite_difference_matrix_diagonals()
 
-    def _update_capacity_grid_slice(self, start_index: int, end_index: int, capacity: float) -> None:
+    def _update_capacity_grid(self, start_index: int, end_index: int, capacity: float) -> None:
         """Update a slice of the capacity-grid with a new value if significant change is detected.
 
         Args:
             start_index (int): The starting index of the slice to update (inclusive).
-            end_index (int): The ending index of the slice to update (exclusive).
+            end_index (int): The ending index of the slice to update (inclusive).
             capacity (float): The new capacity value to set for the specified slice.
 
         """
-        if start_index >= end_index:
-            return
+        if start_index > end_index:
+            raise ValueError("The start_index exceeds the end_index. Cannot update the capacity grid.")
 
-        capacity_slice = self._capacity_grid[start_index:end_index]
+        capacity_slice = self._capacity_grid[start_index : end_index + 1]
         if np.all(np.isclose(capacity_slice, capacity, rtol=1e-2)):
             return
 
-        self._capacity_grid[start_index:end_index] = capacity
+        self._capacity_grid[start_index : end_index + 1] = capacity
 
     def _update_vector_with_heat_generation_for_layer(
         self, vector: np.ndarray, heat_generation: float, layer: CableLayer
@@ -695,7 +695,7 @@ class FDCable(AbstractCable):
 
         """
         start_index = self._get_soil_grid_start_index()
-        self._update_rho_grid_slice(
+        self._update_rho_grid(
             start_index=start_index,
             end_index=self.grid_size,
             rho=soil_rho,
@@ -704,7 +704,7 @@ class FDCable(AbstractCable):
         if dry_soil_radius is not None:
             dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
             end_index = max((self._radii_grid <= dry_soil_radius).sum(), start_index)
-            self._update_rho_grid_slice(start_index=start_index, end_index=end_index, rho=dry_soil_rho)
+            self._update_rho_grid(start_index=start_index, end_index=end_index, rho=dry_soil_rho)
 
     def _update_soil_capacity(self, soil_c: float):
         """This method updates the soil capacity values around a cable.
@@ -720,7 +720,7 @@ class FDCable(AbstractCable):
             raise ValueError("The soil_c argument must be of type int or float!")
 
         start_index = self._get_soil_grid_start_index()
-        self._update_capacity_grid_slice(start_index=start_index, end_index=self.grid_size, capacity=soil_c)
+        self._update_capacity_grid(start_index=start_index, end_index=self.grid_size, capacity=soil_c)
 
     def get_cable_copy_with_pipe(self, pipe: Pipe) -> Self:
         """Get a new cable instance based on the current self, but with extra added layers that model a pipe.
