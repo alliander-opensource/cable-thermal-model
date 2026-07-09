@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import cast, overload
+from typing import overload
 
-from pandera.typing import DataFrame
+import pandas as pd
 
-from cable_thermal_model.environment.static_env import StaticEnv
+from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.model import Model
@@ -23,34 +23,33 @@ class ModelFactory:
 
     @staticmethod
     @overload
-    def create_model(static_env: StaticEnvAir, scenario: DataFrame[ScenarioSchemaAir]) -> ModelAir: ...
+    def create_model(static_env: StaticEnvAir, scenario: pd.DataFrame) -> ModelAir: ...
 
     @staticmethod
     @overload
-    def create_model(static_env: StaticEnvSoil, scenario: DataFrame[ScenarioSchemaSoil]) -> ModelSoil: ...
+    def create_model(static_env: StaticEnvSoil, scenario: pd.DataFrame) -> ModelSoil: ...
 
     @staticmethod
     def create_model(
-        static_env: StaticEnv,
-        scenario: DataFrame[ScenarioSchemaAir] | DataFrame[ScenarioSchemaSoil],
+        static_env: StaticEnvT,
+        scenario: pd.DataFrame,
     ) -> Model:
         """Create a model instance based on the environment type.
 
         Args:
-            static_env (StaticEnv): Static environment configuration for the model.
-            scenario (DataFrame[ScenarioSchemaAir] | DataFrame[ScenarioSchemaSoil]):
-                Scenario data used by the model.
+            static_env (StaticEnvT): Static environment configuration for the model.
+            scenario (DataFrame[ScenarioSchemaT] | pd.DataFrame): Scenario data used by the model.
 
         Returns:
-            Model: An instance of ModelAir or ModelSoil.
+            Model: An instance of ModelAir or ModelSoil, depending on the type of static_env.
 
         Raises:
             ValueError: If static_env is not a supported environment type.
         """
         if isinstance(static_env, StaticEnvAir):
-            return ModelAir(static_env=static_env, scenario=cast(DataFrame[ScenarioSchemaAir], scenario))
+            return ModelAir(static_env=static_env, scenario=ScenarioSchemaAir.validate(scenario))
         elif isinstance(static_env, StaticEnvSoil):
-            return ModelSoil(static_env=static_env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario))
+            return ModelSoil(static_env=static_env, scenario=ScenarioSchemaSoil.validate(scenario))
         else:
             raise ValueError(
                 f"Unsupported static environment type: {type(static_env).__name__}. "

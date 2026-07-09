@@ -3,18 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic
 
 from pandera.typing import DataFrame
 
-from cable_thermal_model.environment.static_env import StaticEnv
+from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.model.schemas import ModelOutputSchema
 from cable_thermal_model.model.schemas.model_input_schemas import AbstractScenarioSchema, ScenarioSchemaT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
-
-StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)
 
 
 class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT]):
