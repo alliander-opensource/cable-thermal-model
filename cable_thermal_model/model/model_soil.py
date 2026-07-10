@@ -15,10 +15,17 @@ from cable_thermal_model.cable.cable_circuit import (
     add_soil_layer,
     return_mirror_cable,
 )
+from cable_thermal_model.environment.measurement_point import (
+    MeasurementPoint,
+    MeasurementPointInputSchema,
+    MeasurementPointKey,
+    MeasurementPointRegistry,
+)
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
+from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
@@ -69,42 +76,69 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         self.minimal_soil_radius: float = 5.0
         self.last_soil_property_update_day: int = 0
 
+        self.measurement_point_registry: MeasurementPointRegistry = MeasurementPointRegistry()
+        self.measurement_point_temperature_result: dict[MeasurementPointKey, np.ndarray] = {}
+
         super().__init__(static_env=static_env, scenario=scenario)
 
-    def get_temp(
-        self, x: float, y: float, time_sec: float, self_heating_contribution: dict[CableKey, np.ndarray]
+    def get_measurement_point_temp(
+        self,
+        state: StateSoil,
+        measurement_point: MeasurementPoint,
     ) -> float:
         """Compute the temperature at a point and time in the environment.
 
         Args:
-            x: x-coordinate of the point.
-            y: y-coordinate of the point.
-            time_sec: Time in seconds at which to evaluate the temperature.
-            self_heating_contribution: Self-heating contributions for each cable at the specified time.
+            measurement_point: The measurement point object containing coordinates and distances to cables.
+            state: The state of the soil model containing time and self-heating contributions.
 
         Returns:
             float: Temperature in degrees Celsius.
 
         """
-        time_grid = (self.scenario.index - self.scenario.index[0]).total_seconds()
-        time_idx = np.nonzero(time_grid >= time_sec)[0][0]
-        ambient_temperature = self.scenario["ambient_temperature"].iloc[time_idx]
+        measurement_point_temp = state.ambient_temperature
 
-        heating_from_cables = self._sum_heating_contributions(
-            cables=self.cables_with_soil,
-            self_heating_contribution=self_heating_contribution,
-            x=x,
-            y=y,
+        for cable_key, cable in self.cables_with_soil.items():
+            distance_to_cable = measurement_point.distances_to_cables[cable_key]
+            measurement_point_temp += cable.cable.get_heating_contribution_at_radius(
+                radius=distance_to_cable, self_heating_contribution=state.self_heating_contribution[cable_key]
+            )
+
+        for cable_key, mirror_cable in self.mirror_cables_with_soil.items():
+            distance_to_mirror_cable = measurement_point.distances_to_mirror_cables[cable_key]
+            measurement_point_temp -= mirror_cable.cable.get_heating_contribution_at_radius(
+                radius=distance_to_mirror_cable, self_heating_contribution=state.self_heating_contribution[cable_key]
+            )
+
+        return measurement_point_temp
+
+    def add_measurement_point(self, x: float, y: float) -> MeasurementPointKey:
+        """Add a measurement point to the environment.
+
+        Args:
+            x: x-coordinate of the measurement point.
+            y: y-coordinate of the measurement point.
+
+        Returns:
+            MeasurementPointKey: The identifier of the added measurement point.
+
+        """
+        distances_to_cables = {
+            cable_key: pos_cable.distance_to_point(x=x, y=y) for cable_key, pos_cable in self.cables_with_soil.items()
+        }
+        distances_to_mirror_cables = {
+            cable_key: pos_cable.distance_to_point(x=x, y=y)
+            for cable_key, pos_cable in self.mirror_cables_with_soil.items()
+        }
+
+        return self.measurement_point_registry.add_measurement_point(
+            MeasurementPointInputSchema(
+                x=x,
+                y=y,
+                distances_to_cables=distances_to_cables,
+                distances_to_mirror_cables=distances_to_mirror_cables,
+            )
         )
-
-        cooling_from_mirror_cables = self._sum_heating_contributions(
-            cables=self.mirror_cables_with_soil,
-            self_heating_contribution=self_heating_contribution,
-            x=x,
-            y=y,
-        )
-
-        return ambient_temperature + heating_from_cables - cooling_from_mirror_cables
 
     def _validate_scenario(self):
         """Validate the scenario dataframe for required columns.
@@ -163,6 +197,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             temperature=self._initialize_state_from_cables(cables=self.cables, fill_value=ambient_temperature),
             self_heating_contribution=self._initialize_state_from_cables(cables=self.cables_with_soil),
             mutual_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
+            ambient_temperature=ambient_temperature,
         )
 
     def _sum_heating_contributions(
@@ -427,8 +462,49 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             ambient_temperature=ambient_temperature,
         )
 
-        state.temperature = new_temperature_state
-        state.self_heating_contribution = new_self_heating_contribution
-        state.mutual_heating_contribution = new_mutual_heating_contribution
+        new_state = StateSoil(
+            static_env_hash=state.static_env_hash,
+            temperature=new_temperature_state,
+            self_heating_contribution=new_self_heating_contribution,
+            mutual_heating_contribution=new_mutual_heating_contribution,
+            ambient_temperature=ambient_temperature,
+        )
+        return new_state
 
-        return state
+    def _initialize_empty_temperature_result(self):
+        """Initializes an empty nested dictionary.
+
+        Dictionary is used to store temperature results for each cable and each relevant layer.
+        """
+        super()._initialize_empty_temperature_result()
+
+        self.measurement_point_temperature_result = {
+            mp.key: np.full(self.scenario_length, np.nan, dtype=float) for mp in self.measurement_point_registry.points
+        }
+
+    def _update_temperature_result(self, state: StateSoil, step_idx: int):
+        """Initializes the temperature result dictionary with the initial state values."""
+        super()._update_temperature_result(
+            state=state,
+            step_idx=step_idx,
+        )
+
+        for measurement_point in self.measurement_point_registry.points:
+            self.measurement_point_temperature_result[measurement_point.key][step_idx] = (
+                self.get_measurement_point_temp(state=state, measurement_point=measurement_point)
+            )
+
+    def _build_temperature_result_dataframe(self) -> DataFrame[TemperatureResultSchema]:
+        """Builds a DataFrame from the temperature result dictionary.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the temperature results for all cables and layers.
+
+        """
+        df = super()._build_temperature_result_dataframe()
+
+        # Add measurement point temperatures to the DataFrame
+        for measurement_point in self.measurement_point_registry.points:
+            df[measurement_point.key] = self.measurement_point_temperature_result[measurement_point.key]
+
+        return df

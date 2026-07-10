@@ -81,6 +81,11 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         self.time_grid: list[float] = list((scenario.index - scenario.index[0]).total_seconds())
         self.time_samples: int = len(self.time_grid)
 
+    @property
+    def scenario_length(self) -> int:
+        """Returns the number of time steps in the scenario."""
+        return len(self.scenario.index)
+
     def run(
         self,
         initial_state: StateT | None = None,
