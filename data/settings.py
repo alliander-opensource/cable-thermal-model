@@ -4,28 +4,19 @@
 
 from pathlib import Path
 
+DATA_DIR = Path(__file__).resolve().parent
+
 
 def data_path():
     """Return the path to the processed data directory."""
-    return Path("data/processed")
+    return DATA_DIR / "processed"
 
 
 def cache_path():
     """Return the path to the data cache directory."""
-    return Path("data/cache")
+    return DATA_DIR / "cache"
 
 
 def circuits_path():
     """Return the path to the circuit data directory."""
-    # Get path to circuit data.
-    path = Path.cwd()
-    path_end = path.parts[-1]
-
-    # Traverse path upwards to get to root directory
-    while path_end != "cable-thermal-model":
-        path = path.parent
-        path_end = path.parts[-1]
-
-    # When we are in the root directory.
-    path_to_circuits = "data/circuits"
-    return path / path_to_circuits
+    return DATA_DIR / "circuits"

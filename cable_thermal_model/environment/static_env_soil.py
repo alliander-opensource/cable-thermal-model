@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from pathlib import Path
 
 import pandas as pd
 
@@ -77,8 +76,7 @@ class StaticEnvSoil(
          Args:
             file_name: A string representation of one of the files in the circuits folder
         """
-        root_path = Path(__file__).parent.parent.parent.resolve()
-        circuits_ = pd.read_csv(root_path / circuits_path() / file_name, sep=";")
+        circuits_ = pd.read_csv(circuits_path() / file_name, sep=";")
         circuits_["circuit_type"] = circuits_["circuit_type"].apply(self._convert_circuit_type)
         circuits_["pipe"] = circuits_["pipe"].apply(self._convert_pipe)
         for _, row in circuits_.iterrows():

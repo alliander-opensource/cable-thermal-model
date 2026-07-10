@@ -503,6 +503,7 @@ def test_update_thermal_state(
         temperature={cable_key: np.zeros_like(mutual_heating_state_map[cable_key]) for cable_key in model.cables},
         self_heating_contribution=self_heating_state_map,
         mutual_heating_contribution=mutual_heating_state_map,
+        ambient_temperature=model.scenario["ambient_temperature"].iloc[time_idx],
     )
 
     model._update_self_heating_contribution = mock.Mock(return_value=self_heating_state_map)
@@ -944,6 +945,7 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
         temperature={key: np.array([10.0]) for key in cable_keys},
         self_heating_contribution={key: np.array([10.0]) for key in cable_keys},
         mutual_heating_contribution=valid_mutual_heating_solutions,
+        ambient_temperature=5.0,
     )
 
     # Test case 2: Invalid keys should fail
@@ -960,6 +962,7 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
             temperature=temperature,
             self_heating_contribution=self_heating,
             mutual_heating_contribution=invalid_mutual_heating,
+            ambient_temperature=0.0,
         )
 
 
@@ -1002,6 +1005,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         mutual_heating_contribution={cable_key: np.array([15.0])},
+        ambient_temperature=5.0,
     )
 
     model._validate_initial_state(valid_state)
@@ -1011,6 +1015,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
+        ambient_temperature=5.0,
     )
 
     invalid_state = cast(Any, invalid_state_air)
