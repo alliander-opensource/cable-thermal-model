@@ -3,18 +3,17 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic
 
+import pandas as pd
 from pandera.typing import DataFrame
 
-from cable_thermal_model.environment.static_env import StaticEnv
+from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.model.schemas import ModelOutputSchema
-from cable_thermal_model.model.schemas.model_input_schemas import AbstractScenarioSchema, ScenarioSchemaT
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
-
-StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)
 
 
 class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT]):
@@ -22,9 +21,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
     static_env: StaticEnvT
     scenario: DataFrame[ScenarioSchemaT]
-
-    THERMAL_RESISTIVITY_COLUMN = "soil_thermal_resistivity"
-    THERMAL_CAPACITY_COLUMN = "soil_thermal_capacity"
+    _scenario_schema_cls: type[ScenarioSchemaT]
 
     def __str__(self):
         """Generates a concise string representation of the model."""
@@ -49,7 +46,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         self._set_scenario(scenario=scenario)
         self._set_run_options(run_options=None)
 
-    def _validate_scenario(self):
+    def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioSchemaT]:
         """Validates that the scenario DataFrame contains all required columns and no missing values.
 
         This method validates the scenario against the AbstractScenarioSchema and also checks that the static
@@ -61,10 +58,10 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
         """
         for circuit in self.static_env.circuits:
-            if "load_" + circuit not in self.scenario.columns:
+            if "load_" + circuit not in scenario.columns:
                 raise ValueError(f"Scenario dataframe does not contain a load column for circuit '{circuit}'.")
 
-        AbstractScenarioSchema.validate(self.scenario)
+        return self._scenario_schema_cls.validate(scenario)
 
     def _set_scenario(self, scenario: DataFrame[ScenarioSchemaT]):
         """Sets a new scenario and validates it.
@@ -73,12 +70,11 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             scenario: The new scenario dataframe
 
         """
-        self.scenario = scenario
-        self._validate_scenario()
+        self.scenario = self._validate_scenario(scenario=scenario)
 
         # Set up time grids
-        self.time_max: float = (scenario.index[-1] - scenario.index[0]).total_seconds()
-        self.time_grid: list[float] = list((scenario.index - scenario.index[0]).total_seconds())
+        self.time_max: float = (self.scenario.index[-1] - self.scenario.index[0]).total_seconds()
+        self.time_grid: list[float] = list((self.scenario.index - self.scenario.index[0]).total_seconds())
         self.time_samples: int = len(self.time_grid)
 
     def run(

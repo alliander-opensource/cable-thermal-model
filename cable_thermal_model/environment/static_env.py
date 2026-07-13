@@ -475,3 +475,6 @@ class StaticEnv(
                 )
             )
         return multiple_configurations
+
+
+StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)
