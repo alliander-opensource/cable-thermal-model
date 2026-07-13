@@ -15,6 +15,7 @@ from cable_thermal_model.cable.cable_circuit import (
     return_mirror_cable,
 )
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
+from cable_thermal_model.model.cables.cable import CableSoil, CableTrefoilCircuitSinglePipeInSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ModelOutputSchema, StateSoil, TemperatureResultSchema
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
@@ -31,6 +32,19 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
     method.
         >> model = ModelSoil(environment, scenario)
         >> result = model.run()
+
+    Attributes:
+            mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
+                                                environment
+            logarithmic_soil_gridpoint_density: The density of grid points in the soil layers, this is used to compute
+                                                the number of grid points in the soil layers based on their thickness.
+                                                The default value is 20 grid points per factor 2 increase in soil layer
+                                                thickness. For a cable with radius of 3.1 cm and a soil layer radius
+                                                1 m,
+                                                this would result in 100 grid points in the soil layer.
+            minimal_soil_radius:                The minimal soil radius around a cable. For deeply buried cables, the
+                                                soil radius is set to 2.5 times the cable depth, this parameter sets
+                                                a lower bound to prevent very small soil layers for shallow cables.
     """
 
     def __init__(self, static_env: StaticEnvSoil, scenario: DataFrame[ScenarioSchemaSoil]):
@@ -45,20 +59,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                         lying configuration
             scenario:   A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic data i.e. loads of the
                         cable circuits and the soil temperature
-
-        Attributes:
-            mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
-                                                environment
-            logarithmic_soil_gridpoint_density: The density of grid points in the soil layers, this is used to compute
-                                                the number of grid points in the soil layers based on their thickness.
-                                                The default value is 20 grid points per factor 2 increase in soil layer
-                                                thickness. For a cable with radius of 3.1 cm and a soil layer radius
-                                                1 m,
-                                                this would result in 100 grid points in the soil layer.
-            minimal_soil_radius:                The minimal soil radius around a cable. For deeply buried cables, the
-                                                soil radius is set to 2.5 times the cable depth, this parameter sets
-                                                a lower bound to prevent very small soil layers for shallow cables.
-
         """
         if not isinstance(static_env, StaticEnvSoil):
             raise ValueError(
@@ -310,6 +310,11 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             new_resistivity = scenario_row[self.THERMAL_RESISTIVITY_COLUMN]
             for cable_key, cable in self.cables.items():
                 if not (np.isclose(cable.cable.rho_grid[-1], new_resistivity, rtol=1e-2) and dry_soil_radii is None):
+                    if not isinstance(cable.cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+                        raise TypeError(
+                            f"Cannot update for cable {cable_key} of type {type(cable.cable)}. "
+                            f"Only CableSoil and CableTrefoilCircuitSinglePipeInSoil are supported."
+                        )
                     cable.cable.update_soil_resistivity(
                         soil_rho=new_resistivity, dry_soil_radius=dry_soil_radii[cable_key] if dry_soil_radii else None
                     )
@@ -339,6 +344,11 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         if daily_update:
             new_capacity = scenario_row[self.THERMAL_CAPACITY_COLUMN]
             for cable_key, cable in self.cables.items():
+                if not isinstance(cable.cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+                    raise TypeError(
+                        f"Cannot update soil capacity for cable {cable_key} of type {type(cable.cable)}. "
+                        f"Only CableSoil and CableTrefoilCircuitSinglePipeInSoil are supported."
+                    )
                 if not np.isclose(cable.cable.capacity_grid[-1], new_capacity, rtol=1e-2):
                     cable.cable.update_soil_capacity(soil_c=new_capacity)
                     update_matrices[cable_key] = True

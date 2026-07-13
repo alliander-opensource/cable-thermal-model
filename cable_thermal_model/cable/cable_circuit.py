@@ -8,6 +8,8 @@ from copy import deepcopy
 from enum import StrEnum
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, computed_field
+
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
 from cable_thermal_model.cable.schemas.circuit_schemas import (
@@ -24,7 +26,6 @@ from cable_thermal_model.model.cables.cable import (
 )
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
 from cable_thermal_model.utils.str_utils import tab_lines
-from pydantic import BaseModel, ConfigDict, computed_field
 
 
 class CablePosition(StrEnum):
@@ -178,7 +179,12 @@ def add_soil_layer(
 
     """
     pos_cable_ = deepcopy(pos_cable)
-    cable_in_soil = CableSoil.from_cable_with_added_soil_layer(
+    cable = pos_cable_.cable
+
+    if not isinstance(cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+        raise TypeError(f"{type(cable).__name__} does not support adding soil")
+
+    cable_in_soil = cable.from_cable_with_added_soil_layer(
         cable=pos_cable_.cable,
         soil_rho=soil_rho,
         soil_capacity=soil_capacity,
@@ -207,8 +213,13 @@ def remove_soil(
 
     """
     pos_cable_ = deepcopy(pos_cable)
+    cable = pos_cable_.cable
+
+    if not isinstance(cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+        raise TypeError(f"{type(cable).__name__} does not support removing soil")
+
     return PosCable(
-        cable=pos_cable_.cable.get_cable_copy_without_soil(),
+        cable=cable.get_cable_copy_without_soil(),
         x=pos_cable_.x,
         y=pos_cable_.y,
         circuit_name=pos_cable_.circuit_name,

@@ -641,7 +641,7 @@ class CableSoil(Cable):
         soil_capacity: float,
         soil_radius: float,
         logarithmic_soil_gridpoint_density: float,
-    ) -> "CableSoil":
+    ) -> Self:
         """This method creates a copy of the current cable object this was run from, but with an extra added soil layer.
 
         Args:
@@ -696,14 +696,15 @@ class CableSoil(Cable):
 
         radius_factor = soil_radius / current_outer_radius
         grid_counts[new_layer] = max(2, int(logarithmic_soil_gridpoint_density * np.log2(radius_factor)))
-
-        return cls(
+        new_cable_soil_cable = cls(
             conductor=deepcopy(cable.conductor),
             layer_properties=layer_properties,
             layer_metrics=deepcopy(cable.layer_metrics),
             cable_type=cable.cable_type,
             grid_counts=grid_counts,
         )
+        new_cable_soil_cable.weighted_screen_impedance = cable.weighted_screen_impedance
+        return new_cable_soil_cable
 
     def integrate_timestep(
         self,
