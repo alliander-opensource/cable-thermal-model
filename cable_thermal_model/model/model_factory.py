@@ -22,6 +22,7 @@ from cable_thermal_model.model.schemas.model_input_schemas import (
 class ModelFactory:
     """Factory class for creating model instances based on the environment."""
 
+    # Overloaded methods for type checking. Used to infer the return type based on the input static environment type.
     @staticmethod
     @overload
     def create_model(static_env: StaticEnvAir, scenario: pd.DataFrame) -> ModelAir: ...
