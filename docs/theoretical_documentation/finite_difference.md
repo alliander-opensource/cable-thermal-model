@@ -125,9 +125,9 @@ where
 
 $$
 \begin{align*}
-\alpha_i &= \frac{r^+_i}{\rho^+_ir_i(r_i^+-r_i^-)\Delta r_i}\,,\\
-\beta_i &= \frac{-1}{r_i(r_i^+-r_i^-)}\left(\frac{r_i^+}{\rho_i^+\Delta r_i}+\frac{r_i^-}{\rho_i^- \Delta r_{i-1}}\right)\,,\\
-\gamma_i&=\frac{r_i^-}{\rho_i^-r_i(r_i^+-r_i^-)\Delta r_{i-1}}\,.
+\alpha_i &= \frac{1}{r_i(r_i^+-r_i^-)}\frac{r_i^+}{\rho_i^+ \Delta r_i}\,,\\
+\gamma_i &= \frac{1}{r_i(r_i^+-r_i^-)}\frac{r_i^-}{\rho_{i-1}^+ \Delta r_{i-1}}\,,\\
+\beta_i &=-\big(\alpha_i+\gamma_i\big)\,.
 \end{align*}
 $$
 
