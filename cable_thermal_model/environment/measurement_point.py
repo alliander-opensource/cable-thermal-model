@@ -4,8 +4,7 @@
 
 import logging
 
-from pandera import Field
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from cable_thermal_model.cable.cable_circuit import CableKey
 
@@ -39,6 +38,10 @@ class MeasurementPointInputSchema(BaseModel):
             "from the measurement point in meters."
         )
     )
+    ndigits: int = Field(
+        default=3,
+        description="Number of decimal places to round the coordinates for key generation.",
+    )
 
 
 class MeasurementPoint:
@@ -56,23 +59,26 @@ class MeasurementPoint:
         Args:
             input_data: Validated measurement-point input values.
         """
-        self.key: MeasurementPointKey = MeasurementPoint.create_key(x=input_data.x, y=input_data.y)
+        self.key: MeasurementPointKey = MeasurementPoint.create_key(
+            x=input_data.x, y=input_data.y, ndigits=input_data.ndigits
+        )
         self.distances_to_cables = input_data.distances_to_cables
         self.distances_to_mirror_cables = input_data.distances_to_mirror_cables
 
     @staticmethod
-    def create_key(x: float, y: float) -> MeasurementPointKey:
+    def create_key(x: float, y: float, ndigits: int = 3) -> MeasurementPointKey:
         """Create a stable output key for a measurement point.
 
         Args:
-            x: The x-coordinate of the measurement point in meters.
-            y: The y-coordinate of the measurement point in meters.
+            x (float): The x-coordinate of the measurement point in meters.
+            y (float): The y-coordinate of the measurement point in meters.
+            ndigits (int): Number of decimal places to round the coordinates for key generation.
 
         Returns:
             A 3-level tuple key in the format
             ``("measurement_point", "x=<value>m", "y=<value>m")``.
         """
-        return (MEASUREMENT_POINT_KEY_PREFIX, f"x={x:.3f}m", f"y={y:.3f}m")
+        return (MEASUREMENT_POINT_KEY_PREFIX, f"x={x:.{ndigits}f}m", f"y={y:.{ndigits}f}m")
 
 
 class MeasurementPointRegistry:
@@ -108,9 +114,8 @@ class MeasurementPointRegistry:
         """
         measurement_point = MeasurementPoint(input_data=input_data)
         if measurement_point.key in self.measurement_point_keys:
-            logger.warning(
-                f"Measurement point at x={input_data.x:.3f}m, y={input_data.y:.3f}m already exists. Skipping addition."
-            )
+            _, x_str, y_str = measurement_point.key
+            logger.warning(f"Measurement point at x={x_str}, y={y_str} already exists. Skipping addition.")
         else:
             self.points.add(measurement_point)
 

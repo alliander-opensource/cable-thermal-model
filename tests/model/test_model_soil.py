@@ -365,26 +365,53 @@ def test_model_soil_thermal_resistivity_series(single_circuit_env: StaticEnvSoil
     )
 
 
-def test_get_temp(model: ModelSoil):
-    """Test get_temp function returns a temperature value."""
-    # Simple coordinates
-    x, y = 0.0, 1.0
+def test_add_measurement_point_to_model_soil(model: ModelSoil):
+    """Test adding a measurement point to the model."""
+    x, y = 1.0, -2.0
+    key = model.add_measurement_point(x=x, y=y)
 
-    # Use a time that exists in the scenario (first time step in seconds)
-    time_sec = 0.0
+    # Check that the key is in the model's measurement points
+    assert key in model.measurement_point_registry.measurement_point_keys
 
-    # Create simple solutions for all cable keys
-    solutions = {}
+    # Check that the measurement point has the correct coordinates and ndigits
+    measurement_point = next((mp for mp in model.measurement_point_registry.points if mp.key == key), None)
+    assert measurement_point is not None
+    assert measurement_point.key == ("measurement_point", f"x={x:.3f}m", f"y={y:.3f}m")
+
+    # Check that all CableKeys in the model occur in the distances_to_cables of the measurement point
     for cable_key in model.cables_with_soil:
-        # Create a simple solution array matching the cable's radii grid size
-        grid_size = model.cables_with_soil[cable_key].cable._radii_grid.size
-        solutions[cable_key] = np.full(grid_size, 10.0)  # 10°C heating everywhere
+        assert cable_key in measurement_point.distances_to_cables
+    for cable_key in model.mirror_cables_with_soil:
+        assert cable_key in measurement_point.distances_to_mirror_cables
 
-    # Call the function
-    temperature = model.get_temp(x, y, time_sec, solutions)
 
-    # Check that we get a temperature value
-    assert isinstance(temperature, float)
+def test_run_model_soil_with_measurement_points(model: ModelSoil):
+    """Test running the model with measurement points."""
+    # Add a measurement point
+    key1 = model.add_measurement_point(x=0.2, y=-0.8)
+    key2 = model.add_measurement_point(x=0.5, y=-0.8)
+
+    # Run the model
+    temperature_result = model.run().result
+
+    # Check that the result contains the measurement point keys
+    assert key1 in temperature_result.columns
+    assert key2 in temperature_result.columns
+
+    # Check that the measurement point results are not empty
+    assert not temperature_result[key1].empty
+    assert not temperature_result[key2].empty
+
+    # Check that the values exceed the ambient temperature except for the first time step
+    ambient_temperature = model.scenario.ambient_temperature.iloc[0]
+    assert temperature_result[key1].iloc[0] == ambient_temperature
+    assert temperature_result[key2].iloc[0] == ambient_temperature
+    assert (temperature_result[key1].iloc[1:] > ambient_temperature).all()
+    assert (temperature_result[key2].iloc[1:] > ambient_temperature).all()
+
+    # Check that the values of point 1 are higher than the values of point 2
+    # since point 1 is closer to the circuit
+    assert (temperature_result[key1].iloc[1:] > temperature_result[key2].iloc[1:]).all()
 
 
 @pytest.mark.parametrize("cable_id", ["GPLK 10/10 kV 3x185 Al", "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"])

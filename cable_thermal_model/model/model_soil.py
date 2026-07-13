@@ -112,17 +112,22 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         return measurement_point_temp
 
-    def add_measurement_point(self, x: float, y: float) -> MeasurementPointKey:
+    def add_measurement_point(self, x: float, y: float, ndigits: int = 3) -> MeasurementPointKey:
         """Add a measurement point to the environment.
 
         Args:
             x: x-coordinate of the measurement point.
             y: y-coordinate of the measurement point.
 
+            ndigits: Number of decimal places to round the coordinates for key generation.
+
         Returns:
             MeasurementPointKey: The identifier of the added measurement point.
 
         """
+        x = round(x, ndigits)
+        y = round(y, ndigits)
+
         distances_to_cables = {
             cable_key: pos_cable.distance_to_point(x=x, y=y) for cable_key, pos_cable in self.cables_with_soil.items()
         }
