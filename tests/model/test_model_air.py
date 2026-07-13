@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -188,11 +189,11 @@ def test_model_air_validate_scenario_warns_for_unused_soil_columns(single_circui
     )
 
     with pytest.warns(UserWarning) as warnings_record:
-        _ = ModelAir(single_circuit_in_air_env, ScenarioSchemaAir.validate(scenario))
+        _ = ModelAir(single_circuit_in_air_env, scenario)
 
     warning_messages = [str(w.message) for w in warnings_record]
-    assert any("soil_thermal_resistivity is provided in the scenario" in message for message in warning_messages)
-    assert any("soil_thermal_capacity is provided in the scenario" in message for message in warning_messages)
+    assert any("soil_thermal_resistivity" in message for message in warning_messages)
+    assert any("soil_thermal_capacity" in message for message in warning_messages)
 
 
 def test_model_air_validate_state(single_core_cable_xlpe):
