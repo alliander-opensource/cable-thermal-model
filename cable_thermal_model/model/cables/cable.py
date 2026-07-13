@@ -670,7 +670,7 @@ class CableSoil(Cable):
         layer_properties = deepcopy(cable.layer_properties)
         grid_counts = deepcopy(cable.grid_counts)
 
-        outer_layer = list(layer_properties.keys())[-1]
+        outer_layer = cable.layers[-1]
         current_outer_radius = layer_properties[outer_layer].outer_radius
         if soil_radius <= current_outer_radius:
             raise ValueError("The soil radius must be larger than the outer radius of the current outer layer!")

@@ -181,7 +181,7 @@ def add_soil_layer(
     pos_cable_ = deepcopy(pos_cable)
     cable = pos_cable_.cable
 
-    if not isinstance(cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+    if not isinstance(cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
         raise TypeError(f"{type(cable).__name__} does not support adding soil")
 
     cable_in_soil = cable.from_cable_with_added_soil_layer(
@@ -215,7 +215,7 @@ def remove_soil(
     pos_cable_ = deepcopy(pos_cable)
     cable = pos_cable_.cable
 
-    if not isinstance(cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+    if not isinstance(cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
         raise TypeError(f"{type(cable).__name__} does not support removing soil")
 
     return PosCable(

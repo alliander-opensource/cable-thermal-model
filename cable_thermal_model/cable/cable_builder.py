@@ -155,7 +155,7 @@ class CableBuilder:
         cable_layer_metrics: CableLayerMetrics = cls._get_cable_layer_metrics(cable_constructional_input)
 
         # instantiate the cable
-        fd_cable = cable_class(
+        cable = cable_class(
             conductor=cable_conductor_properties,
             layer_properties=cable_layer_properties_by_layer,
             layer_metrics=cable_layer_metrics,
@@ -165,14 +165,14 @@ class CableBuilder:
 
         # add a pipe around the cable if specified
         if pipe is not None:
-            fd_cable = fd_cable.get_cable_copy_with_pipe(
+            cable = cable.get_cable_copy_with_pipe(
                 Pipe(
                     pipe_input=pipe,
-                    outer_radius_cable=fd_cable.layer_metrics.cable_radius,
+                    outer_radius_cable=cable.layer_metrics.cable_radius,
                 )
             )
 
-        return fd_cable
+        return cable
 
     @classmethod
     def _load_cable_data_from_file(cls, cable_source_file_path: Path, cable_id: str) -> pd.Series:

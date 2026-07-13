@@ -310,7 +310,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             new_resistivity = scenario_row[self.THERMAL_RESISTIVITY_COLUMN]
             for cable_key, cable in self.cables.items():
                 if not (np.isclose(cable.cable.rho_grid[-1], new_resistivity, rtol=1e-2) and dry_soil_radii is None):
-                    if not isinstance(cable.cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+                    if not isinstance(cable.cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
                         raise TypeError(
                             f"Cannot update for cable {cable_key} of type {type(cable.cable)}. "
                             f"Only CableSoil and CableTrefoilCircuitSinglePipeInSoil are supported."
@@ -344,7 +344,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         if daily_update:
             new_capacity = scenario_row[self.THERMAL_CAPACITY_COLUMN]
             for cable_key, cable in self.cables.items():
-                if not isinstance(cable.cable, CableSoil | CableTrefoilCircuitSinglePipeInSoil):
+                if not isinstance(cable.cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
                     raise TypeError(
                         f"Cannot update soil capacity for cable {cable_key} of type {type(cable.cable)}. "
                         f"Only CableSoil and CableTrefoilCircuitSinglePipeInSoil are supported."
