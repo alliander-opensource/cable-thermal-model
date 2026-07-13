@@ -189,26 +189,24 @@ Then evaluating in $r>0$ and taking the limit $r\rightarrow 0$ we use l'Hôpital
 
 $$
 \begin{align*}
-\lim_{r\rightarrow 0} \frac{1}{\rho_0}\left(\frac{\frac{\partial \theta}{\partial r}}{r} +\frac{\partial^2\theta}{\partial r^2}\right)&= \frac{2}{\rho_0}\frac{\partial^2\theta}{\partial r^2}\bigg|_{r=0}\,.
+\lim_{r\rightarrow 0} \frac{1}{\rho_0}\left(\frac{\frac{\partial \theta}{\partial r}}{r} +\frac{\partial^2\theta}{\partial r^2}\right)&= \frac{2}{\rho_0}\frac{\partial^2\theta}{\partial r^2}\bigg|_{r=0}\,,
 \end{align*}
 $$
 
-Replacing again $\frac{\partial}{\partial r}$ with the finite difference approximation we obtain
+which we approximate as follows
 
 $$
 \begin{align*}
-\frac{2}{\rho_0}D_r(D_r\theta)(r_0)&= \frac{2}{\rho_0}\frac{(D_r\theta)(r_0^+)-(D_r\theta)(r_0^-)}{r_0^+-r_0^-}\\
-&=\frac{2}{\rho_0\Delta r_0}\left(\frac{\theta_1-\theta_0}{r_1-r_0}-\frac{\theta_0-\theta_{-1}}{r_0-r_{-1}}\right)\\
-&=\frac{4}{\rho_0(\Delta r_0)^2}(\theta_1-\theta_0)\,,
+\frac{2}{\rho_0}\frac{\partial^2\theta}{\partial r^2}\bigg|_{r=r_0}&\approx \frac{2}{\rho_0}\frac{1}{r_0^+-r_0}\left((D_r\theta)(r_0^+)-\frac{\partial \theta}{\partial r}\bigg|_{r=r_0}\right)\\
+&=\frac{2}{\rho_0 r_0^+}\frac{\theta_1-\theta_0}{r_1}\\
+&=\frac{2}{\rho_0 r_0^+ r_1}(\theta_1-\theta_0)\,.
 \end{align*}
 $$
-
-where we have used the symmetries $r_0^+-r_0^-=r_1-r_0=r_0-r_{-1}=\Delta r_0$ and $\theta_{-1}=\theta_1$.
 
 #### Extending the matrix equation
 Writing
 
-$$\alpha_0 = \beta_0 = \frac{4}{\rho_0 (\Delta r_0)^2}$$
+$$\alpha_0 = \frac{2}{\rho_0 r_0^+ r_1} \,\,\,\, \text{ and } \,\,\,\, \beta_0 = \frac{-2}{\rho_0 r_0^+ r_1}$$
 
 we can extend the right hand side of the matrix equation to
 
