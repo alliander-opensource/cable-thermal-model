@@ -75,7 +75,6 @@ class PosCable(BaseModel):
     def cable_info(self) -> str:
         """Return a compact string encoding the cable's physical properties."""
         return (
-            f"{tuple([grid_count for grid_count in self.cable.grid_counts.values()])},"
             f"{tuple([layer_properties.outer_radius for layer_properties in self.cable.layer_properties.values()])},"
             f"{tuple([layer_properties.rho for layer_properties in self.cable.layer_properties.values()])},"
             f"{tuple([layer_properties.capacity for layer_properties in self.cable.layer_properties.values()])},"
@@ -95,6 +94,14 @@ class PosCable(BaseModel):
     def cable_representation(self) -> str:
         """Return a string representation of this positioned cable for serialisation."""
         return f"Cable(cable=FDCable({self.cable_info}, x={self.x}, y={self.y}, name={self.name}))"
+
+    def distance_to_point(self, x: float, y: float) -> float:
+        """Return the distance from this cable center to a point in meters."""
+        return float(np.hypot(self.x - x, self.y - y))
+
+    def distance_to(self, other_cable: "PosCable") -> float:
+        """Return the heart-to-heart distance to another positioned cable in meters."""
+        return self.distance_to_point(other_cable.x, other_cable.y)
 
 
 class CircuitInitData(BaseModel):
@@ -185,28 +192,6 @@ def add_soil_layer(
             soil_radius=soil_radius,
             logarithmic_soil_gridpoint_density=logarithmic_soil_gridpoint_density,
         ),
-        x=pos_cable_.x,
-        y=pos_cable_.y,
-        circuit_name=pos_cable_.circuit_name,
-        cable_position=pos_cable_.cable_position,
-    )
-
-
-def remove_soil(
-    pos_cable: PosCable,
-) -> PosCable:
-    """Remove soil layers from cable attribute of the given PosCable.
-
-    Args:
-        pos_cable: Positioned cable instance with soil layers
-
-    Returns:
-        New PosCable instance where the only difference is that the cable now has no soil layers.
-
-    """
-    pos_cable_ = deepcopy(pos_cable)
-    return PosCable(
-        cable=pos_cable_.cable.get_cable_copy_without_soil(),
         x=pos_cable_.x,
         y=pos_cable_.y,
         circuit_name=pos_cable_.circuit_name,
