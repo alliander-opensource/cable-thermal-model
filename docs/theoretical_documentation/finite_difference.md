@@ -170,7 +170,9 @@ $$
 The matrix equation above still contains two unknowns, namely $\theta_0$ and $\theta_N$. These correspond to the _boundary conditions_ of the problem we are trying to solve. We deal with this as follows.
 
 #### Outside boundary
-At the outer boundary $r_n$ we use a _Dirichlet boundary condition_, i.e., we set $\theta_n$ to be equal to a specified ambient temperature.
+At the outer boundary $r_n$ we use a _Dirichlet boundary condition_, i.e., we set $\theta_n$ to be equal to a specified temperature of our choice.
+In our code $\theta$ is defined as the temperature difference with respect to the ambient temperature.
+Therefore, we set $\theta_n=0$: at the outer boundary the difference with the ambient temperature is zero.
 
 #### Inside boundary
 For our usecase for cables we typically have that $r_0=0$. Due to the axial symmetry of the problem, we have that $\frac{\partial \theta}{\partial r}\big|_{r=0}=0$. This is a _Neumann boundary condition_. Assuming that $\rho$ is constant to $\rho_0$ near the origin, using the product rule we get that
@@ -244,7 +246,7 @@ $$
 
 which now only has $\theta_n$ as a boundary value.
 
-## Apprimating the time derivative
+## Approximating the time derivative
 
 So far we have only approximated the right-hand side of the heat equation. In order to solve for non-steady state solutions we also need to approximate the left-hand side that involves the time derivative. We will approximate the solution on a finite, possibly non-uniform vector
 
