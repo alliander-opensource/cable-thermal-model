@@ -22,7 +22,11 @@ from cable_thermal_model.environment.measurement_point import (
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateSoil
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
+from cable_thermal_model.model.schemas.model_input_schemas import (
+    THERMAL_CAPACITY_COLUMN,
+    THERMAL_RESISTIVITY_COLUMN,
+    ScenarioSchemaSoil,
+)
 from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
@@ -35,6 +39,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
     _run_options_class = ModelSoilRunOptions
     _state_class = StateSoil
+    _scenario_schema_cls = ScenarioSchemaSoil
 
     def __init__(self, static_env: StaticEnvSoil, scenario: DataFrame[ScenarioSchemaSoil]):
         """Initialize the ModelSoil instance with a static environment and scenario.
@@ -100,7 +105,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             measurement_point_temp += cable.cable.get_heating_contribution_at_radius(
                 radius=distance_to_cable, self_heating_contribution=state.self_heating_contribution[cable_key]
             )
-
         for cable_key, mirror_cable in self.mirror_cables_with_soil.items():
             distance_to_mirror_cable = measurement_point.distances_to_mirror_cables[cable_key]
             measurement_point_temp -= mirror_cable.cable.get_heating_contribution_at_radius(
@@ -108,16 +112,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             )
 
         return measurement_point_temp
-
-    def _validate_scenario(self):
-        """Validate the scenario dataframe for required columns.
-
-        Raises:
-            ValueError: If required columns are missing from the scenario dataframe.
-
-        """
-        super()._validate_scenario()
-        ScenarioSchemaSoil.validate(self.scenario)
 
     def _initialize_cables(self):
         """Initialize cables with soil layers and mirror cables for the boundary condition."""
@@ -134,8 +128,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             # Instantiate FDCable objects with the added soil layer.
             cables_with_soil[key] = add_soil_layer(
                 deepcopy(pos_cable),
-                soil_rho=self.scenario[self.THERMAL_RESISTIVITY_COLUMN].iloc[0],
-                soil_capacity=self.scenario[self.THERMAL_CAPACITY_COLUMN].iloc[0],
+                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
+                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
                 soil_radius=soil_radius,
                 logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
             )
@@ -396,8 +390,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             elapsed_seconds: Time elapsed since the start of the scenario in seconds.
 
         """
-        soil_resistivity = scenario_row[self.THERMAL_RESISTIVITY_COLUMN]
-        soil_capacity = scenario_row[self.THERMAL_CAPACITY_COLUMN]
+        soil_resistivity = scenario_row[THERMAL_RESISTIVITY_COLUMN]
+        soil_capacity = scenario_row[THERMAL_CAPACITY_COLUMN]
 
         self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self.cables)
         self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self.cables_with_soil)

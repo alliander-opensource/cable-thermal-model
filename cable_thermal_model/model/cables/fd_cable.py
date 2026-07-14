@@ -532,7 +532,7 @@ class FDCable(AbstractCable):
         lower_diagonal = r_minus * common_factor / (rho_minus * delta_minus)
         base_inner = -(upper_inner + lower_diagonal)
 
-        boundary_value = 4 / (self._rho_grid[0] * delta_minus[0] ** 2)
+        boundary_value = 2 / (self._rho_grid[0] * inter_radii[0] * radii[1])
         upper_diagonal = np.append([boundary_value], upper_inner)
         base_diagonal = np.append([-boundary_value], base_inner)
 
@@ -702,7 +702,7 @@ class FDCable(AbstractCable):
 
         if dry_soil_radius is not None:
             dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
-            end_index = int((self._radii_grid <= dry_soil_radius).sum() - 1)
+            end_index = int((self._radii_grid <= dry_soil_radius).sum()) - 1
             if end_index > start_index:
                 self._update_rho_grid(
                     start_index=start_index,

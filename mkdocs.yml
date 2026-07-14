@@ -93,6 +93,7 @@ nav:
       - External heat sources: examples/external_heat_sources_example.ipynb
   - Theoretical Documentation:
       - The heat equation: theoretical_documentation/heat_equation.md
+      - Finite difference method: theoretical_documentation/finite_difference.md
       - Stateful computations: theoretical_documentation/stateful_computations.md
 
 plugins:
@@ -139,3 +140,4 @@ plugins:
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
+  - drawio

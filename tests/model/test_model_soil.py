@@ -628,8 +628,8 @@ def test_update_thermal_properties_if_needed_conditional_soil_update(model: Mode
         model._update_soil_properties_for_all_cables.assert_called_once_with(
             soil_drying=model.run_options.soil_drying,
             temperature_state=temperature_state,
-            soil_resistivity=scenario_row[model.THERMAL_RESISTIVITY_COLUMN],
-            soil_capacity=scenario_row[model.THERMAL_CAPACITY_COLUMN],
+            soil_resistivity=scenario_row["soil_thermal_resistivity"],
+            soil_capacity=scenario_row["soil_thermal_capacity"],
         )
     else:
         model._update_soil_properties_for_all_cables.assert_not_called()
