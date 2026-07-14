@@ -25,6 +25,7 @@ jobs:
       group: managed
     permissions:
       contents: write
+      pages: write
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
@@ -48,7 +49,7 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         # Only deploy on pushes to main branch (not on PRs)
-        if: github.ref == 'refs/heads/main'
+#        if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
