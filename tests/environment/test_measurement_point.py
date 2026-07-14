@@ -9,32 +9,15 @@ import pytest
 from cable_thermal_model.environment.measurement_point import (
     MEASUREMENT_POINT_KEY_PREFIX,
     MeasurementPoint,
-    MeasurementPointInputSchema,
     MeasurementPointRegistry,
 )
 
 
-def _build_input(x: float = 1.2349, y: float = -2.3451, ndigits: int = 3) -> MeasurementPointInputSchema:
-    """Create valid measurement-point input for tests."""
-    return MeasurementPointInputSchema(
-        x=x,
-        y=y,
-        distances_to_cables={},
-        distances_to_mirror_cables={},
-        ndigits=ndigits,
-    )
-
-
 @pytest.mark.parametrize("y", [1.0, 0.0])
 def test_non_negative_y_raises_validation_error(y: float) -> None:
-    """MeasurementPointInputSchema should reject non-negative y values."""
+    """MeasurementPoint should reject non-negative y values."""
     with pytest.raises(ValueError):
-        MeasurementPointInputSchema(
-            x=1.0,
-            y=y,
-            distances_to_cables={},
-            distances_to_mirror_cables={},
-        )
+        MeasurementPoint(x=1.0, y=y)
 
 
 @pytest.mark.parametrize(
@@ -49,25 +32,27 @@ def test_non_negative_y_raises_validation_error(y: float) -> None:
 def test_create_key(ndigits, expected_key) -> None:
     """MeasurementPoint initialization should use the key-generation defaults."""
     if ndigits is not None:
-        measurement_point = MeasurementPoint(_build_input(ndigits=ndigits))
+        measurement_point = MeasurementPoint(x=1.2349, y=-2.3451, ndigits=ndigits)
     else:
-        measurement_point = MeasurementPoint(_build_input())
+        measurement_point = MeasurementPoint(x=1.2349, y=-2.3451)
 
     assert measurement_point.key == expected_key
 
 
 def test_registry_adds_point_and_returns_key(caplog: pytest.LogCaptureFixture) -> None:
     """Adding a new point stores it and returns its key."""
-    registry = MeasurementPointRegistry()
-    input_data = _build_input()
+    x = 1.2349
+    y = -2.3451
 
-    key = registry.add_measurement_point(input_data)
+    registry = MeasurementPointRegistry()
+
+    key = registry.add_measurement_point(x=x, y=y)
 
     assert key in registry.measurement_point_keys
     assert len(registry.points) == 1
 
     with caplog.at_level(logging.WARNING):
-        duplicate_key = registry.add_measurement_point(input_data)
+        duplicate_key = registry.add_measurement_point(x=x, y=y)
 
     assert len(registry.points) == 1
     assert duplicate_key in registry.measurement_point_keys
@@ -75,17 +60,15 @@ def test_registry_adds_point_and_returns_key(caplog: pytest.LogCaptureFixture) -
 
     # Test that adding a point with the same rounded coordinates but different original coordinates
     # still results in a duplicate key
-    new_input_data = _build_input(x=1.2353, y=-2.3446)
     with caplog.at_level(logging.WARNING):
-        duplicate_key = registry.add_measurement_point(new_input_data)
+        duplicate_key = registry.add_measurement_point(x=x + 1e-4, y=y + 1e-4)
 
     assert len(registry.points) == 1
     assert duplicate_key in registry.measurement_point_keys
     assert "already exists" in caplog.text
 
     # A new point with different rounded coordinates should be added successfully
-    new_input_data = _build_input(x=1.236, y=-2.346)
-    new_key = registry.add_measurement_point(new_input_data)
+    new_key = registry.add_measurement_point(x=x + 1e-3, y=y)
 
     assert key in registry.measurement_point_keys
     assert new_key in registry.measurement_point_keys

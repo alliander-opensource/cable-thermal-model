@@ -25,6 +25,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInSoilFromCableInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.environment.measurement_point import MeasurementPointKey
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import ModelOutputSchema
@@ -365,33 +366,12 @@ def test_model_soil_thermal_resistivity_series(single_circuit_env: StaticEnvSoil
     )
 
 
-def test_add_measurement_point_to_model_soil(model: ModelSoil):
-    """Test adding a measurement point to the model."""
-    x, y = 1.0, -2.0
-    key = model.add_measurement_point(x=x, y=y)
-
-    # Check that the key is in the model's measurement points
-    assert key in model.measurement_point_registry.measurement_point_keys
-
-    # Check that the measurement point has the correct coordinates and ndigits
-    measurement_point = next((mp for mp in model.measurement_point_registry.points if mp.key == key), None)
-    assert measurement_point is not None
-    assert measurement_point.key == ("measurement_point", f"x={x:.3f}m", f"y={y:.3f}m")
-
-    # Check that all CableKeys in the model occur in the distances_to_cables of the measurement point
-    for cable_key in model.cables_with_soil:
-        assert cable_key in measurement_point.distances_to_cables
-    for cable_key in model.mirror_cables_with_soil:
-        assert cable_key in measurement_point.distances_to_mirror_cables
-
-
-def test_run_model_soil_with_measurement_points(model: ModelSoil):
+def test_run_model_soil_with_measurement_points(
+    model_with_measurement_points: tuple[ModelSoil, MeasurementPointKey, MeasurementPointKey],
+):
     """Test running the model with measurement points."""
-    # Add a measurement point
-    key1 = model.add_measurement_point(x=0.2, y=-0.8)
-    key2 = model.add_measurement_point(x=0.5, y=-0.8)
-
     # Run the model
+    model, key1, key2 = model_with_measurement_points
     temperature_result = model.run().result
 
     # Check that the result contains the measurement point keys

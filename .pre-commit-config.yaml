@@ -54,7 +54,7 @@ repos:
     hooks:
     -   id: codespell
         exclude: 'data/|uv.lock|PROJECT_GOVERNANCE.md'
-        args: ['--ignore-words=codespell.ignore']
+        args: ['--ignore-words=codespell.ignore', '--ignore-regex=(?i)"image/png"\s*:\s*"[A-Za-z0-9+/=]+"']
 
 -   repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.

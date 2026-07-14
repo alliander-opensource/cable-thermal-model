@@ -17,9 +17,7 @@ from cable_thermal_model.cable.cable_circuit import (
 )
 from cable_thermal_model.environment.measurement_point import (
     MeasurementPoint,
-    MeasurementPointInputSchema,
     MeasurementPointKey,
-    MeasurementPointRegistry,
 )
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.model import Model
@@ -76,7 +74,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         self.minimal_soil_radius: float = 5.0
         self.last_soil_property_update_day: int = 0
 
-        self.measurement_point_registry: MeasurementPointRegistry = MeasurementPointRegistry()
         self.measurement_point_temperature_result: dict[MeasurementPointKey, np.ndarray] = {}
 
         super().__init__(static_env=static_env, scenario=scenario)
@@ -111,39 +108,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             )
 
         return measurement_point_temp
-
-    def add_measurement_point(self, x: float, y: float, ndigits: int = 3) -> MeasurementPointKey:
-        """Add a measurement point to the environment.
-
-        Args:
-            x: x-coordinate of the measurement point.
-            y: y-coordinate of the measurement point.
-
-            ndigits: Number of decimal places to round the coordinates for key generation.
-
-        Returns:
-            MeasurementPointKey: The identifier of the added measurement point.
-
-        """
-        x = round(x, ndigits)
-        y = round(y, ndigits)
-
-        distances_to_cables = {
-            cable_key: pos_cable.distance_to_point(x=x, y=y) for cable_key, pos_cable in self.cables_with_soil.items()
-        }
-        distances_to_mirror_cables = {
-            cable_key: pos_cable.distance_to_point(x=x, y=y)
-            for cable_key, pos_cable in self.mirror_cables_with_soil.items()
-        }
-
-        return self.measurement_point_registry.add_measurement_point(
-            MeasurementPointInputSchema(
-                x=x,
-                y=y,
-                distances_to_cables=distances_to_cables,
-                distances_to_mirror_cables=distances_to_mirror_cables,
-            )
-        )
 
     def _validate_scenario(self):
         """Validate the scenario dataframe for required columns.
@@ -182,6 +146,16 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         self.mirror_cables_with_soil = {
             key: return_mirror_cable(pos_cable) for key, pos_cable in self.cables_with_soil.items()
         }
+
+        for measurement_point in self.static_env._measurement_point_registry.points:
+            measurement_point.distances_to_cables = {
+                key: pos_cable.distance_to_point(x=measurement_point.x, y=measurement_point.y)
+                for key, pos_cable in self.cables_with_soil.items()
+            }
+            measurement_point.distances_to_mirror_cables = {
+                key: pos_cable.distance_to_point(x=measurement_point.x, y=measurement_point.y)
+                for key, pos_cable in self.mirror_cables_with_soil.items()
+            }
 
     @property
     def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
@@ -484,7 +458,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         super()._initialize_empty_temperature_result()
 
         self.measurement_point_temperature_result = {
-            mp.key: np.full(self.scenario_length, np.nan, dtype=float) for mp in self.measurement_point_registry.points
+            mp.key: np.full(self.scenario_length, np.nan, dtype=float)
+            for mp in self.static_env._measurement_point_registry.points
         }
 
     def _update_temperature_result(self, state: StateSoil, step_idx: int):
@@ -494,7 +469,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             step_idx=step_idx,
         )
 
-        for measurement_point in self.measurement_point_registry.points:
+        for measurement_point in self.static_env._measurement_point_registry.points:
             self.measurement_point_temperature_result[measurement_point.key][step_idx] = (
                 self.get_measurement_point_temp(state=state, measurement_point=measurement_point)
             )
@@ -509,7 +484,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         df = super()._build_temperature_result_dataframe()
 
         # Add measurement point temperatures to the DataFrame
-        for measurement_point in self.measurement_point_registry.points:
+        for measurement_point in self.static_env._measurement_point_registry.points:
             df[measurement_point.key] = self.measurement_point_temperature_result[measurement_point.key]
 
         return df

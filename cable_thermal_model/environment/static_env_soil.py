@@ -16,6 +16,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInSoilFromCableInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.environment.measurement_point import MeasurementPointKey, MeasurementPointRegistry
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 from cable_thermal_model.model.cables.fd_cable import (
@@ -34,6 +35,11 @@ class StaticEnvSoil(
     ]
 ):
     """Class that builds a static environment for circuits in soil."""
+
+    def __init__(self):
+        """Initialize the StaticEnvSoil instance."""
+        super().__init__()
+        self._measurement_point_registry = MeasurementPointRegistry()
 
     def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[FDCable]:
         return (
@@ -82,3 +88,22 @@ class StaticEnvSoil(
         for _, row in circuits_.iterrows():
             self.add_circuit_from_cable_id(CircuitInSoilFromCableIdInputSchema(**dict(row)))
         return self
+
+    def add_measurement_point(self, x: float, y: float, ndigits: int = 3) -> MeasurementPointKey:
+        """Add a measurement point to the environment.
+
+        Args:
+            x: x-coordinate of the measurement point.
+            y: y-coordinate of the measurement point.
+
+            ndigits: Number of decimal places to round the coordinates for key generation.
+
+        Returns:
+            MeasurementPointKey: The identifier of the added measurement point.
+
+        """
+        return self._measurement_point_registry.add_measurement_point(
+            x=x,
+            y=y,
+            ndigits=ndigits,
+        )
