@@ -179,11 +179,6 @@ class Model(
             state (StateT):
                 The initial thermal state for each cable, used to initialize the results.
 
-        Returns:
-            dict[CableKey, dict[CableLayer, np.ndarray]]:
-                Outer dict maps CableKey to an inner dict, which maps
-                CableLayer to a numpy array of temperature values over time.
-
         """
         self._initialize_empty_temperature_result()
 
@@ -200,6 +195,7 @@ class Model(
 
         Dictionary is used to store temperature results for each cable and each relevant layer.
         """
+        self.temperature_result = {}
         for cable_key, _ in self.cables.items():
             self.temperature_result[cable_key] = {}
             for layer in [CableLayer.Conductor, CableLayer.Sheath, CableLayer.Pipe] + self.extra_solution_layers:
