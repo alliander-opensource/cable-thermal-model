@@ -52,9 +52,6 @@ class MeasurementPoint(BaseModel):
     def key(self) -> MeasurementPointKey:
         """Create a stable output key for a measurement point.
 
-        Args:
-            Uses the instance coordinates (``x``, ``y``) and ``ndigits``.
-
         Returns:
             A 3-level tuple key in the format
             ``("measurement_point", "x=<value>m", "y=<value>m")``.
