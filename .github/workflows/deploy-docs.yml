@@ -21,6 +21,8 @@ concurrency:
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
     runs-on:
       group: managed
     permissions:
