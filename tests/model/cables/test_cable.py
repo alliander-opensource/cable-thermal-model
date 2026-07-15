@@ -36,7 +36,7 @@ import cable_thermal_model.model.cables.cable as fd_cable_module
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
-from cable_thermal_model.model.cables.cable import Cable, CableSoil
+from cable_thermal_model.model.cables.cable import Cable, CableSoil, CableTrefoilCircuitSinglePipeInAir
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType, PipeFillType
 from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
@@ -44,7 +44,7 @@ from tests.conftest import test_cable_fixtures
 
 
 @pytest.mark.parametrize("load", [250.0, 500.0, 1000.0])
-def test_get_heat_generation_conductor_and_screen(three_core_cable_pilc: FDCable, load: float):
+def test_get_heat_generation_conductor_and_screen(three_core_cable_pilc: CableSoil, load: float):
     # Set the screen loss function.
     three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter
     no_load_heat_generation_conductor, no_load_heat_generation_screen = (
@@ -91,7 +91,7 @@ def test_get_heat_generation_conductor_and_screen(three_core_cable_pilc: FDCable
     assert np.isclose(dc_heat_generation_screen, 0.0)
 
 
-def test_get_finite_difference_vector_for_state(three_core_cable_pilc: FDCable):
+def test_get_finite_difference_vector_for_state(three_core_cable_pilc: CableSoil):
     three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter
 
     conductor_temperature = 50.0
@@ -459,7 +459,8 @@ def test_update_capacity_grid(single_core_cable_xlpe: CableSoil):
 
 
 def test_get_dry_soil_radius(three_core_cable_pilc: CableSoil):
-    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+    cable_with_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=three_core_cable_pilc,
         soil_rho=0.9,
         soil_capacity=2.0e6,
         soil_radius=0.7,
@@ -476,7 +477,8 @@ def test_get_dry_soil_radius(three_core_cable_pilc: CableSoil):
 
 
 def test_update_soil_resistivity_with_dry_zone(three_core_cable_pilc: CableSoil):
-    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+    cable_with_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=three_core_cable_pilc,
         soil_rho=0.7,
         soil_capacity=2.0e6,
         soil_radius=0.8,
@@ -500,7 +502,8 @@ def test_update_soil_resistivity_with_dry_zone(three_core_cable_pilc: CableSoil)
 
 
 def test_update_soil_resistivity_without_dry_zone(three_core_cable_pilc: CableSoil):
-    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+    cable_with_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=three_core_cable_pilc,
         soil_rho=0.7,
         soil_capacity=2.0e6,
         soil_radius=0.8,
@@ -515,7 +518,8 @@ def test_update_soil_resistivity_without_dry_zone(three_core_cable_pilc: CableSo
 
 
 def test_update_soil_capacity_invalid_type_raises(three_core_cable_pilc: CableSoil):
-    cable_with_soil = three_core_cable_pilc.get_cable_copy_with_added_soil_layer(
+    cable_with_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=three_core_cable_pilc,
         soil_rho=0.9,
         soil_capacity=2.0e6,
         soil_radius=0.7,
@@ -531,7 +535,8 @@ def test_get_cable_copy_with_pipe_error(single_core_cable_xlpe: CableSoil):
         outer_radius_cable=single_core_cable_xlpe.layer_metrics.outer_radius,
     )
 
-    cable_with_soil = single_core_cable_xlpe.get_cable_copy_with_added_soil_layer(
+    cable_with_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=single_core_cable_xlpe,
         soil_rho=1.0,
         soil_capacity=2.0e6,
         soil_radius=0.8,
@@ -583,7 +588,7 @@ def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
 def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
     cable = CableBuilder.build_cable_from_cable_id(
         cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        fd_cable_class=FDCableTrefoilCircuitInSinglePipeInAir,
+        cable_class=CableTrefoilCircuitSinglePipeInAir,
         pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
     )
     s = np.zeros(cable.grid_size)
