@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
 
+from cable_thermal_model.cable.cable_builder import CableT
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel, StaticEnvT
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
@@ -21,8 +22,8 @@ from cable_thermal_model.model.schemas.state_schemas import StateT
 
 
 class Model(
-    AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
-    Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
+    AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT, CableT],
+    Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT, CableT],
 ):
     """Finite Difference Model for Thermal Cable Model.
 
@@ -43,7 +44,7 @@ class Model(
         """
         super().__init__(static_env, scenario)
 
-        self.cables: dict[CableKey, PosCable] = {}
+        self.cables: dict[CableKey, PosCable[CableT]] = {}
         self._initialize_cables()
 
         self.extra_solution_layers: list[CableLayer] = []
@@ -101,7 +102,7 @@ class Model(
 
     @property
     @abstractmethod
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableT]]:
         """Return the cables used to assemble finite difference vectors."""
         pass
 
@@ -149,13 +150,13 @@ class Model(
 
     def _initialize_state_from_cables(
         self,
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableT]],
         fill_value: float = 0.0,
     ) -> dict[CableKey, np.ndarray]:
         """Initialize a constant-valued state grid for each provided cable.
 
         Args:
-            cables (dict[CableKey, PosCable]): A dictionary of positioned cables.
+            cables (dict[CableKey, PosCable[CableT]]): A dictionary of positioned cables.
             fill_value (float): Value used to fill every cable state grid point. Defaults to 0.0.
 
         Returns:
@@ -274,7 +275,7 @@ class Model(
     def _update_pipe_fill_resistivity(
         self,
         temperature_state: dict[CableKey, np.ndarray],
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableT]],
     ) -> None:
         """Update pipe-fill resistivity for given cables based on the current temperature state.
 

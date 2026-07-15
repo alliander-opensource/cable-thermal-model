@@ -786,7 +786,7 @@ class CableSoil(Cable):
     @classmethod
     def from_cable_with_added_soil_layer(
         cls,
-        cable: Cable,
+        cable: Self,
         soil_rho: float,
         soil_capacity: float,
         soil_radius: float,

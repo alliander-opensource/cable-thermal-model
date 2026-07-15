@@ -9,14 +9,14 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model import CableKey, StaticEnvSoil
 from cable_thermal_model.cable.cable_circuit import PosCable, add_soil_layer, return_mirror_cable
-from cable_thermal_model.model.cables.cable import CableSoil, CableTrefoilCircuitSinglePipeInSoil
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
-class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil]):
+class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil, CableSoil]):
     """ModelSoil computes temperatures for underground power cables using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvSoil and a valid scenario, then executed via `run()`.
@@ -58,16 +58,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             scenario: A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic load and soil data.
 
         """
-        if not isinstance(static_env, StaticEnvSoil):
-            raise ValueError(
-                f"Can not use model {self.__class__.__name__} if static "
-                "environment is not an environment in soil. Please use "
-                "ModelAir instead."
-            )
-
         # Set up cables
-        self.cables_with_soil: dict[CableKey, PosCable] = {}
-        self.mirror_cables_with_soil: dict[CableKey, PosCable] = {}
+        self.cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
+        self.mirror_cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
         self.logarithmic_soil_gridpoint_density: float = 20
         self.minimal_soil_radius: float = 5.0
         self.last_soil_property_update_day: int = 0
@@ -138,7 +131,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         }
 
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableSoil]]:
         """Return the cables used to assemble finite difference vectors."""
         return self.cables_with_soil
 
@@ -160,7 +153,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
     @staticmethod
     def _sum_heating_contributions(
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableSoil]],
         self_heating_contribution: dict[CableKey, np.ndarray],
         x: float,
         y: float,
@@ -238,8 +231,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         """
         for cable_key, pos_cable in self.cables_with_soil.items():
-            if not isinstance(pos_cable.cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
-                raise TypeError(f"Cable of type {type(pos_cable.cable)} does not support soil property updates.")
             pos_cable.cable.update_soil_properties(
                 soil_rho=soil_resistivity,
                 soil_c=soil_capacity,

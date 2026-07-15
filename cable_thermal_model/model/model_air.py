@@ -4,17 +4,17 @@
 
 import numpy as np
 import pandas as pd
-from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
+from cable_thermal_model.model.cables.cable import CableAir
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir
 from cable_thermal_model.model.schemas.run_options import ModelAirRunOptions
 
 
-class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir]):
+class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir, CableAir]):
     """ModelAir computes cable temperatures for installations in air using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvAir and a valid scenario, then executed via `run()`.
@@ -24,29 +24,8 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
     _state_class = StateAir
     _scenario_schema_cls = ScenarioSchemaAir
 
-    def __init__(self, static_env: StaticEnvAir, scenario: DataFrame[ScenarioSchemaAir]):
-        """Initialize the ModelAir instance with a static environment and scenario.
-
-        Note: the scenario must contain one `load_<circuit_name>` column per circuit and an
-        `ambient_temperature` column.
-
-        Args:
-            static_env: A StaticEnvAir instance containing the circuit configuration and cable properties.
-            scenario: A pandera DataFrame[ScenarioSchemaAir] containing the dynamic load data and ambient
-                temperature.
-
-        """
-        if not isinstance(static_env, StaticEnvAir):
-            raise ValueError(
-                f"Can not use model '{self.__class__.__name__}' if static "
-                "environment is not an environment in air. Please use "
-                "ModelSoil instead."
-            )
-
-        super().__init__(static_env=static_env, scenario=scenario)
-
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableAir]]:
         """Return the cables used to assemble finite difference vectors."""
         return self.cables
 

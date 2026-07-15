@@ -8,6 +8,7 @@ from typing import Generic
 import pandas as pd
 from pandera.typing import DataFrame
 
+from cable_thermal_model.cable.cable_builder import CableT
 from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.model.schemas import ModelOutputSchema
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
@@ -16,7 +17,7 @@ from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
-class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT]):
+class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT, CableT]):
     """Abstract base class for thermal cable models."""
 
     static_env: StaticEnvT

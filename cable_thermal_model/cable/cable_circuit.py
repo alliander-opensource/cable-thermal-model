@@ -6,11 +6,12 @@ import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from enum import StrEnum
+from typing import Generic, Self
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from cable_thermal_model.cable.cable_builder import CableBuilder
+from cable_thermal_model.cable.cable_builder import CableBuilder, CableT
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
 from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitFromCableInputSchema,
@@ -21,7 +22,7 @@ from cable_thermal_model.model.cables.abstract_cable import CableType, WeightedS
 from cable_thermal_model.model.cables.cable import (
     Cable,
     CableSoil,
-    CableTrefoilCircuitSinglePipeInAir,
+    CableTrefoilCircuitSinglePipe,
     CableTrefoilCircuitSinglePipeInSoil,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
@@ -55,13 +56,13 @@ class CableKey(BaseModel):
         return hash((self.circuit_name, self.cable_position))
 
 
-class PosCable(BaseModel):
+class PosCable(BaseModel, Generic[CableT]):
     """A positioned cable within a circuit, combining cable data with spatial coordinates."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     circuit_name: str
     cable_position: CablePosition
-    cable: Cable
+    cable: CableT
     x: float
     y: float
 
@@ -100,12 +101,12 @@ class PosCable(BaseModel):
         """Return the distance from this cable center to a point in meters."""
         return float(np.hypot(self.x - x, self.y - y))
 
-    def distance_to(self, other_cable: "PosCable") -> float:
+    def distance_to(self, other_cable: Self) -> float:
         """Return the heart-to-heart distance to another positioned cable in meters."""
         return self.distance_to_point(other_cable.x, other_cable.y)
 
 
-class CircuitInitData(BaseModel):
+class CircuitInitData(BaseModel, Generic[CableT]):
     """Data class for initializing a cable circuit, encapsulating position, type, and bonding information."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -113,14 +114,14 @@ class CircuitInitData(BaseModel):
     x: float
     y: float
     circuit_type: CircuitType | None = None
-    cable: Cable
+    cable: CableT
     circuit_name: str
     dist: float | None = None
     y_ref: CircuitYReference = CircuitYReference.Center
     bonding_type: BondingType | None = None
 
     @classmethod
-    def from_schema(cls, schema: CircuitFromCableInputSchema[Cable]) -> "CircuitInitData":
+    def from_schema(cls, schema: CircuitFromCableInputSchema[CableT]) -> Self:
         """Create CircuitInitData from CircuitFromCableInputSchema."""
         return cls(
             x=float(getattr(schema, "x", 0.0)),
@@ -134,7 +135,7 @@ class CircuitInitData(BaseModel):
         )
 
 
-def return_mirror_cable(pos_cable: PosCable) -> PosCable:
+def return_mirror_cable(pos_cable: PosCable[CableSoil]) -> PosCable[CableSoil]:
     """Return mirror cable based on given cable.
 
     A mirror cable is an exact copy of a given cable with the only difference being that
@@ -149,7 +150,7 @@ def return_mirror_cable(pos_cable: PosCable) -> PosCable:
 
     """
     pos_cable_mirror = deepcopy(pos_cable)
-    return PosCable(
+    return PosCable[CableSoil](
         cable=pos_cable_mirror.cable,
         x=pos_cable_mirror.x,
         y=-pos_cable_mirror.y,
@@ -159,12 +160,12 @@ def return_mirror_cable(pos_cable: PosCable) -> PosCable:
 
 
 def add_soil_layer(
-    pos_cable: PosCable,
+    pos_cable: PosCable[CableSoil],
     soil_rho: float,
     soil_capacity: float,
     logarithmic_soil_gridpoint_density: float,
     soil_radius: float,
-) -> PosCable:
+) -> PosCable[CableSoil]:
     """Add soil layers to cable attribute of the given PosCable.
 
     Args:
@@ -186,19 +187,15 @@ def add_soil_layer(
 
     """
     pos_cable_ = deepcopy(pos_cable)
-    cable = pos_cable_.cable
 
-    if not isinstance(cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
-        raise TypeError(f"{type(cable).__name__} does not support adding soil")
-
-    cable_in_soil = cable.from_cable_with_added_soil_layer(
+    cable_in_soil = pos_cable_.cable.from_cable_with_added_soil_layer(
         cable=pos_cable_.cable,
         soil_rho=soil_rho,
         soil_capacity=soil_capacity,
         soil_radius=soil_radius,
         logarithmic_soil_gridpoint_density=logarithmic_soil_gridpoint_density,
     )
-    return PosCable(
+    return PosCable[CableSoil](
         cable=cable_in_soil,
         x=pos_cable_.x,
         y=pos_cable_.y,
@@ -787,9 +784,7 @@ class CircuitBuilder:
                     f"Cable distance is not supported for circuit type {circuit_input.circuit_type}. If touching "
                     f"{touching} are desired, dist should be set to {None}."
                 )
-            if isinstance(
-                circuit_input.cable, CableTrefoilCircuitSinglePipeInSoil | CableTrefoilCircuitSinglePipeInAir
-            ):
+            if isinstance(circuit_input.cable, CableTrefoilCircuitSinglePipe):
                 circuit = TrefoilCircuitInSinglePipe(circuit_init_data)
             else:
                 circuit = TrefoilCircuit(circuit_init_data)

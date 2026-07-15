@@ -33,10 +33,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
     AbstractCable,
     WeightedScreenImpedance,
 )
-from cable_thermal_model.model.cables.cable import (
-    CableTrefoilCircuitSinglePipeInAir,
-    CableTrefoilCircuitSinglePipeInSoil,
-)
+from cable_thermal_model.model.cables.cable import CableTrefoilCircuitSinglePipe
 from cable_thermal_model.model.cables.enum_classes_cable import CableConductorCount
 from cable_thermal_model.utils.str_utils import tab_lines
 
@@ -62,7 +59,7 @@ class StaticEnv(
         """Initialize the static environment with empty circuit and cable containers."""
         self.circuits: dict[str, CableCircuit] = {}
         self.circuit_cable_indices: dict[str, list[int]] = {}
-        self.cables: dict[CableKey, PosCable] = {}
+        self.cables: dict[CableKey, PosCable[CableT]] = {}
         self.number_of_cables: int = 0
 
         self.crossing_cables: bool = False
@@ -92,7 +89,7 @@ class StaticEnv(
 
         return hash_value
 
-    def get_cables(self) -> dict[CableKey, PosCable]:
+    def get_cables(self) -> dict[CableKey, PosCable[CableT]]:
         """Returns a dict of all cables in the static environment."""
         return self.cables
 
@@ -235,11 +232,11 @@ class StaticEnv(
 
         """
         # Determine appropriate Cable class
-        fd_cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
+        cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
 
         return CableBuilder.build_cable_from_cable_id(
             cable_id=circuit_input.cable_id,
-            cable_class=fd_cable_cls,
+            cable_class=cable_cls,
             pipe=circuit_input.pipe,
             cable_source_file_path=circuit_input.cable_source_file_path,
         )
@@ -259,11 +256,11 @@ class StaticEnv(
 
         """
         # Determine appropriate Cable class
-        fd_cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
+        cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
 
         return CableBuilder.build_cable(
             cable_constructional_input=circuit_input.cable_constructional_information,
-            cable_class=fd_cable_cls,
+            cable_class=cable_cls,
             pipe=circuit_input.pipe,
         )
 
@@ -344,7 +341,7 @@ class StaticEnv(
             "Local configuration does not match any of the provided configurations in multiple_configurations."
         )
 
-    def _add_cables_to_cable_dict(self, cables: list[PosCable]):
+    def _add_cables_to_cable_dict(self, cables: list[PosCable[CableT]]):
         """Adds cables to the environment cables property.
 
         Args:
@@ -383,7 +380,7 @@ class StaticEnv(
     @staticmethod
     def get_circuit_type(cable: AbstractCable) -> CircuitType:
         """Determines probable circuit type by number of conductors in the cable."""
-        if isinstance(cable, CableTrefoilCircuitSinglePipeInSoil | CableTrefoilCircuitSinglePipeInAir):
+        if isinstance(cable, CableTrefoilCircuitSinglePipe):
             return CircuitType.Trefoil
         if cable.conductor.number_of_conductors == CableConductorCount.Three:
             return CircuitType.Single
@@ -397,7 +394,7 @@ class StaticEnv(
 
         raise NotImplementedError(f"Number of conductors '{cable.conductor.number_of_conductors}' not supported.")
 
-    def get_cable(self, cable_key: CableKey) -> PosCable:
+    def get_cable(self, cable_key: CableKey) -> PosCable[CableT]:
         """Gets the Cable-object corresponding to the cable_name from the environment."""
         return self.cables[cable_key]
 

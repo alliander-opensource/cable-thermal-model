@@ -21,8 +21,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
 )
 from cable_thermal_model.model.cables.cable import (
     Cable,
-    CableTrefoilCircuitSinglePipeInAir,
-    CableTrefoilCircuitSinglePipeInSoil,
+    CableTrefoilCircuitSinglePipe,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorCount,
@@ -74,7 +73,7 @@ class CableBuilder:
                 TCable: A new Cable instance (based on a Cable instance).
 
         """
-        if cable_class in [CableTrefoilCircuitSinglePipeInSoil, CableTrefoilCircuitSinglePipeInAir] and pipe is None:
+        if issubclass(cable_class, CableTrefoilCircuitSinglePipe) and pipe is None:
             raise ValueError(f"When using Cable class '{cable_class.__name__}', a pipe must be provided.")
 
         # load the cable data from the specified file
