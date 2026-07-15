@@ -33,8 +33,6 @@ permissions:
 jobs:
   test:
     name: pytest (py${{ matrix.python-version }})
-    # Non-blocking until the first tests land. Flip to false once tests/ exists.
-    continue-on-error: true
     runs-on:
       group: managed
     strategy:
@@ -68,9 +66,3 @@ jobs:
           name: coverage-py${{ matrix.python-version }}
           path: ./coverage.xml
           if-no-files-found: ignore
-
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e #v8.2.0
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ github.token }}

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import hashlib
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -76,6 +77,20 @@ class StaticEnv(
         """Generates an informative string representation of the environment."""
         str_information_circuits = [tab_lines(repr(circuit)) for circuit in self.circuits.values()]
         return f"{self.__class__.__name__}\n" + "\n".join(str_information_circuits)
+
+    def compute_hash(self) -> str:
+        """Compute a deterministic hash of the static environment based on the positioned cable representations."""
+        encoded_representations = []
+        for cable in self.get_cables().values():
+            key = cable.name
+            encoded_representations.append(
+                f"{key.circuit_name}|{key.cable_position.value}|{cable.cable_representation}"
+            )
+
+        payload = "\n".join(sorted(encoded_representations)).encode("utf-8")
+        hash_value = hashlib.sha256(payload).hexdigest()
+
+        return hash_value
 
     def get_cables(self) -> dict[CableKey, PosCable]:
         """Returns a dict of all cables in the static environment."""
@@ -460,3 +475,6 @@ class StaticEnv(
                 )
             )
         return multiple_configurations
+
+
+StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)

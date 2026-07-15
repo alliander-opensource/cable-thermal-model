@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import math
+from copy import deepcopy
 
 import pytest
 from pydantic import ValidationError
@@ -26,7 +27,16 @@ from cable_thermal_model.model.cables.cable import Cable, CableAir, CableSoil, C
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 
 
-def test_cable_field_validation_cable_in_air(single_core_cable_xlpe: CableSoil):
+def test_compute_hash_is_deterministic(single_circuit_env: StaticEnv):
+    """Fingerprint generation should be stable for the same environment content."""
+    fingerprint = single_circuit_env.compute_hash()
+    fingerprint_copy = deepcopy(single_circuit_env).compute_hash()
+
+    assert fingerprint == fingerprint_copy
+    assert len(fingerprint) == 64
+
+
+def test_cable_field_validation_cable_in_air(single_core_cable_xlpe: CableAir):
     with pytest.raises(ValidationError, match="Input should be an instance of CableAir"):
         CircuitInAirFromCableInputSchema(
             circuit_name="c1",

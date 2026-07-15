@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import os
-from typing import cast
+from typing import Any, cast
 from unittest import mock
 
 import numpy as np
@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 from pandera.errors import SchemaError
 from pandera.typing import DataFrame
+from pydantic import ValidationError
 
 from cable_thermal_model.cable.cable_circuit import (
     BondingType,
@@ -126,10 +127,10 @@ def test_model_validate_steady_state(scenario_steady_state: DataFrame[ScenarioSc
     steady_state = model.run().state
 
     # Select a cable from the circuit
-    cable_key = next(iter(model.cables.keys()))
-    cable = model.cables[cable_key].cable
-    steady_state_solution = steady_state.internal_heating_solution[cable_key]
-    steady_state_full_solution = steady_state.full_solution[cable_key]
+    cable_key = next(iter(model.cables_with_soil.keys()))
+    cable = model.cables_with_soil[cable_key].cable
+    steady_state_solution = steady_state.self_heating_contribution[cable_key]
+    steady_state_full_solution = steady_state.temperature[cable_key]
 
     # Get conductor and screen temperatures
     conductor_temperature = steady_state_full_solution[0]
@@ -298,6 +299,7 @@ def test_model_steady_state_pipes_vca(
     model = ModelSoil(static_env, ScenarioSchemaSoil.validate(scenario))
     solution = model.run(
         run_options=ModelSoilRunOptions(
+            ac_current=True,
             temperature_dependent_electric_resistance=True,
             soil_drying=False,
         )
@@ -363,50 +365,6 @@ def test_model_soil_thermal_resistivity_series(single_circuit_env: StaticEnvSoil
     )
 
 
-@pytest.mark.parametrize(
-    "temperature_solution_max, temperature_solution_min",
-    [
-        (10.0, 0.0),
-        (50.0, 0.0),
-        (100.0, 0.0),
-        (50.0, 40.0),
-    ],
-)
-def test_get_dry_soil_radius_around_circuit(
-    model: ModelSoil,
-    temperature_solution_min: float,
-    temperature_solution_max: float,
-):
-    """Tests whether the soil dries out around if the temperature is above a certain limit."""
-    assert temperature_solution_max >= temperature_solution_min
-
-    cable_key = list(model.cables.keys())[0]
-    radii_grid = model.cables[cable_key].cable.radii_grid
-    full_solutions = [
-        np.linspace(temperature_solution_max, temperature_solution_min, len(radii_grid))
-        for _ in range(len(model.cables))
-    ]
-
-    if temperature_solution_max < model._SOIL_DRYING_TEMPERATURE:
-        expected_soil_radius = 0.0
-    elif temperature_solution_min >= model._SOIL_DRYING_TEMPERATURE:
-        expected_soil_radius = radii_grid[-1]
-    else:
-        expected_soil_radius_index = int(
-            (temperature_solution_max - model._SOIL_DRYING_TEMPERATURE)
-            / (temperature_solution_max - temperature_solution_min)
-            * (len(radii_grid) - 1)
-        )
-        expected_soil_radius = radii_grid[expected_soil_radius_index]
-
-    # Check the result for the first cable
-    dry_soil_result = model._get_dry_soil_radius_around_circuit(
-        full_solutions=full_solutions,
-        cables=[cable for cable in model.cables.values()],
-    )
-    assert np.isclose(dry_soil_result, expected_soil_radius)
-
-
 def test_get_temp(model: ModelSoil):
     """Test get_temp function returns a temperature value."""
     # Simple coordinates
@@ -417,9 +375,9 @@ def test_get_temp(model: ModelSoil):
 
     # Create simple solutions for all cable keys
     solutions = {}
-    for cable_key in model.cables:
+    for cable_key in model.cables_with_soil:
         # Create a simple solution array matching the cable's radii grid size
-        grid_size = model.cables[cable_key].cable.radii_grid.size
+        grid_size = model.cables_with_soil[cable_key].cable._radii_grid.size
         solutions[cable_key] = np.full(grid_size, 10.0)  # 10°C heating everywhere
 
     # Call the function
@@ -498,291 +456,175 @@ def test_compute_temperature_solution(
 
         # Comparing the results from computation with the expected results from the file.
         # Ignoring the indices as this does not work well when reading/writing to files
-        actual_df = result.result[(circuit_name, cable_position)]
-        assert isinstance(actual_df, pd.DataFrame)
+        actual_df = cast(pd.DataFrame, result.result[(circuit_name, cable_position)])
         pd.testing.assert_frame_equal(actual_df.reset_index(drop=True), expected_df.reset_index(drop=True))
 
 
-def test_initializing_solutions(model: ModelSoil):
-    # Test the shape of the initial solutions lists
-    solutions, full_solutions = model._initialize_solutions_lists(initial_state=None)
-    mutual_heating_solutions = model._initialize_solutions_lists_mutual_heating(initial_state=None)
-    # Environment with one circuit with trefoil formation: 3 cables:
-    cable_count = len(model.cables)
-    assert len(solutions) == cable_count
-    assert len(mutual_heating_solutions) == cable_count
-    assert len(full_solutions) == cable_count
-    for cable_key in model.cables:
-        assert full_solutions[cable_key].size == model.cables_full_solutions[cable_key].cable.radii_grid.size
-        assert mutual_heating_solutions[cable_key].size == full_solutions[cable_key].size
-        assert solutions[cable_key].size > full_solutions[cable_key].size
-        assert solutions[cable_key].size == model.cables[cable_key].cable.radii_grid.size
+def test_initializing_thermal_state(model: ModelSoil):
+    # Check whether the thermal state components have the correct sizes.
+    initial_state = model._build_initial_state()
 
+    self_heating_state = initial_state.self_heating_contribution
+    temperature_state = initial_state.temperature
+    mutual_heating_state = initial_state.mutual_heating_contribution
 
-def test_initializing_linear_system(model: ModelSoil):
-    # Check whether the output matrices have the correct sizes.
-    matrices, vectors = model._initialize_linear_system()
-    matrices_without_soil = {
-        key: cable.cable.get_finite_differences_matrix() for key, cable in model.cables_full_solutions.items()
-    }
-    # Environment with one circuit with trefoil formation: 3 cables:
-    cable_count = len(model.cables)
-    assert len(matrices) == cable_count
-    assert len(vectors) == cable_count
-    assert len(matrices_without_soil) == cable_count
-    for cable_key in model.cables:
-        grid_size_count = model.cables[cable_key].cable.radii_grid.size
-        grid_size_full_solutions = model.cables_full_solutions[cable_key].cable.radii_grid.size
-        assert matrices[cable_key].shape == (3, grid_size_count - 1)
-        assert vectors[cable_key].shape == (grid_size_count - 1,)
-        assert matrices_without_soil[cable_key].shape == (3, grid_size_full_solutions - 1)
+    cable_count = len(model.cables_with_soil)
+    assert len(self_heating_state) == cable_count
+    assert len(mutual_heating_state) == cable_count
+    assert len(temperature_state) == cable_count
 
-
-@pytest.mark.parametrize("conductor_load", [100.0, 500.0, 1000.0])
-@pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])
-@pytest.mark.parametrize("ac_current", [True, False])
-def test_update_vectors_per_timestep(
-    model: ModelSoil,
-    conductor_load: float,
-    temperature_dependent_electric_resistance: bool,
-    ac_current: bool,
-):
-    """Test for different combinations of settings and time index if the vectors are correctly updated."""
-    screen_loss_factor = 0.1
-    dc_resistance_conductor = 0.0001
-    ac_resistance_conductor = 0.00015
-    conductor_temperature = 30.0
-    screen_temperature = 25.0
-
-    vectors = {cable_key: np.zeros(model.cables[cable_key].cable.radii_grid.size - 1) for cable_key in model.cables}
-    full_solutions = {
-        cable_key: np.zeros(cable_full_solution.cable.radii_grid.size)
-        for cable_key, cable_full_solution in model.cables_full_solutions.items()
-    }
-
-    for cable_key, cable in model.cables_full_solutions.items():
-        conductor_start_index, conductor_end_index = cable.cable.get_layer_indices_for_layer(CableLayer.Conductor)
-        screen_start_index, screen_end_index = cable.cable.get_layer_indices_for_layer(CableLayer.Screen)
-        full_solutions[cable_key][conductor_start_index : conductor_end_index + 1] = conductor_temperature
-        full_solutions[cable_key][screen_start_index : screen_end_index + 1] = screen_temperature
-
-        cable.cable.get_dc_resistance_conductor = mock.Mock(return_value=dc_resistance_conductor)
-        cable.cable._get_ac_resistance_conductor_from_dc_resistance = mock.Mock(return_value=ac_resistance_conductor)
-        cable.cable.get_cable_screen_loss_factor = mock.Mock(return_value=screen_loss_factor)
-
-    model._set_run_options(
-        run_options=ModelSoilRunOptions(
-            temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
-            ac_current=ac_current,
-        ),
-    )
-
-    vectors = model._update_vectors_per_timestep(
-        vectors=vectors,
-        full_solutions=full_solutions,
-        scenario_row=pd.Series({"load_c1": conductor_load}),
-    )
-
-    conductor_temperature_electrical_resistance = (
-        conductor_temperature if temperature_dependent_electric_resistance else 20.0
-    )
-
-    # Assert get_dc_resistance_conductor was called for each cable
-    for cable in model.cables_full_solutions.values():
-        cable.cable.get_dc_resistance_conductor.assert_called_with(Tc=conductor_temperature_electrical_resistance)
-        if ac_current:
-            cable.cable._get_ac_resistance_conductor_from_dc_resistance.assert_called_with(
-                Rdc=dc_resistance_conductor, s=cable.cable.layer_metrics.conductor_distance
-            )
-        else:
-            cable.cable._get_ac_resistance_conductor_from_dc_resistance.assert_not_called()
-        if not ac_current:
-            cable.cable.get_cable_screen_loss_factor.assert_not_called()
-            screen_loss_factor = 0.0
-
-    for cable_key, cable in model.cables_full_solutions.items():
-        resistance_conductor = ac_resistance_conductor if ac_current else dc_resistance_conductor
-        expected_conductor_loss = resistance_conductor * conductor_load**2
-        expected_screen_loss = screen_loss_factor * expected_conductor_loss
-
-        conductor_start_index, conductor_end_index = cable.cable.get_layer_indices_for_layer(CableLayer.Conductor)
-        screen_start_index, screen_end_index = cable.cable.get_layer_indices_for_layer(CableLayer.Screen)
-
-        assert all(
-            vectors[cable_key][conductor_start_index : conductor_end_index + 1]
-            == expected_conductor_loss
-            / cable.cable.surface_area_grid[conductor_start_index : conductor_end_index + 1].sum()
-        )
-        assert all(
-            vectors[cable_key][screen_start_index : screen_end_index + 1]
-            == expected_screen_loss / cable.cable.surface_area_grid[screen_start_index : screen_end_index + 1].sum()
-        )
+    for cable_key in model.cables_with_soil:
+        assert self_heating_state[cable_key].size == model.cables_with_soil[cable_key].cable._radii_grid.size
+        assert temperature_state[cable_key].size == model.cables[cable_key].cable._radii_grid.size
+        assert mutual_heating_state[cable_key].size == temperature_state[cable_key].size
 
 
 @pytest.mark.parametrize("time_idx", [1])
-@pytest.mark.parametrize("temp_solution", [5.0 * np.ones(4)])
-@pytest.mark.parametrize("mutual_heating_temp_solution", [2.0 * np.ones(3)])
-@pytest.mark.parametrize("expected_solution", [5.0 * np.ones(4)])
-@pytest.mark.parametrize("expected_mutual_heating_solution", [2.0 * np.ones(3)])
-@pytest.mark.parametrize("expected_full_solution", [(10.0 + 5.0 + 2.0) * np.ones(3)])
-def test_update_solutions(
+@pytest.mark.parametrize("self_heating_state", [5.0 * np.ones(4)])
+@pytest.mark.parametrize("mutual_heating_state", [2.0 * np.ones(3)])
+@pytest.mark.parametrize("expected_self_heating_state", [5.0 * np.ones(4)])
+@pytest.mark.parametrize("expected_mutual_heating_state", [2.0 * np.ones(3)])
+@pytest.mark.parametrize("expected_temperature_state", [(10.0 + 5.0 + 2.0) * np.ones(3)])
+def test_update_thermal_state(
     model: ModelSoil,
     time_idx: int,
-    temp_solution: np.ndarray,
-    mutual_heating_temp_solution: np.ndarray,
-    expected_solution: np.ndarray,
-    expected_mutual_heating_solution: np.ndarray,
-    expected_full_solution: np.ndarray,
+    self_heating_state: np.ndarray,
+    mutual_heating_state: np.ndarray,
+    expected_self_heating_state: np.ndarray,
+    expected_mutual_heating_state: np.ndarray,
+    expected_temperature_state: np.ndarray,
 ):
-    """Simple test to check if the solution matrices are updated correctly."""
-    upd_solution, upd_mutual_heating_solution, upd_full_solution = model._update_solution(
-        temp_solution=temp_solution,
-        mutual_heating_temp_solution=mutual_heating_temp_solution,
+    """Simple test to check if all cable states are updated correctly in one call."""
+    self_heating_state_map = {cable_key: self_heating_state.copy() for cable_key in model.cables_with_soil}
+    mutual_heating_state_map = {cable_key: mutual_heating_state.copy() for cable_key in model.cables}
+
+    current_state = StateSoil(
+        static_env_hash=model.static_env.compute_hash(),
+        temperature={cable_key: np.zeros_like(mutual_heating_state_map[cable_key]) for cable_key in model.cables},
+        self_heating_contribution=self_heating_state_map,
+        mutual_heating_contribution=mutual_heating_state_map,
+    )
+
+    model._update_self_heating_contribution = mock.Mock(return_value=self_heating_state_map)
+    model._update_mutual_heating_contribution = mock.Mock(return_value=mutual_heating_state_map)
+
+    vectors = {
+        cable_key: np.zeros(model.cables_with_soil[cable_key].cable._radii_grid.size - 1)
+        for cable_key in model.cables_with_soil
+    }
+
+    state = model._update_state(
+        state=current_state,
+        heat_vectors=vectors,
+        time_step=1.0,
         ambient_temperature=model.scenario["ambient_temperature"].iloc[time_idx],
     )
-    assert np.array_equal(upd_solution, expected_solution)
-    assert np.array_equal(upd_mutual_heating_solution, expected_mutual_heating_solution)
-    assert np.array_equal(upd_full_solution, expected_full_solution)
+
+    for cable_key in model.cables:
+        assert np.array_equal(state.self_heating_contribution[cable_key], expected_self_heating_state)
+        assert np.array_equal(state.mutual_heating_contribution[cable_key], expected_mutual_heating_state)
+        assert np.array_equal(state.temperature[cable_key], expected_temperature_state)
+
+
+def test_get_vector_cables_returns_cables_with_soil(model: ModelSoil):
+    """Test that _get_vector_cables returns the soil-extended cable mapping."""
+    assert model._cables_for_heat_vectors is model.cables_with_soil
 
 
 @pytest.mark.parametrize(
-    "circuit_fixture,has_pipe", [("single_circuit_env", False), ("single_circuit_with_pipe_env", True)]
+    "seconds_since_start,last_update_day,expected_due,expected_day",
+    [
+        (0.0, 0, False, 0),
+        (24 * 60 * 60, 0, True, 1),
+        (24 * 60 * 60, 1, False, 1),
+        (2.9 * 24 * 60 * 60, 1, True, 2),
+    ],
 )
-def test_update_pipe_resistivity_for_all_cables(
-    scenario_constant: DataFrame[ScenarioSchemaSoil],
-    circuit_fixture: str,
-    has_pipe: bool,
-    request: pytest.FixtureRequest,
+def test_check_if_daily_update_due(
+    model: ModelSoil,
+    seconds_since_start: float,
+    last_update_day: int,
+    expected_due: bool,
+    expected_day: int,
 ):
-    """Test to check if the resistivity values of a cable are changed if the cable has a pipe or not."""
-    environment = request.getfixturevalue(circuit_fixture)
-    model = ModelSoil(environment, scenario_constant)
-    rhos_pre = {
-        key: [cable.cable.layer_properties[layer].rho for layer in cable.cable.layers]
-        for key, cable in model.cables.items()
+    """Test daily-update decision logic around boundaries and multi-day jumps."""
+    is_due, updated_day = model._check_if_daily_update_due(
+        seconds_since_start_scenario=seconds_since_start,
+        last_soil_property_update_day=last_update_day,
+    )
+
+    assert is_due is expected_due
+    assert updated_day == expected_day
+
+
+def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil):
+    """Test whether soil property update is forwarded to every soil-extended cable."""
+    temperature_state = {
+        cable_key: np.ones(pos_cable.cable._radii_grid.size) for cable_key, pos_cable in model.cables_with_soil.items()
     }
-    model._update_pipe_resistivity_for_all_cables(
-        full_solutions={
-            key: np.ones(model.cables_full_solutions[key].cable.radii_grid.size) for key in model.cables
-        },  # For this test the specific value of this function is not relevant.
-        update_matrices={key: False for key in model.cables},
+
+    update_mocks = {}
+    for pos_cable in model.cables_with_soil.values():
+        update_mock = mock.Mock()
+        pos_cable.cable.update_soil_properties = update_mock
+        update_mocks[pos_cable.name] = update_mock
+
+    model._update_soil_properties_for_all_cables(
+        soil_drying=True,
+        temperature_state=temperature_state,
+        soil_resistivity=1.6,
+        soil_capacity=2.5e6,
     )
-    for cable_key, cable in model.cables.items():
-        rho_post = [cable.cable.layer_properties[layer].rho for layer in cable.cable.layers]
-        # If the cables have a pipe, the rhos are changed, so pre and post ar NOT equal.
-        assert np.array_equal(rhos_pre[cable_key], rho_post) != has_pipe
 
-
-@pytest.mark.parametrize(
-    "model_fixture,daily_update,update_matrices_all_cables,expected",
-    [
-        ("model", False, False, False),
-        ("model", False, True, True),
-        ("model", True, False, False),
-        ("model", True, True, True),
-        ("model_dynamic_soil", False, False, False),
-        ("model_dynamic_soil", False, True, True),
-        ("model_dynamic_soil", True, False, True),
-        ("model_dynamic_soil", True, True, True),
-    ],
-)
-def test_update_soil_capacities_for_all_cables(
-    model_fixture: str,
-    daily_update: bool,
-    update_matrices_all_cables: bool,
-    expected: bool,
-    request: pytest.FixtureRequest,
-):
-    """For different circuit types test whether the matrices are updated correctly."""
-    model: ModelSoil = request.getfixturevalue(model_fixture)
-    update_matrices = model._update_soil_capacities_for_all_cables(
-        daily_update=daily_update,
-        update_matrices={cable_key: update_matrices_all_cables for cable_key in model.cables},
-        scenario_row=model.scenario.iloc[1],
-    )
-    assert update_matrices == {cable_key: expected for cable_key in model.cables}
-
-
-@pytest.mark.parametrize(
-    "model_fixture,time_idx,daily_update,update_matrices_all_cables,soil_drying,expected_update_matrices",
-    [
-        ("model", 1, False, False, False, False),
-        ("model", 1, False, False, True, False),
-        ("model", 1, False, True, False, True),
-        ("model", 1, False, True, True, True),
-        ("model", 25, True, False, True, True),
-        ("model", 25, True, True, True, True),
-        ("model", 25, True, True, False, True),
-        ("model_dynamic_soil", 1, False, False, False, False),
-        ("model_dynamic_soil", 1, False, False, True, False),
-        ("model_dynamic_soil", 1, False, True, False, True),
-        ("model_dynamic_soil", 1, False, True, True, True),
-        ("model_dynamic_soil", 25, True, False, False, True),
-        ("model_dynamic_soil", 25, True, False, True, True),
-        ("model_dynamic_soil", 25, True, True, True, True),
-        ("model_dynamic_soil", 25, True, True, False, True),
-        ("model_with_pipe", 1, False, False, False, False),
-        ("model_with_pipe", 1, True, True, True, True),
-        ("model_with_pipe", 25, False, False, False, False),
-        ("model_with_pipe", 25, True, True, True, True),
-    ],
-)
-def test_update_soil_resistivity_for_all_cables(
-    model_fixture: str,
-    time_idx: int,
-    daily_update: bool,
-    update_matrices_all_cables: bool,
-    soil_drying: bool,
-    expected_update_matrices: bool,
-    request: pytest.FixtureRequest,
-):
-    """Test for different circuit types if the matrices are updated correctly."""
-    model: ModelSoil = request.getfixturevalue(model_fixture)
-    # Get solutions for all cables with correct shape
-    solutions, _ = model._initialize_solutions_lists(initial_state=None)
-    result_update_matr = model._update_soil_resistivity_for_all_cables(
-        daily_update,
-        {key: update_matrices_all_cables for key in model.cables},
-        soil_drying,
-        solutions,
-        scenario_row=model.scenario.iloc[time_idx],
-    )
-    assert {key: expected_update_matrices for key in model.cables} == result_update_matr
-
-    if daily_update:
-        # Check if the soil resistivity values are updated correctly in the cable properties
-        expected_soil_thermal_resistivity = model.scenario.iloc[time_idx]["soil_thermal_resistivity"]
-        first_cable = model.cables[list(model.cables.keys())[0]]
-        assert np.isclose(expected_soil_thermal_resistivity, first_cable.cable.rho_grid[-1], rtol=1e-2)
-        assert np.isclose(
-            expected_soil_thermal_resistivity, first_cable.cable.layer_properties[CableLayer.SoilOne].rho, rtol=1e-2
+    for cable_key in model.cables_with_soil:
+        update_mocks[cable_key].assert_called_once_with(
+            soil_rho=1.6,
+            soil_c=2.5e6,
+            temperature_grid=temperature_state[cable_key],
+            soil_drying=True,
         )
 
 
-@pytest.mark.parametrize(
-    "cable1_index,cable2_index,expected_distance",
-    [
-        (0, 1, 0.04904325387870013),
-        (0, 3, 1),
-    ],
-)
-def compute_distance_between_cables(two_circuit_fd_env, cable1_index, cable2_index, expected_distance):
-    """Test that distance computation between cables works for FD environments.
+@pytest.mark.parametrize("daily_update_due", [False, True])
+def test_update_thermal_properties_if_needed_conditional_soil_update(model: ModelSoil, daily_update_due: bool):
+    """Test that soil-property updates are only applied when the daily-update condition is met."""
+    temperature_state = {key: np.ones_like(model.cables[key].cable._radii_grid) for key in model.cables}
+    scenario_row = model.scenario.iloc[0]
 
-    Tests both within a circuit and between two circuits using both distance methods.
+    model._update_pipe_fill_resistivity = mock.Mock()
+    model._update_soil_properties_for_all_cables = mock.Mock()
+    model._check_if_daily_update_due = mock.Mock(return_value=(daily_update_due, 7))
+    model.last_soil_property_update_day = 3
 
-    Args:
-        two_circuit_fd_env: FD environment with two trefoil circuits
-        cable1_index: The index of the first cable to use in distance computation
-        cable2_index: The index of the second cable to use in distance computation
-        expected_distance: Expected computed distance
+    model._update_thermal_properties_if_needed(
+        temperature_state=temperature_state,
+        scenario_row=scenario_row,
+        elapsed_seconds=12.0,
+    )
 
-    """
-    cables = list(two_circuit_fd_env.cables())
-    cable1 = cables[cable1_index]
-    cable2 = cables[cable2_index]
-    distance = two_circuit_fd_env.compute_distance(cable1, cable2)
-    assert np.isclose(distance, expected_distance, atol=1e-8)
+    assert model._update_pipe_fill_resistivity.call_count == 2
+    first_call = model._update_pipe_fill_resistivity.call_args_list[0]
+    second_call = model._update_pipe_fill_resistivity.call_args_list[1]
+    assert first_call.kwargs["temperature_state"] is temperature_state
+    assert second_call.kwargs["temperature_state"] is temperature_state
+    assert first_call.kwargs["cables"] is model.cables
+    assert second_call.kwargs["cables"] is model.cables_with_soil
+
+    model._check_if_daily_update_due.assert_called_once_with(
+        seconds_since_start_scenario=12.0,
+        last_soil_property_update_day=3,
+    )
+    assert model.last_soil_property_update_day == 7
+
+    if daily_update_due:
+        model._update_soil_properties_for_all_cables.assert_called_once_with(
+            soil_drying=model.run_options.soil_drying,
+            temperature_state=temperature_state,
+            soil_resistivity=scenario_row["soil_thermal_resistivity"],
+            soil_capacity=scenario_row["soil_thermal_capacity"],
+        )
+    else:
+        model._update_soil_properties_for_all_cables.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -802,10 +644,10 @@ def test_initialize_cables(
     scenario = request.getfixturevalue(scenario_fix)
     model = ModelSoil(circuit, scenario)
     assert model.number_of_cables == expected_number_of_cables
-    assert model.pipes_present == has_pipe
-    assert model.cables_full_solutions is not None
     assert model.cables is not None
     assert len(model.cables) == expected_number_of_cables
+    assert model.cables_with_soil is not None
+    assert len(model.cables_with_soil) == expected_number_of_cables
     assert model.mirror_cables_with_soil is not None
     assert len(model.mirror_cables_with_soil) == expected_number_of_cables
 
@@ -854,7 +696,7 @@ def test_non_uniform_scenario(single_circuit_env: StaticEnvSoil):
 
 def test_add_extra_solution_layer(model: ModelSoil):
     """Test if solution layer is added and is found in the solution of the model."""
-    model = model.add_solution_location(CableLayer.Insulation)
+    model.add_solution_location(CableLayer.Insulation)
     assert CableLayer.Insulation in model.extra_solution_layers
     solution = model.run()
     assert CableLayer.Insulation in solution.result[("c1", "trefoil_left")].columns
@@ -1090,31 +932,34 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
     # Create an ModelSoil to get real cable representations
     model = ModelSoil(single_circuit_env, scenario_constant)
 
-    # Get cable representations and corresponding keys
-    cable_representations = list(model.cables.values())
-    cable_keys = [cable.name for cable in cable_representations]
+    # Get cable keys from the model.
+    cable_keys = list(model.cables.keys())
 
     # Create valid mutual heating solutions
     valid_mutual_heating_solutions = {key: np.array([1.0, 2.0, 3.0]) for key in cable_keys}
 
     # Test case 1: Valid StateSoil should pass upon initialization
     StateSoil(
-        cable_representations=cable_representations,
-        full_solution={key: np.array([10.0]) for key in cable_keys},
-        internal_heating_solution={key: np.array([10.0]) for key in cable_keys},
-        mutual_heating_solutions=valid_mutual_heating_solutions,
+        static_env_hash=model.static_env.compute_hash(),
+        temperature={key: np.array([10.0]) for key in cable_keys},
+        self_heating_contribution={key: np.array([10.0]) for key in cable_keys},
+        mutual_heating_contribution=valid_mutual_heating_solutions,
     )
 
     # Test case 2: Invalid keys should fail
     wrong_key = CableKey(circuit_name="wrong_circuit", cable_position=CablePosition.Single)
-    invalid_mutual_heating_solutions = {wrong_key: np.array([1.0, 2.0, 3.0])}
+    invalid_mutual_heating = {wrong_key: np.array([1.0, 2.0, 3.0])}
 
-    with pytest.raises(ValueError, match="CableKeys of mutual_heating_solutions should match"):
+    env_hash = model.static_env.compute_hash()
+    temperature = {key: np.array([10.0]) for key in cable_keys}
+    self_heating = {key: np.array([10.0]) for key in cable_keys}
+
+    with pytest.raises(ValidationError, match="CableKeys of mutual_heating_contribution should match"):
         StateSoil(
-            cable_representations=cable_representations,
-            full_solution={key: np.array([10.0]) for key in cable_keys},
-            internal_heating_solution={key: np.array([10.0]) for key in cable_keys},
-            mutual_heating_solutions=invalid_mutual_heating_solutions,
+            static_env_hash=env_hash,
+            temperature=temperature,
+            self_heating_contribution=self_heating,
+            mutual_heating_contribution=invalid_mutual_heating,
         )
 
 
@@ -1143,7 +988,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         },
     )
 
-    model = ModelSoil(env, scenario)
+    model = ModelSoil(env, ScenarioSchemaSoil.validate(scenario))
 
     # Test 1: state=None should pass
     model._validate_initial_state(None)
@@ -1153,23 +998,25 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
     cable_key = pos_cable.name
 
     valid_state = StateSoil(
-        cable_representations=[pos_cable],
-        full_solution={cable_key: np.array([20.0])},
-        internal_heating_solution={cable_key: np.array([20.0])},
-        mutual_heating_solutions={cable_key: np.array([15.0])},
+        static_env_hash=env.compute_hash(),
+        temperature={cable_key: np.array([20.0])},
+        self_heating_contribution={cable_key: np.array([20.0])},
+        mutual_heating_contribution={cable_key: np.array([15.0])},
     )
 
     model._validate_initial_state(valid_state)
 
     # Test 3: state=StateAir instance should raise ValueError
     invalid_state_air = StateAir(
-        cable_representations=[pos_cable],
-        full_solution={cable_key: np.array([20.0])},
-        internal_heating_solution={cable_key: np.array([20.0])},
+        static_env_hash=env.compute_hash(),
+        temperature={cable_key: np.array([20.0])},
+        self_heating_contribution={cable_key: np.array([20.0])},
     )
 
+    invalid_state = cast(Any, invalid_state_air)
+
     with pytest.raises(ValueError, match="ModelSoil requires a StateSoil instance, but received StateAir"):
-        model._validate_initial_state(invalid_state_air)
+        model._validate_initial_state(invalid_state)
 
 
 def test_cable_without_screen(simple_cable: CableSoil):
@@ -1232,4 +1079,7 @@ def test_use_wrong_static_env_type():
             "environment in soil. Please use ModelAir instead."
         ),
     ):
-        ModelSoil(static_env=StaticEnvAir(), scenario=pd.DataFrame())
+        ModelSoil(
+            static_env=cast(StaticEnvSoil, StaticEnvAir()),
+            scenario=cast(DataFrame[ScenarioSchemaSoil], pd.DataFrame()),
+        )

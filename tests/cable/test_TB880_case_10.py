@@ -99,7 +99,7 @@ def test_calculate_loss_for_lead_sheath(TB880_case_10_fd_cable: CableSoil):
 def test_calculate_thermal_resistances(
     TB880_case_10_model: ModelSoil, TB880_case_10_steady_state_full_solution: np.ndarray
 ):
-    TB880_case_10_fd_cable = TB880_case_10_model.cables[
+    TB880_case_10_fd_cable = TB880_case_10_model.cables_with_soil[
         CableKey(circuit_name="TB880_case_10", cable_position=CablePosition.Single)
     ].cable
     assert CableLayer.ConductorScreen not in TB880_case_10_fd_cable.layers

@@ -99,7 +99,7 @@ def _get_cable_context(
     if load_column not in scenario.columns:
         raise KeyError(f"Missing load column '{load_column}' in scenario.")
 
-    analysis = CableAnalysis(cable=cable, solution=model_output.state.full_solution[cable_key])
+    analysis = CableAnalysis(cable=cable, solution=model_output.state.temperature[cable_key])
 
     screen_temperature = analysis.get_mean_temperature_cable_layer(layer=CableLayer.Screen)
     if screen_temperature is None:
@@ -363,7 +363,7 @@ def extract_iec_60287_parameters(
     model_output = model.run()
 
     parameters = pd.DataFrame()
-    for cable_key, pos_cable in model.cables.items():
+    for cable_key, pos_cable in model.cables_with_soil.items():
         context = _get_cable_context(
             cable=pos_cable.cable,
             cable_key=cable_key,

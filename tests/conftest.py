@@ -612,7 +612,7 @@ def TB880_case_10_model(TB880_case_10_fd_cable: CableSoil) -> ModelSoil:
 
 @pytest.fixture(scope="module")
 def TB880_case_10_steady_state_full_solution(TB880_case_10_model: ModelSoil) -> np.ndarray:
-    return TB880_case_10_model.run().state.full_solution[
+    return TB880_case_10_model.run().state.temperature[
         CableKey(circuit_name="TB880_case_10", cable_position=CablePosition.Single)
     ]
 

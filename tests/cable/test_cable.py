@@ -377,7 +377,6 @@ def test_integrate_timestep_internal_heating_warning():
     ):
         cable_in_air.integrate_timestep(
             s=MagicMock(),
-            A_banded=MagicMock(),
             b=MagicMock(),
             time_step=MagicMock(),
             internal_heating=None,
@@ -388,7 +387,6 @@ def test_integrate_timestep_internal_heating_warning():
     ):
         cable_in_air.integrate_timestep(
             s=MagicMock(),
-            A_banded=MagicMock(),
             b=MagicMock(),
             time_step=MagicMock(),
             internal_heating=False,
@@ -406,14 +404,12 @@ def test_integrate_timestep_internal_heating_warning():
     ):
         fd_cable_trefoil_in_single_pipe_in_air.integrate_timestep(
             s=MagicMock(),
-            A_banded=MagicMock(),
             b=MagicMock(),
             time_step=MagicMock(),
             internal_heating=None,
         )
         fd_cable_trefoil_in_single_pipe_in_air.integrate_timestep(
             s=MagicMock(),
-            A_banded=MagicMock(),
             b=MagicMock(),
             time_step=MagicMock(),
             internal_heating=False,
@@ -437,7 +433,7 @@ def test_integrate_timestep_internal_heating_value_error():
         match="The internal_heating parameter must be provided for CableTrefoilCircuitSinglePipeInSoil.",
     ):
         fd_cable_trefoil_in_single_pipe.integrate_timestep(
-            s=MagicMock(), A_banded=MagicMock(), b=MagicMock(), time_step=MagicMock(), internal_heating=None
+            s=MagicMock(), b=MagicMock(), time_step=MagicMock(), internal_heating=None
         )
 
 
@@ -453,12 +449,12 @@ def test_construct_surface_area_grid(radii_grid):
     """Test the construction of the surface area grid for a given radii grid."""
     if not np.isclose(radii_grid[0], 0.0):
         with pytest.raises(ValueError, match="The first value of the radii grid should be 0.0!"):
-            Cable.construct_surface_area_grid(radii_grid)
+            Cable._construct_surface_area_grid(radii_grid)
     elif not np.all(np.diff(radii_grid) > 0):
         with pytest.raises(ValueError, match="The radii grid should be strictly increasing!"):
-            Cable.construct_surface_area_grid(radii_grid)
+            Cable._construct_surface_area_grid(radii_grid)
     else:
-        surface_area_grid = Cable.construct_surface_area_grid(radii_grid)
+        surface_area_grid = Cable._construct_surface_area_grid(radii_grid)
         inter_r = np.concatenate(([0.0], (radii_grid[:-1] + radii_grid[1:]) / 2))
         expected_surface_area_grid = np.pi * (inter_r[1:] ** 2 - inter_r[:-1] ** 2)
         assert np.allclose(surface_area_grid, expected_surface_area_grid)
