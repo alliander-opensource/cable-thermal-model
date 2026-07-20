@@ -79,6 +79,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
     def run(
         self,
+        scenario: DataFrame[ScenarioSchemaT] | None = None,
         initial_state: StateT | None = None,
         run_options: ModelRunOptionsT | dict | None = None,
     ) -> ModelOutputSchema[StateT]:
@@ -94,6 +95,8 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             - initial_state
 
         Args:
+            scenario: A new scenario dataframe to use for the run. If `None`, the model will use the
+                scenario provided at initialization.
             initial_state: Heating information from a previous computation.
             run_options: Run options for the model. If `None` or a dictionary is provided, the
                 options are validated and default values are applied.
@@ -106,6 +109,9 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
         """
         self._set_run_options(run_options=run_options)
+
+        if scenario is not None:
+            self._set_scenario(scenario=scenario)
 
         self._validate_initial_state(initial_state=initial_state)
 

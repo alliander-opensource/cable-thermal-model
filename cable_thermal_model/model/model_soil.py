@@ -152,6 +152,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                             self-heating, and mutual-heating states for each cable.
         """
         ambient_temperature = self.scenario["ambient_temperature"].iloc[0]
+        self.last_soil_property_update_day = -1
 
         return StateSoil(
             static_env_hash=self.static_env.compute_hash(),
