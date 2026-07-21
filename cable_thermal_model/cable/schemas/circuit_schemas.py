@@ -11,7 +11,11 @@ from cable_thermal_model.cable.cable_builder import CableT
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
 from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstructionalInputSchema
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
-from cable_thermal_model.model.cables.cable import Cable, CableAir, CableSoil, CableTrefoilCircuitSinglePipeInSoil
+from cable_thermal_model.model.cables.cable import (
+    Cable,
+    CableAir,
+    CableTrefoilCircuitSinglePipe,
+)
 
 
 class BaseCircuitConfiguration(BaseModel):
@@ -49,9 +53,9 @@ class CircuitConfigurationCableNotBuild(BaseCircuitConfiguration):
 
         """
         if self.pipe is not None and self.pipe.trefoil_circuit_in_single_pipe:
-            return CableTrefoilCircuitSinglePipeInSoil
+            return CableTrefoilCircuitSinglePipe
 
-        return CableSoil
+        return Cable
 
 
 class CircuitConfigurationFromCableId(CircuitConfigurationCableNotBuild):

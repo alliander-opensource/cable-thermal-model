@@ -1065,7 +1065,7 @@ class CableTrefoilCircuitSinglePipeInSoil(CableTrefoilCircuitSinglePipe, CableSo
         representing the trefoil circuit in the internal heating step. The
         amount of heat added equals twice the heat loss at the cable sheath,
         therefore representing the heat three cables in trefoil would
-        generate together. Because we add an additional heat source between
+        generate together. Because we add a heat source between
         the pipe and the equivalent cable representing the trefoil circuit,
         the banded array is converted to a sparse matrix and adjusted
         appropriately before solving the linear system.

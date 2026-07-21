@@ -21,8 +21,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
 )
 from cable_thermal_model.model.cables.cable import (
     Cable,
-    CableTrefoilCircuitSinglePipeInAir,
-    CableTrefoilCircuitSinglePipeInSoil,
+    CableTrefoilCircuitSinglePipe,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorCount,
@@ -33,6 +32,7 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableSheathMaterial,
 )
 from cable_thermal_model.model.cables.pipe import Pipe
+from cable_thermal_model.model.cables.type_guards import require_implemented_cable
 from cable_thermal_model.utils.exceptions import MissingMaterialException
 
 CableT = TypeVar("CableT", bound=Cable)
@@ -74,7 +74,7 @@ class CableBuilder:
                 TCable: A new Cable instance (based on a Cable instance).
 
         """
-        if cable_class in [CableTrefoilCircuitSinglePipeInSoil, CableTrefoilCircuitSinglePipeInAir] and pipe is None:
+        if issubclass(cable_class, CableTrefoilCircuitSinglePipe) and pipe is None:
             raise ValueError(f"When using Cable class '{cable_class.__name__}', a pipe must be provided.")
 
         # load the cable data from the specified file
@@ -162,6 +162,10 @@ class CableBuilder:
             cable_type=cable_constructional_input.cable_type,
             grid_counts=dict.fromkeys(cable_layer_properties_by_layer.keys(), grid_points_per_layer),
         )
+
+        # generate a warning if the cable type is of an abstract type
+        # (with abstract method "integrate_timestep" not implemented)
+        require_implemented_cable(cable, hard_stop=False)
 
         # add a pipe around the cable if specified
         if pipe is not None:

@@ -80,7 +80,7 @@ class StaticEnvAir(
         Args:
             circuit_type: Type of circuit, one of 'single', 'trefoil', 'linear'
             dist: Distance between cables, relevant for 'linear' circuits
-            cable: Cable instance
+            cable: CableAir instance
             clipped_to_wall: Indicator if the circuit is clipped to a wall
 
         References:

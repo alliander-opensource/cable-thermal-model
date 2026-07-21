@@ -34,8 +34,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
     WeightedScreenImpedance,
 )
 from cable_thermal_model.model.cables.cable import (
-    CableTrefoilCircuitSinglePipeInAir,
-    CableTrefoilCircuitSinglePipeInSoil,
+    CableTrefoilCircuitSinglePipe,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import CableConductorCount
 from cable_thermal_model.utils.str_utils import tab_lines
@@ -235,11 +234,11 @@ class StaticEnv(
 
         """
         # Determine appropriate Cable class
-        fd_cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
+        cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
 
         return CableBuilder.build_cable_from_cable_id(
             cable_id=circuit_input.cable_id,
-            cable_class=fd_cable_cls,
+            cable_class=cable_cls,
             pipe=circuit_input.pipe,
             cable_source_file_path=circuit_input.cable_source_file_path,
         )
@@ -259,11 +258,11 @@ class StaticEnv(
 
         """
         # Determine appropriate Cable class
-        fd_cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
+        cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
 
         return CableBuilder.build_cable(
             cable_constructional_input=circuit_input.cable_constructional_information,
-            cable_class=fd_cable_cls,
+            cable_class=cable_cls,
             pipe=circuit_input.pipe,
         )
 
@@ -383,7 +382,7 @@ class StaticEnv(
     @staticmethod
     def get_circuit_type(cable: AbstractCable) -> CircuitType:
         """Determines probable circuit type by number of conductors in the cable."""
-        if isinstance(cable, CableTrefoilCircuitSinglePipeInSoil | CableTrefoilCircuitSinglePipeInAir):
+        if isinstance(cable, CableTrefoilCircuitSinglePipe):
             return CircuitType.Trefoil
         if cable.conductor.number_of_conductors == CableConductorCount.Three:
             return CircuitType.Single
@@ -413,7 +412,7 @@ class StaticEnv(
                 lengths of the different configurations.
             cable_source_file_path: Name of the file containing the cable
                 specifications. This file has to be located in the data
-                directory and must either be an excel or csv file.
+                directory and must either be an Excel or csv file.
 
         Returns:
             list[CircuitConfiguration]: A list of CircuitConfiguration objects that can be used in

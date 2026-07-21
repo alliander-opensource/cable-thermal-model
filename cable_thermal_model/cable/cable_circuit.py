@@ -6,11 +6,12 @@ import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from enum import StrEnum
+from typing import Generic
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from cable_thermal_model.cable.cable_builder import CableBuilder
+from cable_thermal_model.cable.cable_builder import CableBuilder, CableT
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
 from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitFromCableInputSchema,
@@ -21,10 +22,11 @@ from cable_thermal_model.model.cables.abstract_cable import CableType, WeightedS
 from cable_thermal_model.model.cables.cable import (
     Cable,
     CableSoil,
-    CableTrefoilCircuitSinglePipeInAir,
+    CableTrefoilCircuitSinglePipe,
     CableTrefoilCircuitSinglePipeInSoil,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
+from cable_thermal_model.model.cables.type_guards import require_soil_cable
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
@@ -55,7 +57,7 @@ class CableKey(BaseModel):
         return hash((self.circuit_name, self.cable_position))
 
 
-class PosCable(BaseModel):
+class PosCable(BaseModel, Generic[CableT]):
     """A positioned cable within a circuit, combining cable data with spatial coordinates."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -186,13 +188,9 @@ def add_soil_layer(
 
     """
     pos_cable_ = deepcopy(pos_cable)
-    cable = pos_cable_.cable
-
-    if not isinstance(cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
-        raise TypeError(f"{type(cable).__name__} does not support adding soil")
-
+    cable = require_soil_cable(pos_cable_.cable)  # Make sure we are working with a soil cable
     cable_in_soil = cable.from_cable_with_added_soil_layer(
-        cable=pos_cable_.cable,
+        cable=cable,
         soil_rho=soil_rho,
         soil_capacity=soil_capacity,
         soil_radius=soil_radius,
@@ -218,7 +216,7 @@ class CableCircuit(ABC):
         circuit_name: str,
         dist: float | None = None,
     ):
-        """Initialise the cable circuit with position, bonding type, and name."""
+        """Initialize the cable circuit with position, bonding type, and name."""
         self.x: float = x
         self.y: float = y
         self.circuit_name: str = circuit_name
@@ -251,7 +249,7 @@ class CableCircuit(ABC):
         the cable instances in the configuration. These functions depend on
         the temperature T and compute the factor that described the
         proportion of the heat generation (loss) in the screen relative to
-        the heat generation in the conductor. For example, if the this
+        the heat generation in the conductor. For example, if this
         factor is 0, no heat is generated in the screen. If the factor is
         0.5 and 400W/m is generated in the conductor, then 200W/m is
         generated in the screen.
@@ -361,7 +359,7 @@ class SingleCable(CableCircuit):
     """A single cable circuit."""
 
     def __init__(self, circuit_init_data: CircuitInitData):
-        """Initialise the single-cable circuit from CircuitInitData."""
+        """Initialize the single-cable circuit from CircuitInitData."""
         x = circuit_init_data.x
         y = circuit_init_data.y
         cable = circuit_init_data.cable
@@ -413,7 +411,7 @@ class LinearCircuit(CableCircuit):
     """A circuit of cables arranged in a linear (flat) formation."""
 
     def __init__(self, circuit_init_data: CircuitInitData):
-        """Initialise the linear circuit from CircuitInitData."""
+        """Initialize the linear circuit from CircuitInitData."""
         x = circuit_init_data.x
         y = circuit_init_data.y
         circuit_type = circuit_init_data.circuit_type or CircuitType.Linear
@@ -518,7 +516,7 @@ class TrefoilCircuit(CableCircuit):
         self,
         circuit_init_data: CircuitInitData,
     ):
-        """Initialise the trefoil circuit from CircuitInitData."""
+        """Initialize the trefoil circuit from CircuitInitData."""
         # Unpack the circuit initialization data
         x = circuit_init_data.x
         y = circuit_init_data.y
@@ -603,12 +601,12 @@ class TrefoilCircuit(CableCircuit):
 class TrefoilCircuitInSinglePipe(SingleCable):
     """Trefoil circuit with three cables in one pipe.
 
-    This is modelled as a single equivalent cable with an extra heat source between the equivalent cable and the pipe.
+    This is modeled as a single equivalent cable with an extra heat source between the equivalent cable and the pipe.
     """
 
     def __init__(self, circuit_init_data: CircuitInitData):
-        """Initialise the trefoil-in-single-pipe circuit from CircuitInitData."""
-        # Initialize super, but with twosides bonding as default
+        """Initialize the trefoil-in-single-pipe circuit from CircuitInitData."""
+        # Initialize super, but with two-sided bonding as default
         circuit_init_data.bonding_type = circuit_init_data.bonding_type or BondingType.TwoSided
 
         super().__init__(circuit_init_data)
@@ -787,9 +785,7 @@ class CircuitBuilder:
                     f"Cable distance is not supported for circuit type {circuit_input.circuit_type}. If touching "
                     f"{touching} are desired, dist should be set to {None}."
                 )
-            if isinstance(
-                circuit_input.cable, CableTrefoilCircuitSinglePipeInSoil | CableTrefoilCircuitSinglePipeInAir
-            ):
+            if isinstance(circuit_input.cable, CableTrefoilCircuitSinglePipe):
                 circuit = TrefoilCircuitInSinglePipe(circuit_init_data)
             else:
                 circuit = TrefoilCircuit(circuit_init_data)

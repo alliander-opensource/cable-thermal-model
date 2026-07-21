@@ -9,7 +9,7 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model import CableKey, StaticEnvSoil
 from cable_thermal_model.cable.cable_circuit import PosCable, add_soil_layer, return_mirror_cable
-from cable_thermal_model.model.cables.cable import CableSoil, CableTrefoilCircuitSinglePipeInSoil
+from cable_thermal_model.model.cables.type_guards import require_soil_cable
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
@@ -238,9 +238,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         """
         for cable_key, pos_cable in self.cables_with_soil.items():
-            if not isinstance(pos_cable.cable, (CableSoil, CableTrefoilCircuitSinglePipeInSoil)):
-                raise TypeError(f"Cable of type {type(pos_cable.cable)} does not support soil property updates.")
-            pos_cable.cable.update_soil_properties(
+            cable = require_soil_cable(pos_cable.cable)
+
+            cable.update_soil_properties(
                 soil_rho=soil_resistivity,
                 soil_c=soil_capacity,
                 temperature_grid=temperature_state[cable_key],

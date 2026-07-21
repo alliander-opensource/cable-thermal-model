@@ -70,7 +70,7 @@ class StaticEnvSoil(
 
         This function is used internally only to quickly set up an environment.
 
-         NO CUSTOM FILEPATHS ARE PROCESSED
+         NO CUSTOM FILE PATHS ARE PROCESSED
          Args:
             file_name: A string representation of one of the files in the circuits folder
         """
