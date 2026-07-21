@@ -531,32 +531,6 @@ def test_get_vector_cables_returns_cables_with_soil(model: ModelSoil):
     assert model._cables_for_heat_vectors is model.cables_with_soil
 
 
-@pytest.mark.parametrize(
-    "seconds_since_start,last_update_day,expected_due,expected_day",
-    [
-        (0.0, 0, False, 0),
-        (24 * 60 * 60, 0, True, 1),
-        (24 * 60 * 60, 1, False, 1),
-        (2.9 * 24 * 60 * 60, 1, True, 2),
-    ],
-)
-def test_check_if_daily_update_due(
-    model: ModelSoil,
-    seconds_since_start: float,
-    last_update_day: int,
-    expected_due: bool,
-    expected_day: int,
-):
-    """Test daily-update decision logic around boundaries and multi-day jumps."""
-    is_due, updated_day = model._check_if_daily_update_due(
-        seconds_since_start_scenario=seconds_since_start,
-        last_soil_property_update_day=last_update_day,
-    )
-
-    assert is_due is expected_due
-    assert updated_day == expected_day
-
-
 def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil):
     """Test whether soil property update is forwarded to every soil-extended cable."""
     temperature_state = {
@@ -583,48 +557,6 @@ def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil
             temperature_grid=temperature_state[cable_key],
             soil_drying=True,
         )
-
-
-@pytest.mark.parametrize("daily_update_due", [False, True])
-def test_update_thermal_properties_if_needed_conditional_soil_update(model: ModelSoil, daily_update_due: bool):
-    """Test that soil-property updates are only applied when the daily-update condition is met."""
-    temperature_state = {key: np.ones_like(model.cables[key].cable._radii_grid) for key in model.cables}
-    scenario_row = model.scenario.iloc[0]
-
-    model._update_pipe_fill_resistivity = mock.Mock()
-    model._update_soil_properties_for_all_cables = mock.Mock()
-    model._check_if_daily_update_due = mock.Mock(return_value=(daily_update_due, 7))
-    model.last_soil_property_update_day = 3
-
-    model._update_thermal_properties_if_needed(
-        temperature_state=temperature_state,
-        scenario_row=scenario_row,
-        elapsed_seconds=12.0,
-    )
-
-    assert model._update_pipe_fill_resistivity.call_count == 2
-    first_call = model._update_pipe_fill_resistivity.call_args_list[0]
-    second_call = model._update_pipe_fill_resistivity.call_args_list[1]
-    assert first_call.kwargs["temperature_state"] is temperature_state
-    assert second_call.kwargs["temperature_state"] is temperature_state
-    assert first_call.kwargs["cables"] is model.cables
-    assert second_call.kwargs["cables"] is model.cables_with_soil
-
-    model._check_if_daily_update_due.assert_called_once_with(
-        seconds_since_start_scenario=12.0,
-        last_soil_property_update_day=3,
-    )
-    assert model.last_soil_property_update_day == 7
-
-    if daily_update_due:
-        model._update_soil_properties_for_all_cables.assert_called_once_with(
-            soil_drying=model.run_options.soil_drying,
-            temperature_state=temperature_state,
-            soil_resistivity=scenario_row["soil_thermal_resistivity"],
-            soil_capacity=scenario_row["soil_thermal_capacity"],
-        )
-    else:
-        model._update_soil_properties_for_all_cables.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -692,6 +624,63 @@ def test_non_uniform_scenario(single_circuit_env: StaticEnvSoil):
         model = ModelSoil(single_circuit_env, scenario)
         temps[name] = model.run().result[("c1", "trefoil_left")]["Conductor"].iloc[-1]
     assert temps["uniform"] < temps["non_uniform_equal"]
+
+
+def test_reusing_model_for_short_scenarios_matches_single_long_scenario_dynamic_soil_resistivity(
+    single_circuit_env: StaticEnvSoil,
+):
+    """Check that chained short runs match one long run when soil resistivity varies over time.
+
+    Soil thermal capacity is kept constant in all scenarios.
+    """
+    soil_thermal_capacity = 2e6
+    long_index = pd.timedelta_range("0 h", "144 h", freq="24 h")
+
+    long_scenario = ScenarioSchemaSoil.validate(
+        pd.DataFrame(
+            index=long_index,
+            data={
+                "ambient_temperature": [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],
+                "load_c1": [350.0, 450.0, 550.0, 650.0, 600.0, 500.0, 400.0],
+                "soil_thermal_resistivity": [0.75, 0.8, 0.9, 1.0, 1.05, 1.1, 1.15],
+                "soil_thermal_capacity": soil_thermal_capacity,
+            },
+        )
+    )
+
+    split_idx = 3  # split the scenario into two parts, first part has 4 time steps, second part has 3 time steps
+    first_short_scenario = ScenarioSchemaSoil.validate(long_scenario.iloc[: split_idx + 1].copy())
+    second_short_scenario = ScenarioSchemaSoil.validate(long_scenario.iloc[split_idx:].copy())
+
+    long_output = ModelSoil(single_circuit_env, long_scenario).run()
+
+    reused_model = ModelSoil(single_circuit_env, first_short_scenario)
+    first_output = reused_model.run()
+    second_output = reused_model.run(scenario=second_short_scenario, initial_state=first_output.state)
+
+    reused_result = pd.concat([first_output.result.copy(), second_output.result.iloc[1:].copy()])
+
+    pd.testing.assert_frame_equal(reused_result, long_output.result, rtol=1e-10, atol=1e-10)
+
+    for cable_key in long_output.state.temperature:
+        np.testing.assert_allclose(
+            second_output.state.temperature[cable_key],
+            long_output.state.temperature[cable_key],
+            rtol=1e-10,
+            atol=1e-10,
+        )
+        np.testing.assert_allclose(
+            second_output.state.self_heating_contribution[cable_key],
+            long_output.state.self_heating_contribution[cable_key],
+            rtol=1e-10,
+            atol=1e-10,
+        )
+        np.testing.assert_allclose(
+            second_output.state.mutual_heating_contribution[cable_key],
+            long_output.state.mutual_heating_contribution[cable_key],
+            rtol=1e-10,
+            atol=1e-10,
+        )
 
 
 def test_add_extra_solution_layer(model: ModelSoil):

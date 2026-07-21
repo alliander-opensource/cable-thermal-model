@@ -68,20 +68,17 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         self,
         temperature_state: dict[CableKey, np.ndarray],
         scenario_row: pd.Series,
-        elapsed_seconds: float,
     ) -> None:
         """Update the pipe-fill resistivity if changed.
 
         Args:
-            matrices: Current finite difference matrices.
             temperature_state: Current temperature state for all cables.
             scenario_row: Current scenario row.
-            elapsed_seconds: Time elapsed since the start of the scenario in seconds.
 
         Notes:
-            `scenario_row` and `elapsed_seconds` are accepted for interface compatibility with other model types.
+            `scenario_row` is accepted for interface compatibility with other model types.
         """
-        _ = (scenario_row, elapsed_seconds)  # Unused in this subclass
+        _ = scenario_row  # Unused in this subclass
 
         self._update_pipe_fill_resistivity(
             temperature_state=temperature_state,

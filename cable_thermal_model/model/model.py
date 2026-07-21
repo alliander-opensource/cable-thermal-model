@@ -210,7 +210,6 @@ class Model(
         self,
         temperature_state: dict[CableKey, np.ndarray],
         scenario_row: pd.Series,
-        elapsed_seconds: float,
     ) -> None:
         """Update cables and refresh matrices in one step."""
         pass
@@ -392,7 +391,6 @@ class Model(
             self._update_thermal_properties_if_needed(
                 temperature_state=state.temperature,
                 scenario_row=scenario_row,
-                elapsed_seconds=time_grid[step_idx],
             )
 
             heat_vectors = self._update_heat_vectors(

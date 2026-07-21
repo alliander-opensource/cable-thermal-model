@@ -72,7 +72,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         self.mirror_cables_with_soil: dict[CableKey, PosCable] = {}
         self.logarithmic_soil_gridpoint_density: float = 20
         self.minimal_soil_radius: float = 5.0
-        self.last_soil_property_update_day: int = 0
 
         super().__init__(static_env=static_env, scenario=scenario)
 
@@ -152,7 +151,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                             self-heating, and mutual-heating states for each cable.
         """
         ambient_temperature = self.scenario["ambient_temperature"].iloc[0]
-        self.last_soil_property_update_day = -1
 
         return StateSoil(
             static_env_hash=self.static_env.compute_hash(),
@@ -247,27 +245,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                 temperature_grid=temperature_state[cable_key],
                 soil_drying=soil_drying,
             )
-
-    def _check_if_daily_update_due(
-        self, seconds_since_start_scenario: float, last_soil_property_update_day: int
-    ) -> tuple[bool, int]:
-        """Check if a daily update of soil properties is due based on the time elapsed since the start of the scenario.
-
-        Args:
-            seconds_since_start_scenario: The number of seconds that have passed since the start of the scenario.
-            last_soil_property_update_day: Day counter indicating when the last soil-property update occurred.
-
-        Returns:
-            A tuple containing a boolean indicating whether a daily update is due and the updated day counter.
-
-        """
-        daily_update_due = False
-        days = seconds_since_start_scenario / (60 * 60 * 24)
-        if days > last_soil_property_update_day:
-            daily_update_due = True
-            last_soil_property_update_day = int(days)
-
-        return daily_update_due, last_soil_property_update_day
 
     def _update_self_heating_contribution(
         self,
@@ -368,7 +345,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         self,
         temperature_state: dict[CableKey, np.ndarray],
         scenario_row: pd.Series,
-        elapsed_seconds: float,
     ) -> None:
         """Update pipe-fill resistivity and soil properties if needed.
 
@@ -378,24 +354,18 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             elapsed_seconds: Time elapsed since the start of the scenario in seconds.
 
         """
-        soil_resistivity = scenario_row[THERMAL_RESISTIVITY_COLUMN]
-        soil_capacity = scenario_row[THERMAL_CAPACITY_COLUMN]
-
         self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self.cables)
         self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self.cables_with_soil)
 
-        daily_update_due, self.last_soil_property_update_day = self._check_if_daily_update_due(
-            seconds_since_start_scenario=elapsed_seconds,
-            last_soil_property_update_day=self.last_soil_property_update_day,
-        )
+        soil_resistivity = scenario_row[THERMAL_RESISTIVITY_COLUMN]
+        soil_capacity = scenario_row[THERMAL_CAPACITY_COLUMN]
 
-        if daily_update_due:
-            self._update_soil_properties_for_all_cables(
-                soil_drying=self.run_options.soil_drying,
-                temperature_state=temperature_state,
-                soil_resistivity=soil_resistivity,
-                soil_capacity=soil_capacity,
-            )
+        self._update_soil_properties_for_all_cables(
+            soil_drying=self.run_options.soil_drying,
+            temperature_state=temperature_state,
+            soil_resistivity=soil_resistivity,
+            soil_capacity=soil_capacity,
+        )
 
     def _update_state(
         self,
