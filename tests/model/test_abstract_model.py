@@ -63,7 +63,7 @@ def test_model_init_without_arguments():
 def test_set_scenario(model, new_scenario):
     """Tests whether the updated scenario is set in the model object."""
     model.run()
-    model._set_scenario(new_scenario)
+    model.set_scenario(new_scenario)
     assert model.scenario.equals(new_scenario)
 
     model.run()
@@ -330,5 +330,5 @@ def test_model_str_representation(model):
             "soil_thermal_capacity": 2e6,
         },
     )
-    model._set_scenario(cast(DataFrame[ScenarioSchemaSoil], long_scenario))
+    model.set_scenario(cast(DataFrame[ScenarioSchemaSoil], long_scenario))
     assert str(model) == "Model with 1 circuit environment and 9 day scenario"

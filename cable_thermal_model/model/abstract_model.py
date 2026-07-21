@@ -43,7 +43,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         """Initialise the model with a static environment and scenario DataFrame."""
         # Validate that the scenario dataframe provides the required cable loads and ambient temperature.
         self.static_env = static_env
-        self._set_scenario(scenario=scenario)
+        self.set_scenario(scenario=scenario)
         self._set_run_options(run_options=None)
 
     def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioSchemaT]:
@@ -63,7 +63,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
         return self._scenario_schema_cls.validate(scenario)
 
-    def _set_scenario(self, scenario: DataFrame[ScenarioSchemaT]):
+    def set_scenario(self, scenario: pd.DataFrame):
         """Sets a new scenario and validates it.
 
         Args:
