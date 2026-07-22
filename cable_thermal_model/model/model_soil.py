@@ -8,7 +8,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from cable_thermal_model import CableKey, StaticEnvSoil
-from cable_thermal_model.cable.cable_circuit import PosCable, add_soil_layer, return_mirror_cable
+from cable_thermal_model.cable.cable_circuit import PosCable, return_mirror_cable
 from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
@@ -67,7 +67,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         # Set up cables
         self.cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
-        self.mirror_cables_with_soil: dict[CableKey, PosCable] = {}
+        self.mirror_cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
         self.logarithmic_soil_gridpoint_density: float = 20
         self.minimal_soil_radius: float = 5.0
         self.last_soil_property_update_day: int = 0
@@ -117,17 +117,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         super()._initialize_cables()
 
-        for key, pos_cable in self.cables.items():
-            soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
-
-            # Instantiate Cable objects with the added soil layer
-            self.cables_with_soil[key] = add_soil_layer(
-                deepcopy(pos_cable),
-                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
-                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
-                soil_radius=soil_radius,
-                logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
-            )
+        self._initialize_cables_with_soil()
 
         # Create mirror cables to enforce the T=0 boundary condition on y=0.
         self.mirror_cables_with_soil = {
@@ -135,7 +125,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         }
 
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableSoil]]:
         """Return the cables used to assemble finite difference vectors."""
         return self.cables_with_soil
 
@@ -157,7 +147,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
     @staticmethod
     def _sum_heating_contributions(
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableSoil]],
         self_heating_contribution: dict[CableKey, np.ndarray],
         x: float,
         y: float,
@@ -423,3 +413,33 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         state.mutual_heating_contribution = new_mutual_heating_contribution
 
         return state
+
+    def _initialize_cables_with_soil(
+        self,
+    ) -> None:
+        """Add soil layers to cable attribute of the given PosCable.
+
+        Returns:
+            New PosCable instance where the only difference is that the cable now has soil layers.
+
+        """
+        for key, pos_cable in self.cables.items():
+            soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
+
+            # Instantiate Cable objects with the added soil layer
+            pos_cable_ = deepcopy(pos_cable)
+            cable_in_soil = pos_cable_.cable.from_cable_with_added_soil_layer(
+                cable=pos_cable_.cable,
+                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
+                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
+                soil_radius=soil_radius,
+                logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
+            )
+
+            self.cables_with_soil[key] = PosCable[CableSoil](
+                cable=cable_in_soil,
+                x=pos_cable_.x,
+                y=pos_cable_.y,
+                circuit_name=pos_cable_.circuit_name,
+                cable_position=pos_cable_.cable_position,
+            )

@@ -102,7 +102,7 @@ class Model(
 
     @property
     @abstractmethod
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableT]]:
         """Return the cables used to assemble finite difference vectors."""
         pass
 
@@ -146,13 +146,13 @@ class Model(
 
     @staticmethod
     def _initialize_state_from_cables(
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableT]],
         fill_value: float = 0.0,
     ) -> dict[CableKey, np.ndarray]:
         """Initialize a constant-valued state grid for each provided cable.
 
         Args:
-            cables (dict[CableKey, PosCable]): A dictionary of positioned cables.
+            cables (dict[CableKey, PosCable[Cable]]): A dictionary of positioned cables.
             fill_value (float): Value used to fill every cable state grid point. Defaults to 0.0.
 
         Returns:
@@ -271,7 +271,7 @@ class Model(
     @staticmethod
     def _update_pipe_fill_resistivity(
         temperature_state: dict[CableKey, np.ndarray],
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableT]],
     ) -> None:
         """Update pipe-fill resistivity for given cables based on the current temperature state.
 

@@ -343,7 +343,7 @@ class StaticEnv(
             "Local configuration does not match any of the provided configurations in multiple_configurations."
         )
 
-    def _add_cables_to_cable_dict(self, cables: list[PosCable]):
+    def _add_cables_to_cable_dict(self, cables: list[PosCable[CableT]]):
         """Adds cables to the environment cables property.
 
         Args:
@@ -396,7 +396,7 @@ class StaticEnv(
 
         raise NotImplementedError(f"Number of conductors '{cable.conductor.number_of_conductors}' not supported.")
 
-    def get_cable(self, cable_key: CableKey) -> PosCable:
+    def get_cable(self, cable_key: CableKey) -> PosCable[CableT]:
         """Gets the Cable-object corresponding to the cable_name from the environment."""
         return self.cables[cable_key]
 

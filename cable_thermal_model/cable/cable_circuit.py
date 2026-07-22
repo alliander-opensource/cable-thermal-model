@@ -20,11 +20,9 @@ from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableType, WeightedScreenImpedance
 from cable_thermal_model.model.cables.cable import (
     Cable,
-    CableSoil,
     CableTrefoilCircuitSinglePipe,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
-from cable_thermal_model.model.cables.type_guards import require_soil_cable
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
@@ -118,7 +116,7 @@ class CircuitInitData(BaseModel):
         )
 
 
-def return_mirror_cable(pos_cable: PosCable) -> PosCable:
+def return_mirror_cable(pos_cable: PosCable[CableT]) -> PosCable[CableT]:
     """Return mirror cable based on given cable.
 
     A mirror cable is an exact copy of a given cable with the only difference being that
@@ -139,51 +137,6 @@ def return_mirror_cable(pos_cable: PosCable) -> PosCable:
         y=-pos_cable_mirror.y,
         circuit_name=pos_cable_mirror.circuit_name,
         cable_position=pos_cable_mirror.cable_position,
-    )
-
-
-def add_soil_layer(
-    pos_cable: PosCable,
-    soil_rho: float,
-    soil_capacity: float,
-    logarithmic_soil_gridpoint_density: float,
-    soil_radius: float,
-) -> PosCable[CableSoil]:
-    """Add soil layers to cable attribute of the given PosCable.
-
-    Args:
-        pos_cable:
-            Positioned cable instance without any soil layers
-        soil_rho:
-            Thermal resistivity of the soil layer to add in Km/W
-        soil_capacity:
-            Thermal capacity of the soil layer to add in J/(m³K)
-        logarithmic_soil_gridpoint_density:
-            The density of grid points in the soil layer, this is used to compute the number of grid points in the
-            soil layer based on its thickness. The density represents the number of grid points per factor 2 increase
-            in soil layer thickness.
-        soil_radius:
-            The outer radius of the soil layer to add.
-
-    Returns:
-        New PosCable instance where the only difference is that the cable now has soil layers.
-
-    """
-    pos_cable_ = deepcopy(pos_cable)
-    cable = require_soil_cable(pos_cable_.cable)  # Make sure we are working with a soil cable
-    cable_in_soil = cable.from_cable_with_added_soil_layer(
-        cable=cable,
-        soil_rho=soil_rho,
-        soil_capacity=soil_capacity,
-        soil_radius=soil_radius,
-        logarithmic_soil_gridpoint_density=logarithmic_soil_gridpoint_density,
-    )
-    return PosCable[CableSoil](
-        cable=cable_in_soil,
-        x=pos_cable_.x,
-        y=pos_cable_.y,
-        circuit_name=pos_cable_.circuit_name,
-        cable_position=pos_cable_.cable_position,
     )
 
 
@@ -284,7 +237,7 @@ class CableCircuit(ABC):
         self,
         cable: Cable,
         cable_centers: dict[CablePosition, tuple[float, float]],
-    ) -> list[PosCable]:
+    ) -> list[PosCable[Cable]]:
         """Initialize the PosCable instances for the circuit based on the given cable and cable centers.
 
         Args:
