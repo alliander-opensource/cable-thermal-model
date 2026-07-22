@@ -67,7 +67,7 @@ class PosCable(BaseModel, Generic[CableT]):
 
     @computed_field  # type: ignore[misc]
     @property
-    def name(self) -> CableKey:
+    def key(self) -> CableKey:
         """Return the CableKey identifying this cable in the circuit."""
         return CableKey(circuit_name=self.circuit_name, cable_position=self.cable_position)
 
@@ -94,7 +94,7 @@ class PosCable(BaseModel, Generic[CableT]):
     @property
     def cable_representation(self) -> str:
         """Return a string representation of this positioned cable for serialization."""
-        return f"Cable(cable=Cable({self.cable_info}, x={self.x}, y={self.y}, name={self.name}))"
+        return f"Cable(cable=Cable({self.cable_info}, x={self.x}, y={self.y}, name={self.key}))"
 
     def distance_to_point(self, x: float, y: float) -> float:
         """Return the distance from this cable center to a point in meters."""

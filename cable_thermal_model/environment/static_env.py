@@ -81,7 +81,7 @@ class StaticEnv(
         """Compute a deterministic hash of the static environment based on the positioned cable representations."""
         encoded_representations = []
         for cable in self.get_cables().values():
-            key = cable.name
+            key = cable.key
             encoded_representations.append(
                 f"{key.circuit_name}|{key.cable_position.value}|{cable.cable_representation}"
             )
@@ -351,7 +351,7 @@ class StaticEnv(
 
         """
         for cable in cables:
-            self.cables[cable.name] = cable
+            self.cables[cable.key] = cable
             self.number_of_cables += 1
 
     @staticmethod

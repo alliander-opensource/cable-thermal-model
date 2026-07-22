@@ -340,7 +340,7 @@ def test_staticenv_get_circuit_type(
 def test_staticenv_get_cable(env_fixture: str, cable_key: CableKey, request: pytest.FixtureRequest):
     """Tests if the cable is retrieved correctly."""
     env: StaticEnvSoil = request.getfixturevalue(env_fixture)
-    actual_cable_name = env.get_cable(cable_key).name
+    actual_cable_name = env.get_cable(cable_key).key
     assert actual_cable_name == cable_key
 
 

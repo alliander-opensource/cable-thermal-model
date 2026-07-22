@@ -223,7 +223,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
 
     # Test 2: state=StateAir instance should pass
     pos_cable = env.cables[CableKey(circuit_name=circuit_name, cable_position=CablePosition.Single)]
-    cable_key = pos_cable.name
+    cable_key = pos_cable.key
 
     valid_state = StateAir(
         static_env_hash=env.compute_hash(),
