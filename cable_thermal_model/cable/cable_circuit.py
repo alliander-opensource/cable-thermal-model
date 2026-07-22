@@ -134,7 +134,7 @@ class CircuitInitData(BaseModel):
         )
 
 
-def return_mirror_cable(pos_cable: PosCable) -> PosCable:
+def return_mirror_cable(pos_cable: PosCable[CableT]) -> PosCable[CableT]:
     """Return mirror cable based on given cable.
 
     A mirror cable is an exact copy of a given cable with the only difference being that
@@ -159,7 +159,7 @@ def return_mirror_cable(pos_cable: PosCable) -> PosCable:
 
 
 def add_soil_layer(
-    pos_cable: PosCable,
+    pos_cable: PosCable[Cable],
     soil_rho: float,
     soil_capacity: float,
     logarithmic_soil_gridpoint_density: float,
@@ -300,7 +300,7 @@ class CableCircuit(ABC):
         self,
         cable: Cable,
         cable_centers: dict[CablePosition, tuple[float, float]],
-    ) -> list[PosCable]:
+    ) -> list[PosCable[Cable]]:
         """Initialize the PosCable instances for the circuit based on the given cable and cable centers.
 
         Args:

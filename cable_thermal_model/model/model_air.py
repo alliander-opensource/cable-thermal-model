@@ -47,7 +47,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         super().__init__(static_env=static_env, scenario=scenario)
 
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableAir]]:
         """Return the cables used to assemble finite difference vectors."""
         return self.cables
 

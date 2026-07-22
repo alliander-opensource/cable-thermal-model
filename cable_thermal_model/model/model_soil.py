@@ -67,7 +67,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         # Set up cables
         self.cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
-        self.mirror_cables_with_soil: dict[CableKey, PosCable] = {}
+        self.mirror_cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
         self.logarithmic_soil_gridpoint_density: float = 20
         self.minimal_soil_radius: float = 5.0
         self.last_soil_property_update_day: int = 0
@@ -135,7 +135,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         }
 
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableSoil]]:
         """Return the cables used to assemble finite difference vectors."""
         return self.cables_with_soil
 
@@ -157,7 +157,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
     @staticmethod
     def _sum_heating_contributions(
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableSoil]],
         self_heating_contribution: dict[CableKey, np.ndarray],
         x: float,
         y: float,
