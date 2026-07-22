@@ -6,7 +6,7 @@ from typing import overload
 
 import pandas as pd
 
-from cable_thermal_model.environment.static_env import StaticEnvT
+from cable_thermal_model.environment.static_env import StaticEnv, StaticEnvT
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.model import Model
@@ -25,6 +25,10 @@ class ModelFactory:
     @staticmethod
     @overload
     def create_model(static_env: StaticEnvSoil, scenario: pd.DataFrame) -> ModelSoil: ...
+
+    @staticmethod
+    @overload
+    def create_model(static_env: StaticEnv, scenario: pd.DataFrame) -> Model: ...
 
     @staticmethod
     def create_model(
