@@ -103,7 +103,8 @@ class CableId(BaseModel):
     # Parameters that specify which cable to use and where to get the cable information from
     cable_id: str = Field(..., description="Identifier of the cable type to use in the circuit")
     cable_source_file_path: Path = Field(
-        default=Path("data/example_cables.csv"), description="Source file to use for the cable in the circuit"
+        default=Path(__file__).resolve().parents[3] / "data" / "example_cables.csv",
+        description="Path to the source file containing the cable information",
     )
 
 
