@@ -31,3 +31,10 @@ updates:
     labels:
       - dependencies
       - python
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    commit-message:
+      prefix: "deps"
+    schedule:
+      interval: "weekly"
