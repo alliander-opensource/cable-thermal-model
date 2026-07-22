@@ -634,6 +634,9 @@ class Cable(AbstractCable):
         if not isinstance(grid_counts, dict):
             raise TypeError("The grid_counts argument must be a dictionary of integers!")
 
+        if not all(isinstance(key, CableLayer) for key in grid_counts):
+            raise TypeError("The grid_counts argument must be a dictionary with CableLayer keys!")
+
         if not all(isinstance(value, (int, np.integer)) for value in grid_counts.values()):
             raise TypeError("The grid_counts argument must be a dictionary of integers!")
 

@@ -8,13 +8,14 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
+from cable_thermal_model.model.cables.cable import CableAir
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir
 from cable_thermal_model.model.schemas.run_options import ModelAirRunOptions
 
 
-class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir]):
+class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir, CableAir]):
     """ModelAir computes cable temperatures for installations in air using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvAir and a valid scenario, then executed via `run()`.

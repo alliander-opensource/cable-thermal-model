@@ -11,11 +11,10 @@ from typing import Generic
 import numpy as np
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from cable_thermal_model.cable.cable_builder import CableBuilder, CableT
+from cable_thermal_model.cable.cable_builder import CableT
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
 from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitFromCableInputSchema,
-    CircuitInSoilFromCableInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableType, WeightedScreenImpedance
@@ -23,7 +22,6 @@ from cable_thermal_model.model.cables.cable import (
     Cable,
     CableSoil,
     CableTrefoilCircuitSinglePipe,
-    CableTrefoilCircuitSinglePipeInSoil,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
 from cable_thermal_model.model.cables.type_guards import require_soil_cable
@@ -63,7 +61,7 @@ class PosCable(BaseModel, Generic[CableT]):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     circuit_name: str
     cable_position: CablePosition
-    cable: Cable
+    cable: CableT
     x: float
     y: float
 
@@ -166,7 +164,7 @@ def add_soil_layer(
     soil_capacity: float,
     logarithmic_soil_gridpoint_density: float,
     soil_radius: float,
-) -> PosCable:
+) -> PosCable[CableSoil]:
     """Add soil layers to cable attribute of the given PosCable.
 
     Args:
@@ -196,7 +194,7 @@ def add_soil_layer(
         soil_radius=soil_radius,
         logarithmic_soil_gridpoint_density=logarithmic_soil_gridpoint_density,
     )
-    return PosCable(
+    return PosCable[CableSoil](
         cable=cable_in_soil,
         x=pos_cable_.x,
         y=pos_cable_.y,
@@ -686,65 +684,6 @@ class TrefoilCircuitInSinglePipe(SingleCable):
 
 class CircuitBuilder:
     """Factory for constructing CableCircuit instances from various input sources."""
-
-    @classmethod
-    def from_cable_id(
-        cls,
-        x: float,
-        y: float,
-        circuit_type: CircuitType,
-        cable_id: str,
-        circuit_name: str,
-        dist: float | None = None,
-        pipe: PipeInputSchema | None = None,
-        bonding_type: BondingType | None = None,
-        y_ref: CircuitYReference = CircuitYReference.Center,
-    ) -> CableCircuit:
-        """Build circuit from cable id.
-
-        First builds the cable instance using the CableBuilder and then builds the
-        circuit using that cable instance.
-
-        Args:
-            x: Horizontal position of circuit in environment in meters
-            y: Vertical position (depth) of circuit in environment in meters
-            circuit_type: Type of circuit
-            cable_id: Identifier of cable type
-            circuit_name: Name of the circuit
-            dist: Distance between cables, relevant for CircuitType.Linear
-            pipe: Pipe object with pipe parameters, if None, no pipe is added to the cables
-            bonding_type: Type of bonding used in the cable circuit
-            y_ref: Reference of the circuit y position, either
-                CircuitYReference.Center, CircuitYReference.Top or
-                CircuitYReference.Bottom
-                y_ref defines y: y is the distance from the ground surface level to y_ref
-
-        Returns:
-            A CableCircuit instance that can be added to the static environment.
-
-        """
-        cable = CableBuilder.build_cable_from_cable_id(
-            cable_id=cable_id,
-            cable_class=(
-                CableTrefoilCircuitSinglePipeInSoil
-                if cls._is_trefoil_circuit_in_single_pipe(circuit_type, pipe)
-                else CableSoil
-            ),
-            pipe=pipe,
-        )
-
-        return cls.from_cable(
-            CircuitInSoilFromCableInputSchema(
-                x=x,
-                y=y,
-                circuit_type=circuit_type,
-                cable=cable,
-                circuit_name=circuit_name,
-                dist=dist,
-                bonding_type=bonding_type,
-                y_ref=y_ref,
-            )
-        )
 
     @staticmethod
     def from_cable(

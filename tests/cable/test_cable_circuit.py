@@ -67,7 +67,11 @@ from cable_thermal_model.cable.cable_circuit import (
     TrefoilCircuit,
     TrefoilCircuitInSinglePipe,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
+from cable_thermal_model.cable.schemas.circuit_schemas import (
+    CircuitFromCableInputSchema,
+    CircuitInSoilFromCableIdInputSchema,
+    CircuitInSoilFromCableInputSchema,
+)
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.abstract_cable import WeightedScreenImpedance
@@ -274,17 +278,26 @@ def test_initialize_screen_loss_functions_with_erroneous_parameters():
     assert str(val_error.value) == expected_error_string
 
 
-def test_cable_circuit_builder_basic_usage_using_cable_id():
+def test_cable_circuit_builder_basic_usage_using_cable():
     """Note: The from_cable() method is already covered via other tests."""
     # Preparation
     cable_id = "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"
     screen_temp = 85.2
     conductor_temp = 90.0
 
+    cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
+
     # Generation
-    test_circuit = CircuitBuilder.from_cable_id(
-        x=0, y=0, circuit_type=CircuitType.Trefoil, cable_id=cable_id, circuit_name="Test circuit"
+    test_circuit = CircuitBuilder.from_cable(
+        CircuitFromCableInputSchema[CableSoil](
+            cable=cable,
+            circuit_name="Test circuit",
+            circuit_type=CircuitType.Trefoil,
+        )
     )
+    # test_circuit = CircuitBuilder.from_cable_id(
+    #     x=0, y=0, circuit_type=CircuitType.Trefoil, cable_id=cable_id, circuit_name="Test circuit"
+    # )
     ctm_lambda1 = test_circuit.cables[0].cable.get_cable_screen_loss_factor(screen_temp, conductor_temp)
 
     # Evaluation
@@ -329,13 +342,11 @@ def test_cable_y_position(
     y_expected: float,
 ):
     # Generation
-    test_circuit = CircuitBuilder.from_cable_id(
-        x=0,
-        y=-1.0,
-        circuit_type=circuit_type,
-        cable_id=cable_id,
-        circuit_name="Test circuit",
-        y_ref=y_ref,
+    cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
+    test_circuit = CircuitBuilder.from_cable(
+        CircuitInSoilFromCableInputSchema(
+            cable=cable, circuit_name="Test circuit", circuit_type=circuit_type, x=0, y=-1.0, y_ref=y_ref
+        ),
     )
     # Evaluation
     # Verify Radii to confirm the building of the proper cable

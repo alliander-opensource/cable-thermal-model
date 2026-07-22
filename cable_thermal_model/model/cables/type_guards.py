@@ -44,7 +44,7 @@ def require_air_cable(cable: Cable) -> CableAir:
         the CableAir class for any air cable class.
     """
     if not isinstance(cable, CableAir):
-        raise TypeError(f"{type(cable).__name__} does not support soil operations")
+        raise TypeError(f"{type(cable).__name__} does not support convection operations")
     return cable
 
 

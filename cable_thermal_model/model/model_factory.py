@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import cast, overload
+from typing import overload
 
 import pandas as pd
-from pandera.typing import DataFrame
 
 from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
@@ -13,10 +12,6 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import ModelAir
 from cable_thermal_model.model.model_soil import ModelSoil
-from cable_thermal_model.model.schemas.model_input_schemas import (
-    ScenarioSchemaAir,
-    ScenarioSchemaSoil,
-)
 
 
 class ModelFactory:
@@ -49,9 +44,9 @@ class ModelFactory:
             ValueError: If static_env is not a supported environment type.
         """
         if isinstance(static_env, StaticEnvAir):
-            return ModelAir(static_env=static_env, scenario=cast(DataFrame[ScenarioSchemaAir], scenario))
+            return ModelAir(static_env=static_env, scenario=scenario)  # type: ignore
         elif isinstance(static_env, StaticEnvSoil):
-            return ModelSoil(static_env=static_env, scenario=cast(DataFrame[ScenarioSchemaSoil], scenario))
+            return ModelSoil(static_env=static_env, scenario=scenario)  # type: ignore
         else:
             raise ValueError(
                 f"Unsupported static environment type: {type(static_env).__name__}. "

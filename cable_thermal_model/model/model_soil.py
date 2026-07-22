@@ -9,14 +9,14 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model import CableKey, StaticEnvSoil
 from cable_thermal_model.cable.cable_circuit import PosCable, add_soil_layer, return_mirror_cable
-from cable_thermal_model.model.cables.type_guards import require_soil_cable
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
-class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil]):
+class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil, CableSoil]):
     """ModelSoil computes temperatures for underground power cables using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvSoil and a valid scenario, then executed via `run()`.
@@ -66,7 +66,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             )
 
         # Set up cables
-        self.cables_with_soil: dict[CableKey, PosCable] = {}
+        self.cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
         self.mirror_cables_with_soil: dict[CableKey, PosCable] = {}
         self.logarithmic_soil_gridpoint_density: float = 20
         self.minimal_soil_radius: float = 5.0
@@ -116,21 +116,18 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         # The outer boundary is treated as ambient.
 
         super()._initialize_cables()
-        cables_with_soil = {}
 
         for key, pos_cable in self.cables.items():
             soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
 
             # Instantiate Cable objects with the added soil layer
-            cables_with_soil[key] = add_soil_layer(
+            self.cables_with_soil[key] = add_soil_layer(
                 deepcopy(pos_cable),
                 soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
                 soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
                 soil_radius=soil_radius,
                 logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
             )
-
-        self.cables_with_soil = cables_with_soil
 
         # Create mirror cables to enforce the T=0 boundary condition on y=0.
         self.mirror_cables_with_soil = {
@@ -238,9 +235,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         """
         for cable_key, pos_cable in self.cables_with_soil.items():
-            cable = require_soil_cable(pos_cable.cable)
-
-            cable.update_soil_properties(
+            pos_cable.cable.update_soil_properties(
                 soil_rho=soil_resistivity,
                 soil_c=soil_capacity,
                 temperature_grid=temperature_state[cable_key],

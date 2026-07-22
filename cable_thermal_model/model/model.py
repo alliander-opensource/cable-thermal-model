@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
 
+from cable_thermal_model.cable.cable_builder import CableT
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel, StaticEnvT
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
@@ -22,7 +23,7 @@ from cable_thermal_model.model.schemas.state_schemas import StateT
 
 class Model(
     AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
-    Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
+    Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT, CableT],
 ):
     """Finite Difference Model for Thermal Cable Model.
 
@@ -43,7 +44,7 @@ class Model(
         """
         super().__init__(static_env, scenario)
 
-        self.cables: dict[CableKey, PosCable] = {}
+        self.cables: dict[CableKey, PosCable[CableT]] = {}
         self._initialize_cables()
 
         self.extra_solution_layers: list[CableLayer] = []
@@ -108,10 +109,6 @@ class Model(
     def _initialize_heat_vectors(self) -> dict[CableKey, np.ndarray]:
         """Initialize the heat vectors for each cable.
 
-        Args:
-            cables (dict[CableKey, PosCable]): A dictionary of positioned cables.
-            neglect_dielectric_loss (bool): Whether to neglect dielectric losses in the initial vectors.
-
         Returns:
             dict[CableKey, np.ndarray]: A dictionary with one initialized vector per cable,
                 sized from each cable finite difference representation.
@@ -147,8 +144,8 @@ class Model(
         """
         pass
 
+    @staticmethod
     def _initialize_state_from_cables(
-        self,
         cables: dict[CableKey, PosCable],
         fill_value: float = 0.0,
     ) -> dict[CableKey, np.ndarray]:
@@ -271,8 +268,8 @@ class Model(
         """
         pass
 
+    @staticmethod
     def _update_pipe_fill_resistivity(
-        self,
         temperature_state: dict[CableKey, np.ndarray],
         cables: dict[CableKey, PosCable],
     ) -> None:
@@ -349,7 +346,7 @@ class Model(
 
         Returns:
             DataFrame[TemperatureResultSchema]:
-                A Pandas DataFrame with a MultiIndex of (circuit_name, pos_cableition, cable_layer) for the columns,
+                A Pandas DataFrame with a MultiIndex of (circuit_name, cable_position, cable_layer) for the columns,
                     containing the temperature results over time.
         """
         temperature_result_dfs = {

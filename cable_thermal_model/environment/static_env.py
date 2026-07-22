@@ -61,7 +61,7 @@ class StaticEnv(
         """Initialize the static environment with empty circuit and cable containers."""
         self.circuits: dict[str, CableCircuit] = {}
         self.circuit_cable_indices: dict[str, list[int]] = {}
-        self.cables: dict[CableKey, PosCable] = {}
+        self.cables: dict[CableKey, PosCable[CableT]] = {}
         self.number_of_cables: int = 0
 
         self.crossing_cables: bool = False
@@ -91,7 +91,7 @@ class StaticEnv(
 
         return hash_value
 
-    def get_cables(self) -> dict[CableKey, PosCable]:
+    def get_cables(self) -> dict[CableKey, PosCable[CableT]]:
         """Returns a dict of all cables in the static environment."""
         return self.cables
 
