@@ -200,7 +200,7 @@ class Model(
             self.temperature_result[cable_key] = {}
             for layer in [CableLayer.Conductor, CableLayer.Sheath, CableLayer.Pipe] + self.extra_solution_layers:
                 if layer in self.cables[cable_key].cable.layers:
-                    self.temperature_result[cable_key][layer] = np.full(self.scenario_length, np.nan, dtype=float)
+                    self.temperature_result[cable_key][layer] = np.full(self.n_scenario_rows, np.nan, dtype=float)
 
     def _get_circuit_loads_from_scenario_row(self, scenario_row) -> dict[str, float]:
         """Extract circuit loads from a scenario row produced by iterrows()."""

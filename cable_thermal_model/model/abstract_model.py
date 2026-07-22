@@ -78,7 +78,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         self.time_samples: int = len(self.time_grid)
 
     @property
-    def scenario_length(self) -> int:
+    def n_scenario_rows(self) -> int:
         """Returns the number of time steps in the scenario."""
         return len(self.scenario.index)
 

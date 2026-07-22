@@ -88,7 +88,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         state: StateSoil,
         measurement_point: MeasurementPoint,
     ) -> float:
-        """Compute the temperature at a point and time in the environment.
+        """Compute the temperature at a point in the environment given the state.
 
         Args:
             measurement_point: The measurement point object containing coordinates and distances to cables.
@@ -452,7 +452,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         super()._initialize_empty_temperature_result()
 
         self.measurement_point_temperature_result = {
-            mp.key: np.full(self.scenario_length, np.nan, dtype=float)
+            mp.key: np.full(self.n_scenario_rows, np.nan, dtype=float)
             for mp in self.static_env._measurement_point_registry.points
         }
 
