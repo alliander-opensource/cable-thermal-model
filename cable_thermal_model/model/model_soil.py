@@ -8,8 +8,9 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from cable_thermal_model import CableKey, StaticEnvSoil
-from cable_thermal_model.cable.cable_circuit import PosCable, add_soil_layer, return_mirror_cable
+from cable_thermal_model.cable.cable_circuit import PosCable, return_mirror_cable
 from cable_thermal_model.model.cables.cable import CableSoil
+from cable_thermal_model.model.cables.type_guards import require_soil_cable
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
@@ -117,17 +118,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         super()._initialize_cables()
 
-        for key, pos_cable in self.cables.items():
-            soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
-
-            # Instantiate Cable objects with the added soil layer
-            self.cables_with_soil[key] = add_soil_layer(
-                deepcopy(pos_cable),
-                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
-                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
-                soil_radius=soil_radius,
-                logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
-            )
+        self._initialize_cables_with_soil()
 
         # Create mirror cables to enforce the T=0 boundary condition on y=0.
         self.mirror_cables_with_soil = {
@@ -423,3 +414,34 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         state.mutual_heating_contribution = new_mutual_heating_contribution
 
         return state
+
+    def _initialize_cables_with_soil(
+        self,
+    ) -> None:
+        """Add soil layers to cable attribute of the given PosCable.
+
+        Returns:
+            New PosCable instance where the only difference is that the cable now has soil layers.
+
+        """
+        for key, pos_cable in self.cables.items():
+            soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
+
+            # Instantiate Cable objects with the added soil layer
+            pos_cable_ = deepcopy(pos_cable)
+            cable = require_soil_cable(pos_cable_.cable)  # Make sure we are working with a soil cable
+            cable_in_soil = cable.from_cable_with_added_soil_layer(
+                cable=cable,
+                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
+                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
+                soil_radius=soil_radius,
+                logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
+            )
+
+            self.cables_with_soil[key] = PosCable[CableSoil](
+                cable=cable_in_soil,
+                x=pos_cable_.x,
+                y=pos_cable_.y,
+                circuit_name=pos_cable_.circuit_name,
+                cable_position=pos_cable_.cable_position,
+            )
