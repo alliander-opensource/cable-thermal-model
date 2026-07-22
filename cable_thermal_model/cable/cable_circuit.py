@@ -65,34 +65,18 @@ class PosCable(BaseModel, Generic[CableT]):
 
     @computed_field  # type: ignore[misc]
     @property
-    def name(self) -> CableKey:
+    def key(self) -> CableKey:
         """Return the CableKey identifying this cable in the circuit."""
         return CableKey(circuit_name=self.circuit_name, cable_position=self.cable_position)
 
     @computed_field  # type: ignore[misc]
     @property
-    def cable_info(self) -> str:
-        """Return a compact string encoding the cable's physical properties."""
-        return (
-            f"{tuple([layer_properties.outer_radius for layer_properties in self.cable.layer_properties.values()])},"
-            f"{tuple([layer_properties.rho for layer_properties in self.cable.layer_properties.values()])},"
-            f"{tuple([layer_properties.capacity for layer_properties in self.cable.layer_properties.values()])},"
-            f"{tuple([layer_properties.electric_rho for layer_properties in self.cable.layer_properties.values()])},"
-            f"{tuple([layer_properties.alpha for layer_properties in self.cable.layer_properties.values()])},"
-            f"{tuple(self.cable.layers)},"
-            f"{self.cable.layer_metrics.outer_radius},"
-            f"{self.cable.layer_metrics.conductor_cross_section},"
-            f"{self.cable.layer_metrics.screen_cross_section},"
-            f"{self.cable.conductor.number_of_conductors.value},"
-            f"{self.cable.layer_metrics.conductor_distance},"
-            f"{self.cable.cable_type}"
-        )
-
-    @computed_field  # type: ignore[misc]
-    @property
     def cable_representation(self) -> str:
         """Return a string representation of this positioned cable for serialization."""
-        return f"Cable(cable=Cable({self.cable_info}, x={self.x}, y={self.y}, name={self.name}))"
+        return (
+            f"PosCable(cable={type(self.cable).__name__}({self.cable.info}), x={self.x}, y={self.y}, "
+            f"circuit_name={self.key.circuit_name}, cable_position={self.key.cable_position})"
+        )
 
     def distance_to_point(self, x: float, y: float) -> float:
         """Return the distance from this cable center to a point in meters."""

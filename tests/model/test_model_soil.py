@@ -567,7 +567,7 @@ def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil
     for pos_cable in model.cables_with_soil.values():
         update_mock = mock.Mock()
         pos_cable.cable.update_soil_properties = update_mock
-        update_mocks[pos_cable.name] = update_mock
+        update_mocks[pos_cable.key] = update_mock
 
     model._update_soil_properties_for_all_cables(
         soil_drying=True,
@@ -995,7 +995,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
 
     # Test 2: state=StateSoil instance should pass
     pos_cable = env.cables[CableKey(circuit_name=circuit_name, cable_position=CablePosition.Single)]
-    cable_key = pos_cable.name
+    cable_key = pos_cable.key
 
     valid_state = StateSoil(
         static_env_hash=env.compute_hash(),

@@ -63,6 +63,24 @@ class Cable(AbstractCable):
         self._set_calculated_fields()
 
     @property
+    def info(self) -> str:
+        """Return a compact string encoding the cable's physical properties."""
+        return (
+            f"{tuple([layer_properties.outer_radius for layer_properties in self.layer_properties.values()])},"
+            f"{tuple([layer_properties.rho for layer_properties in self.layer_properties.values()])},"
+            f"{tuple([layer_properties.capacity for layer_properties in self.layer_properties.values()])},"
+            f"{tuple([layer_properties.electric_rho for layer_properties in self.layer_properties.values()])},"
+            f"{tuple([layer_properties.alpha for layer_properties in self.layer_properties.values()])},"
+            f"{tuple(self.layers)},"
+            f"{self.layer_metrics.outer_radius},"
+            f"{self.layer_metrics.conductor_cross_section},"
+            f"{self.layer_metrics.screen_cross_section},"
+            f"{self.conductor.number_of_conductors.value},"
+            f"{self.layer_metrics.conductor_distance},"
+            f"{self.cable_type}"
+        )
+
+    @property
     def outer_boundary_coupling_coefficient(self) -> float:
         """Get the outer-boundary coupling coefficient from the finite difference matrix.
 
