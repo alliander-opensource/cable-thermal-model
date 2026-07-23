@@ -1128,7 +1128,9 @@ class CableTrefoilCircuitSinglePipe(Cable):
         if not sparse.issparse(A):
             raise TypeError(f"Expected sparse matrix, got {type(A).__name__}")
 
-        return sparse.linalg.spsolve(A, b)
+        # Convert to CSC format for optimal solver performance
+        # (spsolve is fastest/most reliable with CSC/CSR inputs)
+        return sparse.linalg.spsolve(A.tocsc(), b)
 
     def _update_system_with_heat_source(self, A_sparse: sparse.lil_matrix) -> sparse.lil_matrix:
         """Add coefficients to the finite difference matrix.
