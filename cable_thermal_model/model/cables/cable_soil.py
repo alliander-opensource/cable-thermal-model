@@ -56,7 +56,7 @@ class CableSoil(Cable):
 
     def update_soil_properties(
         self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False
-    ):
+    ) -> None:
         """This method updates the soil properties around a cable.
 
         Args:
@@ -75,7 +75,7 @@ class CableSoil(Cable):
 
         self._update_soil_capacity(soil_c=soil_c)
 
-    def _update_soil_capacity(self, soil_c: float):
+    def _update_soil_capacity(self, soil_c: float) -> None:
         """This method updates the soil capacity values around a cable.
 
         If multiple soil layers are present, it sets them all (the entire soil).
