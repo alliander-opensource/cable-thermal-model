@@ -685,6 +685,48 @@ class Cable(AbstractCable):
         if not all(isinstance(value, (int, np.integer)) for value in grid_counts.values()):
             raise TypeError("The grid_counts argument must be a dictionary of integers!")
 
+    def _processed_matrix(self, time_step: float) -> np.ndarray | sparse.lil_matrix:
+        """Process the finite difference matrix for the implicit Euler method.
+
+        Args:
+            time_step (float): The size of the time step [s] in the linearized time grid.
+
+        Returns:
+            np.ndarray | sparse.lil_matrix: The processed finite difference matrix ready for solving the linear system.
+
+        """
+        ab = self._banded_matrix
+
+        ab = -ab * time_step
+        ab[1, :] += self._capacity_grid[: ab.shape[1]]
+
+        return ab
+
+    @staticmethod
+    def _solve_system(
+        A: np.ndarray | sparse.lil_matrix,
+        b: np.ndarray,
+    ) -> np.ndarray:
+        """Solve the linear system Ax = b.
+
+        Args:
+            A (np.ndarray | sparse.lil_matrix): The finite difference matrix (banded format for CableAir).
+            b (np.ndarray): The finite difference vector.
+
+        Returns:
+            np.ndarray: The solution vector x.
+
+        Raises:
+            TypeError: If A is not a banded matrix (3xN numpy array).
+
+        """
+        if not isinstance(A, np.ndarray):
+            raise TypeError(f"Expected banded matrix (np.ndarray), got {type(A).__name__}")
+        if A.shape[0] != 3:
+            raise ValueError(f"Expected banded matrix with shape (3, N), got {A.shape}")
+
+        return linalg.solve_banded(l_and_u=(1, 1), ab=A, b=b)
+
 
 class CableSoil(Cable):
     """Finite difference cable model with soil discretization."""
@@ -715,14 +757,10 @@ class CableSoil(Cable):
                 the final grid point, at which a boundary condition is enforced.
 
         """
-        number_of_non_zero_diagonals = (1, 1)  # one upper and one lower diagonal
-
-        ab = self._banded_matrix * -time_step
-        ab[1, :] += self._capacity_grid[:-1]
-
+        A = self._processed_matrix(time_step=time_step)
         b = self._capacity_grid[:-1] * previous_solution + time_step * heating_vector
 
-        return linalg.solve_banded(l_and_u=number_of_non_zero_diagonals, ab=ab, b=b)
+        return self._solve_system(A=A, b=b)
 
     def update_soil_properties(
         self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False
@@ -902,7 +940,15 @@ class CableSoil(Cable):
 
 
 class CableAir(Cable):
-    """Finite difference cable model with air discretization."""
+    """Finite difference cable model with air discretization.
+
+    Attributes:
+        _bottomright_index (tuple[int, int]): Index tuple (row, col) for accessing the bottom-right element
+            of the banded matrix used in convection boundary condition updates.
+
+    """
+
+    _bottomright_index: tuple[int, int] = (1, -1)
 
     def __init__(
         self,
@@ -964,28 +1010,27 @@ class CableAir(Cable):
                 [t+1] for the cable.
 
         """
-        temp_solution = previous_solution.copy()
-        theta_N = temp_solution[-1]
-
-        ab = -self._banded_matrix * time_step
-        ab[1, :] += self._capacity_grid
+        A = self._processed_matrix(time_step=time_step)
 
         heating_vector = np.append(heating_vector, 0.0)
         b = heating_vector * time_step + self._capacity_grid * previous_solution
+
+        temp_solution = previous_solution.copy()
+        theta_N = temp_solution[-1]
 
         iteration = 0
         while True:
             iteration += 1
 
-            ab[1, -1] += self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
-            temp_solution = linalg.solve_banded(l_and_u=(1, 1), ab=ab, b=b)
+            A[self._bottomright_index] += self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
+            temp_solution = self._solve_system(A=A, b=b)
 
             if abs(temp_solution[-1] - theta_N) <= _MAX_ERROR_SHEATH:
                 break
             elif iteration >= _MAX_ITERATIONS_PER_TIMESTEP:
                 raise ValueError(f"Solution did not converge after {_MAX_ITERATIONS_PER_TIMESTEP} iterations")
 
-            ab[1, -1] -= self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
+            A[self._bottomright_index] -= self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
             theta_N = temp_solution[-1]
 
         return temp_solution
@@ -1036,7 +1081,55 @@ class CableAir(Cable):
 
 
 class CableTrefoilCircuitSinglePipe(Cable):
-    """Finite difference cable model for a trefoil circuit with a single pipe base class."""
+    """Finite difference cable model for a trefoil circuit with a single pipe base class.
+
+    Attributes:
+        _bottomright_index (tuple[int, int]): Index tuple (row, col) for accessing the bottom-right element
+            of the sparse matrix used in convection boundary condition updates.
+
+    """
+
+    _bottomright_index: tuple[int, int] = (-1, -1)
+
+    def _processed_matrix(self, time_step: float) -> np.ndarray | sparse.lil_matrix:
+
+        ab = self._banded_matrix
+
+        # Convert the banded matrix to a sparse matrix
+        # Use dia format for easy conversion and then convert to lil format to set individual elements
+        A_sparse = sparse.dia_matrix((ab, [1, 0, -1]), shape=(ab.shape[1], ab.shape[1])).tolil()
+
+        # Add coefficients to the matrix, representing adding an internal heat source
+        # that depends on the heat that passes through the cable boundary.
+        A_sparse = self._update_system_with_heat_source(A_sparse)
+
+        A_sparse = -A_sparse * time_step
+        A_sparse += sparse.diags(diagonals=self._capacity_grid[: ab.shape[1]])
+
+        return A_sparse
+
+    @staticmethod
+    def _solve_system(
+        A: np.ndarray | sparse.lil_matrix,
+        b: np.ndarray,
+    ) -> np.ndarray:
+        """Solve the linear system Ax = b using sparse solver.
+
+        Args:
+            A (np.ndarray | sparse.lil_matrix): The finite difference matrix (sparse format for trefoil).
+            b (np.ndarray): The finite difference vector.
+
+        Returns:
+            np.ndarray: The solution vector x.
+
+        Raises:
+            TypeError: If A is not a sparse matrix.
+
+        """
+        if not sparse.issparse(A):
+            raise TypeError(f"Expected sparse matrix, got {type(A).__name__}")
+
+        return sparse.linalg.spsolve(A, b)
 
     def _update_system_with_heat_source(self, A_sparse: sparse.lil_matrix) -> sparse.lil_matrix:
         """Add coefficients to the finite difference matrix.
@@ -1109,125 +1202,6 @@ class CableTrefoilCircuitSinglePipe(Cable):
 class CableTrefoilCircuitSinglePipeInSoil(CableTrefoilCircuitSinglePipe, CableSoil):
     """Finite difference cable model for a trefoil circuit with a single pipe in soil."""
 
-    def integrate_timestep(
-        self,
-        previous_solution: np.ndarray,
-        heating_vector: np.ndarray,
-        time_step: float,
-    ) -> np.ndarray:
-        """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
-
-        We add a heat source between the pipe and the equivalent cable
-        representing the trefoil circuit in the internal heating step. The
-        amount of heat added equals twice the heat loss at the cable sheath,
-        therefore representing the heat three cables in trefoil would
-        generate together. Because we add a heat source between
-        the pipe and the equivalent cable representing the trefoil circuit,
-        the banded array is converted to a sparse matrix and adjusted
-        appropriately before solving the linear system.
-
-        Args:
-            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
-                previous timestep (t).
-            heating_vector (np.ndarray): The finite difference vector [W/m³].
-            time_step (float): The size of the time steps [s] in the linearized
-                time grid.
-
-        Returns:
-            np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
-                the final grid point, at which a boundary condition is enforced.
-
-        """
-        A_banded = self._banded_matrix
-
-        # Convert the banded matrix to a sparse matrix
-        # Use dia format for easy conversion and then convert to lil format to set individual elements
-        A_sparse = sparse.dia_matrix((A_banded, [1, 0, -1]), shape=(A_banded.shape[1], A_banded.shape[1])).tolil()
-
-        # Add coefficients to the matrix, representing adding an internal heat source
-        # that depends on the heat that passes through the cable boundary
-        A_sparse = self._update_system_with_heat_source(A_sparse)
-
-        # Compute the other vectors that are required to solve the linear system
-        capacity_vector = self._capacity_grid[:-1]
-        capacity_diagonal_matrix = sparse.diags(diagonals=capacity_vector)
-
-        return sparse.linalg.spsolve(
-            capacity_diagonal_matrix - time_step * A_sparse,
-            capacity_vector * previous_solution + time_step * heating_vector,
-        )
-
 
 class CableTrefoilCircuitSinglePipeInAir(CableTrefoilCircuitSinglePipe, CableAir):
     """Finite difference cable model for a trefoil circuit with a single pipe in air."""
-
-    def integrate_timestep(
-        self,
-        previous_solution: np.ndarray,
-        heating_vector: np.ndarray,
-        time_step: float,
-    ) -> np.ndarray:
-        """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
-
-        We add a heat source between the pipe and the equivalent cable
-        representing the trefoil circuit in the internal heating step. The
-        amount of heat added equals twice the heat loss at the cable sheath,
-        therefore representing the heat three cables in trefoil would
-        generate together. Because we add a heat source between
-        the pipe and the equivalent cable representing the trefoil circuit,
-        the banded array is converted to a sparse matrix and adjusted
-        appropriately before solving the linear system.
-
-        Args:
-            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
-                previous timestep (t).
-            heating_vector (np.ndarray): The finite difference vector [W/m³].
-            time_step (float): The size of the time steps [s] in the linearized
-                time grid.
-
-        Raises:
-            ValueError:
-                If the convection parameters have not been set for this cable in air.
-
-        Returns:
-            np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
-                the final grid point, at which a boundary condition is enforced.
-
-        """
-        temp_solution = previous_solution.copy()
-        theta_N = temp_solution[-1]
-
-        ab = self._banded_matrix
-
-        heating_vector = np.append(heating_vector, 0.0)
-        b = heating_vector * time_step + self._capacity_grid * previous_solution
-
-        # Convert the banded matrix to a sparse matrix
-        # Use dia format for easy conversion and then convert to lil format to set individual elements
-        A_sparse = sparse.dia_matrix((ab, [1, 0, -1]), shape=(ab.shape[1], ab.shape[1])).tolil()
-
-        # Add coefficients to the matrix, representing adding an internal heat source
-        # that depends on the heat that passes through the cable boundary.
-        A_sparse = self._update_system_with_heat_source(A_sparse)
-
-        A_sparse = -A_sparse * time_step
-        A_sparse += sparse.diags(diagonals=self._capacity_grid)
-
-        iteration = 0
-        while True:
-            iteration += 1
-
-            # Update the last diagonal element at each iteration
-            A_sparse[-1, -1] += self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
-
-            temp_solution = sparse.linalg.spsolve(A=A_sparse, b=b)
-
-            if abs(temp_solution[-1] - theta_N) <= _MAX_ERROR_SHEATH:
-                break
-            elif iteration >= _MAX_ITERATIONS_PER_TIMESTEP:
-                raise ValueError(f"Solution did not converge after {_MAX_ITERATIONS_PER_TIMESTEP} iterations")
-
-            A_sparse[-1, -1] -= self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
-            theta_N = temp_solution[-1]
-
-        return temp_solution
