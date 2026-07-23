@@ -20,8 +20,8 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
+from cable_thermal_model.model.cables.cable import CableAir
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
-from cable_thermal_model.model.cables.fd_cable import FDCableInAir
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir, ScenarioSchemaSoil
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
@@ -251,7 +251,7 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: DataFrame[Sce
     # Select a cable from the circuit
     cable_key = list(model.cables.keys())[0]
     cable = model.cables[cable_key].cable
-    assert isinstance(cable, FDCableInAir)
+    assert isinstance(cable, CableAir)
     assert cable.convection_coefficient is not None
     steady_state_solution = steady_state.self_heating_contribution[cable_key]
 

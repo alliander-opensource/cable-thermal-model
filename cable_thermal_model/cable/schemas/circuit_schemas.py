@@ -11,7 +11,11 @@ from cable_thermal_model.cable.cable_builder import CableT
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
 from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstructionalInputSchema
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
-from cable_thermal_model.model.cables.fd_cable import FDCable, FDCableInAir, FDCableTrefoilCircuitInSinglePipe
+from cable_thermal_model.model.cables.cable import (
+    Cable,
+    CableAir,
+    CableTrefoilCircuitSinglePipe,
+)
 
 
 class BaseCircuitConfiguration(BaseModel):
@@ -28,9 +32,9 @@ BaseCircuitConfigurationT = TypeVar("BaseCircuitConfigurationT", bound=BaseCircu
 
 
 class CircuitConfiguration(BaseCircuitConfiguration):
-    """Circuit configuration that holds a pre-built FDCable instance."""
+    """Circuit configuration that holds a pre-built Cable instance."""
 
-    cable: FDCable = Field(description="Cable object to use in this configuration.")
+    cable: Cable = Field(description="Cable object to use in this configuration.")
 
 
 class CircuitConfigurationCableNotBuild(BaseCircuitConfiguration):
@@ -40,18 +44,18 @@ class CircuitConfigurationCableNotBuild(BaseCircuitConfiguration):
 
     @computed_field  # type: ignore[misc]
     @property
-    def fd_cable_class(self) -> type[FDCable]:
-        """Determine FDCable implementation for this configuration.
+    def cable_class(self) -> type[Cable]:
+        """Determine Cable implementation for this configuration.
 
         Returns:
-            type[FDCable]: `FDCableTrefoilCircuitInSinglePipe` when a trefoil
-                single-pipe configuration is requested, otherwise `FDCable`.
+            type[Cable]: `CableTrefoilCircuitSinglePipeInSoil` when a trefoil
+                single-pipe configuration is requested, otherwise `CableSoil`.
 
         """
         if self.pipe is not None and self.pipe.trefoil_circuit_in_single_pipe:
-            return FDCableTrefoilCircuitInSinglePipe
+            return CableTrefoilCircuitSinglePipe
 
-        return FDCable
+        return Cable
 
 
 class CircuitConfigurationFromCableId(CircuitConfigurationCableNotBuild):
@@ -86,11 +90,11 @@ class BaseCircuitInputSchema(BaseModel, Generic[BaseCircuitConfigurationT]):
     )
 
 
-class Cable(BaseModel, Generic[CableT]):
+class CableInput(BaseModel, Generic[CableT]):
     """Schema carrying a pre-built cable instance."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    cable: CableT = Field(..., description="FDCable instance to use in the circuit")
+    cable: CableT = Field(..., description="Cable instance to use in the circuit")
 
 
 class CableId(BaseModel):
@@ -120,7 +124,7 @@ class CircuitInAirProperties(BaseModel):
     clipped_to_wall: bool = Field(default=False, description="Indicator if the circuit is clipped to a wall")
 
 
-class CircuitFromCableInputSchema(BaseCircuitInputSchema[CircuitConfiguration], Cable[CableT], Generic[CableT]):
+class CircuitFromCableInputSchema(BaseCircuitInputSchema[CircuitConfiguration], CableInput[CableT], Generic[CableT]):
     """Input schema for the `add_circuit_from_cable` method of the StaticEnvironment class."""
 
 
@@ -141,7 +145,7 @@ class CircuitFromCableIdInputSchema(BaseCircuitInputSchema[CircuitConfigurationF
     """Input schema for the `add_circuit_from_cable_id` method of the StaticEnvironment class."""
 
 
-class CircuitInSoilFromCableInputSchema(CircuitFromCableInputSchema[FDCable], CircuitInSoilProperties):
+class CircuitInSoilFromCableInputSchema(CircuitFromCableInputSchema[Cable], CircuitInSoilProperties):
     """Input schema for the `add_circuit_from_cable` method of the StaticEnvironmentSoil class."""
 
 
@@ -158,7 +162,7 @@ class CircuitInSoilFromCableIdInputSchema(CircuitFromCableIdInputSchema, Circuit
     """Input schema for the `add_circuit_from_cable_id` method of the StaticEnvironmentSoil class."""
 
 
-class CircuitInAirFromCableInputSchema(CircuitFromCableInputSchema[FDCableInAir], CircuitInAirProperties):
+class CircuitInAirFromCableInputSchema(CircuitFromCableInputSchema[CableAir], CircuitInAirProperties):
     """Input schema for the `add_circuit_from_cable` method of the StaticEnvironmentAir class."""
 
 

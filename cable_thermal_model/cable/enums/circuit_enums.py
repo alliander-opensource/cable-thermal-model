@@ -15,7 +15,7 @@ class BondingType(StrEnum):
 
 
 class CircuitType(StrEnum):
-    """Circuit type of a cable configuration."""
+    """Circuit type of cable configuration."""
 
     Trefoil = "trefoil"
     Linear = "linear"

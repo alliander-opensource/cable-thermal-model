@@ -23,8 +23,8 @@ from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
+from cable_thermal_model.model.cables.cable import Cable, CableAir, CableSoil, CableTrefoilCircuitSinglePipeInAir
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
-from cable_thermal_model.model.cables.fd_cable import FDCable, FDCableInAir, FDCableTrefoilCircuitInSinglePipeInAir
 
 
 def test_compute_hash_is_deterministic(single_circuit_env: StaticEnv):
@@ -36,8 +36,8 @@ def test_compute_hash_is_deterministic(single_circuit_env: StaticEnv):
     assert len(fingerprint) == 64
 
 
-def test_cable_field_validation_cable_in_air(single_core_cable_xlpe: FDCable):
-    with pytest.raises(ValidationError, match="Input should be an instance of FDCableInAir"):
+def test_cable_field_validation_cable_in_air(single_core_cable_xlpe: CableAir):
+    with pytest.raises(ValidationError, match="Input should be an instance of CableAir"):
         CircuitInAirFromCableInputSchema(
             circuit_name="c1",
             cable=single_core_cable_xlpe,
@@ -55,7 +55,7 @@ def test_basic_single_circuit(single_circuit_env: StaticEnvSoil):
     assert number_of_circuits == 1
 
 
-def test_basic_two_circuits(single_circuit_env: StaticEnvSoil, three_core_cable_xlpe: FDCable):
+def test_basic_two_circuits(single_circuit_env: StaticEnvSoil, three_core_cable_xlpe: CableSoil):
     """Check if the correct number of cables and number of circuits is retrieved."""
     single_circuit_env.add_circuit_from_cable(
         CircuitInSoilFromCableInputSchema(
@@ -73,7 +73,7 @@ def test_string_representation(single_circuit_env: StaticEnvSoil, single_circuit
     assert str(single_circuit_in_air_env) == "StaticEnvAir with circuits: c1"
 
 
-def test_add_existing_circuit_name_to_static_env(single_circuit_env: StaticEnvSoil, three_core_cable_xlpe: FDCable):
+def test_add_existing_circuit_name_to_static_env(single_circuit_env: StaticEnvSoil, three_core_cable_xlpe: CableSoil):
     """Check if adding a circuit with an existing name raises a ValueError."""
     with pytest.raises(ValueError, match="c1 already exists in environment. Circuit names should be unique."):
         single_circuit_env.add_circuit_from_cable(
@@ -293,7 +293,7 @@ def test_staticenv_add_circuit_in_air_from_cable_id_trefoil_in_single_pipe():
 
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
     cable = static_env.get_cable(cable_key).cable
-    assert isinstance(cable, FDCableTrefoilCircuitInSinglePipeInAir)
+    assert isinstance(cable, CableTrefoilCircuitSinglePipeInAir)
 
     # Verify that the bonding type is inferred correctly
     assert static_env.circuits["c1"].bonding == BondingType.TwoSided
@@ -315,7 +315,7 @@ def test_staticenv_get_circuit_type(
 ):
     """Tests retrieving the proper circuit_type from an environment."""
     env = request.getfixturevalue(env_fixture)
-    cable: FDCable = request.getfixturevalue(cable_fixture)
+    cable: Cable = request.getfixturevalue(cable_fixture)
     if cable.conductor.number_of_conductors == 1:
         with pytest.warns(UserWarning) as record:
             assert env.get_circuit_type(cable) == expected
@@ -340,7 +340,7 @@ def test_staticenv_get_circuit_type(
 def test_staticenv_get_cable(env_fixture: str, cable_key: CableKey, request: pytest.FixtureRequest):
     """Tests if the cable is retrieved correctly."""
     env: StaticEnvSoil = request.getfixturevalue(env_fixture)
-    actual_cable_name = env.get_cable(cable_key).name
+    actual_cable_name = env.get_cable(cable_key).key
     assert actual_cable_name == cable_key
 
 
@@ -432,7 +432,7 @@ def test_get_convection_parameters(
 ):
     """Tests if the correct convection parameters are set for different circuit types and clipping to wall."""
     cable = request.getfixturevalue(cable_fixture)
-    assert isinstance(cable, FDCableInAir)
+    assert isinstance(cable, CableAir)
     Z, E, Cg = env_air._get_convection_parameters(
         circuit_type=circuit_type,
         dist=dist,
@@ -442,7 +442,7 @@ def test_get_convection_parameters(
     assert (Z, E, Cg) == expected_parameters
 
 
-def test_set_convection_parameters(env_air: StaticEnvAir, single_core_cable_xlpe_in_air: FDCableInAir):
+def test_set_convection_parameters(env_air: StaticEnvAir, single_core_cable_xlpe_in_air: CableAir):
     """Tests if the convection parameters are set correctly when adding a circuit from a cable id."""
     env_air.add_circuit_from_cable_id(
         CircuitInAirFromCableIdInputSchema(
@@ -452,12 +452,12 @@ def test_set_convection_parameters(env_air: StaticEnvAir, single_core_cable_xlpe
         )
     )
     cable = env_air.get_cable(CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilTop)).cable
-    assert isinstance(cable, FDCableInAir)
+    assert isinstance(cable, CableAir)
     assert cable.convection_params is not None
     assert (cable.convection_params.Z, cable.convection_params.E, cable.convection_params.Cg) == (0.96, 1.25, 0.20)
 
 
-def test_set_convection_parameters_value_error(env_air: StaticEnvAir, single_core_cable_xlpe_in_air: FDCableInAir):
+def test_set_convection_parameters_value_error(env_air: StaticEnvAir, single_core_cable_xlpe_in_air: CableAir):
     """Tests if a ValueError is raised when no convection parameters are set for the given circuit type."""
     with pytest.raises(ValueError, match="No convection parameters set for None"):
         env_air._get_convection_parameters(

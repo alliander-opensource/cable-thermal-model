@@ -1,35 +1,46 @@
 # SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 #
 # SPDX-License-Identifier: MPL-2.0
-
-
 from copy import deepcopy
 
 import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
 
-from cable_thermal_model.cable.cable_circuit import (
-    CableKey,
-    PosCable,
-    add_soil_layer,
-    return_mirror_cable,
-)
-from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
+from cable_thermal_model import CableKey, StaticEnvSoil
+from cable_thermal_model.cable.cable_circuit import PosCable, return_mirror_cable
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.model import Model
-from cable_thermal_model.model.schemas import StateSoil
-from cable_thermal_model.model.schemas.model_input_schemas import (
-    THERMAL_CAPACITY_COLUMN,
-    THERMAL_RESISTIVITY_COLUMN,
-    ScenarioSchemaSoil,
-)
+from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
+from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
-class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil]):
+class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil, CableSoil]):
     """ModelSoil computes temperatures for underground power cables using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvSoil and a valid scenario, then executed via `run()`.
+
+
+    Class Attributes:
+        _run_options_class:                 The class used for run options.
+        _state_class:                       The class used for the state of the model.
+        _scenario_schema_cls:               The class used for the scenario schema.
+
+    Attributes:
+        mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
+                                            environment
+        logarithmic_soil_gridpoint_density: The density of grid points in the soil layers, this is used to compute
+                                            the number of grid points in the soil layers based on their thickness.
+                                            The default value is 20 grid points per factor 2 increase in soil layer
+                                            thickness. For a cable with radius of 3.1 cm and a soil layer radius
+                                            1 m,
+                                            this would result in 100 grid points in the soil layer.
+        minimal_soil_radius:                The minimal soil radius around a cable. For deeply buried cables, the
+                                            soil radius is set to 2.5 times the cable depth, this parameter sets
+                                            a lower bound to prevent very small soil layers for shallow cables.
+
+    .
     """
 
     _run_options_class = ModelSoilRunOptions
@@ -46,19 +57,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             static_env: A StaticEnvSoil instance containing the soil thermal parameters and cable layout.
             scenario: A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic load and soil data.
 
-        Attributes:
-            mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
-                                                environment
-            logarithmic_soil_gridpoint_density: The density of grid points in the soil layers, this is used to compute
-                                                the number of grid points in the soil layers based on their thickness.
-                                                The default value is 20 grid points per factor 2 increase in soil layer
-                                                thickness. For a cable with radius of 3.1 cm and a soil layer radius
-                                                1 m,
-                                                this would result in 100 grid points in the soil layer.
-            minimal_soil_radius:                The minimal soil radius around a cable. For deeply buried cables, the
-                                                soil radius is set to 2.5 times the cable depth, this parameter sets
-                                                a lower bound to prevent very small soil layers for shallow cables.
-
         """
         if not isinstance(static_env, StaticEnvSoil):
             raise ValueError(
@@ -68,8 +66,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             )
 
         # Set up cables
-        self.cables_with_soil: dict[CableKey, PosCable] = {}
-        self.mirror_cables_with_soil: dict[CableKey, PosCable] = {}
+        self.cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
+        self.mirror_cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
         self.logarithmic_soil_gridpoint_density: float = 20
         self.minimal_soil_radius: float = 5.0
         self.last_soil_property_update_day: int = 0
@@ -118,21 +116,8 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         # The outer boundary is treated as ambient.
 
         super()._initialize_cables()
-        cables_with_soil = {}
 
-        for key, pos_cable in self.cables.items():
-            soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
-
-            # Instantiate FDCable objects with the added soil layer.
-            cables_with_soil[key] = add_soil_layer(
-                deepcopy(pos_cable),
-                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
-                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
-                soil_radius=soil_radius,
-                logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
-            )
-
-        self.cables_with_soil = cables_with_soil
+        self._initialize_cables_with_soil()
 
         # Create mirror cables to enforce the T=0 boundary condition on y=0.
         self.mirror_cables_with_soil = {
@@ -140,7 +125,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         }
 
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable]:
+    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableSoil]]:
         """Return the cables used to assemble finite difference vectors."""
         return self.cables_with_soil
 
@@ -160,9 +145,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             mutual_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
         )
 
+    @staticmethod
     def _sum_heating_contributions(
-        self,
-        cables: dict[CableKey, PosCable],
+        cables: dict[CableKey, PosCable[CableSoil]],
         self_heating_contribution: dict[CableKey, np.ndarray],
         x: float,
         y: float,
@@ -247,8 +232,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
                 soil_drying=soil_drying,
             )
 
+    @staticmethod
     def _check_if_daily_update_due(
-        self, seconds_since_start_scenario: float, last_soil_property_update_day: int
+        seconds_since_start_scenario: float, last_soil_property_update_day: int
     ) -> tuple[bool, int]:
         """Check if a daily update of soil properties is due based on the time elapsed since the start of the scenario.
 
@@ -427,3 +413,33 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         state.mutual_heating_contribution = new_mutual_heating_contribution
 
         return state
+
+    def _initialize_cables_with_soil(
+        self,
+    ) -> None:
+        """Add soil layers to cable attribute of the given PosCable.
+
+        Returns:
+            New PosCable instance where the only difference is that the cable now has soil layers.
+
+        """
+        for key, pos_cable in self.cables.items():
+            soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
+
+            # Instantiate Cable objects with the added soil layer
+            pos_cable_ = deepcopy(pos_cable)
+            cable_in_soil = pos_cable_.cable.from_cable_with_added_soil_layer(
+                cable=pos_cable_.cable,
+                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
+                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
+                soil_radius=soil_radius,
+                logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
+            )
+
+            self.cables_with_soil[key] = PosCable[CableSoil](
+                cable=cable_in_soil,
+                x=pos_cable_.x,
+                y=pos_cable_.y,
+                circuit_name=pos_cable_.circuit_name,
+                cable_position=pos_cable_.cable_position,
+            )

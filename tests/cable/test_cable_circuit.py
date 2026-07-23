@@ -67,12 +67,16 @@ from cable_thermal_model.cable.cable_circuit import (
     TrefoilCircuit,
     TrefoilCircuitInSinglePipe,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
+from cable_thermal_model.cable.schemas.circuit_schemas import (
+    CircuitFromCableInputSchema,
+    CircuitInSoilFromCableIdInputSchema,
+    CircuitInSoilFromCableInputSchema,
+)
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.abstract_cable import WeightedScreenImpedance
+from cable_thermal_model.model.cables.cable import CableSoil, CableTrefoilCircuitSinglePipeInSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableScreenLossType, PipeFillType
-from cable_thermal_model.model.cables.fd_cable import FDCable, FDCableTrefoilCircuitInSinglePipe
 
 # CONSTANTS
 _RADIAL_APPROXIMATION_RESOLUTION_IN_METERS = 1e-9
@@ -106,7 +110,7 @@ def test_screen_loss_function_linear_1x630(
 ):
     """Compares steady state temperature with VCA for a circuit in flat formation."""
     test_cable = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", fd_cable_class=FDCable
+        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", cable_class=CableSoil
     )
     test_circuit = LinearCircuit(
         CircuitInitData(
@@ -147,7 +151,7 @@ def test_screen_loss_function_trefoil_1x630(
 ):
     """Compares steady state temperature with VCA for a circuits in trefoil formation."""
     test_cable = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", fd_cable_class=FDCable
+        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", cable_class=CableSoil
     )
     circuit = TrefoilCircuit(CircuitInitData(x=0, y=-1, cable=test_cable, circuit_name="c1", bonding_type=bonding_type))
     circuit.initialize_screen_loss_functions()
@@ -197,7 +201,7 @@ def test_screen_loss_function_linear(
     The soil parameters used in this test are an ambient temperature of
     15 [degC] and a thermal resistivity of 0.75 [Km/W].
     """
-    test_cable = CableBuilder.build_cable_from_cable_id(cable_id="OD 50kV 1x400Cu", fd_cable_class=FDCable)  # type: ignore
+    test_cable = CableBuilder.build_cable_from_cable_id(cable_id="OD 50kV 1x400Cu", cable_class=CableSoil)  # type: ignore
     circuit = LinearCircuit(
         CircuitInitData(
             x=0,
@@ -243,7 +247,7 @@ def test_screen_loss_function_trefoil(
 
     VCA numbers are based on environment with 15 [degC] ambient temperature and thermal reisitivity of 0.75 [Km/W].
     """
-    test_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, pipe=pipe, fd_cable_class=FDCable)
+    test_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, pipe=pipe, cable_class=CableSoil)
     circuit = TrefoilCircuit(CircuitInitData(x=0, y=-1, cable=test_cable, circuit_name="c1"))
     circuit.initialize_screen_loss_functions()
     circuit_cable = circuit.cables[0].cable
@@ -257,7 +261,7 @@ def test_screen_loss_function_trefoil(
 def test_initialize_screen_loss_functions_with_erroneous_parameters():
     # Preparation:
     adjusted_single_core_cable = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", fd_cable_class=FDCable
+        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", cable_class=CableSoil
     )
 
     fake_cable_type = 999
@@ -274,17 +278,26 @@ def test_initialize_screen_loss_functions_with_erroneous_parameters():
     assert str(val_error.value) == expected_error_string
 
 
-def test_cable_circuit_builder_basic_usage_using_cable_id():
+def test_cable_circuit_builder_basic_usage_using_cable():
     """Note: The from_cable() method is already covered via other tests."""
     # Preparation
     cable_id = "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"
     screen_temp = 85.2
     conductor_temp = 90.0
 
+    cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
+
     # Generation
-    test_circuit = CircuitBuilder.from_cable_id(
-        x=0, y=0, circuit_type=CircuitType.Trefoil, cable_id=cable_id, circuit_name="Test circuit"
+    test_circuit = CircuitBuilder.from_cable(
+        CircuitFromCableInputSchema[CableSoil](
+            cable=cable,
+            circuit_name="Test circuit",
+            circuit_type=CircuitType.Trefoil,
+        )
     )
+    # test_circuit = CircuitBuilder.from_cable_id(
+    #     x=0, y=0, circuit_type=CircuitType.Trefoil, cable_id=cable_id, circuit_name="Test circuit"
+    # )
     ctm_lambda1 = test_circuit.cables[0].cable.get_cable_screen_loss_factor(screen_temp, conductor_temp)
 
     # Evaluation
@@ -329,13 +342,11 @@ def test_cable_y_position(
     y_expected: float,
 ):
     # Generation
-    test_circuit = CircuitBuilder.from_cable_id(
-        x=0,
-        y=-1.0,
-        circuit_type=circuit_type,
-        cable_id=cable_id,
-        circuit_name="Test circuit",
-        y_ref=y_ref,
+    cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
+    test_circuit = CircuitBuilder.from_cable(
+        CircuitInSoilFromCableInputSchema(
+            cable=cable, circuit_name="Test circuit", circuit_type=circuit_type, x=0, y=-1.0, y_ref=y_ref
+        ),
     )
     # Evaluation
     # Verify Radii to confirm the building of the proper cable
@@ -377,7 +388,7 @@ def test_symmetric_sheath_currents_invalid_input():
     ],
 )
 def test_trefoil_in_single_pipe_screen_loss_function(
-    single_core_cable_xlpe: FDCable,
+    single_core_cable_xlpe: CableSoil,
     bonding_type: BondingType,
     expected_screen_loss_type: CableScreenLossType,
     weighted_reactance_matrix: np.ndarray | None,
@@ -408,7 +419,7 @@ def test_trefoil_in_single_pipe_screen_loss_function(
 
 
 def test_trefoil_in_single_pipe_screen_loss_function_non_symmetric_matrix(
-    single_core_cable_xlpe: FDCable,
+    single_core_cable_xlpe: CableSoil,
 ):
     test_circuit = TrefoilCircuitInSinglePipe(
         CircuitInitData(
@@ -433,7 +444,7 @@ def test_trefoil_in_single_pipe_screen_loss_function_non_symmetric_matrix(
 
 
 def test_get_relative_screen_distances_trefoil_in_single_pipe(
-    single_core_cable_xlpe: FDCable,
+    single_core_cable_xlpe: CableSoil,
 ):
     test_circuit = TrefoilCircuitInSinglePipe(
         CircuitInitData(
@@ -459,7 +470,7 @@ def test_get_relative_screen_distances_trefoil_in_single_pipe(
 
 
 def test_get_relative_screen_distance_trefoil_compare_with_trefoil_in_single_pipe(
-    single_core_cable_xlpe: FDCable,
+    single_core_cable_xlpe: CableSoil,
 ):
     """Compare relative screen distances of TrefoilCircuit and TrefoilCircuitInSinglePipe.
 
@@ -536,7 +547,7 @@ def test_trefoil_circuit_in_single_pipe_initialization():
     cable = CableBuilder.build_cable_from_cable_id(
         cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
         pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
-        fd_cable_class=FDCableTrefoilCircuitInSinglePipe,
+        cable_class=CableTrefoilCircuitSinglePipeInSoil,
     )
     test_circuit = TrefoilCircuitInSinglePipe(CircuitInitData(x=0, y=-1, cable=cable, circuit_name="c1"))
 
@@ -561,7 +572,7 @@ def test_trefoil_in_single_pipe_trefoil_circuit_error():
     ):
         cable = CableBuilder.build_cable_from_cable_id(
             cable_id="YMeKrvaslqwd 12/20kV 3x240 Alrm + as50",
-            fd_cable_class=FDCable,
+            cable_class=CableSoil,
             pipe=PipeInputSchema(
                 fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True, inner_radius=0.1, outer_radius=0.2
             ),
