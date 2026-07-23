@@ -32,6 +32,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInSoilFromCableInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.environment.measurement_point import MeasurementPointKey
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable import CableAir, CableSoil, CableTrefoilCircuitSinglePipeInSoil
@@ -86,6 +87,22 @@ def model_dynamic_soil(
     single_circuit_env: StaticEnvSoil, scenario_dynamic_soil_prop: DataFrame[ScenarioSchemaSoil]
 ) -> Model:
     return ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_dynamic_soil_prop)
+
+
+@pytest.fixture(scope="function")
+def model_with_measurement_points(
+    single_circuit_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioSchemaSoil]
+) -> tuple[Model, MeasurementPointKey, MeasurementPointKey]:
+    """Create a model with measurement points added to the environment."""
+    # Add measurement points to the environment
+    key1 = single_circuit_env.add_measurement_point(x=0.1, y=-1.0)
+    key2 = single_circuit_env.add_measurement_point(x=0.3, y=-1.0)
+
+    return (
+        ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_constant),
+        key1,
+        key2,
+    )
 
 
 # Environments

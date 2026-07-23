@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from pathlib import Path
 
 import pandas as pd
 
@@ -17,6 +16,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInSoilFromCableInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.environment.measurement_point import MeasurementPointKey, MeasurementPointRegistry
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.cables.cable import CableSoil, CableTrefoilCircuitSinglePipeInSoil
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
@@ -32,6 +32,11 @@ class StaticEnvSoil(
     ]
 ):
     """Class that builds a static environment for circuits in soil."""
+
+    def __init__(self):
+        """Initialize the StaticEnvSoil instance."""
+        super().__init__()
+        self._measurement_point_registry = MeasurementPointRegistry()
 
     def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableSoil]:
         return (
@@ -74,10 +79,28 @@ class StaticEnvSoil(
          Args:
             file_name: A string representation of one of the files in the circuits folder
         """
-        root_path = Path(__file__).parent.parent.parent.resolve()
-        circuits_ = pd.read_csv(root_path / circuits_path() / file_name, sep=";")
+        circuits_ = pd.read_csv(circuits_path() / file_name, sep=";")
         circuits_["circuit_type"] = circuits_["circuit_type"].apply(self._convert_circuit_type)
         circuits_["pipe"] = circuits_["pipe"].apply(self._convert_pipe)
         for _, row in circuits_.iterrows():
             self.add_circuit_from_cable_id(CircuitInSoilFromCableIdInputSchema(**dict(row)))
         return self
+
+    def add_measurement_point(self, x: float, y: float, ndigits: int = 3) -> MeasurementPointKey:
+        """Add a measurement point to the environment.
+
+        Args:
+            x: x-coordinate of the measurement point.
+            y: y-coordinate of the measurement point.
+
+            ndigits: Number of decimal places to round the coordinates for key generation.
+
+        Returns:
+            MeasurementPointKey: The identifier of the added measurement point.
+
+        """
+        return self._measurement_point_registry.add_measurement_point(
+            x=x,
+            y=y,
+            ndigits=ndigits,
+        )
