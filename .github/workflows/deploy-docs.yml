@@ -21,10 +21,14 @@ concurrency:
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
     runs-on:
       group: managed
     permissions:
       contents: write
+      pages: write
+      id-token: write
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
@@ -45,10 +49,13 @@ jobs:
         run: |
           uv run mkdocs build --strict --verbose
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
-        # Only deploy on pushes to main branch (not on PRs)
-        if: github.ref == 'refs/heads/main'
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        # Only deploy on pushes to main branch (not on PRs)
+#        if: github.ref == 'refs/heads/main'
