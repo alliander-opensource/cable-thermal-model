@@ -38,3 +38,6 @@ updates:
       prefix: "deps"
     schedule:
       interval: "weekly"
+    labels:
+      - dependencies
+      - pre-commit
