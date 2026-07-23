@@ -710,7 +710,7 @@ class Cable(AbstractCable):
         """Solve the linear system Ax = b.
 
         Args:
-            A (np.ndarray | sparse.lil_matrix): The finite difference matrix (banded format for CableAir).
+            A (np.ndarray | sparse.lil_matrix): The finite difference matrix.
             b (np.ndarray): The finite difference vector.
 
         Returns:
@@ -1012,8 +1012,7 @@ class CableAir(Cable):
         """
         A = self._processed_matrix(time_step=time_step)
 
-        heating_vector = np.append(heating_vector, 0.0)
-        b = heating_vector * time_step + self._capacity_grid * previous_solution
+        b = np.append(heating_vector, 0.0) * time_step + self._capacity_grid * previous_solution
 
         temp_solution = previous_solution.copy()
         theta_N = temp_solution[-1]
