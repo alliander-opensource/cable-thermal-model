@@ -243,7 +243,7 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
     pos_cable = PosCable(
         circuit_name="test_circuit", cable_position=CablePosition.Single, cable=single_core_cable_xlpe, x=0.0, y=0.0
     )
-    cable_key = pos_cable.name
+    cable_key = pos_cable.key
 
     # Test 1: Matching keys should pass
     valid_full_solution = {cable_key: np.array([20.0])}

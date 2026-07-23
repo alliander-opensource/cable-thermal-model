@@ -9,13 +9,13 @@ import pytest
 from cable_thermal_model.cable.enums.circuit_enums import CircuitType
 from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 
 
-def test_single_core_xlpe(single_core_cable_xlpe: FDCable):
+def test_single_core_xlpe(single_core_cable_xlpe: CableSoil):
     expected_number_of_cable_layers = 7
     assert len(single_core_cable_xlpe.layers) == expected_number_of_cable_layers
     assert (
@@ -24,7 +24,7 @@ def test_single_core_xlpe(single_core_cable_xlpe: FDCable):
     )
 
 
-def test_single_core_pilc(single_core_cable_pilc: FDCable):
+def test_single_core_pilc(single_core_cable_pilc: CableSoil):
     expected_number_of_cable_layers = 7
     assert len(single_core_cable_pilc.layers) == expected_number_of_cable_layers
     assert (
@@ -33,7 +33,7 @@ def test_single_core_pilc(single_core_cable_pilc: FDCable):
     )
 
 
-def test_three_core(three_core_cable_pilc: FDCable):
+def test_three_core(three_core_cable_pilc: CableSoil):
     expected_number_of_cable_layers = 6
     assert len(three_core_cable_pilc.layers) == expected_number_of_cable_layers
     assert (
@@ -71,7 +71,7 @@ def test_3core_pilc_run(
     expected_temperature_conductor: float,
     expected_temperature_sheath: float,
     soil_thermal_resistivity: float,
-    three_core_cable_pilc: FDCable,
+    three_core_cable_pilc: CableSoil,
     max_absolute_temperature_error: float,
 ):
     scenario = pd.DataFrame(index=pd.timedelta_range("0 days", "30000 days", periods=5))
@@ -126,7 +126,7 @@ def test_3core_xlpe_run(
     expected_temperature_conductor: float,
     expected_temperature_sheath: float,
     soil_thermal_resistivity: float,
-    three_core_cable_xlpe: FDCable,
+    three_core_cable_xlpe: CableSoil,
     max_absolute_temperature_error: float,
 ):
     scenario = pd.DataFrame(index=pd.timedelta_range("0 days", "30000 days", periods=5))

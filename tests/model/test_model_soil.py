@@ -29,8 +29,8 @@ from cable_thermal_model.environment.measurement_point import MeasurementPointKe
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import ModelOutputSchema
+from cable_thermal_model.model.cables.cable import Cable, CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import StateAir
 from cable_thermal_model.model.model_soil import ModelSoil, StateSoil
@@ -575,7 +575,7 @@ def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil
     for pos_cable in model.cables_with_soil.values():
         update_mock = mock.Mock()
         pos_cable.cable.update_soil_properties = update_mock
-        update_mocks[pos_cable.name] = update_mock
+        update_mocks[pos_cable.key] = update_mock
 
     model._update_soil_properties_for_all_cables(
         soil_drying=True,
@@ -901,19 +901,19 @@ def test_different_screen_resistance_in_multiple_configurations(
     else:
         if local_cable_id == first_cable_id == second_cable_id:
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert np.isclose(cable.weighted_screen_impedance.weighted_resistance_factor, 1.0)
 
         elif local_cable_id == "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50":
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert cable.weighted_screen_impedance.weighted_resistance_factor > 1.0
 
         elif local_cable_id == "YMeKrvaslqwd 12/20kV 1x630 Alrm + as35":
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert cable.weighted_screen_impedance.weighted_resistance_factor < 1.0
 
@@ -1005,7 +1005,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
 
     # Test 2: state=StateSoil instance should pass
     pos_cable = env.cables[CableKey(circuit_name=circuit_name, cable_position=CablePosition.Single)]
-    cable_key = pos_cable.name
+    cable_key = pos_cable.key
 
     valid_state = StateSoil(
         static_env_hash=env.compute_hash(),
@@ -1031,7 +1031,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         model._validate_initial_state(invalid_state)
 
 
-def test_cable_without_screen(simple_cable: FDCable):
+def test_cable_without_screen(simple_cable: CableSoil):
     """Test that when adding a cable without screen, the bonding type is set to NoBonding."""
     # No screen input provided, should be able to create a cable without
     # screen and model should set bonding type to NoBonding.

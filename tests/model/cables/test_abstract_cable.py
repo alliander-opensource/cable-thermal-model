@@ -20,20 +20,20 @@ Notes:
 import numpy as np
 import pytest
 
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableScreenLossType
-from cable_thermal_model.model.cables.fd_cable import FDCable
 
 
 def test_dielectric_loss(
-    three_core_cable_xlpe: FDCable,
-    three_core_cable_pilc: FDCable,
+    three_core_cable_xlpe: CableSoil,
+    three_core_cable_pilc: CableSoil,
 ):
     """Tests whether no dielectric losses are computed for cables where they should be neglected."""
     assert np.isclose(three_core_cable_xlpe.get_dielectric_loss_for_cable(), 0.0)
     assert np.isclose(three_core_cable_pilc.get_dielectric_loss_for_cable(), 0.0)
 
 
-def test_compute_dielectric_loss_per_conductor(single_core_cable_xlpe: FDCable):
+def test_compute_dielectric_loss_per_conductor(single_core_cable_xlpe: CableSoil):
     """Tests whether the calculated dielectric losses per conductor are meeting the manually calculated losses."""
     # Generation:
     dielectric_loss = single_core_cable_xlpe._compute_dielectric_loss_per_conductor()
@@ -42,7 +42,7 @@ def test_compute_dielectric_loss_per_conductor(single_core_cable_xlpe: FDCable):
     assert np.isclose(dielectric_loss, 0.020190704723891475, atol=0.02)
 
 
-def test_compute_dielectric_loss_per_conductor_three_core(three_core_cable_xlpe: FDCable):
+def test_compute_dielectric_loss_per_conductor_three_core(three_core_cable_xlpe: CableSoil):
     """Tests whether NotImplementedError is raised for three-core cables in the dielectric loss calculation."""
     with pytest.raises(NotImplementedError):
         three_core_cable_xlpe._compute_dielectric_loss_per_conductor()
@@ -87,7 +87,7 @@ def test_abstract_cable_calculate_y_s(single_core_cable_xlpe):
     assert np.isclose(y_s, 0.005187, rtol=0.02)
 
 
-def test_abstract_cable_ac_resistance_conductor(single_core_cable_xlpe: FDCable):
+def test_abstract_cable_ac_resistance_conductor(single_core_cable_xlpe: CableSoil):
     # Generation:
     ac_resistance = single_core_cable_xlpe.get_ac_resistance_conductor(Tc=20, s=0.02)
 
@@ -95,7 +95,7 @@ def test_abstract_cable_ac_resistance_conductor(single_core_cable_xlpe: FDCable)
     assert np.isclose(ac_resistance, 6.338e-05, rtol=0.02)
 
 
-def test_abstract_cable_resistance_screen(single_core_cable_xlpe):
+def test_abstract_cable_resistance_screen(single_core_cable_xlpe: CableSoil):
     # Generation:
     resistance_screen = single_core_cable_xlpe._get_resistance_screen(Ts=20)
 
@@ -103,7 +103,7 @@ def test_abstract_cable_resistance_screen(single_core_cable_xlpe):
     assert np.isclose(resistance_screen, 0.000344, rtol=0.02)
 
 
-def test_abstract_cable_dc_resistance_conductor(single_core_cable_xlpe):
+def test_abstract_cable_dc_resistance_conductor(single_core_cable_xlpe: CableSoil):
     # Generation:
     dc_resistance_conductor = single_core_cable_xlpe.get_dc_resistance_conductor(Tc=20)
 
@@ -112,7 +112,7 @@ def test_abstract_cable_dc_resistance_conductor(single_core_cable_xlpe):
 
 
 def test_get_heat_generation_conductor_and_screen(
-    three_core_cable_pilc: FDCable,
+    three_core_cable_pilc: CableSoil,
 ):
     # Set the screen loss function
     three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter

@@ -18,17 +18,14 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.measurement_point import MeasurementPointKey, MeasurementPointRegistry
 from cable_thermal_model.environment.static_env import StaticEnv
+from cable_thermal_model.model.cables.cable import CableSoil, CableTrefoilCircuitSinglePipeInSoil
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
-from cable_thermal_model.model.cables.fd_cable import (
-    FDCable,
-    FDCableTrefoilCircuitInSinglePipe,
-)
 from data.settings import circuits_path
 
 
 class StaticEnvSoil(
     StaticEnv[
-        FDCable,
+        CableSoil,
         CircuitInSoilFromCableInputSchema,
         CircuitInSoilFromCableConstructionalInputSchema,
         CircuitInSoilFromCableIdInputSchema,
@@ -41,11 +38,11 @@ class StaticEnvSoil(
         super().__init__()
         self._measurement_point_registry = MeasurementPointRegistry()
 
-    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[FDCable]:
+    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableSoil]:
         return (
-            FDCableTrefoilCircuitInSinglePipe
+            CableTrefoilCircuitSinglePipeInSoil
             if CircuitBuilder._is_trefoil_circuit_in_single_pipe(circuit_input.circuit_type, circuit_input.pipe)
-            else FDCable
+            else CableSoil
         )
 
     @property
@@ -78,7 +75,7 @@ class StaticEnvSoil(
 
         This function is used internally only to quickly set up an environment.
 
-         NO CUSTOM FILEPATHS ARE PROCESSED
+         NO CUSTOM FILE PATHS ARE PROCESSED
          Args:
             file_name: A string representation of one of the files in the circuits folder
         """

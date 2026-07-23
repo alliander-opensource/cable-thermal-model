@@ -195,7 +195,7 @@ class AbstractCable:
     """The Abstract base class for cables.
 
     This class represents all physical qualities of a single cable, outside of those specific to FD cables.
-    Abstract cables will be extended by the FDCable class.
+    Abstract cables will be extended by the Cable class.
 
     Attributes:
         conductor (CableConductorProperties): A CableConductorProperties object containing the cable's intended

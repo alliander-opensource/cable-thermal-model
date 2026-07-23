@@ -5,15 +5,15 @@
 import numpy as np
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition
+from cable_thermal_model.model.cables.cable import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.model.model_soil import ModelSoil
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
 RELATIVE_TOLERANCE = 0.001
 
 
-def test_build_cable_fixture(TB880_case_10_fd_cable: FDCable):
+def test_build_cable_fixture(TB880_case_10_fd_cable: CableSoil):
     """Test the build of the FDCable fixture for TB880 case 0.
 
     This is a test of the build process up to section 14-2, not the
@@ -66,7 +66,7 @@ def test_build_cable_fixture(TB880_case_10_fd_cable: FDCable):
     assert np.isclose(R_ac, 3.5935706012e-4, rtol=RELATIVE_TOLERANCE)
 
 
-def test_calculate_loss_for_lead_sheath(TB880_case_10_fd_cable: FDCable):
+def test_calculate_loss_for_lead_sheath(TB880_case_10_fd_cable: CableSoil):
     TB880_case_10_fd_cable.layer_metrics.screen_loss_type = CableScreenLossType.SingleCablePILC
 
     # 14.4 step 1.
