@@ -13,7 +13,7 @@ import pytest
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.cable_spec_parsers import SingleCoreSpecParser, SpecParserFactory, ThreeCoreSpecParser
 from cable_thermal_model.model.cables.abstract_cable import CableConductorType, CableType
-from cable_thermal_model.model.cables.cable import CableSoil
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorMaterial,
     CableConductorShape,

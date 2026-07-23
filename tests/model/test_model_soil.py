@@ -29,7 +29,8 @@ from cable_thermal_model.environment.measurement_point import MeasurementPointKe
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import ModelOutputSchema
-from cable_thermal_model.model.cables.cable import Cable, CableSoil
+from cable_thermal_model.model.cables.cable import Cable
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import StateAir

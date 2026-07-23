@@ -33,9 +33,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
     AbstractCable,
     WeightedScreenImpedance,
 )
-from cable_thermal_model.model.cables.cable import (
-    CableTrefoilCircuitSinglePipe,
-)
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
 from cable_thermal_model.model.cables.enum_classes_cable import CableConductorCount
 from cable_thermal_model.utils.str_utils import tab_lines
 

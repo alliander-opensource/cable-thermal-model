@@ -23,7 +23,10 @@ from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
-from cable_thermal_model.model.cables.cable import Cable, CableAir, CableSoil, CableTrefoilCircuitSinglePipeInAir
+from cable_thermal_model.model.cables.cable import Cable
+from cable_thermal_model.model.cables.cable_air import CableAir
+from cable_thermal_model.model.cables.cable_soil import CableSoil
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInAir
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 
 

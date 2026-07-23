@@ -21,8 +21,8 @@ from cable_thermal_model.model.cables.abstract_cable import (
 )
 from cable_thermal_model.model.cables.cable import (
     Cable,
-    CableTrefoilCircuitSinglePipe,
 )
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorCount,
     CableConductorShape,

@@ -13,9 +13,9 @@ from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstruct
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.cable import (
     Cable,
-    CableAir,
-    CableTrefoilCircuitSinglePipe,
 )
+from cable_thermal_model.model.cables.cable_air import CableAir
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
 
 
 class BaseCircuitConfiguration(BaseModel):
