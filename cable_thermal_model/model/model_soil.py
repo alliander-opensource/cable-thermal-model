@@ -274,10 +274,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         new_self_heating_contribution = {}
         for cable_key, pos_cable in self.cables_with_soil.items():
             heat_equation_solution = pos_cable.cable.integrate_timestep(
-                s=self_heating_contribution[cable_key][:-1],
-                b=vectors[cable_key],
+                previous_solution=self_heating_contribution[cable_key][:-1],
+                heating_vector=vectors[cable_key],
                 time_step=time_step,
-                internal_heating=True,
             )
             # We assume the outer boundary of the soil is at ambient temperature
             new_self_heating_contribution[cable_key] = np.append(heat_equation_solution, 0.0)
@@ -307,17 +306,16 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         new_mutual_heating_contribution = {}
         for cable_key, pos_cable in self.cables.items():
             cable = pos_cable.cable
-            outer_boundary_coupling_coefficient = cable.outer_boundary_coupling_coefficient
+            outer_boundary_coupling_coefficient = cable.upper_diagonal_last_element
 
             # Add the mutual heating to the outermost grid point of the vector
             vector_without_soil = np.zeros(cable.grid_size - 1)
             vector_without_soil[-1] = outer_boundary_coupling_coefficient * mutual_heating_effect[cable_key]
 
             heat_equation_solution = cable.integrate_timestep(
-                s=mutual_heating_contribution[cable_key][:-1],
-                b=vector_without_soil,
+                previous_solution=mutual_heating_contribution[cable_key][:-1],
+                heating_vector=vector_without_soil,
                 time_step=time_step,
-                internal_heating=False,
             )
             new_mutual_heating_contribution[cable_key] = np.append(
                 heat_equation_solution, mutual_heating_effect[cable_key]

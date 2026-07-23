@@ -50,7 +50,7 @@ class Cable(AbstractCable):
 
         self._grid_counts = grid_counts
         self._radii_grid = np.array([], dtype=float)
-        self._grid_deltas = np.array([], dtype=float)
+        self._inter_radii = np.array([], dtype=float)
         self._surface_area_grid = np.array([], dtype=float)
         self._capacity_grid = np.array([], dtype=float)
         self._rho_grid = np.array([], dtype=float)
@@ -81,7 +81,7 @@ class Cable(AbstractCable):
         )
 
     @property
-    def outer_boundary_coupling_coefficient(self) -> float:
+    def upper_diagonal_last_element(self) -> float:
         """Get the outer-boundary coupling coefficient from the finite difference matrix.
 
         The outer-boundary coupling coefficient is a value that represents the thermal interaction at the outer boundary
@@ -183,7 +183,7 @@ class Cable(AbstractCable):
         adding soil or pipe layers these need to be reset. This function can be used to do so.
         """
         self._radii_grid = self._construct_radii_grid()
-        self._grid_deltas = np.diff(self._radii_grid)
+        self._inter_radii = self._radii_grid[:-1] + 0.5 * np.diff(self._radii_grid)
         self._surface_area_grid = self._construct_surface_area_grid(self._radii_grid)
 
         capacity_grids = [
@@ -244,10 +244,9 @@ class Cable(AbstractCable):
 
     def integrate_timestep(
         self,
-        s: np.ndarray,
-        b: np.ndarray,
+        previous_solution: np.ndarray,
+        heating_vector: np.ndarray,
         time_step: float,
-        internal_heating: bool | None = None,
     ) -> np.ndarray:
         """Computes the temperature solution for the next time step.
 
@@ -341,28 +340,56 @@ class Cable(AbstractCable):
 
         """
         radii = self._radii_grid
-        delta_plus = self._grid_deltas[1:]
-        delta_minus = self._grid_deltas[:-1]
-        inter_radii = radii[:-1] + 0.5 * self._grid_deltas
+        inter_radii = self._inter_radii
 
-        inter_rhos = self._calculate_inter_rhos(radii, inter_radii, self._rho_grid)
-        rho_plus = inter_rhos[1:]
-        rho_minus = inter_rhos[:-1]
+        common_factors_first_derivative = self._common_factors_first_derivative(radii, inter_radii, self._rho_grid)
+        common_factors_second_derivative = self._common_factors_second_derivative(radii, inter_radii)
 
-        r = radii[1:-1]
-        r_plus = inter_radii[1:]
-        r_minus = inter_radii[:-1]
-        common_factor = 1 / (r * 0.5 * (delta_plus + delta_minus))
-
-        upper_inner = r_plus * common_factor / (rho_plus * delta_plus)
-        lower_diagonal = r_minus * common_factor / (rho_minus * delta_minus)
-        base_inner = -(upper_inner + lower_diagonal)
+        upper_inter = common_factors_first_derivative[1:] * common_factors_second_derivative
+        lower_diagonal = common_factors_first_derivative[:-1] * common_factors_second_derivative
+        base_inter = -(upper_inter + lower_diagonal)
 
         boundary_value = 2 / (self._rho_grid[0] * inter_radii[0] * radii[1])
-        upper_diagonal = np.append([boundary_value], upper_inner)
-        base_diagonal = np.append([-boundary_value], base_inner)
+        upper_diagonal = np.append([boundary_value], upper_inter)
+        base_diagonal = np.append([-boundary_value], base_inter)
 
         return upper_diagonal, base_diagonal, lower_diagonal
+
+    def _common_factors_first_derivative(
+        self,
+        radii: np.ndarray,
+        inter_radii: np.ndarray,
+        rhos: np.ndarray,
+    ) -> np.ndarray:
+        """Calculate the common factor used in the finite difference matrix for the first derivative.
+
+        Args:
+            radii (np.ndarray): A Numpy array representing the radii grid for the cable.
+            inter_radii (np.ndarray): A Numpy array representing the interstitial radii grid for the cable.
+            rhos (np.ndarray): A Numpy array representing the resistivity values at the grid points.
+
+        Returns:
+            np.ndarray: The common finite difference factor for the first derivative.
+
+        """
+        inter_rhos = self._calculate_inter_rhos(radii=radii, inter_radii=inter_radii, rhos=rhos)
+        radii_deltas = np.diff(radii)
+
+        return inter_radii / (inter_rhos * radii_deltas)
+
+    @staticmethod
+    def _common_factors_second_derivative(radii: np.ndarray, inter_radii: np.ndarray) -> np.ndarray:
+        """Calculate the common factor used in the finite difference matrix.
+
+        Args:
+            radii (np.ndarray): A Numpy array representing the radii grid for the cable.
+            inter_radii (np.ndarray): A Numpy array representing the interstitial radii grid for the cable.
+
+        Returns:
+            np.ndarray: The common finite difference factor for the given radii grid.
+
+        """
+        return 1 / (radii[1:-1] * (inter_radii[1:] - inter_radii[:-1]))
 
     def _update_finite_difference_matrix_diagonals_if_needed(self) -> None:
         """This method updates the three diagonals of the finite difference matrix if they are outdated.
@@ -666,10 +693,9 @@ class CableSoil(Cable):
 
     def integrate_timestep(
         self,
-        s: np.ndarray,
-        b: np.ndarray,
+        previous_solution: np.ndarray,
+        heating_vector: np.ndarray,
         time_step: float,
-        internal_heating: bool | None = None,
     ) -> np.ndarray:
         """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
 
@@ -678,14 +704,11 @@ class CableSoil(Cable):
         N is the length of the diagonal.
 
         Args:
-            s (np.ndarray): The solution of the heat equation [°C] at the
+            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            b (np.ndarray): The finite difference vector [W/m³].
+            heating_vector (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
-            internal_heating (bool | None): A boolean representing whether
-                internal heating is considered in this timestep.
-                This implementation of the method does not use this parameter, but some child classes do.
 
         Returns:
             np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
@@ -694,12 +717,12 @@ class CableSoil(Cable):
         """
         number_of_non_zero_diagonals = (1, 1)  # one upper and one lower diagonal
 
-        A = self._banded_matrix * -time_step
-        A[1, :] += self._capacity_grid[:-1]
+        ab = self._banded_matrix * -time_step
+        ab[1, :] += self._capacity_grid[:-1]
 
-        b = self._capacity_grid[:-1] * s + time_step * b
+        b = self._capacity_grid[:-1] * previous_solution + time_step * heating_vector
 
-        return linalg.solve_banded(l_and_u=number_of_non_zero_diagonals, ab=A, b=b)
+        return linalg.solve_banded(l_and_u=number_of_non_zero_diagonals, ab=ab, b=b)
 
     def update_soil_properties(
         self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False
@@ -920,10 +943,9 @@ class CableAir(Cable):
 
     def integrate_timestep(
         self,
-        s: np.ndarray,
-        b: np.ndarray,
+        previous_solution: np.ndarray,
+        heating_vector: np.ndarray,
         time_step: float,
-        internal_heating: bool | None = True,
     ) -> np.ndarray:
         """Computes the temperature solution for the next time step.
 
@@ -931,55 +953,68 @@ class CableAir(Cable):
         current time step [t], the finite difference matrix, and the vector for [t].
 
         Args:
-            s (np.ndarray): The solution of the heat equation [°C] at the
+            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            b (np.ndarray): The finite difference vector [W/m³].
+            heating_vector (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
-            internal_heating (bool | None): A boolean representing whether
-                internal heating is considered in this timestep. Must be None
-                for this class.
 
         Returns:
             np.ndarray: The updated temperature solution at the new time step
                 [t+1] for the cable.
 
         """
-        if not internal_heating:
-            raise ValueError("Internal heating must be True for cables in air.")
-
-        temp_solution = s.copy()
+        temp_solution = previous_solution.copy()
         theta_N = temp_solution[-1]
 
-        A_banded = self._banded_matrix
-        A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
+        ab = -self._banded_matrix * time_step
+        ab[1, :] += self._capacity_grid
 
-        A[:, :-1] = A_banded
-        A[0, -1] = self.outer_boundary_coupling_coefficient
-        A = -A * time_step
-        A[1, :-1] += self._capacity_grid[:-1]
-        A[2, -2] = 1
-
-        b = b * time_step + self._capacity_grid[:-1] * s[:-1]
-
-        b = np.append(b, 0.0)
+        heating_vector = np.append(heating_vector, 0.0)
+        b = heating_vector * time_step + self._capacity_grid * previous_solution
 
         iteration = 0
         while True:
             iteration += 1
 
-            A[1, -1] = -(1 + self._boundary_condition_coefficient * theta_N ** (1 / 4))
-
-            temp_solution = linalg.solve_banded(l_and_u=(1, 1), ab=A, b=b)
+            ab[1, -1] += self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
+            temp_solution = linalg.solve_banded(l_and_u=(1, 1), ab=ab, b=b)
 
             if abs(temp_solution[-1] - theta_N) <= _MAX_ERROR_SHEATH:
                 break
             elif iteration >= _MAX_ITERATIONS_PER_TIMESTEP:
                 raise ValueError(f"Solution did not converge after {_MAX_ITERATIONS_PER_TIMESTEP} iterations")
 
+            ab[1, -1] -= self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
             theta_N = temp_solution[-1]
 
         return temp_solution
+
+    def _get_finite_difference_matrix_diagonals(self):
+        """Build the three diagonals of the finite difference matrix.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray, np.ndarray]: A tuple containing the upper diagonal, base diagonal,
+                and lower diagonal of the finite difference matrix.
+
+        """
+        upper_diagonal, base_diagonal, lower_diagonal = super()._get_finite_difference_matrix_diagonals()
+
+        # Extend the diagonals to account for the boundary condition at the outer sheath in air
+        upper_diagonal = np.append(upper_diagonal, 0.0)
+        common_factor_second_derivative = self._common_factors_second_derivative(
+            radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
+            inter_radii=np.append(self._inter_radii[-1:], self._radii_grid[-1]),
+        )[0]
+        common_factor_first_derivative = self._common_factors_first_derivative(
+            radii=self._radii_grid[-2:], inter_radii=self._inter_radii[-1:], rhos=self._rho_grid[-2:]
+        )[0]
+
+        new_element = common_factor_second_derivative * common_factor_first_derivative
+        base_diagonal = np.append(base_diagonal, -new_element)
+        lower_diagonal = np.append(lower_diagonal, new_element)
+
+        return upper_diagonal, base_diagonal, lower_diagonal
 
     @property
     def _boundary_condition_coefficient(self) -> float:
@@ -992,11 +1027,12 @@ class CableAir(Cable):
         if self.convection_coefficient is None:
             raise ValueError("Convection coefficient is not set. Please set convection parameters first.")
 
-        r_N = self._radii_grid[-1]
-        delta_min = self._grid_deltas[-1]
-        r_N_min = r_N - 0.5 * delta_min
+        common_factor_second_derivative = self._common_factors_second_derivative(
+            radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
+            inter_radii=np.append(self._inter_radii[-1:], self._radii_grid[-1]),
+        )[0]
 
-        return self.convection_coefficient * delta_min * self._rho_grid[-1] * r_N / r_N_min
+        return common_factor_second_derivative * self._radii_grid[-1] * self.convection_coefficient
 
 
 class CableTrefoilCircuitSinglePipe(Cable):
@@ -1039,7 +1075,7 @@ class CableTrefoilCircuitSinglePipe(Cable):
 
         return A_sparse
 
-    def _get_filling_internal_heating_coefficient(self, s, m) -> float:
+    def _get_filling_internal_heating_coefficient(self, s: int, m: int) -> float:
         """This method calculates the internal heating coefficient for the filling material in the pipe.
 
         This coefficient represents the factor with which to multiply the heat generation at layer s, if one wants
@@ -1055,16 +1091,16 @@ class CableTrefoilCircuitSinglePipe(Cable):
 
         """
         # Calculate the thermal resistivity at the interstitial point between the grid points r_s and r_{s+1}
-        r_s = self._radii_grid[s]
-        inter_radius = np.array([r_s + 0.5 * self._grid_deltas[s]])
-        inter_rho = self._calculate_inter_rhos(self._radii_grid[s : s + 2], inter_radius, self._rho_grid[s : s + 2])[0]
+        inter_rho = self._calculate_inter_rhos(
+            self._radii_grid[s : s + 2], self._inter_radii[s : s + 1], self._rho_grid[s : s + 2]
+        )[0]
         return (
             2
             * self.layer_metrics.cable_radius
             / (
                 inter_rho
                 * self._radii_grid[m]
-                * self._grid_deltas[s]
+                * (self._radii_grid[s + 1] - self._radii_grid[s])
                 * (self._radii_grid[m + 1] - self._radii_grid[m - 1])
             )
         )
@@ -1075,10 +1111,9 @@ class CableTrefoilCircuitSinglePipeInSoil(CableTrefoilCircuitSinglePipe, CableSo
 
     def integrate_timestep(
         self,
-        s: np.ndarray,
-        b: np.ndarray,
+        previous_solution: np.ndarray,
+        heating_vector: np.ndarray,
         time_step: float,
-        internal_heating: bool | None = None,
     ) -> np.ndarray:
         """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
 
@@ -1092,13 +1127,11 @@ class CableTrefoilCircuitSinglePipeInSoil(CableTrefoilCircuitSinglePipe, CableSo
         appropriately before solving the linear system.
 
         Args:
-            s (np.ndarray): The solution of the heat equation [°C] at the
+            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            b (np.ndarray): The finite difference vector [W/m³].
+            heating_vector (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
-            internal_heating (bool): A boolean indicating whether internal
-                heating between cables in the trefoil circuit is considered.
 
         Returns:
             np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
@@ -1106,12 +1139,6 @@ class CableTrefoilCircuitSinglePipeInSoil(CableTrefoilCircuitSinglePipe, CableSo
 
         """
         A_banded = self._banded_matrix
-        if internal_heating is None:
-            raise ValueError("The internal_heating parameter must be provided for CableTrefoilCircuitSinglePipeInSoil.")
-
-        # Only add an extra heat source if internal heating is considered
-        if not internal_heating:
-            return super().integrate_timestep(s, b, time_step)
 
         # Convert the banded matrix to a sparse matrix
         # Use dia format for easy conversion and then convert to lil format to set individual elements
@@ -1126,7 +1153,8 @@ class CableTrefoilCircuitSinglePipeInSoil(CableTrefoilCircuitSinglePipe, CableSo
         capacity_diagonal_matrix = sparse.diags(diagonals=capacity_vector)
 
         return sparse.linalg.spsolve(
-            capacity_diagonal_matrix - time_step * A_sparse, capacity_vector * s + time_step * b
+            capacity_diagonal_matrix - time_step * A_sparse,
+            capacity_vector * previous_solution + time_step * heating_vector,
         )
 
 
@@ -1135,10 +1163,9 @@ class CableTrefoilCircuitSinglePipeInAir(CableTrefoilCircuitSinglePipe, CableAir
 
     def integrate_timestep(
         self,
-        s: np.ndarray,
-        b: np.ndarray,
+        previous_solution: np.ndarray,
+        heating_vector: np.ndarray,
         time_step: float,
-        internal_heating: bool | None = True,
     ) -> np.ndarray:
         """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
 
@@ -1152,14 +1179,11 @@ class CableTrefoilCircuitSinglePipeInAir(CableTrefoilCircuitSinglePipe, CableAir
         appropriately before solving the linear system.
 
         Args:
-            s (np.ndarray): The solution of the heat equation [°C] at the
+            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            b (np.ndarray): The finite difference vector [W/m³].
+            heating_vector (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
-            internal_heating (bool | None): A boolean indicating whether
-                internal heating between cables in the trefoil circuit is
-                considered.
 
         Raises:
             ValueError:
@@ -1170,52 +1194,40 @@ class CableTrefoilCircuitSinglePipeInAir(CableTrefoilCircuitSinglePipe, CableAir
                 the final grid point, at which a boundary condition is enforced.
 
         """
-        if not internal_heating:
-            raise ValueError("Internal heating must be True for cables in air.")
-
-        if self.convection_coefficient is None:
-            raise ValueError("Convection parameters have not been set for this cable in air!")
-
-        temp_solution = s.copy()
+        temp_solution = previous_solution.copy()
         theta_N = temp_solution[-1]
 
-        A_banded = self._banded_matrix
-        A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
+        ab = self._banded_matrix
 
-        A[:, :-1] = A_banded
-        A[0, -1] = self.outer_boundary_coupling_coefficient
-        A[2, -2] = 1
+        heating_vector = np.append(heating_vector, 0.0)
+        b = heating_vector * time_step + self._capacity_grid * previous_solution
 
         # Convert the banded matrix to a sparse matrix
         # Use dia format for easy conversion and then convert to lil format to set individual elements
-        A_sparse = sparse.dia_matrix((A, [1, 0, -1]), shape=(A.shape[1], A.shape[1])).tolil()
+        A_sparse = sparse.dia_matrix((ab, [1, 0, -1]), shape=(ab.shape[1], ab.shape[1])).tolil()
 
         # Add coefficients to the matrix, representing adding an internal heat source
         # that depends on the heat that passes through the cable boundary.
         A_sparse = self._update_system_with_heat_source(A_sparse)
 
-        # Compute the other vectors that are required to solve the linear system
-        capacity_vector = self._capacity_grid[:-1]
-        capacity_vector = np.append(capacity_vector, 0.0)
-        capacity_diagonal_matrix = sparse.diags(diagonals=capacity_vector)
-        b = np.append(b, 0.0)
+        A_sparse = -A_sparse * time_step
+        A_sparse += sparse.diags(diagonals=self._capacity_grid)
 
         iteration = 0
         while True:
             iteration += 1
 
             # Update the last diagonal element at each iteration
-            A_sparse[-1, -1] = -(1 + self._boundary_condition_coefficient * theta_N ** (1 / 4))
+            A_sparse[-1, -1] += self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
 
-            temp_solution = sparse.linalg.spsolve(
-                capacity_diagonal_matrix - time_step * A_sparse, capacity_vector * s + time_step * b
-            )
+            temp_solution = sparse.linalg.spsolve(A=A_sparse, b=b)
 
             if abs(temp_solution[-1] - theta_N) <= _MAX_ERROR_SHEATH:
                 break
             elif iteration >= _MAX_ITERATIONS_PER_TIMESTEP:
                 raise ValueError(f"Solution did not converge after {_MAX_ITERATIONS_PER_TIMESTEP} iterations")
 
+            A_sparse[-1, -1] -= self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
             theta_N = temp_solution[-1]
 
         return temp_solution

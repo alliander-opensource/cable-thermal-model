@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -12,9 +12,7 @@ from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableConductorProperties, CableLayerMetrics
 from cable_thermal_model.model.cables.cable import (
     Cable,
-    CableAir,
     CableSoil,
-    CableTrefoilCircuitSinglePipeInAir,
     CableTrefoilCircuitSinglePipeInSoil,
 )
 from cable_thermal_model.model.cables.enum_classes_cable import (
@@ -363,78 +361,6 @@ def test_T4_pipe_fill(cable_outer_diameter_mm, temp, fill_type, expected_T4):
     )
     ctm_T4 = pipe._get_lump_sum_resistivity_pipe_fill(temp)
     assert np.isclose(ctm_T4, expected_T4, rtol=0.01)
-
-
-def test_integrate_timestep_internal_heating_warning():
-    """Test that integrating a timestep for Cable without internal_heating raises a warning."""
-    cable_in_air = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        cable_class=CableAir,
-    )
-    with pytest.raises(
-        ValueError,
-        match="Internal heating must be True for cables in air.",
-    ):
-        cable_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=None,
-        )
-    with pytest.raises(
-        ValueError,
-        match="Internal heating must be True for cables in air.",
-    ):
-        cable_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=False,
-        )
-
-    # We expect the same behavior for a trefoil circuit in a single pipe in air
-    fd_cable_trefoil_in_single_pipe_in_air = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        cable_class=CableTrefoilCircuitSinglePipeInAir,
-        pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
-    )
-    with pytest.raises(
-        ValueError,
-        match="Internal heating must be True for cables in air.",
-    ):
-        fd_cable_trefoil_in_single_pipe_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=None,
-        )
-        fd_cable_trefoil_in_single_pipe_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=False,
-        )
-
-
-def test_integrate_timestep_internal_heating_value_error():
-    """Test internal_heating validation for a trefoil circuit in a single pipe.
-
-    Verify that integrating a timestep for
-    CableTrefoilCircuitSinglePipeInSoil without internal_heating raises a
-    ValueError.
-    """
-    fd_cable_trefoil_in_single_pipe = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        cable_class=CableTrefoilCircuitSinglePipeInSoil,
-        pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
-    )
-    with pytest.raises(
-        ValueError,
-        match="The internal_heating parameter must be provided for CableTrefoilCircuitSinglePipeInSoil.",
-    ):
-        fd_cable_trefoil_in_single_pipe.integrate_timestep(
-            s=MagicMock(), b=MagicMock(), time_step=MagicMock(), internal_heating=None
-        )
 
 
 @pytest.mark.parametrize(

@@ -301,7 +301,7 @@ def test_get_outer_boundary_coupling_coefficient_from_matrix(single_core_cable_x
     """Test that the matrix-based outer-boundary coupling matches the final upper diagonal term."""
     upper_diagonal, _, _ = single_core_cable_xlpe._get_finite_difference_matrix_diagonals()
 
-    outer_boundary_coupling_coefficient = single_core_cable_xlpe.outer_boundary_coupling_coefficient
+    outer_boundary_coupling_coefficient = single_core_cable_xlpe.upper_diagonal_last_element
 
     assert np.isclose(outer_boundary_coupling_coefficient, upper_diagonal[-1])
 
@@ -567,8 +567,8 @@ def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
 ):
     single_core_cable_xlpe_in_air.set_convection_parameters(Z=0.91, E=0.0, Cg=0.0)
     n = single_core_cable_xlpe_in_air.grid_size
-    s = np.zeros(n)
-    b = np.zeros(n - 1)
+    previous_solution = np.zeros(n)
+    heating_vector = np.zeros(n - 1)
 
     call_count = {"n": 0}
 
@@ -582,7 +582,9 @@ def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
     monkeypatch.setattr(fd_cable_module.linalg, "solve_banded", _non_converging_solver)
 
     with pytest.raises(ValueError, match="Solution did not converge after 3 iterations"):
-        single_core_cable_xlpe_in_air.integrate_timestep(s=s, b=b, time_step=1.0, internal_heating=True)
+        single_core_cable_xlpe_in_air.integrate_timestep(
+            previous_solution=previous_solution, heating_vector=heating_vector, time_step=1.0
+        )
 
 
 def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
@@ -591,11 +593,11 @@ def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
         cable_class=CableTrefoilCircuitSinglePipeInAir,
         pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
     )
-    s = np.zeros(cable.grid_size)
-    b = np.zeros(cable.grid_size - 1)
+    previous_solution = np.zeros(cable.grid_size)
+    heating_vector = np.zeros(cable.grid_size - 1)
 
-    with pytest.raises(ValueError, match="Convection parameters have not been set for this cable in air!"):
-        cable.integrate_timestep(s=s, b=b, time_step=1.0, internal_heating=True)
+    with pytest.raises(ValueError, match="Convection coefficient is not set. Please set convection parameters first."):
+        cable.integrate_timestep(previous_solution=previous_solution, heating_vector=heating_vector, time_step=1.0)
 
 
 # TODO in refactor:
