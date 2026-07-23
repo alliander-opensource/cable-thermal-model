@@ -9,7 +9,7 @@ import pytest
 from cable_thermal_model.cable.enums.circuit_enums import CircuitType
 from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
-from cable_thermal_model.model.cables.cable import CableSoil
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil

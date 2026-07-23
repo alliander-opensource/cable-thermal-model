@@ -8,7 +8,7 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
-from cable_thermal_model.model.cables.cable import CableAir
+from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir

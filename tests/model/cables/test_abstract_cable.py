@@ -20,7 +20,7 @@ Notes:
 import numpy as np
 import pytest
 
-from cable_thermal_model.model.cables.cable import CableSoil
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableScreenLossType
 
 

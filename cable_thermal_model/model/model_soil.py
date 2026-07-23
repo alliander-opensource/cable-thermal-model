@@ -9,7 +9,7 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model import CableKey, StaticEnvSoil
 from cable_thermal_model.cable.cable_circuit import PosCable, return_mirror_cable
-from cable_thermal_model.model.cables.cable import CableSoil
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN

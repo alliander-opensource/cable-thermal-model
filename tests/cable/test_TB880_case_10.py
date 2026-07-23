@@ -5,7 +5,7 @@
 import numpy as np
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition
-from cable_thermal_model.model.cables.cable import CableSoil
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
 from cable_thermal_model.model.model_soil import ModelSoil
 from cable_thermal_model.validation.cable_analysis import CableAnalysis

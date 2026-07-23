@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 from warnings import warn
 
-from cable_thermal_model.model.cables.cable import Cable, CableTrefoilCircuitSinglePipe
+from cable_thermal_model.model.cables.cable import Cable
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
 
 
 def require_implemented_cable(cable: Cable, hard_stop: bool = True) -> Cable:
