@@ -224,7 +224,7 @@ class StaticEnv(
     ) -> CableT:
         """Builds a cable from a circuit input schema.
 
-        The cable is built based on the cable_id and cable_source_file provided in the circuit input schema.
+        The cable is built based on the circuit input schema.
 
         Args:
             circuit_input: Circuit input schema containing the input parameters for the circuit.
