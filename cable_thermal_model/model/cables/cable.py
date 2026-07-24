@@ -1,10 +1,12 @@
 # SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 #
 # SPDX-License-Identifier: MPL-2.0
+from abc import abstractmethod
 from copy import deepcopy
 from typing import Any, Self
 
 import numpy as np
+from scipy import linalg, sparse
 
 from cable_thermal_model.model.cables.abstract_cable import (
     AbstractCable,
@@ -44,7 +46,7 @@ class Cable(AbstractCable):
 
         self._grid_counts = grid_counts
         self._radii_grid = np.array([], dtype=float)
-        self._grid_deltas = np.array([], dtype=float)
+        self._inter_radii = np.array([], dtype=float)
         self._surface_area_grid = np.array([], dtype=float)
         self._capacity_grid = np.array([], dtype=float)
         self._rho_grid = np.array([], dtype=float)
@@ -53,6 +55,8 @@ class Cable(AbstractCable):
         self._base_diagonal = np.array([], dtype=float)
         self._lower_diagonal = np.array([], dtype=float)
         self._finite_difference_matrix_diagonals_outdated = True
+
+        self._heating_vector = np.array([], dtype=float)
 
         self._set_calculated_fields()
 
@@ -75,7 +79,7 @@ class Cable(AbstractCable):
         )
 
     @property
-    def outer_boundary_coupling_coefficient(self) -> float:
+    def _upper_diagonal_last_element(self) -> float:
         """Get the outer-boundary coupling coefficient from the finite difference matrix.
 
         The outer-boundary coupling coefficient is a value that represents the thermal interaction at the outer boundary
@@ -118,9 +122,11 @@ class Cable(AbstractCable):
         """
         self._update_finite_difference_matrix_diagonals_if_needed()
 
-        matrix = np.zeros((3, len(self._base_diagonal)))
+        base_diagonal_length = len(self._base_diagonal)
 
-        matrix[0, 1:] = self._upper_diagonal[:-1]
+        matrix = np.zeros((3, base_diagonal_length))
+
+        matrix[0, 1:] = self._upper_diagonal[: base_diagonal_length - 1]
         matrix[1, :] = self._base_diagonal
         matrix[2, :-1] = self._lower_diagonal
 
@@ -177,7 +183,7 @@ class Cable(AbstractCable):
         adding soil or pipe layers these need to be reset. This function can be used to do so.
         """
         self._radii_grid = self._construct_radii_grid()
-        self._grid_deltas = np.diff(self._radii_grid)
+        self._inter_radii = self._radii_grid[:-1] + 0.5 * np.diff(self._radii_grid)
         self._surface_area_grid = self._construct_surface_area_grid(self._radii_grid)
 
         capacity_grids = [
@@ -188,6 +194,12 @@ class Cable(AbstractCable):
         rho_grids = [np.full(self._grid_counts[layer], self.layer_properties[layer].rho) for layer in self.layers]
         self._rho_grid = np.concatenate(rho_grids)
         self._invalidate_finite_difference_matrix_diagonals()
+        self._set_heating_vector()
+
+    @abstractmethod
+    def _set_heating_vector(self) -> None:
+        """Initialize the heating vector for the cable."""
+        pass
 
     def _construct_radii_grid(self, maximal_boundary_distance: float = 0.000_1) -> np.ndarray:
         """Construct the radii grid for the cable based on the layer properties and grid counts.
@@ -235,20 +247,6 @@ class Cable(AbstractCable):
                 )
 
         return np.concatenate(radii_grids)
-
-    def integrate_timestep(
-        self,
-        s: np.ndarray,
-        b: np.ndarray,
-        time_step: float,
-        internal_heating: bool | None = None,
-    ) -> np.ndarray:
-        """Computes the temperature solution for the next time step.
-
-        An abstract method that is implemented differently for different cable types, as the integration method may
-        differ depending on the cable type.
-        """
-        raise NotImplementedError("This method should be implemented in child classes of Cable.")
 
     def update_pipe_fill_resistivity(self, temperature_grid: np.ndarray) -> None:
         """This method updates the (temperature dependent) thermal resistivity of the medium in the pipe of the cable.
@@ -335,28 +333,56 @@ class Cable(AbstractCable):
 
         """
         radii = self._radii_grid
-        delta_plus = self._grid_deltas[1:]
-        delta_minus = self._grid_deltas[:-1]
-        inter_radii = radii[:-1] + 0.5 * self._grid_deltas
+        inter_radii = self._inter_radii
 
-        inter_rhos = self._calculate_inter_rhos(radii, inter_radii, self._rho_grid)
-        rho_plus = inter_rhos[1:]
-        rho_minus = inter_rhos[:-1]
+        common_factors_first_derivative = self._common_factors_first_derivative(radii, inter_radii, self._rho_grid)
+        common_factors_second_derivative = self._common_factors_second_derivative(radii, inter_radii)
 
-        r = radii[1:-1]
-        r_plus = inter_radii[1:]
-        r_minus = inter_radii[:-1]
-        common_factor = 1 / (r * 0.5 * (delta_plus + delta_minus))
-
-        upper_inner = r_plus * common_factor / (rho_plus * delta_plus)
-        lower_diagonal = r_minus * common_factor / (rho_minus * delta_minus)
-        base_inner = -(upper_inner + lower_diagonal)
+        upper_inter = common_factors_first_derivative[1:] * common_factors_second_derivative
+        lower_diagonal = common_factors_first_derivative[:-1] * common_factors_second_derivative
+        base_inter = -(upper_inter + lower_diagonal)
 
         boundary_value = 2 / (self._rho_grid[0] * inter_radii[0] * radii[1])
-        upper_diagonal = np.append([boundary_value], upper_inner)
-        base_diagonal = np.append([-boundary_value], base_inner)
+        upper_diagonal = np.append([boundary_value], upper_inter)
+        base_diagonal = np.append([-boundary_value], base_inter)
 
         return upper_diagonal, base_diagonal, lower_diagonal
+
+    def _common_factors_first_derivative(
+        self,
+        radii: np.ndarray,
+        inter_radii: np.ndarray,
+        rhos: np.ndarray,
+    ) -> np.ndarray:
+        """Calculate the common factor used in the finite difference matrix for the first derivative.
+
+        Args:
+            radii (np.ndarray): A Numpy array representing the radii grid for the cable.
+            inter_radii (np.ndarray): A Numpy array representing the interstitial radii grid for the cable.
+            rhos (np.ndarray): A Numpy array representing the resistivity values at the grid points.
+
+        Returns:
+            np.ndarray: The common finite difference factor for the first derivative.
+
+        """
+        inter_rhos = self._calculate_inter_rhos(radii=radii, inter_radii=inter_radii, rhos=rhos)
+        radii_deltas = np.diff(radii)
+
+        return inter_radii / (inter_rhos * radii_deltas)
+
+    @staticmethod
+    def _common_factors_second_derivative(radii: np.ndarray, inter_radii: np.ndarray) -> np.ndarray:
+        """Calculate the common factor used in the finite difference matrix.
+
+        Args:
+            radii (np.ndarray): A Numpy array representing the radii grid for the cable.
+            inter_radii (np.ndarray): A Numpy array representing the interstitial radii grid for the cable.
+
+        Returns:
+            np.ndarray: The common finite difference factor for the given radii grid.
+
+        """
+        return 1 / (radii[1:-1] * (inter_radii[1:] - inter_radii[:-1]))
 
     def _update_finite_difference_matrix_diagonals_if_needed(self) -> None:
         """This method updates the three diagonals of the finite difference matrix if they are outdated.
@@ -457,25 +483,18 @@ class Cable(AbstractCable):
 
         self._capacity_grid[start_index : end_index + 1] = capacity
 
-    def _update_vector_with_heat_generation_for_layer(
-        self, vector: np.ndarray, heat_generation: float, layer: CableLayer
-    ) -> np.ndarray:
-        """Update the vector with heat generation distributed over one cable layer.
+    def _update_vector_with_heat_generation_for_layer(self, heat_generation: float, layer: CableLayer) -> None:
+        """Update the heating vector with heat generation distributed over one cable layer.
 
         Args:
-            vector (np.ndarray): The vector to update.
             heat_generation (float): The heat generation value in W/m.
             layer (CableLayer): The cable layer over which to distribute the heat generation.
 
-        Returns:
-            np.ndarray: The updated vector with heat generation distributed across the selected layer.
-
         """
         start_index, end_index = self.get_layer_indices_for_layer(layer)
-        vector[start_index : end_index + 1] = (
+        self._heating_vector[start_index : end_index + 1] = (
             heat_generation / self._surface_area_grid[start_index : end_index + 1].sum()
         )
-        return vector
 
     def _get_mean_temperature_cable_layer(self, temperature_grid: np.ndarray, layer: CableLayer) -> float:
         """Calculate the mean temperature for a cable layer.
@@ -562,48 +581,29 @@ class Cable(AbstractCable):
             grid_counts=grid_counts,
         )
 
-    def get_finite_difference_vector(self, neglect_dielectric_loss: bool = False) -> np.ndarray:
-        """This method calculates and returns the finite difference vector.
+    def add_dielectric_loss_to_heating_vector(self) -> None:
+        """This method calculates and updates the heating vector with dielectric loss."""
+        dielectric_loss = self.get_dielectric_loss_for_cable()
+        self._update_vector_with_heat_generation_for_layer(
+            heat_generation=dielectric_loss,
+            layer=CableLayer.Insulation,
+        )
 
-        Args:
-            neglect_dielectric_loss (bool): A boolean representing whether to
-                neglect the dielectric losses in the calculation of the vector.
-                Default is False.
-
-        Returns:
-            np.ndarray: A Numpy array representing the finite difference vector [W/m³].
-        """
-        vector = np.zeros(self._radii_grid.size - 1)
-
-        if not neglect_dielectric_loss:
-            dielectric_loss = self.get_dielectric_loss_for_cable()
-            vector = self._update_vector_with_heat_generation_for_layer(
-                vector=vector,
-                heat_generation=dielectric_loss,
-                layer=CableLayer.Insulation,
-            )
-
-        return vector
-
-    def update_finite_difference_vector(
+    def _update_heating_vector(
         self,
-        vector: np.ndarray,
         temperature_grid: np.ndarray,
         load: float,
         ac_current: bool,
         temperature_dependent_electric_resistance: bool,
-    ) -> np.ndarray:
+    ) -> None:
         """Build the finite difference vector for a specific thermal state and circuit load.
 
         Args:
-            vector (np.ndarray): The finite difference vector to be updated.
             temperature_grid (np.ndarray): The current temperature grid for the cable.
             load (float): The electrical load in amperes.
             ac_current (bool): Whether AC conductor losses are included.
             temperature_dependent_electric_resistance (bool): Whether resistance depends on temperature.
 
-        Returns:
-            np.ndarray: A finite difference vector for the given state and load.
         """
         conductor_temperature = self._get_mean_temperature_cable_layer(
             temperature_grid=temperature_grid, layer=CableLayer.Conductor
@@ -622,8 +622,7 @@ class Cable(AbstractCable):
                 temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
             )
 
-            vector = self._update_vector_with_heat_generation_for_layer(
-                vector=vector,
+            self._update_vector_with_heat_generation_for_layer(
                 heat_generation=heat_generation_screen,
                 layer=CableLayer.Screen,
             )
@@ -635,8 +634,7 @@ class Cable(AbstractCable):
                 temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
             )
 
-        return self._update_vector_with_heat_generation_for_layer(
-            vector=vector,
+        self._update_vector_with_heat_generation_for_layer(
             heat_generation=heat_generation_conductor,
             layer=CableLayer.Conductor,
         )
@@ -651,3 +649,45 @@ class Cable(AbstractCable):
 
         if not all(isinstance(value, (int, np.integer)) for value in grid_counts.values()):
             raise TypeError("The grid_counts argument must be a dictionary of integers!")
+
+    def _processed_matrix(self, time_step: float) -> np.ndarray | sparse.lil_matrix:
+        """Process the finite difference matrix for the implicit Euler method.
+
+        Args:
+            time_step (float): The size of the time step [s] in the linearized time grid.
+
+        Returns:
+            np.ndarray | sparse.lil_matrix: The processed finite difference matrix ready for solving the linear system.
+
+        """
+        ab = self._banded_matrix
+
+        ab = -ab * time_step
+        ab[1, :] += self._capacity_grid[: ab.shape[1]]
+
+        return ab
+
+    @staticmethod
+    def _solve_system(
+        A: np.ndarray | sparse.lil_matrix,
+        b: np.ndarray,
+    ) -> np.ndarray:
+        """Solve the linear system Ax = b.
+
+        Args:
+            A (np.ndarray | sparse.lil_matrix): The finite difference matrix.
+            b (np.ndarray): The finite difference vector.
+
+        Returns:
+            np.ndarray: The solution vector x.
+
+        Raises:
+            TypeError: If A is not a banded matrix (3xN numpy array).
+
+        """
+        if not isinstance(A, np.ndarray):
+            raise TypeError(f"Expected banded matrix (np.ndarray), got {type(A).__name__}")
+        if A.shape[0] != 3:
+            raise ValueError(f"Expected banded matrix with shape (3, N), got {A.shape}")
+
+        return linalg.solve_banded(l_and_u=(1, 1), ab=A, b=b)

@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
-from scipy import linalg
 
 from cable_thermal_model.model.cables.abstract_cable import (
     CableConductorProperties,
@@ -15,7 +14,15 @@ from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, Cabl
 
 
 class CableAir(Cable):
-    """Finite difference cable model with air discretization."""
+    """Finite difference cable model with air discretization.
+
+    Attributes:
+        _bottomright_index (tuple[int, int]): Index tuple (row, col) for accessing the bottom-right element
+            of the banded matrix used in convection boundary condition updates.
+
+    """
+
+    _bottomright_index: tuple[int, int] = (1, -1)
 
     # Constants for the numerical integration process
     MAX_ITERATIONS_PER_TIMESTEP = 100
@@ -43,6 +50,10 @@ class CableAir(Cable):
         self.convection_coefficient: float | None = None
         super().__init__(conductor, layer_properties, layer_metrics, cable_type, grid_counts)
 
+    def _set_heating_vector(self) -> None:
+        """Initialize the heating vector for the cable."""
+        self._heating_vector = np.zeros(self._radii_grid.size)
+
     def set_convection_parameters(self, Z: float, E: float, Cg: float):
         """Set the convection parameters used to compute the convection coefficient.
 
@@ -60,10 +71,8 @@ class CableAir(Cable):
 
     def integrate_timestep(
         self,
-        s: np.ndarray,
-        b: np.ndarray,
+        previous_solution: np.ndarray,
         time_step: float,
-        internal_heating: bool | None = True,
     ) -> np.ndarray:
         """Computes the temperature solution for the next time step.
 
@@ -71,55 +80,64 @@ class CableAir(Cable):
         current time step [t], the finite difference matrix, and the vector for [t].
 
         Args:
-            s (np.ndarray): The solution of the heat equation [°C] at the
+            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            b (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
-            internal_heating (bool | None): A boolean representing whether
-                internal heating is considered in this timestep. Must be None
-                for this class.
 
         Returns:
             np.ndarray: The updated temperature solution at the new time step
                 [t+1] for the cable.
 
         """
-        if not internal_heating:
-            raise ValueError("Internal heating must be True for cables in air.")
+        A = self._processed_matrix(time_step=time_step)
 
-        temp_solution = s.copy()
+        b = self._heating_vector * time_step + self._capacity_grid * previous_solution
+
+        temp_solution = previous_solution.copy()
         theta_N = temp_solution[-1]
-
-        A_banded = self._banded_matrix
-        A = np.zeros((A_banded.shape[0], A_banded.shape[1] + 1))
-
-        A[:, :-1] = A_banded
-        A[0, -1] = self.outer_boundary_coupling_coefficient
-        A = -A * time_step
-        A[1, :-1] += self._capacity_grid[:-1]
-        A[2, -2] = 1
-
-        b = b * time_step + self._capacity_grid[:-1] * s[:-1]
-
-        b = np.append(b, 0.0)
 
         iteration = 0
         while True:
             iteration += 1
 
-            A[1, -1] = -(1 + self._boundary_condition_coefficient * theta_N ** (1 / 4))
-
-            temp_solution = linalg.solve_banded(l_and_u=(1, 1), ab=A, b=b)
+            A[self._bottomright_index] += self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
+            temp_solution = self._solve_system(A=A, b=b)
 
             if abs(temp_solution[-1] - theta_N) <= self.MAX_ERROR_SHEATH:
                 break
             elif iteration >= self.MAX_ITERATIONS_PER_TIMESTEP:
                 raise ValueError(f"Solution did not converge after {self.MAX_ITERATIONS_PER_TIMESTEP} iterations")
 
+            A[self._bottomright_index] -= self._boundary_condition_coefficient * theta_N ** (1 / 4) * time_step
             theta_N = temp_solution[-1]
 
         return temp_solution
+
+    def _get_finite_difference_matrix_diagonals(self):
+        """Build the three diagonals of the finite difference matrix.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray, np.ndarray]: A tuple containing the upper diagonal, base diagonal,
+                and lower diagonal of the finite difference matrix.
+
+        """
+        upper_diagonal, base_diagonal, lower_diagonal = super()._get_finite_difference_matrix_diagonals()
+
+        # Extend the diagonals to account for the boundary condition at the outer sheath in air
+        common_factor_second_derivative = self._common_factors_second_derivative(
+            radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
+            inter_radii=np.append(self._inter_radii[-1:], self._radii_grid[-1]),
+        )[0]
+        common_factor_first_derivative = self._common_factors_first_derivative(
+            radii=self._radii_grid[-2:], inter_radii=self._inter_radii[-1:], rhos=self._rho_grid[-2:]
+        )[0]
+
+        new_element = common_factor_second_derivative * common_factor_first_derivative
+        base_diagonal = np.append(base_diagonal, -new_element)
+        lower_diagonal = np.append(lower_diagonal, new_element)
+
+        return upper_diagonal, base_diagonal, lower_diagonal
 
     @property
     def _boundary_condition_coefficient(self) -> float:
@@ -132,8 +150,9 @@ class CableAir(Cable):
         if self.convection_coefficient is None:
             raise ValueError("Convection coefficient is not set. Please set convection parameters first.")
 
-        r_N = self._radii_grid[-1]
-        delta_min = self._grid_deltas[-1]
-        r_N_min = r_N - 0.5 * delta_min
+        common_factor_second_derivative = self._common_factors_second_derivative(
+            radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
+            inter_radii=np.append(self._inter_radii[-1:], self._radii_grid[-1]),
+        )[0]
 
-        return self.convection_coefficient * delta_min * self._rho_grid[-1] * r_N / r_N_min
+        return common_factor_second_derivative * self._radii_grid[-1] * self.convection_coefficient

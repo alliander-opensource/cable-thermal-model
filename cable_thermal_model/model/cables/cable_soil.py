@@ -5,7 +5,6 @@ from copy import deepcopy
 from typing import Self
 
 import numpy as np
-from scipy import linalg
 
 from cable_thermal_model.model.cables.abstract_cable import CableLayerProperties
 from cable_thermal_model.model.cables.cable import Cable
@@ -17,12 +16,15 @@ class CableSoil(Cable):
 
     _SOIL_DRYING_TEMPERATURE = 30
 
+    def _set_heating_vector(self) -> None:
+        """Initialize the heating vector for the cable."""
+        self._heating_vector = np.zeros(self._radii_grid.size - 1)
+
     def integrate_timestep(
         self,
-        s: np.ndarray,
-        b: np.ndarray,
+        previous_solution: np.ndarray,
         time_step: float,
-        internal_heating: bool | None = None,
+        solution_at_boundary: float,
     ) -> np.ndarray:
         """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
 
@@ -31,32 +33,27 @@ class CableSoil(Cable):
         N is the length of the diagonal.
 
         Args:
-            s (np.ndarray): The solution of the heat equation [°C] at the
+            previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            b (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
-            internal_heating (bool | None): A boolean representing whether
-                internal heating is considered in this timestep.
-                This implementation of the method does not use this parameter, but some child classes do.
+            solution_at_boundary (float): The solution at the boundary grid point [°C] used as a boundary condition.
 
         Returns:
             np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
                 the final grid point, at which a boundary condition is enforced.
 
         """
-        number_of_non_zero_diagonals = (1, 1)  # one upper and one lower diagonal
+        A = self._processed_matrix(time_step=time_step)
+        b = self._heating_vector.copy()
+        b[-1] += self._upper_diagonal_last_element * solution_at_boundary
+        b = self._capacity_grid[:-1] * previous_solution[:-1] + time_step * b
 
-        A = self._banded_matrix * -time_step
-        A[1, :] += self._capacity_grid[:-1]
-
-        b = self._capacity_grid[:-1] * s + time_step * b
-
-        return linalg.solve_banded(l_and_u=number_of_non_zero_diagonals, ab=A, b=b)
+        return np.append(self._solve_system(A=A, b=b), solution_at_boundary)
 
     def update_soil_properties(
         self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False
-    ) -> None:
+    ):
         """This method updates the soil properties around a cable.
 
         Args:
@@ -75,7 +72,7 @@ class CableSoil(Cable):
 
         self._update_soil_capacity(soil_c=soil_c)
 
-    def _update_soil_capacity(self, soil_c: float) -> None:
+    def _update_soil_capacity(self, soil_c: float):
         """This method updates the soil capacity values around a cable.
 
         If multiple soil layers are present, it sets them all (the entire soil).
