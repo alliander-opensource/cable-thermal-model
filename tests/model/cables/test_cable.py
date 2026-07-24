@@ -38,6 +38,7 @@ from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable import Cable
+from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInAir
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType, PipeFillType
@@ -600,6 +601,50 @@ def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
 
     with pytest.raises(ValueError, match="Convection coefficient is not set. Please set convection parameters first."):
         cable.integrate_timestep(previous_solution=previous_solution, time_step=1.0)
+
+
+def test_integrate_timestep_cable_soil(single_core_cable_xlpe: CableSoil):
+    """Test that the integrate_timestep method of CableSoil returns a solution of the correct shape."""
+    previous_solution = np.zeros(single_core_cable_xlpe.grid_size)
+    time_step = 300.0
+
+    boundary_temperature = 10.0
+    new_solution = single_core_cable_xlpe.integrate_timestep(
+        previous_solution=previous_solution, time_step=time_step, solution_at_boundary=boundary_temperature
+    )
+
+    assert new_solution.shape == previous_solution.shape
+    assert new_solution.shape == (single_core_cable_xlpe.grid_size,)
+
+    # Check that the new solution has increasing temperature values ending at the boundary temperature
+    assert np.all(np.diff(new_solution) > 0), "Temperature values should be increasing."
+    assert np.isclose(new_solution[-1], boundary_temperature), (
+        "The last value of the solution should match the boundary temperature."
+    )
+
+
+def test_integrate_timestep_cable_air(single_core_cable_xlpe_in_air: CableAir):
+    """Test that the integrate_timestep method of CableAir returns a solution of the correct shape."""
+    previous_solution = np.zeros(single_core_cable_xlpe_in_air.grid_size)
+    time_step = 300.0
+
+    # Set convection parameters to avoid ValueError
+    single_core_cable_xlpe_in_air.set_convection_parameters(Z=0.91, E=0.0, Cg=0.0)
+
+    area_cable = np.pi * single_core_cable_xlpe_in_air.layer_metrics.outer_radius**2
+    single_core_cable_xlpe_in_air._heating_vector = (
+        100 / area_cable * np.ones_like(single_core_cable_xlpe_in_air._heating_vector)
+    )
+
+    new_solution = single_core_cable_xlpe_in_air.integrate_timestep(
+        previous_solution=previous_solution, time_step=time_step
+    )
+
+    assert new_solution.shape == previous_solution.shape
+    assert new_solution.shape == (single_core_cable_xlpe_in_air.grid_size,)
+
+    # Check that the new solution has increasing temperature values
+    assert np.all(new_solution > 0), "Temperature values should be positive."
 
 
 # TODO in refactor:
