@@ -7,7 +7,7 @@ from typing import Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
-from cable_thermal_model.cable.cable_builder import CableT
+from cable_thermal_model.cable.cable_builder import CableBuilder, CableT
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
 from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstructionalInputSchema
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
@@ -57,6 +57,23 @@ class CircuitConfigurationCableNotBuild(BaseCircuitConfiguration):
 
         return Cable
 
+    def _compute_circuit_configuration_from_cable(self, cable: Cable) -> CircuitConfiguration:
+        """Compute a CircuitConfiguration from a pre-built Cable instance.
+
+        Args:
+            cable (Cable): Pre-built Cable instance to use in the configuration.
+
+        Returns:
+            CircuitConfiguration: Circuit configuration with the provided Cable instance.
+
+        """
+        return CircuitConfiguration(
+            circuit_type=self.circuit_type,
+            dist=self.dist,
+            length=self.length,
+            cable=cable,
+        )
+
 
 class CircuitConfigurationFromCableId(CircuitConfigurationCableNotBuild):
     """Circuit configuration where the cable is identified by a string cable ID."""
@@ -65,6 +82,24 @@ class CircuitConfigurationFromCableId(CircuitConfigurationCableNotBuild):
         description="Cable id to use in this configuration. The cable id should be present in the cable source file."
     )
 
+    def _compute_circuit_configuration(self, cable_source_file_path: Path) -> CircuitConfiguration:
+        """Compute a CircuitConfiguration from a cable ID and source file path.
+
+        Args:
+            cable_source_file_path (Path): Path to the source file containing the cable information.
+
+        Returns:
+            CircuitConfiguration: Circuit configuration with the Cable instance built.
+
+        """
+        cable = CableBuilder.build_cable_from_cable_id(
+            cable_id=self.cable_id,
+            cable_class=self.cable_class,
+            pipe=self.pipe,
+            cable_source_file_path=cable_source_file_path,
+        )
+        return self._compute_circuit_configuration_from_cable(cable)
+
 
 class CircuitConfigurationFromCableConstructionalInputSchema(CircuitConfigurationCableNotBuild):
     """Circuit configuration where the cable is built from a constructional input schema."""
@@ -72,6 +107,20 @@ class CircuitConfigurationFromCableConstructionalInputSchema(CircuitConfiguratio
     cable_constructional_information: CableConstructionalInputSchema = Field(
         description="Cable constructional input schema to use in this configuration."
     )
+
+    def _compute_circuit_configuration(self) -> CircuitConfiguration:
+        """Compute a CircuitConfiguration from a cable constructional input schema.
+
+        Returns:
+            CircuitConfiguration: Circuit configuration with the Cable instance built.
+
+        """
+        cable = CableBuilder.build_cable(
+            cable_constructional_input=self.cable_constructional_information,
+            cable_class=self.cable_class,
+            pipe=self.pipe,
+        )
+        return self._compute_circuit_configuration_from_cable(cable)
 
 
 class BaseCircuitInputSchema(BaseModel, Generic[BaseCircuitConfigurationT]):
@@ -140,9 +189,42 @@ class CircuitFromCableConstructionalInputSchema(
         description="Cable constructional input schema to build the cable for this circuit."
     )
 
+    def _build_cable(self, cable_class: type[CableT]) -> CableT:
+        """Build a cable instance based on the constructional information and cable class.
+
+        Args:
+            cable_class (type[CableT]): The class of the cable to build.
+
+        Returns:
+            CableT: An instance of the cable class.
+
+        """
+        return CableBuilder.build_cable(
+            cable_constructional_input=self.cable_constructional_information,
+            cable_class=cable_class,
+            pipe=self.pipe,
+        )
+
 
 class CircuitFromCableIdInputSchema(BaseCircuitInputSchema[CircuitConfigurationFromCableId], CableId):
     """Input schema for the `add_circuit_from_cable_id` method of the StaticEnvironment class."""
+
+    def _build_cable(self, cable_class: type[CableT]) -> CableT:
+        """Build a cable instance based on the cable ID and source file path.
+
+        Args:
+            cable_class (type[CableT]): The class of the cable to build.
+
+        Returns:
+            CableT: An instance of the cable class.
+
+        """
+        return CableBuilder.build_cable_from_cable_id(
+            cable_id=self.cable_id,
+            cable_class=cable_class,
+            pipe=self.pipe,
+            cable_source_file_path=self.cable_source_file_path,
+        )
 
 
 class CircuitInSoilFromCableInputSchema(CircuitFromCableInputSchema[Cable], CircuitInSoilProperties):
