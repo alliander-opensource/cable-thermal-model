@@ -45,11 +45,11 @@ class CableSoil(Cable):
 
         """
         A = self._processed_matrix(time_step=time_step)
-        b = deepcopy(self._heating_vector)
+        b = self._heating_vector.copy()
         b[-1] += self._upper_diagonal_last_element * solution_at_boundary
-        b = self._capacity_grid[:-1] * previous_solution + time_step * b
+        b = self._capacity_grid[:-1] * previous_solution[:-1] + time_step * b
 
-        return self._solve_system(A=A, b=b)
+        return np.append(self._solve_system(A=A, b=b), solution_at_boundary)
 
     def update_soil_properties(
         self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False

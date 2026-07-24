@@ -287,13 +287,11 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         new_self_heating_contribution = {}
         for cable_key, pos_cable in self.cables_with_soil.items():
-            heat_equation_solution = pos_cable.cable.integrate_timestep(
-                previous_solution=self_heating_contribution[cable_key][:-1],
+            new_self_heating_contribution[cable_key] = pos_cable.cable.integrate_timestep(
+                previous_solution=self_heating_contribution[cable_key],
                 time_step=time_step,
                 solution_at_boundary=solution_at_boundary,
             )
-
-            new_self_heating_contribution[cable_key] = np.append(heat_equation_solution, solution_at_boundary)
 
         return new_self_heating_contribution
 
@@ -319,13 +317,10 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         new_mutual_heating_contribution = {}
         for cable_key, pos_cable in self.cables.items():
-            heat_equation_solution = pos_cable.cable.integrate_timestep(
-                previous_solution=mutual_heating_contribution[cable_key][:-1],
+            new_mutual_heating_contribution[cable_key] = pos_cable.cable.integrate_timestep(
+                previous_solution=mutual_heating_contribution[cable_key],
                 time_step=time_step,
                 solution_at_boundary=mutual_heating_effect[cable_key],
-            )
-            new_mutual_heating_contribution[cable_key] = np.append(
-                heat_equation_solution, mutual_heating_effect[cable_key]
             )
 
         return new_mutual_heating_contribution

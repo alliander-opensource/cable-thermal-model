@@ -119,7 +119,7 @@ def test_get_finite_difference_vector_for_state(three_core_cable_pilc: CableSoil
     # Reset the heating vector to its original state for comparison
     three_core_cable_pilc._heating_vector = np.zeros_like(three_core_cable_pilc._heating_vector)
 
-    expected_vector = three_core_cable_pilc.add_dielectric_loss_to_heating_vector()
+    three_core_cable_pilc.add_dielectric_loss_to_heating_vector()
     heat_generation_conductor, heat_generation_screen = three_core_cable_pilc.get_heat_generation_conductor_and_screen(
         load=load,
         conductor_temperature=conductor_temperature,
