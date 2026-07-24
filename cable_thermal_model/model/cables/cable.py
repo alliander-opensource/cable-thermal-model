@@ -55,6 +55,8 @@ class Cable(AbstractCable):
         self._lower_diagonal = np.array([], dtype=float)
         self._finite_difference_matrix_diagonals_outdated = True
 
+        self._heating_vector = np.array([], dtype=float)
+
         self._set_calculated_fields()
 
     @property
@@ -189,6 +191,11 @@ class Cable(AbstractCable):
         rho_grids = [np.full(self._grid_counts[layer], self.layer_properties[layer].rho) for layer in self.layers]
         self._rho_grid = np.concatenate(rho_grids)
         self._invalidate_finite_difference_matrix_diagonals()
+        self._set_heating_vector()
+
+    def _set_heating_vector(self) -> None:
+        """Initialize the heating vector for the cable."""
+        self._heating_vector = np.zeros(self._radii_grid.size - 1)
 
     def _construct_radii_grid(self, maximal_boundary_distance: float = 0.000_1) -> np.ndarray:
         """Construct the radii grid for the cable based on the layer properties and grid counts.
@@ -236,19 +243,6 @@ class Cable(AbstractCable):
                 )
 
         return np.concatenate(radii_grids)
-
-    def integrate_timestep(
-        self,
-        previous_solution: np.ndarray,
-        heating_vector: np.ndarray,
-        time_step: float,
-    ) -> np.ndarray:
-        """Computes the temperature solution for the next time step.
-
-        An abstract method that is implemented differently for different cable types, as the integration method may
-        differ depending on the cable type.
-        """
-        raise NotImplementedError("This method should be implemented in child classes of Cable.")
 
     def update_pipe_fill_resistivity(self, temperature_grid: np.ndarray) -> None:
         """This method updates the (temperature dependent) thermal resistivity of the medium in the pipe of the cable.
@@ -485,25 +479,18 @@ class Cable(AbstractCable):
 
         self._capacity_grid[start_index : end_index + 1] = capacity
 
-    def _update_vector_with_heat_generation_for_layer(
-        self, vector: np.ndarray, heat_generation: float, layer: CableLayer
-    ) -> np.ndarray:
-        """Update the vector with heat generation distributed over one cable layer.
+    def _update_vector_with_heat_generation_for_layer(self, heat_generation: float, layer: CableLayer) -> None:
+        """Update the heating vector with heat generation distributed over one cable layer.
 
         Args:
-            vector (np.ndarray): The vector to update.
             heat_generation (float): The heat generation value in W/m.
             layer (CableLayer): The cable layer over which to distribute the heat generation.
 
-        Returns:
-            np.ndarray: The updated vector with heat generation distributed across the selected layer.
-
         """
         start_index, end_index = self.get_layer_indices_for_layer(layer)
-        vector[start_index : end_index + 1] = (
+        self._heating_vector[start_index : end_index + 1] = (
             heat_generation / self._surface_area_grid[start_index : end_index + 1].sum()
         )
-        return vector
 
     def _get_mean_temperature_cable_layer(self, temperature_grid: np.ndarray, layer: CableLayer) -> float:
         """Calculate the mean temperature for a cable layer.
@@ -590,48 +577,29 @@ class Cable(AbstractCable):
             grid_counts=grid_counts,
         )
 
-    def get_finite_difference_vector(self, neglect_dielectric_loss: bool = False) -> np.ndarray:
-        """This method calculates and returns the finite difference vector.
+    def add_dielectric_loss_to_heating_vector(self) -> None:
+        """This method calculates and updates the heating vector with dielectric loss."""
+        dielectric_loss = self.get_dielectric_loss_for_cable()
+        self._update_vector_with_heat_generation_for_layer(
+            heat_generation=dielectric_loss,
+            layer=CableLayer.Insulation,
+        )
 
-        Args:
-            neglect_dielectric_loss (bool): A boolean representing whether to
-                neglect the dielectric losses in the calculation of the vector.
-                Default is False.
-
-        Returns:
-            np.ndarray: A Numpy array representing the finite difference vector [W/m³].
-        """
-        vector = np.zeros(self._radii_grid.size - 1)
-
-        if not neglect_dielectric_loss:
-            dielectric_loss = self.get_dielectric_loss_for_cable()
-            vector = self._update_vector_with_heat_generation_for_layer(
-                vector=vector,
-                heat_generation=dielectric_loss,
-                layer=CableLayer.Insulation,
-            )
-
-        return vector
-
-    def update_finite_difference_vector(
+    def _update_heating_vector(
         self,
-        vector: np.ndarray,
         temperature_grid: np.ndarray,
         load: float,
         ac_current: bool,
         temperature_dependent_electric_resistance: bool,
-    ) -> np.ndarray:
+    ) -> None:
         """Build the finite difference vector for a specific thermal state and circuit load.
 
         Args:
-            vector (np.ndarray): The finite difference vector to be updated.
             temperature_grid (np.ndarray): The current temperature grid for the cable.
             load (float): The electrical load in amperes.
             ac_current (bool): Whether AC conductor losses are included.
             temperature_dependent_electric_resistance (bool): Whether resistance depends on temperature.
 
-        Returns:
-            np.ndarray: A finite difference vector for the given state and load.
         """
         conductor_temperature = self._get_mean_temperature_cable_layer(
             temperature_grid=temperature_grid, layer=CableLayer.Conductor
@@ -650,8 +618,7 @@ class Cable(AbstractCable):
                 temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
             )
 
-            vector = self._update_vector_with_heat_generation_for_layer(
-                vector=vector,
+            self._update_vector_with_heat_generation_for_layer(
                 heat_generation=heat_generation_screen,
                 layer=CableLayer.Screen,
             )
@@ -663,8 +630,7 @@ class Cable(AbstractCable):
                 temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
             )
 
-        return self._update_vector_with_heat_generation_for_layer(
-            vector=vector,
+        self._update_vector_with_heat_generation_for_layer(
             heat_generation=heat_generation_conductor,
             layer=CableLayer.Conductor,
         )

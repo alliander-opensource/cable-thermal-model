@@ -93,7 +93,6 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
     def _update_state(
         self,
         state: StateAir,
-        heat_vectors: dict[CableKey, np.ndarray],
         ambient_temperature: float,
         time_step: float,
     ) -> StateAir:
@@ -101,7 +100,6 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         new_self_heating_contribution = {
             cable_key: pos_cable.cable.integrate_timestep(
                 previous_solution=state.self_heating_contribution[cable_key],
-                heating_vector=heat_vectors[cable_key],
                 time_step=time_step,
             )
             for cable_key, pos_cable in self.cables.items()

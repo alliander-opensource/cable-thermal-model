@@ -32,6 +32,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
+import cable_thermal_model.model.cables.cable as cable_module
 import cable_thermal_model.model.cables.cable_air as cable_air_module
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
@@ -106,15 +107,19 @@ def test_get_finite_difference_vector_for_state(three_core_cable_pilc: CableSoil
     temperature_grid[conductor_start_index : conductor_end_index + 1] = conductor_temperature
     temperature_grid[screen_start_index : screen_end_index + 1] = screen_temperature
 
-    vector = three_core_cable_pilc.update_finite_difference_vector(
-        vector=three_core_cable_pilc.get_finite_difference_vector(neglect_dielectric_loss=False),
+    three_core_cable_pilc.add_dielectric_loss_to_heating_vector()
+    three_core_cable_pilc._update_heating_vector(
         temperature_grid=temperature_grid,
         load=load,
         ac_current=True,
         temperature_dependent_electric_resistance=True,
     )
+    vector = three_core_cable_pilc._heating_vector.copy()
 
-    expected_vector = three_core_cable_pilc.get_finite_difference_vector(neglect_dielectric_loss=False)
+    # Reset the heating vector to its original state for comparison
+    three_core_cable_pilc._heating_vector = np.zeros_like(three_core_cable_pilc._heating_vector)
+
+    expected_vector = three_core_cable_pilc.add_dielectric_loss_to_heating_vector()
     heat_generation_conductor, heat_generation_screen = three_core_cable_pilc.get_heat_generation_conductor_and_screen(
         load=load,
         conductor_temperature=conductor_temperature,
@@ -122,16 +127,15 @@ def test_get_finite_difference_vector_for_state(three_core_cable_pilc: CableSoil
         temperature_dependent_electric_resistance=True,
         ac_current=True,
     )
-    expected_vector = three_core_cable_pilc._update_vector_with_heat_generation_for_layer(
-        vector=expected_vector,
+    three_core_cable_pilc._update_vector_with_heat_generation_for_layer(
         heat_generation=heat_generation_screen,
         layer=CableLayer.Screen,
     )
-    expected_vector = three_core_cable_pilc._update_vector_with_heat_generation_for_layer(
-        vector=expected_vector,
+    three_core_cable_pilc._update_vector_with_heat_generation_for_layer(
         heat_generation=heat_generation_conductor,
         layer=CableLayer.Conductor,
     )
+    expected_vector = three_core_cable_pilc._heating_vector.copy()
 
     assert np.allclose(vector, expected_vector)
 
@@ -570,7 +574,6 @@ def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
     single_core_cable_xlpe_in_air.set_convection_parameters(Z=0.91, E=0.0, Cg=0.0)
     n = single_core_cable_xlpe_in_air.grid_size
     previous_solution = np.zeros(n)
-    heating_vector = np.zeros(n - 1)
 
     call_count = {"n": 0}
 
@@ -581,12 +584,10 @@ def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
         return out
 
     monkeypatch.setattr(cable_air_module.CableAir, "MAX_ITERATIONS_PER_TIMESTEP", 3)
-    monkeypatch.setattr(cable_air_module.linalg, "solve_banded", _non_converging_solver)
+    monkeypatch.setattr(cable_module.linalg, "solve_banded", _non_converging_solver)
 
     with pytest.raises(ValueError, match="Solution did not converge after 3 iterations"):
-        single_core_cable_xlpe_in_air.integrate_timestep(
-            previous_solution=previous_solution, heating_vector=heating_vector, time_step=1.0
-        )
+        single_core_cable_xlpe_in_air.integrate_timestep(previous_solution=previous_solution, time_step=1.0)
 
 
 def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
@@ -596,10 +597,9 @@ def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
         pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
     )
     previous_solution = np.zeros(cable.grid_size)
-    heating_vector = np.zeros(cable.grid_size - 1)
 
     with pytest.raises(ValueError, match="Convection coefficient is not set. Please set convection parameters first."):
-        cable.integrate_timestep(previous_solution=previous_solution, heating_vector=heating_vector, time_step=1.0)
+        cable.integrate_timestep(previous_solution=previous_solution, time_step=1.0)
 
 
 # TODO in refactor:

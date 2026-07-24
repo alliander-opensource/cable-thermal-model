@@ -50,6 +50,10 @@ class CableAir(Cable):
         self.convection_coefficient: float | None = None
         super().__init__(conductor, layer_properties, layer_metrics, cable_type, grid_counts)
 
+    def _set_heating_vector(self) -> None:
+        """Initialize the heating vector for the cable."""
+        self._heating_vector = np.zeros(self._radii_grid.size)
+
     def set_convection_parameters(self, Z: float, E: float, Cg: float):
         """Set the convection parameters used to compute the convection coefficient.
 
@@ -68,7 +72,6 @@ class CableAir(Cable):
     def integrate_timestep(
         self,
         previous_solution: np.ndarray,
-        heating_vector: np.ndarray,
         time_step: float,
     ) -> np.ndarray:
         """Computes the temperature solution for the next time step.
@@ -79,7 +82,6 @@ class CableAir(Cable):
         Args:
             previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            heating_vector (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
 
@@ -90,7 +92,7 @@ class CableAir(Cable):
         """
         A = self._processed_matrix(time_step=time_step)
 
-        b = np.append(heating_vector, 0.0) * time_step + self._capacity_grid * previous_solution
+        b = self._heating_vector * time_step + self._capacity_grid * previous_solution
 
         temp_solution = previous_solution.copy()
         theta_N = temp_solution[-1]

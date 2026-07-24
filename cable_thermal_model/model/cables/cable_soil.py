@@ -19,8 +19,8 @@ class CableSoil(Cable):
     def integrate_timestep(
         self,
         previous_solution: np.ndarray,
-        heating_vector: np.ndarray,
         time_step: float,
+        solution_at_boundary: float,
     ) -> np.ndarray:
         """This method solves the finite difference approximation to the heat equation using the implicit Euler method.
 
@@ -31,9 +31,9 @@ class CableSoil(Cable):
         Args:
             previous_solution (np.ndarray): The solution of the heat equation [°C] at the
                 previous timestep (t).
-            heating_vector (np.ndarray): The finite difference vector [W/m³].
             time_step (float): The size of the time steps [s] in the linearized
                 time grid.
+            solution_at_boundary (float): The solution at the boundary grid point [°C] used as a boundary condition.
 
         Returns:
             np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except
@@ -41,7 +41,9 @@ class CableSoil(Cable):
 
         """
         A = self._processed_matrix(time_step=time_step)
-        b = self._capacity_grid[:-1] * previous_solution + time_step * heating_vector
+        b = deepcopy(self._heating_vector)
+        b[-1] += self.upper_diagonal_last_element * solution_at_boundary
+        b = self._capacity_grid[:-1] * previous_solution + time_step * b
 
         return self._solve_system(A=A, b=b)
 
