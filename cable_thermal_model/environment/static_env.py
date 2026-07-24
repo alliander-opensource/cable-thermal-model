@@ -5,12 +5,11 @@
 import hashlib
 import warnings
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Generic, TypeVar
 
 import numpy as np
 
-from cable_thermal_model.cable.cable_builder import CableBuilder, CableT
+from cable_thermal_model.cable.cable_builder import CableT
 from cable_thermal_model.cable.cable_circuit import (
     BondingType,
     CableCircuit,
@@ -22,8 +21,6 @@ from cable_thermal_model.cable.cable_circuit import (
 from cable_thermal_model.cable.schemas.circuit_schemas import (
     BaseCircuitInputSchema,
     CircuitConfiguration,
-    CircuitConfigurationFromCableConstructionalInputSchema,
-    CircuitConfigurationFromCableId,
     CircuitFromCableConstructionalInputSchema,
     CircuitFromCableIdInputSchema,
     CircuitFromCableInputSchema,
@@ -54,6 +51,9 @@ class StaticEnv(
     ],
 ):
     """Class that builds a static environment."""
+
+    _cable_class: type[CableT]
+    _cable_trefoil_circuit_single_pipe_class: type[CableT]
 
     def __init__(self) -> None:
         """Initialize the static environment with empty circuit and cable containers."""
@@ -113,11 +113,11 @@ class StaticEnv(
 
         """
         # Build cable from cable id
-        cable = self._build_cable_from_circuit_input_from_cable_id(circuit_input)
-        multiple_configurations = self.multiple_configurations_from_cable_id(
-            multiple_configurations_from_cable_id=circuit_input.multiple_configurations,
-            cable_source_file_path=circuit_input.cable_source_file_path,
-        )
+        cable = self._build_cable_from_circuit_input(circuit_input)
+        multiple_configurations = [
+            config._compute_circuit_configuration(cable_source_file_path=circuit_input.cable_source_file_path)
+            for config in circuit_input.multiple_configurations
+        ]
 
         # Add circuit to environment from the constructed cable
         self.add_circuit_from_cable(
@@ -140,10 +140,10 @@ class StaticEnv(
 
         """
         # Build cable from cable constructional information
-        cable = self._build_cable_from_circuit_input_from_cable_constructional_information(circuit_input)
-        multiple_configurations = self.multiple_configurations_from_cable_constructional_input(
-            multiple_configurations_from_cable_constructional_input=circuit_input.multiple_configurations,
-        )
+        cable = self._build_cable_from_circuit_input(circuit_input)
+        multiple_configurations = [
+            config._compute_circuit_configuration() for config in circuit_input.multiple_configurations
+        ]
 
         # Add circuit to environment from the constructed cable
         self.add_circuit_from_cable(
@@ -219,7 +219,9 @@ class StaticEnv(
 
         return self
 
-    def _build_cable_from_circuit_input_from_cable_id(self, circuit_input: CircuitFromCableIdInputSchemaT) -> CableT:
+    def _build_cable_from_circuit_input(
+        self, circuit_input: CircuitFromCableIdInputSchemaT | CircuitFromCableConstructionalInputSchemaT
+    ) -> CableT:
         """Builds a cable from a circuit input schema.
 
         The cable is built based on the cable_id and cable_source_file provided in the circuit input schema.
@@ -232,43 +234,11 @@ class StaticEnv(
 
         """
         # Determine appropriate Cable class
-        cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
+        cable_class = self._determine_cable_class_from_circuit_input(circuit_input)
+        return circuit_input._build_cable(cable_class)
 
-        return CableBuilder.build_cable_from_cable_id(
-            cable_id=circuit_input.cable_id,
-            cable_class=cable_cls,
-            pipe=circuit_input.pipe,
-            cable_source_file_path=circuit_input.cable_source_file_path,
-        )
-
-    def _build_cable_from_circuit_input_from_cable_constructional_information(
-        self, circuit_input: CircuitFromCableConstructionalInputSchemaT
-    ) -> CableT:
-        """Builds a cable from a circuit input schema.
-
-        The cable is built based on the cable constructional information provided in the circuit input schema.
-
-        Args:
-            circuit_input: Circuit input schema containing the input parameters for the circuit.
-
-        Returns:
-            A cable object built based on the input parameters.
-
-        """
-        # Determine appropriate Cable class
-        cable_cls = self._determine_cable_class_from_circuit_input(circuit_input)
-
-        return CableBuilder.build_cable(
-            cable_constructional_input=circuit_input.cable_constructional_information,
-            cable_class=cable_cls,
-            pipe=circuit_input.pipe,
-        )
-
-    @abstractmethod
     def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableT]:
         """Determines the appropriate Cable class based on the circuit input schema.
-
-        This is implemented in the subclass since the cable class can differ per environment (Air/Soil).
 
         Args:
             circuit_input: Circuit input schema containing the input parameters for the circuit.
@@ -277,7 +247,11 @@ class StaticEnv(
             The Cable class that should be used to build the cable based on the input parameters.
 
         """
-        raise NotImplementedError("This method should be implemented in the subclass of StaticEnv.")
+        return (
+            self._cable_trefoil_circuit_single_pipe_class
+            if CircuitBuilder._is_trefoil_circuit_in_single_pipe(circuit_input.circuit_type, circuit_input.pipe)
+            else self._cable_class
+        )
 
     def _generate_circuit_configuration(self, configuration: CircuitConfiguration) -> CableCircuit:
         return CircuitBuilder().from_cable(
@@ -397,81 +371,6 @@ class StaticEnv(
     def get_cable(self, cable_key: CableKey) -> PosCable[CableT]:
         """Gets the Cable-object corresponding to the cable_name from the environment."""
         return self.cables[cable_key]
-
-    @staticmethod
-    def multiple_configurations_from_cable_id(
-        multiple_configurations_from_cable_id: list[CircuitConfigurationFromCableId], cable_source_file_path: Path
-    ) -> list[CircuitConfiguration]:
-        """Generates multiple circuit configurations based on a list of CircuitConfigurationFromCableId.
-
-        Args:
-            multiple_configurations_from_cable_id: A list of
-                CircuitConfigurationFromCableId, specifying the cable ids and
-                lengths of the different configurations.
-            cable_source_file_path: Name of the file containing the cable
-                specifications. This file has to be located in the data
-                directory and must either be an Excel or csv file.
-
-        Returns:
-            list[CircuitConfiguration]: A list of CircuitConfiguration objects that can be used in
-                the multiple_configurations argument of add_circuit_from_cable or
-                add_circuit_from_cable_id.
-
-        """
-        multiple_configurations: list[CircuitConfiguration] = []
-        for config in multiple_configurations_from_cable_id:
-            cable = CableBuilder.build_cable_from_cable_id(
-                cable_id=config.cable_id,
-                cable_class=config.cable_class,
-                pipe=config.pipe,
-                cable_source_file_path=cable_source_file_path,
-            )
-            multiple_configurations.append(
-                CircuitConfiguration(
-                    cable=cable,
-                    length=config.length,
-                    circuit_type=config.circuit_type,
-                    dist=config.dist,
-                )
-            )
-        return multiple_configurations
-
-    @staticmethod
-    def multiple_configurations_from_cable_constructional_input(
-        multiple_configurations_from_cable_constructional_input: list[
-            CircuitConfigurationFromCableConstructionalInputSchema
-        ],
-    ) -> list[CircuitConfiguration]:
-        """Generate multiple configurations from constructional input schemas.
-
-        Args:
-            multiple_configurations_from_cable_constructional_input: A list
-                of CircuitConfigurationFromCableConstructionalInputSchema,
-                specifying the cable constructional input schemas and lengths
-                of the different configurations.
-
-        Returns:
-            list[CircuitConfiguration]: A list of CircuitConfiguration objects that can be used in
-                the multiple_configurations argument of add_circuit_from_cable or
-                add_circuit_from_cable_id.
-
-        """
-        multiple_configurations: list[CircuitConfiguration] = []
-        for config in multiple_configurations_from_cable_constructional_input:
-            cable = CableBuilder.build_cable(
-                cable_constructional_input=config.cable_constructional_information,
-                cable_class=config.cable_class,
-                pipe=config.pipe,
-            )
-            multiple_configurations.append(
-                CircuitConfiguration(
-                    cable=cable,
-                    length=config.length,
-                    circuit_type=config.circuit_type,
-                    dist=config.dist,
-                )
-            )
-        return multiple_configurations
 
 
 StaticEnvT = TypeVar("StaticEnvT", bound=StaticEnv)

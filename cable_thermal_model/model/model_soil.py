@@ -30,7 +30,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
     Class Attributes:
         _run_options_class:                 The class used for run options.
         _state_class:                       The class used for the state of the model.
-        _scenario_schema_cls:               The class used for the scenario schema.
+        _scenario_schema_class:               The class used for the scenario schema.
 
     Attributes:
         mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
@@ -50,7 +50,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
     _run_options_class = ModelSoilRunOptions
     _state_class = StateSoil
-    _scenario_schema_cls = ScenarioSchemaSoil
+    _scenario_schema_class = ScenarioSchemaSoil
 
     def __init__(self, static_env: StaticEnvSoil, scenario: DataFrame[ScenarioSchemaSoil]):
         """Initialize the ModelSoil instance with a static environment and scenario.
