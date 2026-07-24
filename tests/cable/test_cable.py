@@ -12,9 +12,9 @@ from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableConductorProperties, CableLayerMetrics
 from cable_thermal_model.model.cables.cable import (
     Cable,
-    CableSoil,
-    CableTrefoilCircuitSinglePipeInSoil,
 )
+from cable_thermal_model.model.cables.cable_soil import CableSoil
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInSoil
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorCount,
     CableConductorMaterial,

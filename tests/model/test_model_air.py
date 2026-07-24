@@ -162,6 +162,7 @@ def test_stateair_validate_single_circuit():
         static_env_hash="dummy_fingerprint",
         temperature={cable_key_single: np.array([20.0])},
         self_heating_contribution={cable_key_single: np.array([20.0])},
+        ambient_temperature=0.0,
     )
 
     # Test 2: Multiple circuits should fail.
@@ -173,6 +174,7 @@ def test_stateair_validate_single_circuit():
             static_env_hash="dummy_fingerprint",
             temperature={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
             self_heating_contribution={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
+            ambient_temperature=0.0,
         )
 
 
@@ -229,6 +231,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
         static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
+        ambient_temperature=0.0,
     )
 
     model.run(initial_state=valid_state)
@@ -239,6 +242,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         mutual_heating_contribution={cable_key: np.array([15.0])},
+        ambient_temperature=5.0,
     )
 
     with pytest.raises(ValueError, match="ModelAir requires a StateAir instance, but received StateSoil"):

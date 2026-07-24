@@ -8,7 +8,7 @@ from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
-from cable_thermal_model.model.cables.cable import CableAir
+from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir
@@ -63,6 +63,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
             static_env_hash=self.static_env.compute_hash(),
             temperature=self._initialize_state_from_cables(cables=self.cables, fill_value=ambient_temperature),
             self_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
+            ambient_temperature=ambient_temperature,
         )
 
     def _update_thermal_properties_if_needed(
@@ -111,6 +112,10 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
             for cable_key, self_heating in new_self_heating_contribution.items()
         }
 
-        state.temperature = new_temperature_state
-        state.self_heating_contribution = new_self_heating_contribution
-        return state
+        new_state = StateAir(
+            static_env_hash=state.static_env_hash,
+            temperature=new_temperature_state,
+            self_heating_contribution=new_self_heating_contribution,
+            ambient_temperature=ambient_temperature,
+        )
+        return new_state

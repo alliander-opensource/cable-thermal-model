@@ -32,11 +32,13 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-import cable_thermal_model.model.cables.cable as fd_cable_module
+import cable_thermal_model.model.cables.cable_air as cable_air_module
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
-from cable_thermal_model.model.cables.cable import Cable, CableSoil, CableTrefoilCircuitSinglePipeInAir
+from cable_thermal_model.model.cables.cable import Cable
+from cable_thermal_model.model.cables.cable_soil import CableSoil
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInAir
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType, PipeFillType
 from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
@@ -578,8 +580,8 @@ def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
         out[-1] = float(call_count["n"])
         return out
 
-    monkeypatch.setattr(fd_cable_module, "_MAX_ITERATIONS_PER_TIMESTEP", 3)
-    monkeypatch.setattr(fd_cable_module.linalg, "solve_banded", _non_converging_solver)
+    monkeypatch.setattr(cable_air_module.CableAir, "MAX_ITERATIONS_PER_TIMESTEP", 3)
+    monkeypatch.setattr(cable_air_module.linalg, "solve_banded", _non_converging_solver)
 
     with pytest.raises(ValueError, match="Solution did not converge after 3 iterations"):
         single_core_cable_xlpe_in_air.integrate_timestep(

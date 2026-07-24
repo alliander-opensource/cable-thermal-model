@@ -91,6 +91,7 @@ nav:
       - Example calculation: examples/example_calculation.ipynb
       - Add cables: examples/build_cable_example.ipynb
       - External heat sources: examples/external_heat_sources_example.ipynb
+      - Measurement points: examples/measurement_points.ipynb
   - Theoretical Documentation:
       - The heat equation: theoretical_documentation/heat_equation.md
       - Finite difference method: theoretical_documentation/finite_difference.md

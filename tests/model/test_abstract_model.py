@@ -250,8 +250,10 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
     valid_solution = {cable_key: np.array([15.0])}
 
     State(
+        static_env_hash="dummy_fingerprint",
         temperature=valid_full_solution,
         self_heating_contribution=valid_solution,
+        ambient_temperature=5.0,
     )
     # Test 2: Mismatched keys should fail
     wrong_key = CableKey(circuit_name="wrong_circuit", cable_position=CablePosition.TrefoilLeft)
@@ -259,8 +261,10 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
 
     with pytest.raises(ValidationError, match="Inconsistent keys between temperature and self_heating"):
         State(
+            static_env_hash="dummy_fingerprint",
             temperature=valid_full_solution,
             self_heating_contribution=invalid_solution,
+            ambient_temperature=5.0,
         )
 
 
@@ -277,6 +281,7 @@ def test_state_check_cable_representations_consistency(model):
         "static_env_hash": env_hash,
         "temperature": valid_temperature,
         "self_heating_contribution": valid_self_heating,
+        "ambient_temperature": 5.0,
     }
     if state_cls is StateSoil:
         valid_state_kwargs["mutual_heating_contribution"] = {key: np.array([10.0]) for key in cable_keys}
@@ -290,6 +295,7 @@ def test_state_check_cable_representations_consistency(model):
         "static_env_hash": env_hash,
         "temperature": incomplete_temperature,
         "self_heating_contribution": incomplete_self_heating,
+        "ambient_temperature": 5.0,
     }
     if state_cls is StateSoil:
         invalid_state_kwargs["mutual_heating_contribution"] = {cable_keys[0]: np.array([10.0])}
@@ -308,6 +314,7 @@ def test_state_check_environment_hash_consistency(model):
         "static_env_hash": "different-environment-hash",
         "temperature": {key: np.array([20.0]) for key in cable_keys},
         "self_heating_contribution": {key: np.array([15.0]) for key in cable_keys},
+        "ambient_temperature": 5.0,
     }
     if state_cls is StateSoil:
         invalid_state_kwargs["mutual_heating_contribution"] = {key: np.array([10.0]) for key in cable_keys}

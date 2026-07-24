@@ -14,7 +14,8 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInAirFromCableInputSchema,
 )
 from cable_thermal_model.environment.static_env import StaticEnv
-from cable_thermal_model.model.cables.cable import CableAir, CableTrefoilCircuitSinglePipeInAir
+from cable_thermal_model.model.cables.cable_air import CableAir
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInAir
 
 
 class StaticEnvAir(

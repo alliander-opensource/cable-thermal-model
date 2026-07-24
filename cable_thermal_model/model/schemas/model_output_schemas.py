@@ -10,6 +10,7 @@ from pandera.typing import DataFrame
 from pydantic import BaseModel, ConfigDict
 
 from cable_thermal_model.cable.cable_circuit import CablePosition
+from cable_thermal_model.environment.measurement_point import MEASUREMENT_POINT_KEY_PREFIX
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas.state_schemas import StateT
 
@@ -42,32 +43,42 @@ class TemperatureResultSchema(pa.DataFrameModel):
         expected_nlevels = 3
         return isinstance(df.columns, pd.MultiIndex) and df.columns.nlevels == expected_nlevels
 
-    # Column level 0: circuit_name (any non-empty string)
     @pa.dataframe_check
     @classmethod
     def check_circuit_names(cls, df: pd.DataFrame) -> bool:
-        """Ensure circuit names are non-empty strings."""
+        """Ensure level-0 names are valid circuit names or the measurement-point prefix."""
         circuit_names = df.columns.get_level_values(0).unique()
         for name in circuit_names:
+            if name == MEASUREMENT_POINT_KEY_PREFIX:
+                continue  # Skip validation for measurement-point columns
             if not isinstance(name, str) or len(name) == 0:
                 raise ValueError(f"Circuit name '{name}' is not a valid non-empty string.")
         return True
 
-    # Column level 1: cable_position (valid enum values)
     @pa.dataframe_check
     @classmethod
     def check_cable_positions(cls, df: pd.DataFrame) -> bool:
-        """Ensure cable positions are valid CablePosition enum values."""
-        positions = df.columns.get_level_values(1).unique()
-        return bool([CablePosition(pos) for pos in positions])
+        """Validate level-1 and level-2 values by column type.
 
-    # Column level 2: cable_layer (valid enum values)
-    @pa.dataframe_check
-    @classmethod
-    def check_cable_layers(cls, df: pd.DataFrame) -> bool:
-        """Ensure cable layers are valid CableLayer enum values."""
-        layers = df.columns.get_level_values(2).unique()
-        return bool([CableLayer(layer) for layer in layers])
+        - For cable result columns: level 1 must be a valid CablePosition. Level 2 must be a valid CableLayer.
+        - For measurement-point columns: level 1 must be a string starting with 'x='. Level 2 must be a string
+            starting with 'y='.
+        """
+        level0_values = df.columns.get_level_values(0)
+        level1_values = df.columns.get_level_values(1)
+        level2_values = df.columns.get_level_values(2)
+
+        for level0, level1, level2 in zip(level0_values, level1_values, level2_values, strict=True):
+            if level0 == MEASUREMENT_POINT_KEY_PREFIX:
+                if not isinstance(level1, str) or not level1.startswith("x="):
+                    raise ValueError("Measurement-point columns must have level 1 as a string starting with 'x='.")
+                if not isinstance(level2, str) or not level2.startswith("y="):
+                    raise ValueError("Measurement-point columns must have level 2 as a string starting with 'y='.")
+            else:
+                CablePosition(level1)
+                CableLayer(level2)
+
+        return True
 
     # Data values: temperature (float)
     @pa.dataframe_check
