@@ -443,13 +443,12 @@ def test_update_capacity_grid(single_core_cable_xlpe: FDCable):
         single_core_cable_xlpe._update_capacity_grid(start_index=5, end_index=3, capacity=2.0e6)
 
     start_index, end_index = single_core_cable_xlpe.get_layer_indices_for_layer(CableLayer.Conductor)
-    old_values = single_core_cable_xlpe._capacity_grid.copy()
     capacity = float(single_core_cable_xlpe._capacity_grid[start_index])
 
     single_core_cable_xlpe._update_capacity_grid(
         start_index=start_index, end_index=end_index, capacity=capacity * 1.005
     )
-    assert np.array_equal(single_core_cable_xlpe._capacity_grid, old_values)
+    assert np.allclose(single_core_cable_xlpe._capacity_grid[start_index : end_index + 1], capacity * 1.005)
 
     single_core_cable_xlpe._update_capacity_grid(start_index=start_index, end_index=end_index, capacity=capacity * 1.2)
     assert np.allclose(single_core_cable_xlpe._capacity_grid[start_index : end_index + 1], capacity * 1.2)

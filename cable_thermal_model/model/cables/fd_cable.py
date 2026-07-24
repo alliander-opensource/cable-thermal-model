@@ -600,27 +600,27 @@ class FDCable(AbstractCable):
             radii[1:] / radii[:-1]
         )
 
-    def _update_rho_grid(self, start_index: int, end_index: int, rho: float) -> None:
-        """Update a slice of the rho-grid with a new value if significant change is detected.
+    def _update_rho_grid(self, start_index: int, end_index: int, rho: np.ndarray | float) -> None:
+        """Update a slice of the rho-grid if any new value differs by more than 1% from the current value.
 
         Args:
             start_index (int): The starting index of the slice to update (inclusive).
             end_index (int): The ending index of the slice to update (inclusive).
-            rho (float): The new resistivity value to set for the specified slice.
+            rho (np.ndarray | float): The new resistivity value(s) to set for the specified slice.
 
         """
         if start_index > end_index:
             raise ValueError("The start_index exceeds the end_index. Cannot update the rho grid.")
 
-        rho_slice = self._rho_grid[start_index : end_index + 1]
-        if np.all(np.isclose(rho_slice, rho, rtol=1e-2)):
-            return
+        old_rho_values = self._rho_grid[start_index : end_index + 1]
+        rho_values_changed = not np.all(np.isclose(old_rho_values, rho, rtol=1e-2))
 
-        self._rho_grid[start_index : end_index + 1] = rho
-        self._invalidate_finite_difference_matrix_diagonals()
+        if rho_values_changed:
+            self._rho_grid[start_index : end_index + 1] = rho
+            self._invalidate_finite_difference_matrix_diagonals()
 
     def _update_capacity_grid(self, start_index: int, end_index: int, capacity: float) -> None:
-        """Update a slice of the capacity-grid with a new value if significant change is detected.
+        """Update a slice of the capacity-grid with a new value.
 
         Args:
             start_index (int): The starting index of the slice to update (inclusive).
@@ -630,10 +630,6 @@ class FDCable(AbstractCable):
         """
         if start_index > end_index:
             raise ValueError("The start_index exceeds the end_index. Cannot update the capacity grid.")
-
-        capacity_slice = self._capacity_grid[start_index : end_index + 1]
-        if np.all(np.isclose(capacity_slice, capacity, rtol=1e-2)):
-            return
 
         self._capacity_grid[start_index : end_index + 1] = capacity
 
@@ -689,26 +685,22 @@ class FDCable(AbstractCable):
             dry_soil_radius (float | None): A float representing the radius of
                 the dried-out soil around the cable.
 
-        Returns:
-            bool: Whether any resistivity values in the rho grid changed.
-
         """
-        start_index = self._get_soil_grid_start_index()
-        self._update_rho_grid(
-            start_index=start_index,
-            end_index=self.grid_size - 1,
-            rho=soil_rho,
-        )
+        soil_start_index = self._get_soil_grid_start_index()
+        new_rho_values = np.full(self.grid_size - soil_start_index, soil_rho)
 
         if dry_soil_radius is not None:
             dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
+
             end_index = int((self._radii_grid <= dry_soil_radius).sum()) - 1
-            if end_index > start_index:
-                self._update_rho_grid(
-                    start_index=start_index,
-                    end_index=end_index,
-                    rho=dry_soil_rho,
-                )
+            if end_index > soil_start_index:
+                new_rho_values[: end_index - soil_start_index + 1] = dry_soil_rho
+
+        self._update_rho_grid(
+            start_index=soil_start_index,
+            end_index=self.grid_size - 1,
+            rho=new_rho_values,
+        )
 
     def _update_soil_capacity(self, soil_c: float):
         """This method updates the soil capacity values around a cable.
