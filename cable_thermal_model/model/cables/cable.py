@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 #
 # SPDX-License-Identifier: MPL-2.0
+from abc import abstractmethod
 from copy import deepcopy
 from typing import Any, Self
 
@@ -78,7 +79,7 @@ class Cable(AbstractCable):
         )
 
     @property
-    def upper_diagonal_last_element(self) -> float:
+    def _upper_diagonal_last_element(self) -> float:
         """Get the outer-boundary coupling coefficient from the finite difference matrix.
 
         The outer-boundary coupling coefficient is a value that represents the thermal interaction at the outer boundary
@@ -121,9 +122,11 @@ class Cable(AbstractCable):
         """
         self._update_finite_difference_matrix_diagonals_if_needed()
 
-        matrix = np.zeros((3, len(self._base_diagonal)))
+        base_diagonal_length = len(self._base_diagonal)
 
-        matrix[0, 1:] = self._upper_diagonal[:-1]
+        matrix = np.zeros((3, base_diagonal_length))
+
+        matrix[0, 1:] = self._upper_diagonal[: base_diagonal_length - 1]
         matrix[1, :] = self._base_diagonal
         matrix[2, :-1] = self._lower_diagonal
 
@@ -193,9 +196,10 @@ class Cable(AbstractCable):
         self._invalidate_finite_difference_matrix_diagonals()
         self._set_heating_vector()
 
+    @abstractmethod
     def _set_heating_vector(self) -> None:
         """Initialize the heating vector for the cable."""
-        self._heating_vector = np.zeros(self._radii_grid.size - 1)
+        pass
 
     def _construct_radii_grid(self, maximal_boundary_distance: float = 0.000_1) -> np.ndarray:
         """Construct the radii grid for the cable based on the layer properties and grid counts.

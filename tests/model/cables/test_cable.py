@@ -307,7 +307,7 @@ def test_get_outer_boundary_coupling_coefficient_from_matrix(single_core_cable_x
     """Test that the matrix-based outer-boundary coupling matches the final upper diagonal term."""
     upper_diagonal, _, _ = single_core_cable_xlpe._get_finite_difference_matrix_diagonals()
 
-    outer_boundary_coupling_coefficient = single_core_cable_xlpe.upper_diagonal_last_element
+    outer_boundary_coupling_coefficient = single_core_cable_xlpe._upper_diagonal_last_element
 
     assert np.isclose(outer_boundary_coupling_coefficient, upper_diagonal[-1])
 

@@ -125,7 +125,6 @@ class CableAir(Cable):
         upper_diagonal, base_diagonal, lower_diagonal = super()._get_finite_difference_matrix_diagonals()
 
         # Extend the diagonals to account for the boundary condition at the outer sheath in air
-        upper_diagonal = np.append(upper_diagonal, 0.0)
         common_factor_second_derivative = self._common_factors_second_derivative(
             radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
             inter_radii=np.append(self._inter_radii[-1:], self._radii_grid[-1]),

@@ -16,6 +16,10 @@ class CableSoil(Cable):
 
     _SOIL_DRYING_TEMPERATURE = 30
 
+    def _set_heating_vector(self) -> None:
+        """Initialize the heating vector for the cable."""
+        self._heating_vector = np.zeros(self._radii_grid.size - 1)
+
     def integrate_timestep(
         self,
         previous_solution: np.ndarray,
@@ -42,7 +46,7 @@ class CableSoil(Cable):
         """
         A = self._processed_matrix(time_step=time_step)
         b = deepcopy(self._heating_vector)
-        b[-1] += self.upper_diagonal_last_element * solution_at_boundary
+        b[-1] += self._upper_diagonal_last_element * solution_at_boundary
         b = self._capacity_grid[:-1] * previous_solution + time_step * b
 
         return self._solve_system(A=A, b=b)
