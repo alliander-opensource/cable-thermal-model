@@ -209,14 +209,14 @@ class CircuitFromCableConstructionalInputSchema(
 class CircuitFromCableIdInputSchema(BaseCircuitInputSchema[CircuitConfigurationFromCableId], CableId):
     """Input schema for the `add_circuit_from_cable_id` method of the StaticEnvironment class."""
 
-    def _build_cable(self, cable_class: type[CableT]) -> CableT:
+    def _build_cable(self, cable_class: type[Cable]) -> Cable:
         """Build a cable instance based on the cable ID and source file path.
 
         Args:
-            cable_class (type[CableT]): The class of the cable to build.
+            cable_class (type[Cable]): The class of the cable to build.
 
         Returns:
-            CableT: An instance of the cable class.
+            Cable: An instance of the cable class.
 
         """
         return CableBuilder.build_cable_from_cable_id(

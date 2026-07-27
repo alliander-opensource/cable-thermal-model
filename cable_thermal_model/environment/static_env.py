@@ -30,6 +30,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
     AbstractCable,
     WeightedScreenImpedance,
 )
+from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
 from cable_thermal_model.model.cables.enum_classes_cable import CableConductorCount
 from cable_thermal_model.utils.str_utils import tab_lines
@@ -52,8 +53,8 @@ class StaticEnv(
 ):
     """Class that builds a static environment."""
 
-    _cable_class: type[CableT]
-    _cable_trefoil_circuit_single_pipe_class: type[CableT]
+    _cable_class: type[Cable]
+    _cable_trefoil_circuit_single_pipe_class: type[CableTrefoilCircuitSinglePipe]
 
     def __init__(self) -> None:
         """Initialize the static environment with empty circuit and cable containers."""
@@ -221,7 +222,7 @@ class StaticEnv(
 
     def _build_cable_from_circuit_input(
         self, circuit_input: CircuitFromCableIdInputSchemaT | CircuitFromCableConstructionalInputSchemaT
-    ) -> CableT:
+    ) -> Cable:
         """Builds a cable from a circuit input schema.
 
         The cable is built based on the circuit input schema.
@@ -235,9 +236,9 @@ class StaticEnv(
         """
         # Determine appropriate Cable class
         cable_class = self._determine_cable_class_from_circuit_input(circuit_input)
-        return circuit_input._build_cable(cable_class)
+        return circuit_input._build_cable(cable_class=cable_class)
 
-    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableT]:
+    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[Cable]:
         """Determines the appropriate Cable class based on the circuit input schema.
 
         Args:
