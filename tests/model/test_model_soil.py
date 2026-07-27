@@ -517,14 +517,8 @@ def test_update_thermal_state(
     model._update_self_heating_contribution = mock.Mock(return_value=self_heating_state_map)
     model._update_mutual_heating_contribution = mock.Mock(return_value=mutual_heating_state_map)
 
-    vectors = {
-        cable_key: np.zeros(model.cables_with_soil[cable_key].cable._radii_grid.size - 1)
-        for cable_key in model.cables_with_soil
-    }
-
     state = model._update_state(
         state=current_state,
-        heat_vectors=vectors,
         time_step=1.0,
         ambient_temperature=model.scenario["ambient_temperature"].iloc[time_idx],
     )

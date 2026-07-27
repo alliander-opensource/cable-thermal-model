@@ -108,17 +108,11 @@ class Model(
         """Return the cables used to assemble finite difference vectors."""
         pass
 
-    def _initialize_heat_vectors(self) -> dict[CableKey, np.ndarray]:
-        """Initialize the heat vectors for each cable.
-
-        Returns:
-            dict[CableKey, np.ndarray]: A dictionary with one initialized vector per cable,
-                sized from each cable finite difference representation.
-        """
-        return {
-            cable_key: pos_cable.cable.get_finite_difference_vector(self.run_options.neglect_dielectric_loss)
-            for cable_key, pos_cable in self._cables_for_heat_vectors.items()
-        }
+    def _add_dielectric_loss_to_heating_vectors(self) -> None:
+        """Add dielectric loss to the heating vectors of all cables if not neglected."""
+        if not self.run_options.neglect_dielectric_loss:
+            for pos_cable in self._cables_for_heat_vectors.values():
+                pos_cable.cable.add_dielectric_loss_to_heating_vector()
 
     def _initialize_state(
         self,
@@ -215,44 +209,33 @@ class Model(
 
     def _update_heat_vectors(
         self,
-        heat_vectors: dict[CableKey, np.ndarray],
         temperature_state: dict[CableKey, np.ndarray],
         circuit_loads: dict[str, float],
-    ) -> dict[CableKey, np.ndarray]:
+    ) -> None:
         """Updates the vectors (right-hand side) of the linear system for each cable at a given timestep.
 
         Args:
-            heat_vectors (dict[CableKey, np.ndarray]):
-                The current vectors for each cable, to be updated in-place.
             temperature_state (dict[CableKey, np.ndarray]):
                 The temperature state for each cable at the current timestep.
             circuit_loads (dict[str, float]):
                 The load for each circuit at the current timestep.
-
-        Returns:
-            dict[CableKey, np.ndarray]:
-                The updated vectors for each cable.
 
         """
         for cable_key, pos_cable in self._cables_for_heat_vectors.items():
             circuit_name = cable_key.circuit_name
             conductor_load = circuit_loads[circuit_name]
 
-            heat_vectors[cable_key] = pos_cable.cable.update_finite_difference_vector(
-                vector=heat_vectors[cable_key],
+            pos_cable.cable._update_heating_vector(
                 temperature_grid=temperature_state[cable_key],
                 load=conductor_load,
                 ac_current=self.run_options.ac_current,
                 temperature_dependent_electric_resistance=self.run_options.temperature_dependent_electric_resistance,
             )
 
-        return heat_vectors
-
     @abstractmethod
     def _update_state(
         self,
         state: StateT,
-        heat_vectors: dict[CableKey, np.ndarray],
         ambient_temperature: float,
         time_step: float,
     ) -> StateT:
@@ -260,7 +243,6 @@ class Model(
 
         Args:
             state: Current state of the model.
-            heat_vectors: Current heat vectors for each cable.
             ambient_temperature: Current ambient temperature.
             time_step: Time step for the current iteration.
 
@@ -372,7 +354,8 @@ class Model(
         Returns:
             ModelOutputSchema[StateT]: The computed temperature solution and final thermal state.
         """
-        heat_vectors = self._initialize_heat_vectors()
+        self._add_dielectric_loss_to_heating_vectors()
+
         state = self._initialize_state(initial_state=initial_state)
         self._initialize_temperature_result(state=state)
 
@@ -388,15 +371,13 @@ class Model(
                 elapsed_seconds=time_grid[step_idx],
             )
 
-            heat_vectors = self._update_heat_vectors(
-                heat_vectors=heat_vectors,
+            self._update_heat_vectors(
                 temperature_state=state.temperature,
                 circuit_loads=self._get_circuit_loads_from_scenario_row(scenario_row),
             )
 
             state = self._update_state(
                 state=state,
-                heat_vectors=heat_vectors,
                 ambient_temperature=scenario_row["ambient_temperature"],
                 time_step=time_step,
             )
