@@ -90,7 +90,7 @@ class CableAir(Cable):
                 [t+1] for the cable.
 
         """
-        A = self._processed_matrix(time_step=time_step)
+        A = self._get_processed_matrix(time_step=time_step)
 
         b = self._heating_vector * time_step + self._capacity_grid * previous_solution
 

@@ -650,7 +650,7 @@ class Cable(AbstractCable):
         if not all(isinstance(value, (int, np.integer)) for value in grid_counts.values()):
             raise TypeError("The grid_counts argument must be a dictionary of integers!")
 
-    def _processed_matrix(self, time_step: float) -> np.ndarray | sparse.lil_matrix:
+    def _get_processed_matrix(self, time_step: float) -> np.ndarray | sparse.lil_matrix:
         """Process the finite difference matrix for the implicit Euler method.
 
         Args:

@@ -21,8 +21,16 @@ class CableTrefoilCircuitSinglePipe(Cable):
 
     _bottomright_index: tuple[int, int] = (-1, -1)
 
-    def _processed_matrix(self, time_step: float) -> np.ndarray | sparse.lil_matrix:
+    def _get_processed_matrix(self, time_step: float) -> np.ndarray | sparse.lil_matrix:
+        """Process the finite difference matrix for the implicit Euler method.
 
+        Args:
+            time_step (float): The size of the time step [s] in the linearized time grid.
+
+        Returns:
+            sparse.spmatrix: The processed finite difference matrix ready for solving the linear system.
+
+        """
         ab = self._banded_matrix
 
         # Convert the banded matrix to a sparse matrix

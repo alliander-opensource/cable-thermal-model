@@ -44,7 +44,7 @@ class CableSoil(Cable):
                 the final grid point, at which a boundary condition is enforced.
 
         """
-        A = self._processed_matrix(time_step=time_step)
+        A = self._get_processed_matrix(time_step=time_step)
         b = self._heating_vector.copy()
         b[-1] += self._upper_diagonal_last_element * solution_at_boundary
         b = self._capacity_grid[:-1] * previous_solution[:-1] + time_step * b
@@ -53,7 +53,7 @@ class CableSoil(Cable):
 
     def update_soil_properties(
         self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False
-    ):
+    ) -> None:
         """This method updates the soil properties around a cable.
 
         Args:
@@ -72,7 +72,7 @@ class CableSoil(Cable):
 
         self._update_soil_capacity(soil_c=soil_c)
 
-    def _update_soil_capacity(self, soil_c: float):
+    def _update_soil_capacity(self, soil_c: float) -> None:
         """This method updates the soil capacity values around a cable.
 
         If multiple soil layers are present, it sets them all (the entire soil).
