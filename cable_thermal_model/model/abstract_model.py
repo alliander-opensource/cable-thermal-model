@@ -21,7 +21,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
     static_env: StaticEnvT
     scenario: DataFrame[ScenarioSchemaT]
-    _scenario_schema_cls: type[ScenarioSchemaT]
+    _scenario_schema_class: type[ScenarioSchemaT]
 
     def __str__(self):
         """Generates a concise string representation of the model."""
@@ -61,7 +61,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             if "load_" + circuit not in scenario.columns:
                 raise ValueError(f"Scenario dataframe does not contain a load column for circuit '{circuit}'.")
 
-        return self._scenario_schema_cls.validate(scenario)
+        return self._scenario_schema_class.validate(scenario)
 
     def set_scenario(self, scenario: pd.DataFrame):
         """Sets a new scenario and validates it.

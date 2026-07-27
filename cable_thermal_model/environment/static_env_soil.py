@@ -6,11 +6,9 @@
 import pandas as pd
 
 from cable_thermal_model.cable.cable_circuit import (
-    CircuitBuilder,
     CircuitType,
 )
 from cable_thermal_model.cable.schemas.circuit_schemas import (
-    BaseCircuitInputSchema,
     CircuitInSoilFromCableConstructionalInputSchema,
     CircuitInSoilFromCableIdInputSchema,
     CircuitInSoilFromCableInputSchema,
@@ -34,17 +32,13 @@ class StaticEnvSoil(
 ):
     """Class that builds a static environment for circuits in soil."""
 
+    _cable_class = CableSoil
+    _cable_trefoil_circuit_single_pipe_class = CableTrefoilCircuitSinglePipeInSoil
+
     def __init__(self):
         """Initialize the StaticEnvSoil instance."""
         super().__init__()
         self._measurement_point_registry = MeasurementPointRegistry()
-
-    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableSoil]:
-        return (
-            CableTrefoilCircuitSinglePipeInSoil
-            if CircuitBuilder._is_trefoil_circuit_in_single_pipe(circuit_input.circuit_type, circuit_input.pipe)
-            else CableSoil
-        )
 
     @property
     def _circuit_from_cable_input_schema_cls(self) -> type[CircuitInSoilFromCableInputSchema]:

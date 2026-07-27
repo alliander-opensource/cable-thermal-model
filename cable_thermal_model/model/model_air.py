@@ -23,7 +23,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
 
     _run_options_class = ModelAirRunOptions
     _state_class = StateAir
-    _scenario_schema_cls = ScenarioSchemaAir
+    _scenario_schema_class = ScenarioSchemaAir
 
     def __init__(self, static_env: StaticEnvAir, scenario: DataFrame[ScenarioSchemaAir]):
         """Initialize the ModelAir instance with a static environment and scenario.

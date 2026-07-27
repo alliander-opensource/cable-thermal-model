@@ -4,11 +4,9 @@
 
 
 from cable_thermal_model.cable.cable_circuit import (
-    CircuitBuilder,
     CircuitType,
 )
 from cable_thermal_model.cable.schemas.circuit_schemas import (
-    BaseCircuitInputSchema,
     CircuitInAirFromCableConstructionalInputSchema,
     CircuitInAirFromCableIdInputSchema,
     CircuitInAirFromCableInputSchema,
@@ -27,6 +25,9 @@ class StaticEnvAir(
     ]
 ):
     """Class that builds a static environment for circuits in air."""
+
+    _cable_class = CableAir
+    _cable_trefoil_circuit_single_pipe_class = CableTrefoilCircuitSinglePipeInAir
 
     @property
     def _circuit_from_cable_input_schema_cls(self) -> type[CircuitInAirFromCableInputSchema]:
@@ -61,13 +62,6 @@ class StaticEnvAir(
         )
 
         return super().add_circuit_from_cable(circuit_input)
-
-    def _determine_cable_class_from_circuit_input(self, circuit_input: BaseCircuitInputSchema) -> type[CableAir]:
-        return (
-            CableTrefoilCircuitSinglePipeInAir
-            if CircuitBuilder._is_trefoil_circuit_in_single_pipe(circuit_input.circuit_type, circuit_input.pipe)
-            else CableAir
-        )
 
     def set_environment_convection_parameters(
         self,
