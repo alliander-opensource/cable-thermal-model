@@ -30,7 +30,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
     Class Attributes:
         _run_options_class:                 The class used for run options.
         _state_class:                       The class used for the state of the model.
-        _scenario_schema_class:               The class used for the scenario schema.
+        _scenario_schema_class:             The class used for the scenario schema.
 
     Attributes:
         mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
