@@ -87,18 +87,19 @@ class CableAnalysis:
         if np.asarray(self.solution).ndim != 1 or outer_index >= len(self.solution):
             raise ValueError("The solution array must be one-dimensional and include values for both grid points.")
 
-        delta_radius = self.cable._grid_deltas[inner_index]
-        inter_radius = self.cable._radii_grid[inner_index] + 0.5 * delta_radius
+        inter_radius = self.cable._inter_radii[inner_index]
 
         # Calculate the interstitial resistivity value between the two grid points
         inter_rho = self.cable._calculate_inter_rhos(
             radii=self.cable._radii_grid[inner_index : outer_index + 1],
-            inter_radii=np.array([inter_radius]),
+            inter_radii=self.cable._inter_radii[inner_index:outer_index],
             rhos=self.cable._rho_grid[inner_index : outer_index + 1],
         )[0]
 
         # Calculate the temperature gradient between the two grid points
-        temperature_gradient = (self.solution[outer_index] - self.solution[inner_index]) / delta_radius
+        temperature_gradient = (self.solution[outer_index] - self.solution[inner_index]) / (
+            self.cable._radii_grid[outer_index] - self.cable._radii_grid[inner_index]
+        )
 
         # Calculate the heat flow using Fourier's law of heat conduction
         return -2 * np.pi * inter_radius * temperature_gradient / inter_rho
