@@ -323,7 +323,7 @@ def build_scenario(
             "soil_thermal_resistivity": soil_thermal_resistivity,
             "soil_thermal_capacity": soil_thermal_capacity,
         },
-        index=pd.timedelta_range(start="0D", end="30000D", periods=20),
+        index=pd.timedelta_range(start="0D", end="100000D", periods=101),
     )
 
     for circuit_name, rating in circuit_ratings.items():
