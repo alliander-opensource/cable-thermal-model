@@ -202,6 +202,8 @@ scenario = pd.DataFrame({
 
 You can validate your scenario before running the model:
 
+Validation is also performed automatically as the first step of `model.run()`, so manual validation is optional.
+
 ```python
 from cable_thermal_model.model.schemas import ScenarioSchemaSoil, ScenarioSchemaAir
 
@@ -251,8 +253,8 @@ scenario = pd.DataFrame({
 }, index=pd.date_range(start=datetime(2026, 1, 1), periods=3, freq='1h'))
 
 # 4. Run the model
-model = ModelFactory.create_model(static_env=static_env, scenario=scenario)
-solution = model.run()
+model = ModelFactory.create_model(static_env=static_env)
+solution = model.run(scenario=scenario)
 temperature_result = solution.result
 ```
 
