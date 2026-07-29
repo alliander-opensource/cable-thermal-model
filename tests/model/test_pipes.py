@@ -50,8 +50,8 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: DataFrame[Scena
     scenario_steady_state["load_c1"] = load
 
     # Compute the steady state solution
-    model = ModelFactory.create_model(static_env, scenario_steady_state)
-    steady_state = model.run().state
+    model = ModelFactory.create_model(static_env)
+    steady_state = model.run(scenario_steady_state).state
 
     # Select a cable from the circuit
     cable_key = list(model.cables_with_soil.keys())[0]
@@ -133,11 +133,12 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: Da
     run_options = {"temperature_dependent_electric_resistance": False}
 
     # Compute the steady state solution for both environments
-    model_soil = ModelFactory.create_model(static_env_soil, scenario_steady_state)
-    steady_state_soil = model_soil.run(run_options=run_options).state
+    model_soil = ModelFactory.create_model(static_env_soil)
+    steady_state_soil = model_soil.run(scenario_steady_state, run_options=run_options).state
 
-    model_air = ModelFactory.create_model(static_env_air, ScenarioSchemaAir.validate(scenario_steady_state))
-    steady_state_air = model_air.run(run_options=run_options).state
+    air_scenario = ScenarioSchemaAir.validate(scenario_steady_state)
+    model_air = ModelFactory.create_model(static_env_air)
+    steady_state_air = model_air.run(air_scenario, run_options=run_options).state
 
     # Select the single cable from both circuits and collect their steady state solutions
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
@@ -181,8 +182,9 @@ def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: DataFram
     scenario_steady_state["load_c1"] = load
 
     # Compute the steady state solution
-    model = ModelFactory.create_model(static_env, ScenarioSchemaAir.validate(scenario_steady_state))
-    steady_state = model.run().state
+    air_scenario = ScenarioSchemaAir.validate(scenario_steady_state)
+    model = ModelFactory.create_model(static_env)
+    steady_state = model.run(air_scenario).state
 
     # Select a cable from the circuit
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
@@ -245,8 +247,9 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: DataFrame[Sce
     scenario_steady_state["load_c1"] = load
 
     # Compute the steady state solution
-    model = ModelFactory.create_model(static_env, ScenarioSchemaAir.validate(scenario_steady_state))
-    steady_state = model.run().state
+    air_scenario = ScenarioSchemaAir.validate(scenario_steady_state)
+    model = ModelFactory.create_model(static_env)
+    steady_state = model.run(air_scenario).state
 
     # Select a cable from the circuit
     cable_key = list(model.cables.keys())[0]
@@ -341,9 +344,9 @@ def test_pipe_b5901_cases(
 
     # Compute the steady state solution
     b5901_scenario_steady_state["load_c1"] = load
-    model = ModelFactory.create_model(environment, b5901_scenario_steady_state)
+    model = ModelFactory.create_model(environment)
 
-    temperature_solution = model.run().result[("c1", cable_position)]
+    temperature_solution = model.run(b5901_scenario_steady_state).result[("c1", cable_position)]
     steady_state_temperatures = temperature_solution.iloc[-1]
 
     # Check that the temperatures match the VCA results
@@ -387,8 +390,8 @@ def test_pipe_model_steady_state_vca(
         CablePosition.Single if isinstance(environment.circuits["c1"], SingleCable) else CablePosition.TrefoilLeft
     )
 
-    model = ModelFactory.create_model(environment, b5901_scenario_steady_state)
-    temperature_solution = model.run().result[("c1", cable_position.value)]
+    model = ModelFactory.create_model(environment)
+    temperature_solution = model.run(b5901_scenario_steady_state).result[("c1", cable_position.value)]
     steady_state_temperatures = temperature_solution.iloc[-1]
 
     # Check that the temperatures match the VCA results
@@ -435,8 +438,8 @@ def test_two_trefoil_circuits_in_single_pipes_vca(
     b5901_scenario_steady_state["load_c2"] = load
 
     # Compute the steady state solution
-    model = ModelFactory.create_model(static_env, b5901_scenario_steady_state)
-    result = model.run().result
+    model = ModelFactory.create_model(static_env)
+    result = model.run(b5901_scenario_steady_state).result
 
     conductor_temperature_1 = result[("c1", CablePosition.TrefoilCircuitInSinglePipe)]["Conductor"].iloc[-1]
     conductor_temperature_2 = result[("c2", CablePosition.TrefoilCircuitInSinglePipe)]["Conductor"].iloc[-1]

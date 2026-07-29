@@ -86,8 +86,9 @@ def test_3core_pilc_run(
             x=0, y=-0.8, circuit_name="c", cable=three_core_cable_pilc, circuit_type=CircuitType.Single
         )
     )
-    model = ModelFactory.create_model(environment, ScenarioSchemaSoil.validate(scenario))
-    solution = model.run()
+    validated_scenario = ScenarioSchemaSoil.validate(scenario)
+    model = ModelFactory.create_model(environment)
+    solution = model.run(validated_scenario)
 
     assert np.isclose(
         solution.result[("c", "single")].iloc[-1][CableLayer.Conductor],
@@ -141,8 +142,9 @@ def test_3core_xlpe_run(
             x=0, y=-0.8, circuit_name="c", cable=three_core_cable_xlpe, circuit_type=CircuitType.Single
         )
     )
-    model = ModelFactory.create_model(environment, ScenarioSchemaSoil.validate(scenario))
-    solution = model.run()
+    validated_scenario = ScenarioSchemaSoil.validate(scenario)
+    model = ModelFactory.create_model(environment)
+    solution = model.run(validated_scenario)
 
     assert np.isclose(
         solution.result[("c", "single")].iloc[-1][CableLayer.Conductor],

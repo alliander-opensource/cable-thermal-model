@@ -359,8 +359,8 @@ def extract_iec_60287_parameters(
         ambient_temperature=ambient_temperature,
     )
 
-    model = ModelFactory.create_model(static_env, scenario)
-    model_output = model.run()
+    model = ModelFactory.create_model(static_env)
+    model_output = model.run(scenario)
 
     parameters = pd.DataFrame()
     for cable_key, pos_cable in model.cables_with_soil.items():
