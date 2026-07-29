@@ -55,7 +55,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
     def run(
         self,
-        scenario: DataFrame[ScenarioSchemaT],
+        scenario: pd.DataFrame,
         initial_state: StateT | None = None,
         run_options: ModelRunOptionsT | dict | None = None,
     ) -> ModelOutputSchema[StateT]:
@@ -71,7 +71,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             - initial_state
 
         Args:
-            scenario: Scenario dataframe for this run.
+            scenario: Scenario dataframe for this run. The dataframe is validated internally before execution.
             initial_state: Heating information from a previous computation.
             run_options: Run options for the model. If `None` or a dictionary is provided, the
                 options are validated and default values are applied.

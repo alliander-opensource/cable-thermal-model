@@ -12,7 +12,6 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.model_factory import ModelFactory
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 
 
 def test_single_core_xlpe(single_core_cable_xlpe: CableSoil):
@@ -86,9 +85,8 @@ def test_3core_pilc_run(
             x=0, y=-0.8, circuit_name="c", cable=three_core_cable_pilc, circuit_type=CircuitType.Single
         )
     )
-    validated_scenario = ScenarioSchemaSoil.validate(scenario)
     model = ModelFactory.create_model(environment)
-    solution = model.run(validated_scenario)
+    solution = model.run(scenario)
 
     assert np.isclose(
         solution.result[("c", "single")].iloc[-1][CableLayer.Conductor],
@@ -142,9 +140,8 @@ def test_3core_xlpe_run(
             x=0, y=-0.8, circuit_name="c", cable=three_core_cable_xlpe, circuit_type=CircuitType.Single
         )
     )
-    validated_scenario = ScenarioSchemaSoil.validate(scenario)
     model = ModelFactory.create_model(environment)
-    solution = model.run(validated_scenario)
+    solution = model.run(scenario)
 
     assert np.isclose(
         solution.result[("c", "single")].iloc[-1][CableLayer.Conductor],

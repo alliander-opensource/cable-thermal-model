@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import numpy as np
+import pandas as pd
 import pytest
-from pandera.typing import DataFrame
 
 from cable_thermal_model import CircuitType
 from cable_thermal_model.cable.cable_circuit import (
@@ -23,12 +23,11 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
 from cable_thermal_model.model.model_factory import ModelFactory
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir, ScenarioSchemaSoil
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 from tests.conftest import vca_pipe_results
 
 
-def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: DataFrame[ScenarioSchemaSoil]):
+def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: pd.DataFrame):
     """Test that a trefoil cable in a single pipe in soil behaves as expected."""
     load = 575.0
 
@@ -93,7 +92,7 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: DataFrame[Scena
     )
 
 
-def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: DataFrame[ScenarioSchemaSoil]):
+def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: pd.DataFrame):
     """Compare trefoil circuits in single pipes in air and soil.
 
     When we ignore the effect of temperature-dependent resistance, the heat flow at the cable boundary should be
@@ -136,9 +135,8 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: Da
     model_soil = ModelFactory.create_model(static_env_soil)
     steady_state_soil = model_soil.run(scenario_steady_state, run_options=run_options).state
 
-    air_scenario = ScenarioSchemaAir.validate(scenario_steady_state)
     model_air = ModelFactory.create_model(static_env_air)
-    steady_state_air = model_air.run(air_scenario, run_options=run_options).state
+    steady_state_air = model_air.run(scenario_steady_state, run_options=run_options).state
 
     # Select the single cable from both circuits and collect their steady state solutions
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
@@ -162,7 +160,7 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: Da
     assert np.isclose(heat_flow_soil, heat_flow_air, atol=0.1)
 
 
-def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: DataFrame[ScenarioSchemaSoil]):
+def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: pd.DataFrame):
     """Test that a trefoil cable in a single pipe in air behaves as expected."""
     load = 575.0
 
@@ -182,9 +180,8 @@ def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: DataFram
     scenario_steady_state["load_c1"] = load
 
     # Compute the steady state solution
-    air_scenario = ScenarioSchemaAir.validate(scenario_steady_state)
     model = ModelFactory.create_model(static_env)
-    steady_state = model.run(air_scenario).state
+    steady_state = model.run(scenario_steady_state).state
 
     # Select a cable from the circuit
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
@@ -226,7 +223,7 @@ def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: DataFram
     )
 
 
-def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: DataFrame[ScenarioSchemaSoil]):
+def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame):
     """Test that a trefoil cable in a single pipe in air behaves as expected under standard operation."""
     load = 575.0
     pipe_input_schema = PipeInputSchema(
@@ -247,9 +244,8 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: DataFrame[Sce
     scenario_steady_state["load_c1"] = load
 
     # Compute the steady state solution
-    air_scenario = ScenarioSchemaAir.validate(scenario_steady_state)
     model = ModelFactory.create_model(static_env)
-    steady_state = model.run(air_scenario).state
+    steady_state = model.run(scenario_steady_state).state
 
     # Select a cable from the circuit
     cable_key = list(model.cables.keys())[0]
@@ -310,7 +306,7 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: DataFrame[Sce
     ],
 )
 def test_pipe_b5901_cases(
-    b5901_scenario_steady_state: DataFrame[ScenarioSchemaSoil],
+    b5901_scenario_steady_state: pd.DataFrame,
     max_absolute_temperature_error: float,
     cable_id: str,
     pipe_outer_radius: float,
@@ -361,7 +357,7 @@ def test_pipe_b5901_cases(
     vca_pipe_results(),
 )
 def test_pipe_model_steady_state_vca(
-    b5901_scenario_steady_state: DataFrame[ScenarioSchemaSoil],
+    b5901_scenario_steady_state: pd.DataFrame,
     cable_id: str,
     pipe_outer_radius: float,
     sdr: float,
@@ -402,7 +398,7 @@ def test_pipe_model_steady_state_vca(
 
 
 def test_two_trefoil_circuits_in_single_pipes_vca(
-    b5901_scenario_steady_state: DataFrame[ScenarioSchemaSoil], max_absolute_temperature_error: float
+    b5901_scenario_steady_state: pd.DataFrame, max_absolute_temperature_error: float
 ):
     load = 575.0
 
