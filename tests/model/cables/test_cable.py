@@ -429,7 +429,7 @@ def test_update_pipe_fill_resistivity_without_inner_radius_raises(single_core_ca
 
 def test_update_rho_grid(single_core_cable_xlpe: CableSoil):
     with pytest.raises(ValueError, match="The start_index exceeds the end_index. Cannot update the rho grid."):
-        single_core_cable_xlpe._update_rho_grid(start_index=2, end_index=1, rho=1.0)
+        single_core_cable_xlpe._update_rho_grid(start_index=2, end_index=1, rho_values=1.0)
 
     # Ensure the cached diagonals are marked up-to-date before testing invalidation behavior.
     _ = single_core_cable_xlpe._banded_matrix
@@ -439,11 +439,11 @@ def test_update_rho_grid(single_core_cable_xlpe: CableSoil):
     old_values = single_core_cable_xlpe._rho_grid.copy()
     rho = float(single_core_cable_xlpe._rho_grid[start_index])
 
-    single_core_cable_xlpe._update_rho_grid(start_index=start_index, end_index=end_index, rho=rho * 1.005)
+    single_core_cable_xlpe._update_rho_grid(start_index=start_index, end_index=end_index, rho_values=rho * 1.005)
     assert np.array_equal(single_core_cable_xlpe._rho_grid, old_values)
     assert not single_core_cable_xlpe._finite_difference_matrix_diagonals_outdated
 
-    single_core_cable_xlpe._update_rho_grid(start_index=start_index, end_index=end_index, rho=rho * 1.2)
+    single_core_cable_xlpe._update_rho_grid(start_index=start_index, end_index=end_index, rho_values=rho * 1.2)
     assert np.allclose(single_core_cable_xlpe._rho_grid[start_index : end_index + 1], rho * 1.2)
     assert single_core_cable_xlpe._finite_difference_matrix_diagonals_outdated
 

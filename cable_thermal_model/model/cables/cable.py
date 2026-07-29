@@ -267,7 +267,7 @@ class Cable(AbstractCable):
         self._update_rho_grid(
             start_index=pipe_fill_start_index,
             end_index=pipe_fill_end_index,
-            rho=new_pipe_fill_rho,
+            rho_values=new_pipe_fill_rho,
         )
 
     def get_layer_indices_for_layer(self, layer: CableLayer) -> tuple[int, int]:
@@ -446,23 +446,23 @@ class Cable(AbstractCable):
             radii[1:] / radii[:-1]
         )
 
-    def _update_rho_grid(self, start_index: int, end_index: int, rho: np.ndarray | float) -> None:
+    def _update_rho_grid(self, start_index: int, end_index: int, rho_values: np.ndarray | float) -> None:
         """Update a slice of the rho-grid if any new value differs by more than 1% from the current value.
 
         Args:
             start_index (int): The starting index of the slice to update (inclusive).
             end_index (int): The ending index of the slice to update (inclusive).
-            rho (np.ndarray | float): The new resistivity value(s) to set for the specified slice.
+            rho_values (np.ndarray | float): The new resistivity value(s) to set for the specified slice.
 
         """
         if start_index > end_index:
             raise ValueError("The start_index exceeds the end_index. Cannot update the rho grid.")
 
         old_rho_values = self._rho_grid[start_index : end_index + 1]
-        rho_values_changed = not np.all(np.isclose(old_rho_values, rho, rtol=1e-2))
+        rho_values_changed = not np.all(np.isclose(old_rho_values, rho_values, rtol=1e-2))
 
         if rho_values_changed:
-            self._rho_grid[start_index : end_index + 1] = rho
+            self._rho_grid[start_index : end_index + 1] = rho_values
             self._invalidate_finite_difference_matrix_diagonals()
 
     def _update_capacity_grid(self, start_index: int, end_index: int, capacity: float) -> None:

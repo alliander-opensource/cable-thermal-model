@@ -105,27 +105,25 @@ class CableSoil(Cable):
 
         Args:
             soil_rho (float):
-                An optional float representing the thermal resistivity of the soil that is not dried out.
+                The new thermal resistivity of the soil that is not dried out.
             dry_soil_radius (float | None):
-                A float representing the radius of the dried-out soil around the cable.
+                The radius of the dried-out soil around the cable. If None, no dried-out soil is assumed.
 
         """
-        start_index = self._get_soil_grid_start_index()
-        self._update_rho_grid(
-            start_index=start_index,
-            end_index=self.grid_size - 1,
-            rho=soil_rho,
-        )
+        soil_start_index = self._get_soil_grid_start_index()
+        new_rho_values = np.full(self.grid_size - soil_start_index, soil_rho)
 
         if dry_soil_radius is not None:
             dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
             end_index = int((self._radii_grid <= dry_soil_radius).sum()) - 1
-            if end_index > start_index:
-                self._update_rho_grid(
-                    start_index=start_index,
-                    end_index=end_index,
-                    rho=dry_soil_rho,
-                )
+            if end_index > soil_start_index:
+                new_rho_values[: end_index - soil_start_index + 1] = dry_soil_rho
+
+        self._update_rho_grid(
+            start_index=soil_start_index,
+            end_index=self.grid_size - 1,
+            rho_values=new_rho_values,
+        )
 
     def _get_dry_soil_radius(self, temperature_grid: np.ndarray, soil_drying: bool) -> float | None:
         """Return the radius of dried-out soil based on temperature and scenario settings."""
