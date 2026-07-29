@@ -32,8 +32,12 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInSoilFromCableInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.environment.measurement_point import MeasurementPointKey
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
+from cable_thermal_model.model.cables.cable_air import CableAir
+from cable_thermal_model.model.cables.cable_soil import CableSoil
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInSoil
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorCount,
     CableConductorMaterial,
@@ -44,7 +48,6 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableSheathMaterial,
     PipeFillType,
 )
-from cable_thermal_model.model.cables.fd_cable import FDCable, FDCableInAir, FDCableTrefoilCircuitInSinglePipe
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.model_soil import ModelSoil
@@ -86,6 +89,22 @@ def model_dynamic_soil(
     single_circuit_env: StaticEnvSoil, scenario_dynamic_soil_prop: DataFrame[ScenarioSchemaSoil]
 ) -> Model:
     return ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_dynamic_soil_prop)
+
+
+@pytest.fixture(scope="function")
+def model_with_measurement_points(
+    single_circuit_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioSchemaSoil]
+) -> tuple[Model, MeasurementPointKey, MeasurementPointKey]:
+    """Create a model with measurement points added to the environment."""
+    # Add measurement points to the environment
+    key1 = single_circuit_env.add_measurement_point(x=0.1, y=-1.0)
+    key2 = single_circuit_env.add_measurement_point(x=0.3, y=-1.0)
+
+    return (
+        ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_constant),
+        key1,
+        key2,
+    )
 
 
 # Environments
@@ -243,50 +262,50 @@ test_cable_fixtures = [
 
 
 @pytest.fixture()
-def single_core_cable_xlpe() -> FDCable:
+def single_core_cable_xlpe() -> CableSoil:
     name = _DEFAULT_TEST_CABLE
-    return CableBuilder.build_cable_from_cable_id(cable_id=name, fd_cable_class=FDCable)
+    return CableBuilder.build_cable_from_cable_id(cable_id=name, cable_class=CableSoil)
 
 
 @pytest.fixture()
-def three_core_cable_xlpe() -> FDCable:
+def three_core_cable_xlpe() -> CableSoil:
     name = "YMeKrvaslqwd 12/20kV 3x240 Alrm + as50"
-    return CableBuilder.build_cable_from_cable_id(cable_id=name, fd_cable_class=FDCable)
+    return CableBuilder.build_cable_from_cable_id(cable_id=name, cable_class=CableSoil)
 
 
 @pytest.fixture()
-def single_core_cable_pilc() -> FDCable:
+def single_core_cable_pilc() -> CableSoil:
     name = "VPLK 8/10 kV 1x240 Cu"
-    return CableBuilder.build_cable_from_cable_id(cable_id=name, fd_cable_class=FDCable)
+    return CableBuilder.build_cable_from_cable_id(cable_id=name, cable_class=CableSoil)
 
 
 @pytest.fixture()
-def three_core_cable_pilc() -> FDCable:
+def three_core_cable_pilc() -> CableSoil:
     name = "GPLK 10/10 kV 3x185 Al"
-    return CableBuilder.build_cable_from_cable_id(cable_id=name, fd_cable_class=FDCable)
+    return CableBuilder.build_cable_from_cable_id(cable_id=name, cable_class=CableSoil)
 
 
 @pytest.fixture()
-def single_core_cable_od() -> FDCable:
+def single_core_cable_od() -> CableSoil:
     name = "OD 50kV 1x400Cu"
-    return CableBuilder.build_cable_from_cable_id(cable_id=name, fd_cable_class=FDCable)
+    return CableBuilder.build_cable_from_cable_id(cable_id=name, cable_class=CableSoil)
 
 
 @pytest.fixture()
-def three_core_cable_od() -> FDCable:
+def three_core_cable_od() -> CableSoil:
     name = "OD 50kV 3x120Cu"
-    return CableBuilder.build_cable_from_cable_id(cable_id=name, fd_cable_class=FDCable)
+    return CableBuilder.build_cable_from_cable_id(cable_id=name, cable_class=CableSoil)
 
 
 @pytest.fixture()
-def three_core_cable_pilc_in_air() -> FDCableInAir:
+def three_core_cable_pilc_in_air() -> CableAir:
     name = "GPLK 10/10 kV 3x185 Al"
-    return CableBuilder.build_cable_from_cable_id(cable_id=name, fd_cable_class=FDCableInAir)
+    return CableBuilder.build_cable_from_cable_id(cable_id=name, cable_class=CableAir)
 
 
 @pytest.fixture()
-def single_core_cable_xlpe_in_air() -> FDCableInAir:
-    return CableBuilder.build_cable_from_cable_id(cable_id=_DEFAULT_TEST_CABLE, fd_cable_class=FDCableInAir)
+def single_core_cable_xlpe_in_air() -> CableAir:
+    return CableBuilder.build_cable_from_cable_id(cable_id=_DEFAULT_TEST_CABLE, cable_class=CableAir)
 
 
 @pytest.fixture()
@@ -344,18 +363,18 @@ def simple_screened_cable_constructional_information() -> CableConstructionalInp
 
 
 @pytest.fixture()
-def simple_cable(simple_cable_constructional_input: CableConstructionalInputSchema) -> FDCable:
-    return CableBuilder.build_cable(simple_cable_constructional_input, fd_cable_class=FDCable)
+def simple_cable(simple_cable_constructional_input: CableConstructionalInputSchema) -> CableSoil:
+    return CableBuilder.build_cable(simple_cable_constructional_input, cable_class=CableSoil)
 
 
 # Circuits
 
 
 @pytest.fixture()
-def trefoil_in_single_pipe() -> FDCableTrefoilCircuitInSinglePipe:
+def trefoil_in_single_pipe() -> CableTrefoilCircuitSinglePipeInSoil:
     return CableBuilder.build_cable_from_cable_id(
         cable_id=_DEFAULT_TEST_CABLE,
-        fd_cable_class=FDCableTrefoilCircuitInSinglePipe,
+        cable_class=CableTrefoilCircuitSinglePipeInSoil,
         pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
     )
 
@@ -574,16 +593,16 @@ def elst_five_static_env() -> StaticEnvSoil:
 
 
 @pytest.fixture(scope="module")
-def TB880_case_10_fd_cable() -> FDCable:
+def TB880_case_10_fd_cable() -> CableSoil:
     return CableBuilder.build_cable_from_cable_id(
         cable_id="PILC 8/10 kV 3x 95 Al",
-        fd_cable_class=FDCable,
+        cable_class=CableSoil,
         cable_source_file_path=Path("data/cable_specs_TB880.csv"),
     )
 
 
 @pytest.fixture(scope="module")
-def TB880_case_10_model(TB880_case_10_fd_cable: FDCable) -> ModelSoil:
+def TB880_case_10_model(TB880_case_10_fd_cable: CableSoil) -> ModelSoil:
     I_rating = 165.7415608133
 
     static_env = StaticEnvSoil()

@@ -21,7 +21,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
 
     static_env: StaticEnvT
     scenario: DataFrame[ScenarioSchemaT]
-    _scenario_schema_cls: type[ScenarioSchemaT]
+    _scenario_schema_class: type[ScenarioSchemaT]
 
     def __str__(self):
         """Generates a concise string representation of the model."""
@@ -43,7 +43,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         """Initialise the model with a static environment and scenario DataFrame."""
         # Validate that the scenario dataframe provides the required cable loads and ambient temperature.
         self.static_env = static_env
-        self._set_scenario(scenario=scenario)
+        self.set_scenario(scenario=scenario)
         self._set_run_options(run_options=None)
 
     def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioSchemaT]:
@@ -61,9 +61,9 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             if "load_" + circuit not in scenario.columns:
                 raise ValueError(f"Scenario dataframe does not contain a load column for circuit '{circuit}'.")
 
-        return self._scenario_schema_cls.validate(scenario)
+        return self._scenario_schema_class.validate(scenario)
 
-    def _set_scenario(self, scenario: DataFrame[ScenarioSchemaT]):
+    def set_scenario(self, scenario: pd.DataFrame):
         """Sets a new scenario and validates it.
 
         Args:
@@ -76,6 +76,11 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         self.time_max: float = (self.scenario.index[-1] - self.scenario.index[0]).total_seconds()
         self.time_grid: list[float] = list((self.scenario.index - self.scenario.index[0]).total_seconds())
         self.time_samples: int = len(self.time_grid)
+
+    @property
+    def n_scenario_rows(self) -> int:
+        """Returns the number of time steps in the scenario."""
+        return len(self.scenario.index)
 
     def run(
         self,
@@ -111,7 +116,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
         self._set_run_options(run_options=run_options)
 
         if scenario is not None:
-            self._set_scenario(scenario=scenario)
+            self.set_scenario(scenario=scenario)
 
         self._validate_initial_state(initial_state=initial_state)
 

@@ -27,9 +27,14 @@ class State(BaseModel):
 
     """
 
-    static_env_hash: str = Field(default_factory=str)
-    temperature: dict[CableKey, np.ndarray] = Field(default_factory=dict)
-    self_heating_contribution: dict[CableKey, np.ndarray] = Field(default_factory=dict)
+    static_env_hash: str = Field(
+        description="Deterministic hash of the static environment, used for validation and consistency checks."
+    )
+    temperature: dict[CableKey, np.ndarray] = Field(description="The temperature of each cable over the radii grid.")
+    self_heating_contribution: dict[CableKey, np.ndarray] = Field(
+        description="The temperature delta of each cable over the radii grid due to self-heating."
+    )
+    ambient_temperature: float = Field(description="The ambient temperature in degrees Celsius.")
 
     # Pydantic class configuration
     model_config = ConfigDict(arbitrary_types_allowed=True, validate_assignment=False)
@@ -63,7 +68,9 @@ class StateSoil(State):
 
     """
 
-    mutual_heating_contribution: dict[CableKey, np.ndarray] = Field()
+    mutual_heating_contribution: dict[CableKey, np.ndarray] = Field(
+        description="The temperature delta of each cable over the radii grid due to mutual heating from other cables."
+    )
 
     @model_validator(mode="after")
     def validate_mutual_heating_contribution(self):

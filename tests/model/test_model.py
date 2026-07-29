@@ -91,7 +91,8 @@ def test_initialize_temperature_result_contains_expected_layers(model: ModelSoil
     model.add_solution_location(CableLayer.Insulation)
     initial_state = model._build_initial_state()
 
-    temperature_result = model._initialize_temperature_result(temperature_state=initial_state.temperature)
+    model._initialize_temperature_result(state=initial_state)
+    temperature_result = model.temperature_result
 
     for cable_key in model.cables:
         assert CableLayer.Conductor in temperature_result[cable_key]
@@ -143,6 +144,7 @@ def test_validate_state_model_consistency_rejects_wrong_state_type(model: ModelS
         static_env_hash=model.static_env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
+        ambient_temperature=5.0,
     )
 
     with pytest.raises(ValueError, match="ModelSoil requires a StateSoil instance, but received StateAir"):

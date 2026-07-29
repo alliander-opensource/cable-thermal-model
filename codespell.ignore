@@ -2,15 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# Ignore false positives that originate from base64-encoded image data
-# embedded in Jupyter notebook cell outputs (.ipynb files). These words are not
-# present in the source text; they only appear inside the encoded PNG strings
-# and cannot be suppressed via the editor's search or by editing the notebook
-# source directly.
-bu
-fO
-Te
-
 # Tey really is Tey
 Tey
 tey

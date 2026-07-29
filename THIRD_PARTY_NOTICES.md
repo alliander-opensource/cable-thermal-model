@@ -20,7 +20,7 @@ This project has drawn much inspiration from the
 [Transformer Thermal Model (TTM)](https://github.com/alliander-opensource/transformer-thermal-model) model
 when preparing to open source the project.
 
-- The structure of the documentation directory is borowed from TTM.
+- The structure of the documentation directory is borrowed from TTM.
 - The project includes an image explaining the different levels of contribution: `/.github/assets/levels_of_contribution.png`
 This image is copied from the TTM project.
 - Many of the markdown files within the root of the project are inspired by similar files in TTM. These include

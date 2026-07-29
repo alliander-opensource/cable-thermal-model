@@ -25,11 +25,13 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInSoilFromCableInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.environment.measurement_point import MeasurementPointKey
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import ModelOutputSchema
+from cable_thermal_model.model.cables.cable import Cable
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
-from cable_thermal_model.model.cables.fd_cable import FDCable
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import StateAir
 from cable_thermal_model.model.model_soil import ModelSoil, StateSoil
@@ -365,26 +367,32 @@ def test_model_soil_thermal_resistivity_series(single_circuit_env: StaticEnvSoil
     )
 
 
-def test_get_temp(model: ModelSoil):
-    """Test get_temp function returns a temperature value."""
-    # Simple coordinates
-    x, y = 0.0, 1.0
+def test_run_model_soil_with_measurement_points(
+    model_with_measurement_points: tuple[ModelSoil, MeasurementPointKey, MeasurementPointKey],
+):
+    """Test running the model with measurement points."""
+    # Run the model
+    model, key1, key2 = model_with_measurement_points
+    temperature_result = model.run().result
 
-    # Use a time that exists in the scenario (first time step in seconds)
-    time_sec = 0.0
+    # Check that the result contains the measurement point keys
+    assert key1 in temperature_result.columns
+    assert key2 in temperature_result.columns
 
-    # Create simple solutions for all cable keys
-    solutions = {}
-    for cable_key in model.cables_with_soil:
-        # Create a simple solution array matching the cable's radii grid size
-        grid_size = model.cables_with_soil[cable_key].cable._radii_grid.size
-        solutions[cable_key] = np.full(grid_size, 10.0)  # 10°C heating everywhere
+    # Check that the measurement point results are not empty
+    assert not temperature_result[key1].empty
+    assert not temperature_result[key2].empty
 
-    # Call the function
-    temperature = model.get_temp(x, y, time_sec, solutions)
+    # Check that the values exceed the ambient temperature except for the first time step
+    ambient_temperature = model.scenario.ambient_temperature.iloc[0]
+    assert temperature_result[key1].iloc[0] == ambient_temperature
+    assert temperature_result[key2].iloc[0] == ambient_temperature
+    assert (temperature_result[key1].iloc[1:] > ambient_temperature).all()
+    assert (temperature_result[key2].iloc[1:] > ambient_temperature).all()
 
-    # Check that we get a temperature value
-    assert isinstance(temperature, float)
+    # Check that the values of point 1 are higher than the values of point 2
+    # since point 1 is closer to the circuit
+    assert (temperature_result[key1].iloc[1:] > temperature_result[key2].iloc[1:]).all()
 
 
 @pytest.mark.parametrize("cable_id", ["GPLK 10/10 kV 3x185 Al", "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"])
@@ -503,19 +511,14 @@ def test_update_thermal_state(
         temperature={cable_key: np.zeros_like(mutual_heating_state_map[cable_key]) for cable_key in model.cables},
         self_heating_contribution=self_heating_state_map,
         mutual_heating_contribution=mutual_heating_state_map,
+        ambient_temperature=model.scenario["ambient_temperature"].iloc[time_idx],
     )
 
     model._update_self_heating_contribution = mock.Mock(return_value=self_heating_state_map)
     model._update_mutual_heating_contribution = mock.Mock(return_value=mutual_heating_state_map)
 
-    vectors = {
-        cable_key: np.zeros(model.cables_with_soil[cable_key].cable._radii_grid.size - 1)
-        for cable_key in model.cables_with_soil
-    }
-
     state = model._update_state(
         state=current_state,
-        heat_vectors=vectors,
         time_step=1.0,
         ambient_temperature=model.scenario["ambient_temperature"].iloc[time_idx],
     )
@@ -541,7 +544,7 @@ def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil
     for pos_cable in model.cables_with_soil.values():
         update_mock = mock.Mock()
         pos_cable.cable.update_soil_properties = update_mock
-        update_mocks[pos_cable.name] = update_mock
+        update_mocks[pos_cable.key] = update_mock
 
     model._update_soil_properties_for_all_cables(
         soil_drying=True,
@@ -882,19 +885,19 @@ def test_different_screen_resistance_in_multiple_configurations(
     else:
         if local_cable_id == first_cable_id == second_cable_id:
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert np.isclose(cable.weighted_screen_impedance.weighted_resistance_factor, 1.0)
 
         elif local_cable_id == "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50":
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert cable.weighted_screen_impedance.weighted_resistance_factor > 1.0
 
         elif local_cable_id == "YMeKrvaslqwd 12/20kV 1x630 Alrm + as35":
 
-            def check_function(cable: FDCable):
+            def check_function(cable: Cable):
                 assert cable.weighted_screen_impedance is not None
                 assert cable.weighted_screen_impedance.weighted_resistance_factor < 1.0
 
@@ -933,6 +936,7 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
         temperature={key: np.array([10.0]) for key in cable_keys},
         self_heating_contribution={key: np.array([10.0]) for key in cable_keys},
         mutual_heating_contribution=valid_mutual_heating_solutions,
+        ambient_temperature=5.0,
     )
 
     # Test case 2: Invalid keys should fail
@@ -949,6 +953,7 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
             temperature=temperature,
             self_heating_contribution=self_heating,
             mutual_heating_contribution=invalid_mutual_heating,
+            ambient_temperature=0.0,
         )
 
 
@@ -984,13 +989,14 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
 
     # Test 2: state=StateSoil instance should pass
     pos_cable = env.cables[CableKey(circuit_name=circuit_name, cable_position=CablePosition.Single)]
-    cable_key = pos_cable.name
+    cable_key = pos_cable.key
 
     valid_state = StateSoil(
         static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         mutual_heating_contribution={cable_key: np.array([15.0])},
+        ambient_temperature=5.0,
     )
 
     model._validate_initial_state(valid_state)
@@ -1000,6 +1006,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         static_env_hash=env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
+        ambient_temperature=5.0,
     )
 
     invalid_state = cast(Any, invalid_state_air)
@@ -1008,7 +1015,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         model._validate_initial_state(invalid_state)
 
 
-def test_cable_without_screen(simple_cable: FDCable):
+def test_cable_without_screen(simple_cable: CableSoil):
     """Test that when adding a cable without screen, the bonding type is set to NoBonding."""
     # No screen input provided, should be able to create a cable without
     # screen and model should set bonding type to NoBonding.

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -10,6 +10,11 @@ import pytest
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableConductorProperties, CableLayerMetrics
+from cable_thermal_model.model.cables.cable import (
+    Cable,
+)
+from cable_thermal_model.model.cables.cable_soil import CableSoil
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInSoil
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorCount,
     CableConductorMaterial,
@@ -19,12 +24,6 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableLayer,
     CableType,
     PipeFillType,
-)
-from cable_thermal_model.model.cables.fd_cable import (
-    FDCable,
-    FDCableInAir,
-    FDCableTrefoilCircuitInSinglePipe,
-    FDCableTrefoilCircuitInSinglePipeInAir,
 )
 from cable_thermal_model.model.cables.pipe import Pipe
 from tests.conftest import mock_load_cable_data_from_file
@@ -132,7 +131,7 @@ def test_cable_builder_generic_verify_valid_layer_properties(
         "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
         side_effect=mock_load_cable_data_from_file,
     ):
-        constructed_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, fd_cable_class=FDCable)
+        constructed_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
     layer_properties = constructed_cable.layer_properties
 
     # Evaluation
@@ -231,7 +230,7 @@ def test_cable_builder_generic_verify_valid_layer_metrics_and_conductor(
         "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
         side_effect=mock_load_cable_data_from_file,
     ):
-        constructed_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, fd_cable_class=FDCable)
+        constructed_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
 
     # Evaluation
     # TODO: Currently there is no direct comparison possible between layer_metrics attributes. Ideally the cable
@@ -330,12 +329,12 @@ def test_build_build_cable_trefoil_in_single_pipe_without_pipe_raises_value_erro
         ),
         pytest.raises(
             ValueError,
-            match=("When using FDCable class 'FDCableTrefoilCircuitInSinglePipe', a pipe must be provided."),
+            match="When using Cable class 'CableTrefoilCircuitSinglePipeInSoil', a pipe must be provided.",
         ),
     ):
         CableBuilder.build_cable_from_cable_id(
             cable_id="YMeKrvaslqwd 12/20kV 3x240 Alrm + as50",
-            fd_cable_class=FDCableTrefoilCircuitInSinglePipe,
+            cable_class=CableTrefoilCircuitSinglePipeInSoil,
         )
 
 
@@ -364,78 +363,6 @@ def test_T4_pipe_fill(cable_outer_diameter_mm, temp, fill_type, expected_T4):
     assert np.isclose(ctm_T4, expected_T4, rtol=0.01)
 
 
-def test_integrate_timestep_internal_heating_warning():
-    """Test that integrating a timestep for FDCable without internal_heating raises a warning."""
-    fd_cable_in_air = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        fd_cable_class=FDCableInAir,
-    )
-    with pytest.raises(
-        ValueError,
-        match="Internal heating must be True for cables in air.",
-    ):
-        fd_cable_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=None,
-        )
-    with pytest.raises(
-        ValueError,
-        match="Internal heating must be True for cables in air.",
-    ):
-        fd_cable_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=False,
-        )
-
-    # We expect the same behaviour for a trefoil circuit in a single pipe in air
-    fd_cable_trefoil_in_single_pipe_in_air = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        fd_cable_class=FDCableTrefoilCircuitInSinglePipeInAir,
-        pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
-    )
-    with pytest.raises(
-        ValueError,
-        match="Internal heating must be True for cables in air.",
-    ):
-        fd_cable_trefoil_in_single_pipe_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=None,
-        )
-        fd_cable_trefoil_in_single_pipe_in_air.integrate_timestep(
-            s=MagicMock(),
-            b=MagicMock(),
-            time_step=MagicMock(),
-            internal_heating=False,
-        )
-
-
-def test_integrate_timestep_internal_heating_value_error():
-    """Test internal_heating validation for a trefoil circuit in a single pipe.
-
-    Verify that integrating a timestep for
-    FDCableTrefoilCircuitInSinglePipe without internal_heating raises a
-    ValueError.
-    """
-    fd_cable_trefoil_in_single_pipe = CableBuilder.build_cable_from_cable_id(
-        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        fd_cable_class=FDCableTrefoilCircuitInSinglePipe,
-        pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
-    )
-    with pytest.raises(
-        ValueError,
-        match="The internal_heating parameter must be provided for FDCableTrefoilCircuitInSinglePipe.",
-    ):
-        fd_cable_trefoil_in_single_pipe.integrate_timestep(
-            s=MagicMock(), b=MagicMock(), time_step=MagicMock(), internal_heating=None
-        )
-
-
 @pytest.mark.parametrize(
     "radii_grid",
     [
@@ -448,12 +375,12 @@ def test_construct_surface_area_grid(radii_grid):
     """Test the construction of the surface area grid for a given radii grid."""
     if not np.isclose(radii_grid[0], 0.0):
         with pytest.raises(ValueError, match="The first value of the radii grid should be 0.0!"):
-            FDCable._construct_surface_area_grid(radii_grid)
+            Cable._construct_surface_area_grid(radii_grid)
     elif not np.all(np.diff(radii_grid) > 0):
         with pytest.raises(ValueError, match="The radii grid should be strictly increasing!"):
-            FDCable._construct_surface_area_grid(radii_grid)
+            Cable._construct_surface_area_grid(radii_grid)
     else:
-        surface_area_grid = FDCable._construct_surface_area_grid(radii_grid)
+        surface_area_grid = Cable._construct_surface_area_grid(radii_grid)
         inter_r = np.concatenate(([0.0], (radii_grid[:-1] + radii_grid[1:]) / 2))
         expected_surface_area_grid = np.pi * (inter_r[1:] ** 2 - inter_r[:-1] ** 2)
         assert np.allclose(surface_area_grid, expected_surface_area_grid)
