@@ -291,6 +291,10 @@ class Cable(AbstractCable):
     def _construct_surface_area_grid(self) -> np.ndarray:
         """Construct the surface area grid for the cable based on the radii grid.
 
+        The area of the first element is calculated using the first radius and the first interstitial radius,
+        while the area of the last element is calculated using the last radius and the last interstitial radius.
+        The areas of the intermediate elements are calculated using the corresponding interstitial radii.
+
         Returns:
             np.ndarray:
                 A Numpy array representing the surface area grid for the cable.
