@@ -15,7 +15,6 @@ on:
 permissions:
     contents: read
 
-
 jobs:
   # Build the MKDocs documentation and open a signed PR to the gh-pages branch
   deploy:
