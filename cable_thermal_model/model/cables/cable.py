@@ -46,7 +46,7 @@ class Cable(AbstractCable):
 
         self._grid_counts = grid_counts
         self._radii_grid = np.array([], dtype=float)
-        self._inter_radii = np.array([], dtype=float)
+        self._inter_radii_grid = np.array([], dtype=float)
         self._surface_area_grid = np.array([], dtype=float)
         self._capacity_grid = np.array([], dtype=float)
         self._rho_grid = np.array([], dtype=float)
@@ -183,8 +183,8 @@ class Cable(AbstractCable):
         adding soil or pipe layers these need to be reset. This function can be used to do so.
         """
         self._radii_grid = self._construct_radii_grid()
-        self._inter_radii = self._radii_grid[:-1] + 0.5 * np.diff(self._radii_grid)
-        self._surface_area_grid = self._construct_surface_area_grid(self._radii_grid)
+        self._inter_radii_grid = self._radii_grid[:-1] + 0.5 * np.diff(self._radii_grid)
+        self._surface_area_grid = self._construct_surface_area_grid()
 
         capacity_grids = [
             np.full(self._grid_counts[layer], self.layer_properties[layer].capacity) for layer in self.layers
@@ -288,32 +288,23 @@ class Cable(AbstractCable):
         layer_end_index = layer_start_index + self._grid_counts[layer] - 1
         return layer_start_index, layer_end_index
 
-    @staticmethod
-    def _construct_surface_area_grid(radii_grid: np.ndarray) -> np.ndarray:
+    def _construct_surface_area_grid(self) -> np.ndarray:
         """Construct the surface area grid for the cable based on the radii grid.
-
-        Args:
-            radii_grid (np.ndarray):
-                A Numpy array representing the radii grid for the cable.
 
         Returns:
             np.ndarray:
                 A Numpy array representing the surface area grid for the cable.
 
         """
-        # The radii_grid should start at 0.0 and be strictly increasing
-        if not np.isclose(radii_grid[0], 0.0):
-            raise ValueError("The first value of the radii grid should be 0.0!")
-        if not np.all(np.diff(radii_grid) > 0):
+        surface_area_boundaries = np.append(
+            np.append(self._radii_grid[0], self._inter_radii_grid), self._radii_grid[-1]
+        )
+
+        # The surface area boundaries should be strictly increasing to prevent negative surface areas.
+        if not np.all(np.diff(surface_area_boundaries) > 0):
             raise ValueError("The radii grid should be strictly increasing!")
 
-        # Create a surface area grid of N-1 values
-        surface_area_grid = np.zeros(radii_grid.size - 1)
-        surface_area_grid[0] = np.pi * (radii_grid[1] / 2) ** 2
-
-        surface_area_grid[1:] = np.pi * radii_grid[1:-1] * (radii_grid[2:] - radii_grid[0:-2])
-
-        return surface_area_grid
+        return np.pi * (surface_area_boundaries[1:] + surface_area_boundaries[:-1]) * np.diff(surface_area_boundaries)
 
     def _invalidate_finite_difference_matrix_diagonals(self) -> None:
         """Invalidate the cached finite difference matrix diagonals.
@@ -333,7 +324,7 @@ class Cable(AbstractCable):
 
         """
         radii = self._radii_grid
-        inter_radii = self._inter_radii
+        inter_radii = self._inter_radii_grid
 
         common_factors_first_derivative = self._common_factors_first_derivative(radii, inter_radii, self._rho_grid)
         common_factors_second_derivative = self._common_factors_second_derivative(radii, inter_radii)
@@ -382,7 +373,7 @@ class Cable(AbstractCable):
             np.ndarray: The common finite difference factor for the given radii grid.
 
         """
-        return 1 / (radii[1:-1] * (inter_radii[1:] - inter_radii[:-1]))
+        return 2 / ((inter_radii[:-1] + inter_radii[1:]) * np.diff(inter_radii))
 
     def _update_finite_difference_matrix_diagonals_if_needed(self) -> None:
         """This method updates the three diagonals of the finite difference matrix if they are outdated.

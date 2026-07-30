@@ -127,10 +127,10 @@ class CableAir(Cable):
         # Extend the diagonals to account for the boundary condition at the outer sheath in air
         common_factor_second_derivative = self._common_factors_second_derivative(
             radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
-            inter_radii=np.append(self._inter_radii[-1:], self._radii_grid[-1]),
+            inter_radii=np.append(self._inter_radii_grid[-1:], self._radii_grid[-1]),
         )[0]
         common_factor_first_derivative = self._common_factors_first_derivative(
-            radii=self._radii_grid[-2:], inter_radii=self._inter_radii[-1:], rhos=self._rho_grid[-2:]
+            radii=self._radii_grid[-2:], inter_radii=self._inter_radii_grid[-1:], rhos=self._rho_grid[-2:]
         )[0]
 
         new_element = common_factor_second_derivative * common_factor_first_derivative
@@ -152,7 +152,7 @@ class CableAir(Cable):
 
         common_factor_second_derivative = self._common_factors_second_derivative(
             radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
-            inter_radii=np.append(self._inter_radii[-1:], self._radii_grid[-1]),
+            inter_radii=np.append(self._inter_radii_grid[-1:], self._radii_grid[-1]),
         )[0]
 
         return common_factor_second_derivative * self._radii_grid[-1] * self.convection_coefficient
