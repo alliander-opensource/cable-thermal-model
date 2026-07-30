@@ -11,9 +11,9 @@
 <link href="../example_calculation/" rel="prev"/>
 <link href="../external_heat_sources_example/" rel="next"/>
 <link href="../../assets/images/favicon.png" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.7.6" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Building a cable object - Cable Thermal Model</title>
-<link href="../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
@@ -449,6 +449,18 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/environment/measurement_point/">
+<span class="md-ellipsis">
+    
+  
+    measurement_point
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../../api_reference/cable_thermal_model/environment/static_env/">
 <span class="md-ellipsis">
     
@@ -558,6 +570,54 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable/">
+<span class="md-ellipsis">
+    
+  
+    cable
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable_air/">
+<span class="md-ellipsis">
+    
+  
+    cable_air
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable_soil/">
+<span class="md-ellipsis">
+    
+  
+    cable_soil
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable_trefoil_circuit_single_pipe/">
+<span class="md-ellipsis">
+    
+  
+    cable_trefoil_circuit_single_pipe
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/enum_classes_cable/">
 <span class="md-ellipsis">
     
@@ -570,11 +630,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/fd_cable/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/pipe/">
 <span class="md-ellipsis">
     
   
-    fd_cable
+    pipe
   
 
     
@@ -582,11 +642,11 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/pipe/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/type_guards/">
 <span class="md-ellipsis">
     
   
-    pipe
+    type_guards
   
 
     
@@ -978,6 +1038,18 @@
   </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../measurement_points/">
+<span class="md-ellipsis">
+    
+  
+    Measurement Points
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -1010,6 +1082,18 @@
     
   
     The heat equation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../theoretical_documentation/finite_difference/">
+<span class="md-ellipsis">
+    
+  
+    Finite difference method
   
 
     
@@ -1841,22 +1925,22 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable.cable_builder</span><span class="w"> </span><span class="kn">import</span> <span class="n">CableBuilder</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.model.cables.fd_cable</span><span class="w"> </span><span class="kn">import</span> <span class="n">FDCable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.model.cables.cable_soil</span><span class="w"> </span><span class="kn">import</span> <span class="n">CableSoil</span>
 
 <span class="n">cable</span> <span class="o">=</span> <span class="n">CableBuilder</span><span class="o">.</span><span class="n">build_cable_from_cable_id</span><span class="p">(</span>
     <span class="n">cable_id</span><span class="o">=</span><span class="s2">"YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"</span><span class="p">,</span>
-    <span class="n">fd_cable_class</span><span class="o">=</span><span class="n">FDCable</span><span class="p">,</span>
+    <span class="n">cable_class</span><span class="o">=</span><span class="n">CableSoil</span><span class="p">,</span>
     <span class="n">cable_source_file_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"../../data/example_cables.csv"</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">from pathlib import Path
 
 from cable_thermal_model.cable.cable_builder import CableBuilder
-from cable_thermal_model.model.cables.fd_cable import FDCable
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 
 cable = CableBuilder.build_cable_from_cable_id(
     cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-    fd_cable_class=FDCable,
+    cable_class=CableSoil,
     cable_source_file_path=Path("../../data/example_cables.csv"),
 )</div>
 </div>
@@ -2044,7 +2128,7 @@ static_env.add_circuit_from_cable_id(
 
 <span class="n">simple_cable</span> <span class="o">=</span> <span class="n">CableBuilder</span><span class="o">.</span><span class="n">build_cable</span><span class="p">(</span>
     <span class="n">cable_constructional_input</span><span class="o">=</span><span class="n">cable_constructional_input</span><span class="p">,</span>
-    <span class="n">fd_cable_class</span><span class="o">=</span><span class="n">FDCable</span><span class="p">,</span>
+    <span class="n">cable_class</span><span class="o">=</span><span class="n">CableSoil</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-3">from cable_thermal_model.cable.schemas.cable_input_schemas import (
@@ -2092,7 +2176,7 @@ cable_constructional_input = CableConstructionalInputSchema(
 
 simple_cable = CableBuilder.build_cable(
     cable_constructional_input=cable_constructional_input,
-    fd_cable_class=FDCable,
+    cable_class=CableSoil,
 )</div>
 </div>
 </div>
@@ -2187,6 +2271,33 @@ static_env</div>
 </div>
 </div>
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="CodeMirror cm-s-jupyter">
+<div class="zeroclipboard-container">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-5">
+<div>
+<span class="notice" hidden="">Copied!</span>
+<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
+<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+</clipboard-copy>
+</div>
+<div class="highlight-ipynb hl-python"><pre><span></span>
+</pre></div>
+<div class="clipboard-copy-txt" id="cell-5"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div> <!-- jp-Notebook -->
 </div> <!-- jupyter-wrapper -->
@@ -2217,7 +2328,7 @@ static_env</div>
 <div class="md-dialog__inner md-typeset"></div>
 </div>
 <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-<script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+<script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script src="../../javascripts/katex.js"></script>
 <script src="https://unpkg.com/katex@0.16.42/dist/katex.min.js"></script>
 <script src="https://unpkg.com/katex@0.16.42/dist/contrib/auto-render.min.js"></script>

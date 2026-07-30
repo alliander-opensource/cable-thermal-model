@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -956,6 +956,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../environment/measurement_point/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    measurement_point
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../environment/static_env/" class="md-nav__link">
         
   
@@ -1198,6 +1226,118 @@
   
   
     <li class="md-nav__item">
+      <a href="../../model/cables/cable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cable
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model/cables/cable_air/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cable_air
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model/cables/cable_soil/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cable_soil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../model/cables/cable_trefoil_circuit_single_pipe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cable_trefoil_circuit_single_pipe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../model/cables/enum_classes_cable/" class="md-nav__link">
         
   
@@ -1226,14 +1366,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../model/cables/fd_cable/" class="md-nav__link">
+      <a href="../../model/cables/pipe/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    fd_cable
+    pipe
   
 
     
@@ -1254,14 +1394,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../model/cables/pipe/" class="md-nav__link">
+      <a href="../../model/cables/type_guards/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    pipe
+    type_guards
   
 
     
@@ -2172,6 +2312,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/measurement_points/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Measurement Points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2241,6 +2409,34 @@
     
   
     The heat equation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../theoretical_documentation/finite_difference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Finite difference method
   
 
     
@@ -2446,29 +2642,7 @@
   </span>
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">IEC60287CableParameters</span><span class="p">(</span>
-    <span class="n">ampacity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">conductor_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">screen_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">armour_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">surface_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">dc_resistance_conductor_at_20</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">skin_effect_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">proximity_effect_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">ac_resistance_conductor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">dc_resistance_screen</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">t1</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">t2</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">t3</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">t4</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">conductor_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">dielectric_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">screen_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">armour_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">total_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">screen_loss_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">armour_loss_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-<span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">IEC60287CableParameters</span><span class="p">(</span><span class="n">ampacity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">conductor_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">screen_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">armour_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">surface_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">dc_resistance_conductor_at_20</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">skin_effect_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">proximity_effect_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">ac_resistance_conductor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">dc_resistance_screen</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">t1</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">t3</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">t4</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">conductor_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">dielectric_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">screen_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">armour_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">total_loss</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">screen_loss_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">armour_loss_factor</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2550,12 +2724,7 @@
 
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">build_scenario</span><span class="p">(</span>
-    <span class="n">circuit_ratings</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="float">float</span></span><span class="p">],</span>
-    <span class="n">soil_thermal_resistivity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">soil_thermal_capacity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">ambient_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandera.typing.DataFrame">DataFrame</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="ScenarioSchemaSoil (cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaSoil)" href="../../model/schemas/model_input_schemas/#cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaSoil">ScenarioSchemaSoil</a></span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">build_scenario</span><span class="p">(</span><span class="n">circuit_ratings</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="float">float</span></span><span class="p">],</span> <span class="n">soil_thermal_resistivity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">soil_thermal_capacity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">ambient_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandera.typing.DataFrame">DataFrame</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="ScenarioSchemaSoil (cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaSoil)" href="../../model/schemas/model_input_schemas/#cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaSoil">ScenarioSchemaSoil</a></span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2742,13 +2911,7 @@
 
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">extract_iec_60287_parameters</span><span class="p">(</span>
-    <span class="n">static_env</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="StaticEnvSoil (cable_thermal_model.StaticEnvSoil)" href="../../#cable_thermal_model.StaticEnvSoil">StaticEnvSoil</a></span><span class="p">,</span>
-    <span class="n">circuit_ratings</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="float">float</span></span><span class="p">],</span>
-    <span class="n">soil_thermal_resistivity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">soil_thermal_capacity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-    <span class="n">ambient_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">extract_iec_60287_parameters</span><span class="p">(</span><span class="n">static_env</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="StaticEnvSoil (cable_thermal_model.StaticEnvSoil)" href="../../#cable_thermal_model.StaticEnvSoil">StaticEnvSoil</a></span><span class="p">,</span> <span class="n">circuit_ratings</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="float">float</span></span><span class="p">],</span> <span class="n">soil_thermal_resistivity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">soil_thermal_capacity</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">,</span> <span class="n">ambient_temperature</span><span class="p">:</span> <span class="n"><span title="float">float</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2949,7 +3112,7 @@
     <span class="n">model_output</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
     <span class="n">parameters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">cable_key</span><span class="p">,</span> <span class="n">pos_cable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">cables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">cable_key</span><span class="p">,</span> <span class="n">pos_cable</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">cables_with_soil</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">_get_cable_context</span><span class="p">(</span>
             <span class="n">cable</span><span class="o">=</span><span class="n">pos_cable</span><span class="o">.</span><span class="n">cable</span><span class="p">,</span>
             <span class="n">cable_key</span><span class="o">=</span><span class="n">cable_key</span><span class="p">,</span>
@@ -2975,15 +3138,12 @@
 
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">compare_parameters_to_reference</span><span class="p">(</span>
-    <span class="n">extracted_parameters</span><span class="p">:</span> <span class="n"><span title="pandas.Series">Series</span></span><span class="p">,</span>
-    <span class="n">reference_parameters</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="IEC60287CableParameters
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">compare_parameters_to_reference</span><span class="p">(</span><span class="n">extracted_parameters</span><span class="p">:</span> <span class="n"><span title="pandas.Series">Series</span></span><span class="p">,</span> <span class="n">reference_parameters</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="IEC60287CableParameters
 
 
   
       dataclass
-   (cable_thermal_model.validation.iec_60287_parameter_extractor.IEC60287CableParameters)" href="#cable_thermal_model.validation.iec_60287_parameter_extractor.IEC60287CableParameters">IEC60287CableParameters</a></span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+   (cable_thermal_model.validation.iec_60287_parameter_extractor.IEC60287CableParameters)" href="#cable_thermal_model.validation.iec_60287_parameter_extractor.IEC60287CableParameters">IEC60287CableParameters</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3176,7 +3336,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../javascripts/katex.js"></script>
       
