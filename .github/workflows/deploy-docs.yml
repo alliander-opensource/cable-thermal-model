@@ -47,15 +47,18 @@ jobs:
           path: gh-pages
       # Replace the branch contents with the freshly built site
       - name: Stage built site onto gh-pages
+        if: github.event_name != 'pull_request'
         run: |
           find gh-pages -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
           cp -a site/. gh-pages/
           touch gh-pages/.nojekyll
       # Open a signed PR with the updated site (branch protection requires a signed PR)
       - name: Open PR to update gh-pages
+        if: github.event_name != 'pull_request'
         id: cpr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: gh-pages
           base: gh-pages
           branch: chore/gh-pages-update
@@ -68,7 +71,7 @@ jobs:
           delete-branch: true
       # Auto-merge the PR so the site publishes without manual intervention
       - name: Enable auto-merge
-        if: steps.cpr.outputs.pull-request-number
+        if: github.event_name != 'pull_request' && steps.cpr.outputs.pull-request-number
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr merge --squash --auto "${{ steps.cpr.outputs.pull-request-number }}"
