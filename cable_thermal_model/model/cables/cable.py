@@ -326,11 +326,13 @@ class Cable(AbstractCable):
         radii = self._radii_grid
         inter_radii = self._inter_radii_grid
 
-        common_factors_first_derivative = self._common_factors_first_derivative(radii, inter_radii, self._rho_grid)
-        common_factors_second_derivative = self._common_factors_second_derivative(radii, inter_radii)
+        thermal_resistance_coefficients = self._compute_radial_thermal_resistance_coefficients(
+            radii, inter_radii, self._rho_grid
+        )
+        geometric_coefficients = self._compute_geometric_coefficients(surface_area_grid=self._surface_area_grid[1:-1])
 
-        upper_inter = common_factors_first_derivative[1:] * common_factors_second_derivative
-        lower_diagonal = common_factors_first_derivative[:-1] * common_factors_second_derivative
+        upper_inter = geometric_coefficients * thermal_resistance_coefficients[1:]
+        lower_diagonal = geometric_coefficients * thermal_resistance_coefficients[:-1]
         base_inter = -(upper_inter + lower_diagonal)
 
         boundary_value = 2 / (self._rho_grid[0] * inter_radii[0] * radii[1])
@@ -339,13 +341,24 @@ class Cable(AbstractCable):
 
         return upper_diagonal, base_diagonal, lower_diagonal
 
-    def _common_factors_first_derivative(
+    def _compute_geometric_coefficients(self, surface_area_grid: np.ndarray) -> np.ndarray:
+        """Compute geometric coefficients for the finite difference matrix.
+
+        Args:
+            surface_area_grid (np.ndarray): A Numpy array representing the surface area grid for the cable.
+
+        Returns:
+            np.ndarray: A Numpy array representing the geometric coefficients for the finite difference matrix.
+        """
+        return 2 * np.pi / surface_area_grid
+
+    def _compute_radial_thermal_resistance_coefficients(
         self,
         radii: np.ndarray,
         inter_radii: np.ndarray,
         rhos: np.ndarray,
     ) -> np.ndarray:
-        """Calculate the common factor used in the finite difference matrix for the first derivative.
+        """Calculate the coefficient used in the finite difference matrix thermal resistance.
 
         Args:
             radii (np.ndarray): A Numpy array representing the radii grid for the cable.
@@ -360,20 +373,6 @@ class Cable(AbstractCable):
         radii_deltas = np.diff(radii)
 
         return inter_radii / (inter_rhos * radii_deltas)
-
-    @staticmethod
-    def _common_factors_second_derivative(radii: np.ndarray, inter_radii: np.ndarray) -> np.ndarray:
-        """Calculate the common factor used in the finite difference matrix.
-
-        Args:
-            radii (np.ndarray): A Numpy array representing the radii grid for the cable.
-            inter_radii (np.ndarray): A Numpy array representing the interstitial radii grid for the cable.
-
-        Returns:
-            np.ndarray: The common finite difference factor for the given radii grid.
-
-        """
-        return 2 / ((inter_radii[:-1] + inter_radii[1:]) * np.diff(inter_radii))
 
     def _update_finite_difference_matrix_diagonals_if_needed(self) -> None:
         """This method updates the three diagonals of the finite difference matrix if they are outdated.

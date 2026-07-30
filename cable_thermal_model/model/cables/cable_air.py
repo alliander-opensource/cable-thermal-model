@@ -125,15 +125,12 @@ class CableAir(Cable):
         upper_diagonal, base_diagonal, lower_diagonal = super()._get_finite_difference_matrix_diagonals()
 
         # Extend the diagonals to account for the boundary condition at the outer sheath in air
-        common_factor_second_derivative = self._common_factors_second_derivative(
-            radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
-            inter_radii=np.append(self._inter_radii_grid[-1:], self._radii_grid[-1]),
-        )[0]
-        common_factor_first_derivative = self._common_factors_first_derivative(
+        thermal_resistance_coefficient = self._compute_radial_thermal_resistance_coefficients(
             radii=self._radii_grid[-2:], inter_radii=self._inter_radii_grid[-1:], rhos=self._rho_grid[-2:]
         )[0]
+        geometric_coefficient = self._compute_geometric_coefficients(surface_area_grid=self._surface_area_grid[-1:])[0]
 
-        new_element = common_factor_second_derivative * common_factor_first_derivative
+        new_element = geometric_coefficient * thermal_resistance_coefficient
         base_diagonal = np.append(base_diagonal, -new_element)
         lower_diagonal = np.append(lower_diagonal, new_element)
 
@@ -150,9 +147,4 @@ class CableAir(Cable):
         if self.convection_coefficient is None:
             raise ValueError("Convection coefficient is not set. Please set convection parameters first.")
 
-        common_factor_second_derivative = self._common_factors_second_derivative(
-            radii=np.append(self._radii_grid[-2:], self._radii_grid[-1]),
-            inter_radii=np.append(self._inter_radii_grid[-1:], self._radii_grid[-1]),
-        )[0]
-
-        return common_factor_second_derivative * self._radii_grid[-1] * self.convection_coefficient
+        return 2 * np.pi / self._surface_area_grid[-1] * self._radii_grid[-1] * self.convection_coefficient
