@@ -1,0 +1,11 @@
+# Cable Thermal Model
+
+> Simulate thermal behavior of power and distribution cables.
+
+Documentation for the Cable Thermal Model project that can be used
+to simulate the thermal behaviour of electrical cables.
+The documentation includes example calculations, API reference and
+technical details about the model.
+
+# API documentation
+
