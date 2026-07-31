@@ -48,7 +48,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
 
         """
         scenario_schema = self._scenario_model_class.to_schema().add_columns(
-            {f"load_{circuit_name}": pa.Column(float, required=True) for circuit_name in self.static_env.circuits}
+            {f"load_{circuit_name}": pa.Column(float) for circuit_name in self.static_env.circuits}
         )
 
         return scenario_schema.validate(scenario)
