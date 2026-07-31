@@ -5,6 +5,7 @@
 from unittest.mock import MagicMock
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
@@ -185,3 +186,19 @@ def test_initialize_thermal_state_returns_deep_copy(model: ModelSoil, scenario_c
     initialized_state.temperature[cable_key][0] = original_value + 1.0
 
     assert np.isclose(initial_state.temperature[cable_key][0], original_value)
+
+
+def test_validate_scenario_accepts_integer_numeric_columns(model: ModelSoil):
+    """Tests whether integer-valued numeric scenario columns are accepted via schema coercion."""
+    scenario = pd.DataFrame(
+        index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
+        data={
+            "load_c1": 100,
+            "ambient_temperature": 10,
+            "soil_thermal_resistivity": 1,
+            "soil_thermal_capacity": 2_000_000,
+        },
+    )
+
+    result = model.run(scenario)
+    assert result.result.shape[0] == scenario.shape[0]

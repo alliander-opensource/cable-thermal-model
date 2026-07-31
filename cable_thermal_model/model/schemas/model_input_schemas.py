@@ -22,12 +22,13 @@ class AbstractScenarioModel(pa.DataFrameModel):
         - ambient_temperature (float): ambient temperature in degrees Celsius
     """
 
-    ambient_temperature: pa.typing.Series[float]  # Ambient temperature in degrees Celsius
+    ambient_temperature: pa.typing.Series[float]
 
     class Config:
         """Configuration for the schema model."""
 
         strict = True
+        coerce = True
 
     @pa.dataframe_check(error="Scenario index must be either datetime-like or timedelta-like..")
     @classmethod
