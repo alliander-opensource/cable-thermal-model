@@ -356,7 +356,7 @@ class Model(
 
     def _compute_temperature_solution(
         self,
-        scenario: pd.DataFrame,
+        scenario: DataFrame[ScenarioModelT],
         initial_state: StateT | None = None,
     ) -> ModelOutputSchema[StateT]:
         """Run one transient thermal simulation over the provided scenario.

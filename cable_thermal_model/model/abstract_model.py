@@ -7,6 +7,7 @@ from typing import Generic
 
 import pandas as pd
 import pandera.pandas as pa
+from pandera.typing import DataFrame
 
 from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.model.schemas import ModelOutputSchema
@@ -36,7 +37,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         self.static_env = static_env
         self._set_run_options(run_options=None)
 
-    def _validate_scenario(self, scenario: pd.DataFrame) -> pd.DataFrame:
+    def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioModelT]:
         """Validates that the scenario DataFrame contains all required columns and no missing values.
 
         This method validates the scenario against the AbstractScenarioSchema and also checks that the static
@@ -50,7 +51,12 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         scenario_schema = self._scenario_model_class.to_schema().add_columns(
             {f"load_{circuit_name}": pa.Column(float) for circuit_name in self.static_env.circuits}
         )
-        return scenario_schema.validate(scenario)
+        scenario_schema.strict = True
+        scenario_schema.validate(scenario)
+
+        # As we validate the scenario schema, we can safely return the scenario.
+        # Initializing DataFrame[ScenarioModelT] would be double validation, so we use type: ignore to bypass it.
+        return scenario  # type: ignore[return-value]
 
     def run(
         self,
@@ -102,7 +108,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
     @abstractmethod
     def _compute_temperature_solution(
         self,
-        scenario: pd.DataFrame,
+        scenario: DataFrame[ScenarioModelT],
         initial_state: StateT | None = None,
     ) -> ModelOutputSchema[StateT]:
         """Compute and return the full temperature solution for the configured scenario."""

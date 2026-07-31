@@ -27,7 +27,7 @@ class AbstractScenarioModel(pa.DataFrameModel):
     class Config:
         """Configuration for the schema model."""
 
-        strict = True
+        strict = False
         coerce = True
 
     @pa.dataframe_check(error="Scenario index must be either datetime-like or timedelta-like..")
