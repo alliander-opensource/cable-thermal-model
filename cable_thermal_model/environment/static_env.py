@@ -24,6 +24,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitFromCableConstructionalInputSchema,
     CircuitFromCableIdInputSchema,
     CircuitFromCableInputSchema,
+    CircuitFromCableSpecsInputSchema,
 )
 from cable_thermal_model.model.cables.abstract_cable import (
     ELECTRIC_RESISTANCE_REFERENCE_TEMPERATURE,
@@ -40,6 +41,7 @@ CircuitFromCableConstructionalInputSchemaT = TypeVar(
     "CircuitFromCableConstructionalInputSchemaT", bound=CircuitFromCableConstructionalInputSchema
 )
 CircuitFromCableIdInputSchemaT = TypeVar("CircuitFromCableIdInputSchemaT", bound=CircuitFromCableIdInputSchema)
+CircuitFromCableSpecsInputSchemaT = TypeVar("CircuitFromCableSpecsInputSchemaT", bound=CircuitFromCableSpecsInputSchema)
 
 
 class StaticEnv(
@@ -49,6 +51,7 @@ class StaticEnv(
         CircuitFromCableInputSchemaT,
         CircuitFromCableConstructionalInputSchemaT,
         CircuitFromCableIdInputSchemaT,
+        CircuitFromCableSpecsInputSchemaT,
     ],
 ):
     """Class that builds a static environment."""
@@ -76,7 +79,8 @@ class StaticEnv(
         str_information_circuits = [tab_lines(repr(circuit)) for circuit in self.circuits.values()]
         return f"{self.__class__.__name__}\n" + "\n".join(str_information_circuits)
 
-    def compute_hash(self) -> str:
+    @property
+    def hash(self) -> str:
         """Compute a deterministic hash of the static environment based on the positioned cable representations."""
         encoded_representations = []
         for cable in self.get_cables().values():
@@ -86,9 +90,7 @@ class StaticEnv(
             )
 
         payload = "\n".join(sorted(encoded_representations)).encode("utf-8")
-        hash_value = hashlib.sha256(payload).hexdigest()
-
-        return hash_value
+        return hashlib.sha256(payload).hexdigest()
 
     def get_cables(self) -> dict[CableKey, PosCable[CableT]]:
         """Returns a dict of all cables in the static environment."""
@@ -118,6 +120,32 @@ class StaticEnv(
         multiple_configurations = [
             config._compute_circuit_configuration(cable_source_file_path=circuit_input.cable_source_file_path)
             for config in circuit_input.multiple_configurations
+        ]
+
+        # Add circuit to environment from the constructed cable
+        self.add_circuit_from_cable(
+            self._circuit_from_cable_input_schema_cls(
+                cable=cable,
+                multiple_configurations=multiple_configurations,
+                **circuit_input.model_dump(exclude={"multiple_configurations"}),
+            )
+        )
+        return self
+
+    def add_circuit_from_cable_specs(
+        self,
+        circuit_input: CircuitFromCableSpecsInputSchemaT,
+    ):
+        """Adds the circuit to the environment based on Cable Specs.
+
+        Args:
+            circuit_input: CircuitFromCableSpecsInputSchemaT containing the input parameters for the circuit.
+
+        """
+        # Build cable from cable specs
+        cable = self._build_cable_from_circuit_input(circuit_input)
+        multiple_configurations = [
+            config._compute_circuit_configuration() for config in circuit_input.multiple_configurations
         ]
 
         # Add circuit to environment from the constructed cable
@@ -221,7 +249,12 @@ class StaticEnv(
         return self
 
     def _build_cable_from_circuit_input(
-        self, circuit_input: CircuitFromCableIdInputSchemaT | CircuitFromCableConstructionalInputSchemaT
+        self,
+        circuit_input: (
+            CircuitFromCableIdInputSchemaT
+            | CircuitFromCableConstructionalInputSchemaT
+            | CircuitFromCableSpecsInputSchemaT
+        ),
     ) -> Cable:
         """Builds a cable from a circuit input schema.
 

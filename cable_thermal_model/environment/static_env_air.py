@@ -10,6 +10,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInAirFromCableConstructionalInputSchema,
     CircuitInAirFromCableIdInputSchema,
     CircuitInAirFromCableInputSchema,
+    CircuitInAirFromCableSpecsInputSchema,
 )
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.cables.cable_air import CableAir
@@ -22,6 +23,7 @@ class StaticEnvAir(
         CircuitInAirFromCableInputSchema,
         CircuitInAirFromCableConstructionalInputSchema,
         CircuitInAirFromCableIdInputSchema,
+        CircuitInAirFromCableSpecsInputSchema,
     ]
 ):
     """Class that builds a static environment for circuits in air."""

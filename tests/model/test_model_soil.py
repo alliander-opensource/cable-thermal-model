@@ -507,7 +507,7 @@ def test_update_thermal_state(
     mutual_heating_state_map = {cable_key: mutual_heating_state.copy() for cable_key in model.cables}
 
     current_state = StateSoil(
-        static_env_hash=model.static_env.compute_hash(),
+        static_env_hash=model.static_env.hash,
         temperature={cable_key: np.zeros_like(mutual_heating_state_map[cable_key]) for cable_key in model.cables},
         self_heating_contribution=self_heating_state_map,
         mutual_heating_contribution=mutual_heating_state_map,
@@ -943,7 +943,7 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
 
     # Test case 1: Valid StateSoil should pass upon initialization
     StateSoil(
-        static_env_hash=model.static_env.compute_hash(),
+        static_env_hash=model.static_env.hash,
         temperature={key: np.array([10.0]) for key in cable_keys},
         self_heating_contribution={key: np.array([10.0]) for key in cable_keys},
         mutual_heating_contribution=valid_mutual_heating_solutions,
@@ -954,7 +954,7 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
     wrong_key = CableKey(circuit_name="wrong_circuit", cable_position=CablePosition.Single)
     invalid_mutual_heating = {wrong_key: np.array([1.0, 2.0, 3.0])}
 
-    env_hash = model.static_env.compute_hash()
+    env_hash = model.static_env.hash
     temperature = {key: np.array([10.0]) for key in cable_keys}
     self_heating = {key: np.array([10.0]) for key in cable_keys}
 
@@ -1003,7 +1003,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
     cable_key = pos_cable.key
 
     valid_state = StateSoil(
-        static_env_hash=env.compute_hash(),
+        static_env_hash=env.hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         mutual_heating_contribution={cable_key: np.array([15.0])},
@@ -1014,7 +1014,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
 
     # Test 3: state=StateAir instance should raise ValueError
     invalid_state_air = StateAir(
-        static_env_hash=env.compute_hash(),
+        static_env_hash=env.hash(),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         ambient_temperature=5.0,

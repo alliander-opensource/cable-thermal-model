@@ -12,6 +12,7 @@ from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitInSoilFromCableConstructionalInputSchema,
     CircuitInSoilFromCableIdInputSchema,
     CircuitInSoilFromCableInputSchema,
+    CircuitInSoilFromCableSpecsInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.measurement_point import MeasurementPointKey, MeasurementPointRegistry
@@ -28,6 +29,7 @@ class StaticEnvSoil(
         CircuitInSoilFromCableInputSchema,
         CircuitInSoilFromCableConstructionalInputSchema,
         CircuitInSoilFromCableIdInputSchema,
+        CircuitInSoilFromCableSpecsInputSchema,
     ]
 ):
     """Class that builds a static environment for circuits in soil."""

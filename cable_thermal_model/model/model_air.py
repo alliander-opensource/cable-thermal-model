@@ -60,7 +60,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         ambient_temperature = self.scenario["ambient_temperature"].iloc[0]
 
         return StateAir(
-            static_env_hash=self.static_env.compute_hash(),
+            static_env_hash=self.static_env.hash,
             temperature=self._initialize_state_from_cables(cables=self.cables, fill_value=ambient_temperature),
             self_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
             ambient_temperature=ambient_temperature,
