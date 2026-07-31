@@ -2,20 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import cast
 
 import numpy as np
 import pandas as pd
 import pytest
 from pandera.errors import SchemaError, SchemaErrors
-from pandera.typing import DataFrame
 from pydantic_core import ValidationError
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition, PosCable
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import AbstractModel
 from cable_thermal_model.model.model_factory import ModelFactory
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil
 from cable_thermal_model.model.schemas.state_schemas import State, StateSoil
 
 
@@ -60,13 +57,12 @@ def test_model_init_without_arguments():
         ),
     ],
 )
-def test_set_scenario(model, new_scenario):
-    """Tests whether the updated scenario is set in the model object."""
-    model.run()
-    model.set_scenario(new_scenario)
-    assert model.scenario.equals(new_scenario)
+def test_run_accepts_different_scenarios(model, new_scenario):
+    """Tests whether the same model instance can be executed with different scenarios."""
+    first_result = model.run(new_scenario)
+    second_result = model.run(new_scenario)
 
-    model.run()
+    pd.testing.assert_frame_equal(first_result.result, second_result.result)
 
 
 @pytest.mark.parametrize(
@@ -222,23 +218,33 @@ def test_validate_scenario(
     - soil thermal capacity included in the scenario
     - missing values (NaNs).
     """
+    model = ModelFactory.create_model(static_env=single_circuit_env)
+
     if error_msg:
         with pytest.raises(exception, match=error_msg):
-            ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario)
+            model.run(scenario)
     else:
         with pytest.raises(exception):
-            ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario)
+            model.run(scenario)
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])
 @pytest.mark.parametrize("soil_drying", [True, False])
 @pytest.mark.parametrize("ac_current", [True, False])
 @pytest.mark.parametrize("initial_state", [True, False])
-def test_run(model, temperature_dependent_electric_resistance, soil_drying, ac_current, initial_state):
+def test_run(
+    model,
+    scenario_constant,
+    temperature_dependent_electric_resistance,
+    soil_drying,
+    ac_current,
+    initial_state,
+):
     """Tests whether we can go through the different options and get results but does not check output."""
-    state = model.run().state if initial_state else None
+    state = model.run(scenario_constant).state if initial_state else None
 
     solution = model.run(
+        scenario_constant,
         initial_state=state,
         run_options={
             "temperature_dependent_electric_resistance": temperature_dependent_electric_resistance,
@@ -246,7 +252,26 @@ def test_run(model, temperature_dependent_electric_resistance, soil_drying, ac_c
             "ac_current": ac_current,
         },
     )
+
     assert solution is not None
+
+
+def test_run_with_split_scenario(model, scenario_constant):
+    """Tests that explicit run scenarios preserve chained results."""
+    long_scenario = scenario_constant.copy()
+    split_idx = len(long_scenario) // 2
+    first_short_scenario = long_scenario.iloc[: split_idx + 1].copy()
+    second_short_scenario = long_scenario.iloc[split_idx:].copy()
+
+    long_output = model.__class__(model.static_env).run(long_scenario)
+
+    reused_model = model.__class__(model.static_env)
+    first_output = reused_model.run(first_short_scenario)
+    second_output = reused_model.run(second_short_scenario, initial_state=first_output.state)
+
+    reused_result = pd.concat([first_output.result.copy(), second_output.result.iloc[1:].copy()])
+
+    pd.testing.assert_frame_equal(reused_result, long_output.result, rtol=1e-10, atol=1e-10)
 
 
 def test_state_check_solution_consistency(single_core_cable_xlpe):
@@ -337,17 +362,5 @@ def test_state_check_environment_hash_consistency(model):
 
 
 def test_model_str_representation(model):
-    """Test concise model string for short and long scenarios."""
-    assert str(model) == "Model with 1 circuit environment and 2 day scenario"
-
-    long_scenario = pd.DataFrame(
-        index=pd.date_range("2020-01-01", "2020-01-10", freq="1d"),
-        data={
-            "load_c1": np.linspace(90, 110, 10),
-            "ambient_temperature": 10.0,
-            "soil_thermal_resistivity": 0.75,
-            "soil_thermal_capacity": 2e6,
-        },
-    )
-    model.set_scenario(cast(DataFrame[ScenarioModelSoil], long_scenario))
-    assert str(model) == "Model with 1 circuit environment and 9 day scenario"
+    """Test concise model string for scenario-free model instances."""
+    assert str(model) == "Model with 1 circuit environment"

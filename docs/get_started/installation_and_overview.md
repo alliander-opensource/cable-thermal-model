@@ -198,8 +198,8 @@ Create and execute the thermal model:
 ```python
 from cable_thermal_model import ModelFactory
 
-model = ModelFactory.create_model(static_env=static_env, scenario=scenario)
-solution = model.run()
+model = ModelFactory.create_model(static_env=static_env)
+solution = model.run(scenario=scenario)
 temperature_result = solution.result
 ```
 
