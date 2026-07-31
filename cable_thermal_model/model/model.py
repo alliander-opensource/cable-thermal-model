@@ -326,13 +326,13 @@ class Model(
     def _build_temperature_result_dataframe(
         self,
         temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
-        scenario: pd.DataFrame,
+        scenario_index: pd.Index,
     ) -> DataFrame[TemperatureResultSchema]:
         """Builds a DataFrame from the temperature results for each cable and layer.
 
         Args:
             temperature_result: A nested dictionary containing temperature results for each cable and layer.
-            scenario: Scenario used for the current run.
+            scenario_index: Index of the scenario used for the current run.
 
         Returns:
             DataFrame[TemperatureResultSchema]:
@@ -341,7 +341,7 @@ class Model(
         """
         temperature_result_dfs = {
             (cable_key.circuit_name, cable_key.cable_position): pd.DataFrame(
-                temperature_result[cable_key], index=scenario.index
+                temperature_result[cable_key], index=scenario_index
             )
             for cable_key in temperature_result
         }
@@ -411,7 +411,7 @@ class Model(
 
         temperature_result_df = self._build_temperature_result_dataframe(
             temperature_result=temperature_result,
-            scenario=scenario,
+            scenario_index=scenario.index,
         )
 
         return ModelOutputSchema(result=temperature_result_df, state=state)

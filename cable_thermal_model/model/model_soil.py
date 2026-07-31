@@ -419,9 +419,13 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticE
     def _build_temperature_result_dataframe(
         self,
         temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
-        scenario: pd.DataFrame,
+        scenario_index: pd.Index,
     ) -> DataFrame[TemperatureResultSchema]:
         """Builds a DataFrame from the temperature result dictionary.
+
+        Args:
+            temperature_result: A nested dictionary containing temperature results for each cable and layer.
+            scenario_index: Index of the scenario used for the current run.
 
         Returns:
             pd.DataFrame: A DataFrame containing the temperature results for all cables and layers.
@@ -429,7 +433,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticE
         """
         df = super()._build_temperature_result_dataframe(
             temperature_result=temperature_result,
-            scenario=scenario,
+            scenario_index=scenario_index,
         )
 
         # Add measurement point temperatures to the DataFrame
