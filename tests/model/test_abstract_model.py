@@ -10,9 +10,9 @@ from pandera.errors import SchemaError, SchemaErrors
 from pydantic_core import ValidationError
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition, PosCable
-from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import AbstractModel
-from cable_thermal_model.model.model_factory import ModelFactory
+from cable_thermal_model.model.model_soil import ModelSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil
 from cable_thermal_model.model.schemas.state_schemas import State, StateSoil
 
 
@@ -204,7 +204,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
     ],
 )
 def test_validate_scenario(
-    single_circuit_env: StaticEnvSoil,
+    model: ModelSoil,
     scenario: pd.DataFrame,
     exception: type[Exception],
     error_msg: str,
@@ -218,14 +218,21 @@ def test_validate_scenario(
     - soil thermal capacity included in the scenario
     - missing values (NaNs).
     """
-    model = ModelFactory.create_model(static_env=single_circuit_env)
-
     if error_msg:
         with pytest.raises(exception, match=error_msg):
             model.run(scenario)
     else:
         with pytest.raises(exception):
             model.run(scenario)
+
+
+def test_valid_scenario(model: ModelSoil, scenario_constant: pd.DataFrame):
+    """Tests whether a valid scenario is accepted by the model."""
+    # Should not raise any exceptions
+    validated_scenario = model._validate_scenario(scenario_constant)
+
+    # The validated scenario should be a valid DataFrame[ScenarioModelSoil]
+    ScenarioModelSoil.validate(validated_scenario)
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])
