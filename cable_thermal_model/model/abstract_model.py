@@ -6,22 +6,21 @@ from abc import ABC, abstractmethod
 from typing import Generic
 
 import pandas as pd
-from pandera.typing import DataFrame
+import pandera.pandas as pa
 
 from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.model.schemas import ModelOutputSchema
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
-class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT]):
+class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, StaticEnvT]):
     """Abstract base class for thermal cable models."""
 
     static_env: StaticEnvT
-    scenario: DataFrame[ScenarioSchemaT]
-    _scenario_schema_class: type[ScenarioSchemaT]
+    _scenario_model_class: type[ScenarioModelT]
 
     def __str__(self):
         """Generates a concise string representation of the model."""
@@ -39,14 +38,14 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             + f"{tab_lines(tab_lines(repr(self.scenario.describe())))}\n"
         )
 
-    def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
+    def __init__(self, static_env: StaticEnvT, scenario: pd.DataFrame):
         """Initialise the model with a static environment and scenario DataFrame."""
         # Validate that the scenario dataframe provides the required cable loads and ambient temperature.
         self.static_env = static_env
         self.set_scenario(scenario=scenario)
         self._set_run_options(run_options=None)
 
-    def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioSchemaT]:
+    def _validate_scenario(self, scenario: pd.DataFrame) -> pd.DataFrame:
         """Validates that the scenario DataFrame contains all required columns and no missing values.
 
         This method validates the scenario against the AbstractScenarioSchema and also checks that the static
@@ -57,11 +56,11 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
                 missing, or there are missing values in the scenario.
 
         """
-        for circuit in self.static_env.circuits:
-            if "load_" + circuit not in scenario.columns:
-                raise ValueError(f"Scenario dataframe does not contain a load column for circuit '{circuit}'.")
+        scenario_schema = self._scenario_model_class.to_schema().add_columns(
+            {f"load_{circuit_name}": pa.Column(float, required=True) for circuit_name in self.static_env.circuits}
+        )
 
-        return self._scenario_schema_class.validate(scenario)
+        return scenario_schema.validate(scenario)
 
     def set_scenario(self, scenario: pd.DataFrame):
         """Sets a new scenario and validates it.

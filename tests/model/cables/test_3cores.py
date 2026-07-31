@@ -12,7 +12,6 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.model_factory import ModelFactory
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 
 
 def test_single_core_xlpe(single_core_cable_xlpe: CableSoil):
@@ -49,21 +48,21 @@ def test_three_core(three_core_cable_pilc: CableSoil):
 @pytest.mark.parametrize(
     "load, expected_temperature_conductor, expected_temperature_sheath, soil_thermal_resistivity",
     [
-        [50, 20.7, 20.2, 0.25],
-        [100, 23.0, 20.8, 0.25],
-        [150, 26.9, 21.8, 0.25],
-        [200, 32.5, 23.3, 0.25],
-        [250, 40.1, 25.3, 0.25],
-        [50, 21.1, 20.6, 0.75],
-        [100, 24.6, 22.4, 0.75],
-        [150, 30.6, 25.5, 0.75],
-        [200, 39.5, 30.1, 0.75],
-        [250, 51.9, 36.4, 0.75],
-        [50, 21.7, 21.2, 1.50],
-        [100, 27.1, 24.8, 1.50],
-        [150, 36.5, 31.2, 1.50],
-        [200, 50.8, 40.9, 1.50],
-        [250, 71.5, 55.0, 1.50],
+        [50.0, 20.7, 20.2, 0.25],
+        [100.0, 23.0, 20.8, 0.25],
+        [150.0, 26.9, 21.8, 0.25],
+        [200.0, 32.5, 23.3, 0.25],
+        [250.0, 40.1, 25.3, 0.25],
+        [50.0, 21.1, 20.6, 0.75],
+        [100.0, 24.6, 22.4, 0.75],
+        [150.0, 30.6, 25.5, 0.75],
+        [200.0, 39.5, 30.1, 0.75],
+        [250.0, 51.9, 36.4, 0.75],
+        [50.0, 21.7, 21.2, 1.50],
+        [100.0, 27.1, 24.8, 1.50],
+        [150.0, 36.5, 31.2, 1.50],
+        [200.0, 50.8, 40.9, 1.50],
+        [250.0, 71.5, 55.0, 1.50],
     ],
 )
 def test_3core_pilc_run(
@@ -86,7 +85,7 @@ def test_3core_pilc_run(
             x=0, y=-0.8, circuit_name="c", cable=three_core_cable_pilc, circuit_type=CircuitType.Single
         )
     )
-    model = ModelFactory.create_model(environment, ScenarioSchemaSoil.validate(scenario))
+    model = ModelFactory.create_model(environment, scenario)
     solution = model.run()
 
     assert np.isclose(
@@ -105,20 +104,20 @@ def test_3core_pilc_run(
 @pytest.mark.parametrize(
     "load, expected_temperature_conductor, expected_temperature_sheath, soil_thermal_resistivity",
     [
-        [50, 20.4, 20.1, 0.25],
-        [100, 21.6, 20.6, 0.25],
-        [200, 26.6, 22.4, 0.25],
-        [300, 35.4, 25.5, 0.25],
-        [450, 57.5, 33.3, 0.25],
-        [50, 20.7, 20.4, 0.75],
-        [100, 22.8, 21.7, 0.75],
-        [200, 31.6, 27.2, 0.75],
-        [300, 47.5, 37.1, 0.75],
-        [450, 91.3, 64.4, 0.75],
-        [50, 21.1, 20.9, 1.5],
-        [100, 24.6, 23.5, 1.5],
-        [200, 39.3, 34.8, 1.5],
-        [300, 67.8, 56.7, 1.5],
+        [50.0, 20.4, 20.1, 0.25],
+        [100.0, 21.6, 20.6, 0.25],
+        [200.0, 26.6, 22.4, 0.25],
+        [300.0, 35.4, 25.5, 0.25],
+        [450.0, 57.5, 33.3, 0.25],
+        [50.0, 20.7, 20.4, 0.75],
+        [100.0, 22.8, 21.7, 0.75],
+        [200.0, 31.6, 27.2, 0.75],
+        [300.0, 47.5, 37.1, 0.75],
+        [450.0, 91.3, 64.4, 0.75],
+        [50.0, 21.1, 20.9, 1.5],
+        [100.0, 24.6, 23.5, 1.5],
+        [200.0, 39.3, 34.8, 1.5],
+        [300.0, 67.8, 56.7, 1.5],
     ],
 )
 def test_3core_xlpe_run(
@@ -141,7 +140,7 @@ def test_3core_xlpe_run(
             x=0, y=-0.8, circuit_name="c", cable=three_core_cable_xlpe, circuit_type=CircuitType.Single
         )
     )
-    model = ModelFactory.create_model(environment, ScenarioSchemaSoil.validate(scenario))
+    model = ModelFactory.create_model(environment, scenario)
     solution = model.run()
 
     assert np.isclose(

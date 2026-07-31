@@ -15,15 +15,15 @@ from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel, StaticEnvT
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import ModelOutputSchema
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelT
 from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 
 
 class Model(
-    AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
-    Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT, CableT],
+    AbstractModel[ModelRunOptionsT, StateT, ScenarioModelT, StaticEnvT],
+    Generic[ModelRunOptionsT, StateT, ScenarioModelT, StaticEnvT, CableT],
 ):
     """Finite Difference Model for Thermal Cable Model.
 
@@ -34,7 +34,7 @@ class Model(
     _run_options_class: type[ModelRunOptionsT]
     _state_class: type[StateT]
 
-    def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
+    def __init__(self, static_env: StaticEnvT, scenario: pd.DataFrame):
         """Initialize the model with a static environment and a scenario DataFrame.
 
         Args:

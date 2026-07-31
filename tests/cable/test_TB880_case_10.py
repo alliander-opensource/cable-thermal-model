@@ -116,6 +116,6 @@ def test_calculate_thermal_resistances(
     assert np.isclose(t3, 0.0886807855, rtol=RELATIVE_TOLERANCE)
 
     t4 = analysis.get_thermal_resistance_external_medium(
-        ambient_temperature=TB880_case_10_model.scenario["ambient_temperature"].iloc[-1]
+        ambient_temperature=TB880_case_10_model.scenario.ambient_temperature.iloc[-1]
     )
     assert np.isclose(t4, 0.6850633170, rtol=RELATIVE_TOLERANCE)

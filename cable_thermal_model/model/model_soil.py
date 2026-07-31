@@ -15,13 +15,13 @@ from cable_thermal_model.environment.measurement_point import (
 )
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.model import Model
-from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
+from cable_thermal_model.model.schemas import ScenarioModelSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
 from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
-class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil, CableSoil]):
+class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticEnvSoil, CableSoil]):
     """ModelSoil computes temperatures for underground power cables using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvSoil and a valid scenario, then executed via `run()`.
@@ -30,7 +30,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
     Class Attributes:
         _run_options_class:                 The class used for run options.
         _state_class:                       The class used for the state of the model.
-        _scenario_schema_class:             The class used for the scenario schema.
+        _scenario_model_class:              The class used for the scenario model.
 
     Attributes:
         mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
@@ -50,9 +50,9 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
     _run_options_class = ModelSoilRunOptions
     _state_class = StateSoil
-    _scenario_schema_class = ScenarioSchemaSoil
+    _scenario_model_class = ScenarioModelSoil
 
-    def __init__(self, static_env: StaticEnvSoil, scenario: DataFrame[ScenarioSchemaSoil]):
+    def __init__(self, static_env: StaticEnvSoil, scenario: pd.DataFrame):
         """Initialize the ModelSoil instance with a static environment and scenario.
 
         Note: the scenario must contain one `load_<circuit_name>` column per circuit, plus ambient temperature and
@@ -60,7 +60,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         Args:
             static_env: A StaticEnvSoil instance containing the soil thermal parameters and cable layout.
-            scenario: A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic load and soil data.
+            scenario: A pandera DataFrame[ScenarioModelSoil] containing the dynamic load and soil data.
 
         """
         if not isinstance(static_env, StaticEnvSoil):
