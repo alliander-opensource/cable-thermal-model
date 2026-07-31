@@ -124,8 +124,8 @@ def test_model_validate_steady_state(scenario_steady_state: pd.DataFrame):
     steady_state = model.run(scenario_steady_state).state
 
     # Select a cable from the circuit
-    cable_key = next(iter(model.cables_with_soil.keys()))
-    cable = model.cables_with_soil[cable_key].cable
+    cable_key = next(iter(model.cables_in_environment.keys()))
+    cable = model.cables_in_environment[cable_key].cable
     steady_state_solution = steady_state.self_heating_contribution[cable_key]
     steady_state_full_solution = steady_state.temperature[cable_key]
 
@@ -472,14 +472,14 @@ def test_initializing_thermal_state(model: ModelSoil, scenario_constant: pd.Data
     temperature_state = initial_state.temperature
     mutual_heating_state = initial_state.mutual_heating_contribution
 
-    cable_count = len(model.cables_with_soil)
+    cable_count = len(model._cables_with_soil)
     assert len(self_heating_state) == cable_count
     assert len(mutual_heating_state) == cable_count
     assert len(temperature_state) == cable_count
 
-    for cable_key in model.cables_with_soil:
-        assert self_heating_state[cable_key].size == model.cables_with_soil[cable_key].cable._radii_grid.size
-        assert temperature_state[cable_key].size == model.cables[cable_key].cable._radii_grid.size
+    for cable_key in model._cables_with_soil:
+        assert self_heating_state[cable_key].size == model._cables_with_soil[cable_key].cable._radii_grid.size
+        assert temperature_state[cable_key].size == model._cables[cable_key].cable._radii_grid.size
         assert mutual_heating_state[cable_key].size == temperature_state[cable_key].size
 
 
@@ -501,12 +501,12 @@ def test_update_thermal_state(
 ):
     """Simple test to check if all cable states are updated correctly in one call."""
     model.run(scenario_constant)
-    self_heating_state_map = {cable_key: self_heating_state.copy() for cable_key in model.cables_with_soil}
-    mutual_heating_state_map = {cable_key: mutual_heating_state.copy() for cable_key in model.cables}
+    self_heating_state_map = {cable_key: self_heating_state.copy() for cable_key in model._cables_with_soil}
+    mutual_heating_state_map = {cable_key: mutual_heating_state.copy() for cable_key in model._cables}
 
     current_state = StateSoil(
         static_env_hash=model.static_env.compute_hash(),
-        temperature={cable_key: np.zeros_like(mutual_heating_state_map[cable_key]) for cable_key in model.cables},
+        temperature={cable_key: np.zeros_like(mutual_heating_state_map[cable_key]) for cable_key in model._cables},
         self_heating_contribution=self_heating_state_map,
         mutual_heating_contribution=mutual_heating_state_map,
         ambient_temperature=scenario_constant["ambient_temperature"].iloc[time_idx],
@@ -521,7 +521,7 @@ def test_update_thermal_state(
         ambient_temperature=scenario_constant["ambient_temperature"].iloc[time_idx],
     )
 
-    for cable_key in model.cables:
+    for cable_key in model._cables:
         assert np.array_equal(state.self_heating_contribution[cable_key], expected_self_heating_state)
         assert np.array_equal(state.mutual_heating_contribution[cable_key], expected_mutual_heating_state)
         assert np.array_equal(state.temperature[cable_key], expected_temperature_state)
@@ -530,18 +530,18 @@ def test_update_thermal_state(
 def test_get_vector_cables_returns_cables_with_soil(model: ModelSoil, scenario_constant: pd.DataFrame):
     """Test that _get_vector_cables returns the soil-extended cable mapping."""
     model.run(scenario_constant)
-    assert model._cables_for_heat_vectors is model.cables_with_soil
+    assert model.cables_in_environment is model._cables_with_soil
 
 
 def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil, scenario_constant: pd.DataFrame):
     """Test whether soil property update is forwarded to every soil-extended cable."""
     model.run(scenario_constant)
     temperature_state = {
-        cable_key: np.ones(pos_cable.cable._radii_grid.size) for cable_key, pos_cable in model.cables_with_soil.items()
+        cable_key: np.ones(pos_cable.cable._radii_grid.size) for cable_key, pos_cable in model._cables_with_soil.items()
     }
 
     update_mocks = {}
-    for pos_cable in model.cables_with_soil.values():
+    for pos_cable in model._cables_with_soil.values():
         update_mock = mock.Mock()
         pos_cable.cable.update_soil_properties = update_mock
         update_mocks[pos_cable.key] = update_mock
@@ -553,7 +553,7 @@ def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil
         soil_capacity=2.5e6,
     )
 
-    for cable_key in model.cables_with_soil:
+    for cable_key in model._cables_with_soil:
         update_mocks[cable_key].assert_called_once_with(
             soil_rho=1.6,
             soil_c=2.5e6,
@@ -579,13 +579,12 @@ def test_initialize_cables(
     scenario = request.getfixturevalue(scenario_fix)
     model = ModelSoil(circuit)
     model.run(scenario)
-    assert model.number_of_cables == expected_number_of_cables
-    assert model.cables is not None
-    assert len(model.cables) == expected_number_of_cables
-    assert model.cables_with_soil is not None
-    assert len(model.cables_with_soil) == expected_number_of_cables
-    assert model.mirror_cables_with_soil is not None
-    assert len(model.mirror_cables_with_soil) == expected_number_of_cables
+    assert model._cables is not None
+    assert len(model._cables) == expected_number_of_cables
+    assert model._cables_with_soil is not None
+    assert len(model._cables_with_soil) == expected_number_of_cables
+    assert model._mirror_cables_with_soil is not None
+    assert len(model._mirror_cables_with_soil) == expected_number_of_cables
 
 
 def test_non_uniform_scenario(single_circuit_env: StaticEnvSoil):
@@ -686,11 +685,18 @@ def test_reusing_model_for_short_scenarios_matches_single_long_scenario_dynamic_
 
 
 def test_add_extra_solution_layer(model: ModelSoil, scenario_constant: pd.DataFrame):
-    """Test if solution layer is added and is found in the solution of the model."""
-    model.add_solution_location(CableLayer.Insulation)
-    assert CableLayer.Insulation in model.extra_solution_layers
-    solution = model.run(scenario_constant)
+    """Test if an extra solution layer can be requested for a single model run."""
+    solution = model.run(scenario_constant, run_options={"extra_solution_layers": [CableLayer.Insulation]})
     assert CableLayer.Insulation in solution.result[("c1", "trefoil_left")].columns
+
+
+def test_extra_solution_layers_do_not_persist_between_runs(model: ModelSoil, scenario_constant: pd.DataFrame):
+    """Ensure extra solution layers affect only the run that explicitly requests them."""
+    first_solution = model.run(scenario_constant, run_options={"extra_solution_layers": [CableLayer.Insulation]})
+    second_solution = model.run(scenario_constant)
+
+    assert CableLayer.Insulation in first_solution.result[("c1", "trefoil_left")].columns
+    assert CableLayer.Insulation not in second_solution.result[("c1", "trefoil_left")].columns
 
 
 def test_compare_multiple_configs(
@@ -926,7 +932,7 @@ def test_statesoil_validate_mutual_heating_solutions(single_circuit_env, scenari
     model.run(scenario_constant)
 
     # Get cable keys from the model.
-    cable_keys = list(model.cables.keys())
+    cable_keys = list(model._cables.keys())
 
     # Create valid mutual heating solutions
     valid_mutual_heating_solutions = {key: np.array([1.0, 2.0, 3.0]) for key in cable_keys}

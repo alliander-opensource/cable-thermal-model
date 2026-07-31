@@ -44,9 +44,9 @@ class ModelFactory:
             ValueError: If static_env is not a supported environment type.
         """
         if isinstance(static_env, StaticEnvAir):
-            return ModelAir(static_env=static_env)  # type: ignore
+            return ModelAir(static_env=static_env)
         elif isinstance(static_env, StaticEnvSoil):
-            return ModelSoil(static_env=static_env)  # type: ignore
+            return ModelSoil(static_env=static_env)
         else:
             raise ValueError(
                 f"Unsupported static environment type: {type(static_env).__name__}. "
