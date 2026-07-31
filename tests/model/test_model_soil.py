@@ -1003,7 +1003,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
     cable_key = pos_cable.key
 
     valid_state = StateSoil(
-        static_env_hash=env.hash(),
+        static_env_hash=env.hash,
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         mutual_heating_contribution={cable_key: np.array([15.0])},
@@ -1014,7 +1014,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
 
     # Test 3: state=StateAir instance should raise ValueError
     invalid_state_air = StateAir(
-        static_env_hash=env.hash(),
+        static_env_hash=env.hash,
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         ambient_temperature=5.0,

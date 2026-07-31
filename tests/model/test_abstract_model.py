@@ -271,7 +271,7 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
 def test_state_check_cable_representations_consistency(model):
     """Test initial-state validation against the model static environment."""
     cable_keys = list(model.static_env.get_cables().keys())
-    env_hash = model.static_env.compute_hash()
+    env_hash = model.static_env.hash
     state_cls = model._state_class
 
     # Test 1: Matching static environment keys and fingerprint should pass

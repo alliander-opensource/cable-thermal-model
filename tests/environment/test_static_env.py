@@ -36,8 +36,8 @@ from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 
 def test_compute_hash_is_deterministic(single_circuit_env: StaticEnv):
     """Fingerprint generation should be stable for the same environment content."""
-    fingerprint = single_circuit_env.hash()
-    fingerprint_copy = deepcopy(single_circuit_env).hash()
+    fingerprint = single_circuit_env.hash
+    fingerprint_copy = deepcopy(single_circuit_env).hash
 
     assert fingerprint == fingerprint_copy
     assert len(fingerprint) == 64
