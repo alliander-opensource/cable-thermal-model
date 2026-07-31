@@ -136,7 +136,10 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: pd
     steady_state_soil = model_soil.run(scenario_steady_state, run_options=run_options).state
 
     model_air = ModelFactory.create_model(static_env_air)
-    steady_state_air = model_air.run(scenario_steady_state, run_options=run_options).state
+    steady_state_air = model_air.run(
+        scenario=scenario_steady_state.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"]),
+        run_options=run_options,
+    ).state
 
     # Select the single cable from both circuits and collect their steady state solutions
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
@@ -181,7 +184,9 @@ def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: pd.DataF
 
     # Compute the steady state solution
     model = ModelFactory.create_model(static_env)
-    steady_state = model.run(scenario_steady_state).state
+    steady_state = model.run(
+        scenario=scenario_steady_state.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"])
+    ).state
 
     # Select a cable from the circuit
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
@@ -245,7 +250,9 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame)
 
     # Compute the steady state solution
     model = ModelFactory.create_model(static_env)
-    steady_state = model.run(scenario_steady_state).state
+    steady_state = model.run(
+        scenario=scenario_steady_state.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"])
+    ).state
 
     # Select a cable from the circuit
     cable_key = list(model.cables_in_environment.keys())[0]

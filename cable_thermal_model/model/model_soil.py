@@ -15,13 +15,13 @@ from cable_thermal_model.environment.measurement_point import (
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.model import Model
-from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
+from cable_thermal_model.model.schemas import ScenarioModelSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
 from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
-class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil, CableSoil]):
+class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticEnvSoil, CableSoil]):
     """ModelSoil computes temperatures for underground power cables using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvSoil and executed with a scenario via `run()`.
@@ -29,7 +29,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
     Class Attributes:
         _run_options_class: Run-options schema class.
         _state_class: State schema class.
-        _scenario_schema_class: Scenario schema class.
+        _scenario_model_class: Scenario model class.
 
     Internal Runtime State:
         _cables_with_soil: Per-run cable representations extended with soil layers and updated during simulation.
@@ -45,7 +45,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
     _run_options_class = ModelSoilRunOptions
     _state_class = StateSoil
-    _scenario_schema_class = ScenarioSchemaSoil
+    _scenario_model_class = ScenarioModelSoil
 
     def __init__(self, static_env: StaticEnvSoil):
         """Initialize the ModelSoil instance with a static environment.
@@ -419,7 +419,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
     def _build_temperature_result_dataframe(
         self,
         temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
-        scenario: DataFrame[ScenarioSchemaSoil],
+        scenario: pd.DataFrame,
     ) -> DataFrame[TemperatureResultSchema]:
         """Builds a DataFrame from the temperature result dictionary.
 

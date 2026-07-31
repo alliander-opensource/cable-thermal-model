@@ -2,20 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import cast
 
 import numpy as np
 import pandas as pd
 import pytest
-from pandera.errors import SchemaError
-from pandera.typing import DataFrame
+from pandera.errors import SchemaError, SchemaErrors
 from pydantic_core import ValidationError
 
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition, PosCable
-from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import AbstractModel
-from cable_thermal_model.model.model_factory import ModelFactory
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
+from cable_thermal_model.model.model_soil import ModelSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil
 from cable_thermal_model.model.schemas.state_schemas import State, StateSoil
 
 
@@ -35,7 +32,7 @@ def test_model_init_without_arguments():
             index=pd.date_range("2020-01-01", "2020-01-03", freq="2h"),
             data={
                 "load_c1": np.linspace(-25, 25, 25) + 100,
-                "ambient_temperature": 10,
+                "ambient_temperature": 10.0,
                 "soil_thermal_resistivity": 1.0,
                 "soil_thermal_capacity": 2e6,
             },
@@ -44,7 +41,7 @@ def test_model_init_without_arguments():
             index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
             data={
                 "load_c1": np.linspace(-25, 25, 49) + 100 + 50 * np.sin(np.linspace(0, 4 * np.pi, 49)),
-                "ambient_temperature": 10,
+                "ambient_temperature": 10.0,
                 "soil_thermal_resistivity": 1.0,
                 "soil_thermal_capacity": np.linspace(1.5e6, 3e6, 49),
             },
@@ -75,15 +72,29 @@ def test_run_accepts_different_scenarios(model, new_scenario):
             pd.DataFrame(
                 index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
                 data={
-                    "load_wrong_cable_name": np.linspace(-25, 25, 49) + 100,
-                    "ambient_temperature": 10,
+                    "ambient_temperature": 10.0,
                     "soil_thermal_resistivity": 1.0,
                     "soil_thermal_capacity": 2e6,
                 },
             ),
-            ValueError,
-            "Scenario dataframe does not contain a load column",
+            SchemaError,
+            "column 'load_c1' not in dataframe",
             id="missing_load_column",
+        ),
+        pytest.param(
+            pd.DataFrame(
+                index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
+                data={
+                    "unknown_column": np.linspace(-25, 25, 49) + 100,
+                    "load_c1": np.linspace(-25, 25, 49) + 100,
+                    "ambient_temperature": 10.0,
+                    "soil_thermal_resistivity": 1.0,
+                    "soil_thermal_capacity": 2e6,
+                },
+            ),
+            SchemaErrors,
+            "column 'unknown_column' not in DataFrameSchema",
+            id="unknown column in scenario",
         ),
         pytest.param(
             pd.DataFrame(
@@ -95,7 +106,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
                 },
             ),
             SchemaError,
-            "",
+            "column 'ambient_temperature' not in dataframe",
             id="missing_ambient_temperature",
         ),
         pytest.param(
@@ -103,7 +114,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
                 index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
                 data={
                     "load_c1": np.linspace(-25, 25, 49) + 100,
-                    "ambient_temperature": 10,
+                    "ambient_temperature": 10.0,
                     "soil_thermal_capacity": 2e6,
                 },
             ),
@@ -116,7 +127,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
                 index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
                 data={
                     "load_c1": np.linspace(-25, 25, 49) + 100,
-                    "ambient_temperature": 10,
+                    "ambient_temperature": 10.0,
                     "soil_thermal_resistivity": 1.0,
                 },
             ),
@@ -131,7 +142,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
                     "load_c1": pd.Series(
                         np.array(list(np.linspace(-25, 0, 24)) + [None] + list(np.linspace(0, 25, 24)))
                     ),
-                    "ambient_temperature": 10,
+                    "ambient_temperature": 10.0,
                     "soil_thermal_resistivity": 1.0,
                     "soil_thermal_capacity": 2e6,
                 },
@@ -147,7 +158,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
                     "load_c1": pd.Series(
                         np.array(list(np.linspace(-25, 0, 24)) + [np.nan] + list(np.linspace(0, 25, 24)))
                     ),
-                    "ambient_temperature": 10,
+                    "ambient_temperature": 10.0,
                     "soil_thermal_resistivity": 1.0,
                     "soil_thermal_capacity": 2e6,
                 },
@@ -163,7 +174,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
                     "load_c1": pd.Series(
                         np.array(list(np.linspace(-25, 0, 24)) + [float("nan")] + list(np.linspace(0, 25, 24)))
                     ),
-                    "ambient_temperature": 10,
+                    "ambient_temperature": 10.0,
                     "soil_thermal_resistivity": 1.0,
                     "soil_thermal_capacity": 2e6,
                 },
@@ -181,7 +192,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
                             list(np.linspace(-25, 0, 24)) + ["not a number example"] + list(np.linspace(0, 25, 24))
                         )
                     ),
-                    "ambient_temperature": 10,
+                    "ambient_temperature": 10.0,
                     "soil_thermal_resistivity": 1.0,
                     "soil_thermal_capacity": 2e6,
                 },
@@ -193,7 +204,7 @@ def test_run_accepts_different_scenarios(model, new_scenario):
     ],
 )
 def test_validate_scenario(
-    single_circuit_env: StaticEnvSoil,
+    model: ModelSoil,
     scenario: pd.DataFrame,
     exception: type[Exception],
     error_msg: str,
@@ -207,15 +218,21 @@ def test_validate_scenario(
     - soil thermal capacity included in the scenario
     - missing values (NaNs).
     """
-    scenario_soil = cast(DataFrame[ScenarioSchemaSoil], scenario)
-    model = ModelFactory.create_model(static_env=single_circuit_env)
-
     if error_msg:
         with pytest.raises(exception, match=error_msg):
-            model.run(scenario_soil)
+            model.run(scenario)
     else:
         with pytest.raises(exception):
-            model.run(scenario_soil)
+            model.run(scenario)
+
+
+def test_valid_scenario(model: ModelSoil, scenario_constant: pd.DataFrame):
+    """Tests whether a valid scenario is accepted by the model."""
+    # Should not raise any exceptions
+    validated_scenario = model._validate_scenario(scenario_constant)
+
+    # The validated scenario should be a valid DataFrame[ScenarioModelSoil]
+    ScenarioModelSoil.validate(validated_scenario)
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])

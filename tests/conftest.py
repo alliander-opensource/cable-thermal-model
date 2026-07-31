@@ -62,7 +62,7 @@ def model(single_circuit_env: StaticEnvSoil) -> Model:
 
 
 @pytest.fixture(scope="function")
-def model_single_config(single_circuit_single_config_env: StaticEnvSoil) -> Model:  # type: ignore
+def model_single_config(single_circuit_single_config_env: StaticEnvSoil) -> ModelSoil:
     return ModelFactory.create_model(static_env=single_circuit_single_config_env)
 
 
@@ -376,7 +376,7 @@ def circuit_builder():
 
 # Data
 @pytest.fixture(scope="module")
-def max_absolute_temperature_error():
+def max_absolute_temperature_error() -> float:
     """Return the maximum absolute temperature error, which is used in tests that calculate cable temperatures.
 
     The B5901 states that temperatures should be accurate within 2.0 degrees Celsius with and without pipes.
@@ -470,16 +470,15 @@ def scenario_dynamic(load_series_dynamic, frequency) -> pd.DataFrame:
 def scenario_dynamic_soil_prop(
     load_series_constant, dynamic_soil_resistivitiy_series, dynamic_soil_capacity_series
 ) -> pd.DataFrame:
-    scenario_dynamic = pd.DataFrame(
+    return pd.DataFrame(
         data={
             "load_c1": load_series_constant,
-            "ambient_temperature": 10,
+            "ambient_temperature": 10.0,
             "soil_thermal_capacity": dynamic_soil_capacity_series,
             "soil_thermal_resistivity": dynamic_soil_resistivitiy_series,
         },
         index=load_series_constant.index,
     )
-    return scenario_dynamic
 
 
 @pytest.fixture(scope="function")
@@ -487,7 +486,7 @@ def scenario_constant(load_series_constant) -> pd.DataFrame:
     return pd.DataFrame(
         data={
             "load_c1": load_series_constant,
-            "ambient_temperature": 10,
+            "ambient_temperature": 10.0,
             "soil_thermal_resistivity": 0.75,
             "soil_thermal_capacity": 2e6,
         },
@@ -501,7 +500,7 @@ def scenario_constant_multi(load_series_constant) -> pd.DataFrame:
         data={
             "load_c0": load_series_constant,
             "load_c1": load_series_constant,
-            "ambient_temperature": 10,
+            "ambient_temperature": 10.0,
             "soil_thermal_resistivity": 0.75,
             "soil_thermal_capacity": 2e6,
         },
@@ -514,7 +513,7 @@ def scenario_steady_state() -> pd.DataFrame:
     return pd.DataFrame(
         data={
             "load_c1": 0,
-            "ambient_temperature": 10,
+            "ambient_temperature": 10.0,
             "soil_thermal_resistivity": 0.75,
             "soil_thermal_capacity": 2e6,
         },
@@ -524,7 +523,7 @@ def scenario_steady_state() -> pd.DataFrame:
 
 @pytest.fixture(scope="function")
 def b5901_scenario_steady_state(scenario_steady_state: pd.DataFrame) -> pd.DataFrame:
-    scenario_steady_state["ambient_temperature"] = 15
+    scenario_steady_state["ambient_temperature"] = 15.0
     return scenario_steady_state
 
 
@@ -536,7 +535,7 @@ def scenario_non_uniform() -> pd.DataFrame:
     return pd.DataFrame(
         data={
             "load_c1": 300,
-            "ambient_temperature": 10,
+            "ambient_temperature": 10.0,
             "soil_thermal_resistivity": 0.75,
             "soil_thermal_capacity": 2e6,
         },
@@ -607,7 +606,7 @@ def TB880_case_10_steady_state_full_solution(TB880_case_10_model: ModelSoil) -> 
     scenario = pd.DataFrame(
         data={
             "load_TB880_case_10": I_rating,
-            "ambient_temperature": 15,
+            "ambient_temperature": 15.0,
             "soil_thermal_resistivity": 1.0,
             "soil_thermal_capacity": 2e6,
         },

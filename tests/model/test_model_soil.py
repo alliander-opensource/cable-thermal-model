@@ -9,7 +9,8 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 import pytest
-from pandera.errors import SchemaError
+from pandera.errors import SchemaError, SchemaErrors
+from pandera.typing import DataFrame
 from pydantic import ValidationError
 
 from cable_thermal_model.cable.cable_circuit import (
@@ -34,12 +35,13 @@ from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, Pipe
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import StateAir
 from cable_thermal_model.model.model_soil import ModelSoil, StateSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
 
-def test_scenario_validation(single_circuit_env: StaticEnvSoil, scenario_constant: pd.DataFrame):
-    """Test whether scenario is correctly validated when running a Model instance."""
+def test_scenario_validation(single_circuit_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioModelSoil]):
+    """Test whether scenario is correctly validated when instantiating a Model instance."""
     # Check whether standard scenario passes the validation
     ModelSoil(single_circuit_env).run(scenario_constant)
 
@@ -48,14 +50,14 @@ def test_scenario_validation(single_circuit_env: StaticEnvSoil, scenario_constan
         ModelSoil(single_circuit_env).run(scenario_constant.drop("ambient_temperature", axis=1))
 
     # check whether error is raised if circuit load column is missing
-    with pytest.raises(ValueError):
+    with pytest.raises(SchemaError):
         ModelSoil(single_circuit_env).run(scenario_constant.drop("load_c1", axis=1))
 
-    # check whether error is raised if circuit load column is misspelled
-    with pytest.raises(ValueError):
-        misspelled_column_scenario = scenario_constant.copy()
-        misspelled_column_scenario.columns = ["ambient_temprature", "load_c2"]  # type: ignore[assignment]
-        ModelSoil(single_circuit_env).run(misspelled_column_scenario)
+    # check whether error is raised if unknown column is added
+    with pytest.raises(SchemaErrors):
+        added_column_scenario = scenario_constant.copy()
+        added_column_scenario["unknown_column"] = 1.0
+        ModelSoil(single_circuit_env).run(added_column_scenario)
 
     # check whether error is raised if there are missing values
     with pytest.raises(SchemaError):
@@ -175,21 +177,21 @@ def test_model_validate_steady_state(scenario_steady_state: pd.DataFrame):
 @pytest.mark.parametrize(
     "load, vca_conductor_temperature, rho",
     [
-        (100, 9.6, 0.25),
-        (200, 11.3, 0.25),
-        (400, 18.3, 0.25),
-        (600, 30.1, 0.25),
-        (800, 49.6, 0.25),
-        (1000, 77.1, 0.25),
-        (100, 10.4, 0.75),
-        (200, 14.5, 0.75),
-        (400, 31.9, 0.75),
-        (600, 65.0, 0.75),
-        (800, 123.0, 0.75),
-        (100, 11.5, 1.5),
-        (200, 19.4, 1.5),
-        (400, 54.2, 1.5),
-        (600, 130.2, 1.5),
+        (100.0, 9.6, 0.25),
+        (200.0, 11.3, 0.25),
+        (400.0, 18.3, 0.25),
+        (600.0, 30.1, 0.25),
+        (800.0, 49.6, 0.25),
+        (1000.0, 77.1, 0.25),
+        (100.0, 10.4, 0.75),
+        (200.0, 14.5, 0.75),
+        (400.0, 31.9, 0.75),
+        (600.0, 65.0, 0.75),
+        (800.0, 123.0, 0.75),
+        (100.0, 11.5, 1.5),
+        (200.0, 19.4, 1.5),
+        (400.0, 54.2, 1.5),
+        (600.0, 130.2, 1.5),
     ],
 )
 def test_model_steady_state_vca(
@@ -207,7 +209,7 @@ def test_model_steady_state_vca(
     sdf = pd.DataFrame(
         index=pd.timedelta_range("0 days", "30000 days", periods=5),
         data={
-            "ambient_temperature": 9,
+            "ambient_temperature": 9.0,
             "load_ELT2.24": float(load),
             "load_ELT2.26": float(load),
             "soil_thermal_resistivity": float(rho),
@@ -251,10 +253,10 @@ def test_model_steady_state_pipes_vca(
     circuits lay in pipes. Refer to elst_four.csv for more information on the environment.
     """
     scenario = pd.DataFrame(index=pd.timedelta_range("0 days", "30000 days", periods=5))
-    scenario["ambient_temperature"] = 9
-    scenario["load_ELT2.24"] = 450
-    scenario["load_ELT2.26"] = 450
-    scenario["soil_thermal_capacity"] = 1
+    scenario["ambient_temperature"] = 9.0
+    scenario["load_ELT2.24"] = 450.0
+    scenario["load_ELT2.26"] = 450.0
+    scenario["soil_thermal_capacity"] = 1.0
 
     static_env = StaticEnvSoil()
     static_env.add_circuit_from_cable_id(
@@ -324,7 +326,7 @@ def test_model_soil_thermal_resistivity_series(single_circuit_env: StaticEnvSoil
     scenario = pd.DataFrame(
         index=datetime_index,
         data={
-            "ambient_temperature": 20,
+            "ambient_temperature": 20.0,
             "soil_thermal_resistivity": 0.75,
             "soil_thermal_capacity": 2e6,
         },
@@ -595,8 +597,8 @@ def test_non_uniform_scenario(single_circuit_env: StaticEnvSoil):
     lower temperatures following that step.
     """
     data = {
-        "ambient_temperature": 10,
-        "load_c1": 575,
+        "ambient_temperature": 10.0,
+        "load_c1": 575.0,
         "soil_thermal_resistivity": 0.75,
         "soil_thermal_capacity": 2e6,
     }
@@ -1050,7 +1052,7 @@ def test_cable_without_screen(simple_cable: CableSoil):
     scenario = pd.DataFrame(
         index=pd.timedelta_range("0 days", "1 hour", periods=5),
         data={
-            "ambient_temperature": 30,
+            "ambient_temperature": 30.0,
             "load_c1": 100.0,
             "load_c2": 100.0,
             "load_c3": 100.0,
@@ -1072,4 +1074,4 @@ def test_use_wrong_static_env_type():
             "environment in soil. Please use ModelAir instead."
         ),
     ):
-        ModelSoil(static_env=cast(StaticEnvSoil, StaticEnvAir()))
+        ModelSoil(static_env=StaticEnvAir)

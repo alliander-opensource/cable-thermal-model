@@ -10,11 +10,11 @@ from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelAir
 from cable_thermal_model.model.schemas.run_options import ModelAirRunOptions
 
 
-class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir, CableAir]):
+class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAir, CableAir]):
     """ModelAir computes cable temperatures for installations in air using the finite difference method.
 
     In most cases the model is instantiated with a StaticEnvAir and executed with a scenario via `run()`.
@@ -22,7 +22,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
 
     _run_options_class = ModelAirRunOptions
     _state_class = StateAir
-    _scenario_schema_class = ScenarioSchemaAir
+    _scenario_model_class = ScenarioModelAir
 
     def __init__(self, static_env: StaticEnvAir):
         """Initialize the ModelAir instance with a static environment.
