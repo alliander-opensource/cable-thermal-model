@@ -361,7 +361,7 @@ def extract_iec_60287_parameters(
     model_output = model.run(scenario)
 
     parameters = pd.DataFrame()
-    for cable_key, pos_cable in model.cables_with_soil.items():
+    for cable_key, pos_cable in model.cables_in_environment.items():
         context = _get_cable_context(
             cable=pos_cable.cable,
             cable_key=cable_key,

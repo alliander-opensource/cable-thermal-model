@@ -63,8 +63,8 @@ def test_model_steady_state(
     ctm_temp = max([result["c"][cable_key][CableLayer.Conductor].iloc[-1] for cable_key in circuit_c_cables])
     assert np.isclose(expected_temperature, ctm_temp, atol=max_absolute_temperature_error)
 
-    cable_key = list(model.cables.keys())[0]
-    cable = model.cables[cable_key].cable
+    cable_key = list(model.cables_in_environment.keys())[0]
+    cable = model.cables_in_environment[cable_key].cable
     cable_full_solution = solution.state.temperature[cable_key]
     conductor_start_index, conductor_end_index = cable.get_layer_indices_for_layer(CableLayer.Conductor)
     screen_start_index, screen_end_index = cable.get_layer_indices_for_layer(CableLayer.Screen)
@@ -136,10 +136,10 @@ def test_single_cable_in_air_compare_to_soil(scenario_steady_state: pd.DataFrame
     # Select the single cable from both circuits and collect their steady state solutions
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.Single)
 
-    cable_soil = model_soil.cables_with_soil[cable_key].cable
+    cable_soil = model_soil.cables_in_environment[cable_key].cable
     steady_state_solution_soil = steady_state_soil.self_heating_contribution[cable_key]
 
-    cable_air = model_air.cables[cable_key].cable
+    cable_air = model_air.cables_in_environment[cable_key].cable
     steady_state_solution_air = steady_state_air.self_heating_contribution[cable_key]
 
     cable_analysis_soil = CableAnalysis(cable=cable_soil, solution=steady_state_solution_soil)

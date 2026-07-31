@@ -59,7 +59,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         initial_state: StateT | None = None,
         run_options: ModelRunOptionsT | dict | None = None,
     ) -> ModelOutputSchema[StateT]:
-        """Computes the temperature solutions for all cable objects.
+        """Computes the temperature solutions for all cable objects in the model for the given scenario.
 
         Notes:
             Be careful about changing default run option values. The following settings affect the
@@ -73,8 +73,8 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         Args:
             scenario: Scenario dataframe for this run. The dataframe is validated internally before execution.
             initial_state: Heating information from a previous computation.
-            run_options: Run options for the model. If `None` or a dictionary is provided, the
-                options are validated and default values are applied.
+            run_options: Run options for this simulation run. If `None` or a dictionary is provided,
+                the options are validated and default values are applied.
 
         Returns:
             ModelOutputSchema: Temperature solutions for all cables.

@@ -41,9 +41,13 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
         super().__init__(static_env=static_env)
 
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableAir]]:
-        """Return the cables used to assemble finite difference vectors."""
-        return self.cables
+    def cables_in_environment(self) -> dict[CableKey, PosCable[CableAir]]:
+        """Return per-run cable instances for the model.
+
+        Runtime cable properties can differ from their static/default values.
+        For cables in air, this mainly concerns temperature-dependent pipe-fill resistivity.
+        """
+        return self._cables
 
     def _build_initial_state(self, ambient_temperature: float) -> StateAir:
         """Builds the initial thermal state for the model.
@@ -57,8 +61,8 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
         """
         return StateAir(
             static_env_hash=self.static_env.compute_hash(),
-            temperature=self._initialize_state_from_cables(cables=self.cables, fill_value=ambient_temperature),
-            self_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
+            temperature=self._initialize_state_from_cables(cables=self._cables, fill_value=ambient_temperature),
+            self_heating_contribution=self._initialize_state_from_cables(cables=self._cables),
             ambient_temperature=ambient_temperature,
         )
 
@@ -80,7 +84,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
 
         self._update_pipe_fill_resistivity(
             temperature_state=temperature_state,
-            cables=self.cables,
+            cables=self._cables,
         )
 
     def _update_state(
@@ -95,7 +99,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
                 previous_solution=state.self_heating_contribution[cable_key],
                 time_step=time_step,
             )
-            for cable_key, pos_cable in self.cables.items()
+            for cable_key, pos_cable in self._cables.items()
         }
 
         new_temperature_state = {
