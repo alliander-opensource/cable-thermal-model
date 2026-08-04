@@ -36,11 +36,10 @@ from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 
 def test_compute_hash_is_deterministic(single_circuit_env: StaticEnv):
     """Fingerprint generation should be stable for the same environment content."""
-    fingerprint = single_circuit_env.hash
-    fingerprint_copy = deepcopy(single_circuit_env).hash
+    env_hash = hash(single_circuit_env)
+    env_hash_copy = hash(deepcopy(single_circuit_env))
 
-    assert fingerprint == fingerprint_copy
-    assert len(fingerprint) == 64
+    assert env_hash == env_hash_copy
 
 
 def test_cable_field_validation_cable_in_air(single_core_cable_xlpe: CableAir):
@@ -512,7 +511,7 @@ def test_different_methods_create_same_env():
             **general_params,
         )
     )
-    assert static_env_id.hash == static_env_specs.hash
+    assert hash(static_env_id) == hash(static_env_specs)
 
     cable = CableBuilder.build_cable_from_cable_specs(cable_specs, cable_class=CableSoil)
     static_env_cable = StaticEnvSoil()
@@ -522,7 +521,7 @@ def test_different_methods_create_same_env():
             **general_params,
         )
     )
-    assert static_env_id.hash == static_env_cable.hash
+    assert hash(static_env_id) == hash(static_env_cable)
 
 
 def test_add_circuit_from_cable_specs_with_multiple_configurations():

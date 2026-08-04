@@ -159,7 +159,7 @@ def test_stateair_validate_single_circuit():
     cable_key_single = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     StateAir(
-        static_env_hash="dummy_fingerprint",
+        static_env_hash=123456789,
         temperature={cable_key_single: np.array([20.0])},
         self_heating_contribution={cable_key_single: np.array([20.0])},
         ambient_temperature=0.0,
@@ -171,7 +171,7 @@ def test_stateair_validate_single_circuit():
 
     with pytest.raises(ValueError, match="StateAir should only contain one circuit"):
         StateAir(
-            static_env_hash="dummy_fingerprint",
+            static_env_hash=123456789,
             temperature={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
             self_heating_contribution={cable_key_1: np.array([20.0]), cable_key_2: np.array([25.0])},
             ambient_temperature=0.0,
@@ -228,7 +228,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
     cable_key = pos_cable.key
 
     valid_state = StateAir(
-        static_env_hash=env.hash,
+        static_env_hash=hash(env),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         ambient_temperature=0.0,
@@ -238,7 +238,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
 
     # Test 3: state=StateSoil instance should raise ValueError
     invalid_state_soil = StateSoil(
-        static_env_hash=env.hash,
+        static_env_hash=hash(env),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         mutual_heating_contribution={cable_key: np.array([15.0])},

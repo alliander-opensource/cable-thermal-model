@@ -141,7 +141,7 @@ def test_validate_state_model_consistency_rejects_wrong_state_type(model: ModelS
     """Ensure model type check rejects states from a different model class."""
     cable_key = next(iter(model.cables))
     wrong_state = StateAir(
-        static_env_hash=model.static_env.hash,
+        static_env_hash=hash(model.static_env),
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([20.0])},
         ambient_temperature=5.0,
