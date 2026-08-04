@@ -4,7 +4,7 @@
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 import numpy as np
 
@@ -109,93 +109,87 @@ class StaticEnv(
     def _circuit_from_cable_input_schema_cls(self) -> type[CircuitFromCableInputSchemaT]:
         pass
 
+    def _add_circuit(
+        self,
+        circuit_input: (
+            CircuitFromCableIdInputSchemaT
+            | CircuitFromCableConstructionalInputSchemaT
+            | CircuitFromCableSpecsInputSchemaT
+        ),
+    ) -> Self:
+        """Adds a circuit to the environment based on the provided circuit input schema.
+
+        Args:
+            circuit_input: input parameters for the circuit.
+
+        Returns:
+            Self: The updated static environment instance.
+        """
+        cable = self._build_cable_from_circuit_input(circuit_input)
+
+        params = (
+            {"cable_source_file_path": circuit_input.cable_source_file_path}
+            if isinstance(circuit_input, CircuitFromCableIdInputSchema)
+            else {}
+        )
+        multiple_configurations = [
+            config._compute_circuit_configuration(**params) for config in circuit_input.multiple_configurations
+        ]
+
+        # Add circuit to environment from the constructed cable
+        self.add_circuit_from_cable(
+            self._circuit_from_cable_input_schema_cls(
+                cable=cable,
+                multiple_configurations=multiple_configurations,
+                **circuit_input.model_dump(exclude={"multiple_configurations"}),
+            )
+        )
+        return self
+
     def add_circuit_from_cable_id(
         self,
         circuit_input: CircuitFromCableIdInputSchemaT,
-    ):
+    ) -> Self:
         """Adds the circuit to the environment based on a Cable Id.
 
         Args:
             circuit_input: CircuitFromCableIdInputSchemaT containing the input parameters for the circuit.
 
         """
-        # Build cable from cable id
-        cable = self._build_cable_from_circuit_input(circuit_input)
-        multiple_configurations = [
-            config._compute_circuit_configuration(cable_source_file_path=circuit_input.cable_source_file_path)
-            for config in circuit_input.multiple_configurations
-        ]
-
-        # Add circuit to environment from the constructed cable
-        self.add_circuit_from_cable(
-            self._circuit_from_cable_input_schema_cls(
-                cable=cable,
-                multiple_configurations=multiple_configurations,
-                **circuit_input.model_dump(exclude={"multiple_configurations"}),
-            )
-        )
-        return self
+        return self._add_circuit(circuit_input)
 
     def add_circuit_from_cable_specs(
         self,
         circuit_input: CircuitFromCableSpecsInputSchemaT,
-    ):
+    ) -> Self:
         """Adds the circuit to the environment based on Cable Specs.
 
         Args:
             circuit_input: CircuitFromCableSpecsInputSchemaT containing the input parameters for the circuit.
 
         """
-        # Build cable from cable specs
-        cable = self._build_cable_from_circuit_input(circuit_input)
-        multiple_configurations = [
-            config._compute_circuit_configuration() for config in circuit_input.multiple_configurations
-        ]
-
-        # Add circuit to environment from the constructed cable
-        self.add_circuit_from_cable(
-            self._circuit_from_cable_input_schema_cls(
-                cable=cable,
-                multiple_configurations=multiple_configurations,
-                **circuit_input.model_dump(exclude={"multiple_configurations"}),
-            )
-        )
-        return self
+        return self._add_circuit(circuit_input)
 
     def add_circuit_from_cable_constructional_information(
         self,
         circuit_input: CircuitFromCableConstructionalInputSchemaT,
-    ):
+    ) -> Self:
         """Adds the circuit to the environment based on a Cable Constructional Input Schema.
 
         Args:
             circuit_input: CircuitFromCableConstructionalInputSchemaT containing the input parameters for the circuit.
 
         """
-        # Build cable from cable constructional information
-        cable = self._build_cable_from_circuit_input(circuit_input)
-        multiple_configurations = [
-            config._compute_circuit_configuration() for config in circuit_input.multiple_configurations
-        ]
-
-        # Add circuit to environment from the constructed cable
-        self.add_circuit_from_cable(
-            self._circuit_from_cable_input_schema_cls(
-                cable=cable,
-                multiple_configurations=multiple_configurations,
-                **circuit_input.model_dump(exclude={"multiple_configurations"}),
-            )
-        )
-        return self
+        return self._add_circuit(circuit_input)
 
     def add_circuit_from_cable(
         self,
         circuit_input: CircuitFromCableInputSchemaT,
-    ):
+    ) -> Self:
         """Add a cable circuit consisting of one or three cables to the environment based on a given cable instance.
 
         Args:
-           circuit_input: CircuitInputSchemaT containing the input
+           circuit_input: CircuitFromCableInputSchemaT containing the input
                parameters for the circuit, including a cable instance.
 
         """
