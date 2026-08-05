@@ -4,37 +4,31 @@
 
 import numpy as np
 import pandas as pd
-from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import StateAir
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaAir
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelAir
 from cable_thermal_model.model.schemas.run_options import ModelAirRunOptions
 
 
-class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvAir, CableAir]):
+class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAir, CableAir]):
     """ModelAir computes cable temperatures for installations in air using the finite difference method.
 
-    In most cases the model is instantiated with a StaticEnvAir and a valid scenario, then executed via `run()`.
+    In most cases the model is instantiated with a StaticEnvAir and executed with a scenario via `run()`.
     """
 
     _run_options_class = ModelAirRunOptions
     _state_class = StateAir
-    _scenario_schema_class = ScenarioSchemaAir
+    _scenario_model_class = ScenarioModelAir
 
-    def __init__(self, static_env: StaticEnvAir, scenario: DataFrame[ScenarioSchemaAir]):
-        """Initialize the ModelAir instance with a static environment and scenario.
-
-        Note: the scenario must contain one `load_<circuit_name>` column per circuit and an
-        `ambient_temperature` column.
+    def __init__(self, static_env: StaticEnvAir):
+        """Initialize the ModelAir instance with a static environment.
 
         Args:
             static_env: A StaticEnvAir instance containing the circuit configuration and cable properties.
-            scenario: A pandera DataFrame[ScenarioSchemaAir] containing the dynamic load data and ambient
-                temperature.
 
         """
         if not isinstance(static_env, StaticEnvAir):
@@ -44,25 +38,31 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
                 "ModelSoil instead."
             )
 
-        super().__init__(static_env=static_env, scenario=scenario)
+        super().__init__(static_env=static_env)
 
     @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableAir]]:
-        """Return the cables used to assemble finite difference vectors."""
-        return self.cables
+    def cables_in_environment(self) -> dict[CableKey, PosCable[CableAir]]:
+        """Return per-run cable instances for the model.
 
-    def _build_initial_state(self) -> StateAir:
+        Runtime cable properties can differ from their static/default values.
+        For cables in air, this mainly concerns temperature-dependent pipe-fill resistivity.
+        """
+        return self._cables
+
+    def _build_initial_state(self, ambient_temperature: float) -> StateAir:
         """Builds the initial thermal state for the model.
 
-        Returns:
-            StateAir: The initialized thermal state for the model.
-        """
-        ambient_temperature = self.scenario["ambient_temperature"].iloc[0]
+        Args:
+            ambient_temperature: The ambient temperature to initialize the model state.
 
+        Returns:
+            An instance of StateAir containing the initialized temperature,
+                and self-heating states for each cable.
+        """
         return StateAir(
             static_env_hash=self.static_env.compute_hash(),
-            temperature=self._initialize_state_from_cables(cables=self.cables, fill_value=ambient_temperature),
-            self_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
+            temperature=self._initialize_state_from_cables(cables=self._cables, fill_value=ambient_temperature),
+            self_heating_contribution=self._initialize_state_from_cables(cables=self._cables),
             ambient_temperature=ambient_temperature,
         )
 
@@ -70,24 +70,21 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
         self,
         temperature_state: dict[CableKey, np.ndarray],
         scenario_row: pd.Series,
-        elapsed_seconds: float,
     ) -> None:
         """Update the pipe-fill resistivity if changed.
 
         Args:
-            matrices: Current finite difference matrices.
             temperature_state: Current temperature state for all cables.
             scenario_row: Current scenario row.
-            elapsed_seconds: Time elapsed since the start of the scenario in seconds.
 
         Notes:
-            `scenario_row` and `elapsed_seconds` are accepted for interface compatibility with other model types.
+            `scenario_row` is accepted for interface compatibility with other model types.
         """
-        _ = (scenario_row, elapsed_seconds)  # Unused in this subclass
+        _ = scenario_row  # Unused in this subclass
 
         self._update_pipe_fill_resistivity(
             temperature_state=temperature_state,
-            cables=self.cables,
+            cables=self._cables,
         )
 
     def _update_state(
@@ -102,7 +99,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioSchemaAir, StaticEnvA
                 previous_solution=state.self_heating_contribution[cable_key],
                 time_step=time_step,
             )
-            for cable_key, pos_cable in self.cables.items()
+            for cable_key, pos_cable in self._cables.items()
         }
 
         new_temperature_state = {
