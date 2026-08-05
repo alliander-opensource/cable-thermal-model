@@ -8,7 +8,7 @@ build-backend = "uv_build"
 
 [project]
 name = "cable-thermal-model"
-version = "2.0.0"
+version = "2.1.0"
 description = "Cable Thermal Model (CTM) is a physical model used to calculate dynamic cable temperatures."
 requires-python = ">= 3.11, <3.15"
 readme = "README.md"
