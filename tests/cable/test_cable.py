@@ -373,16 +373,23 @@ def test_T4_pipe_fill(cable_outer_diameter_mm, temp, fill_type, expected_T4):
 )
 def test_construct_surface_area_grid(radii_grid):
     """Test the construction of the surface area grid for a given radii grid."""
-    if not np.isclose(radii_grid[0], 0.0):
-        with pytest.raises(ValueError, match="The first value of the radii grid should be 0.0!"):
-            Cable._construct_surface_area_grid(radii_grid)
-    elif not np.all(np.diff(radii_grid) > 0):
+
+    class DummyCable(Cable):
+        # For testing purposes, create a dummy Cable instance with the provided radii grid
+        def __init__(self, radii_grid):
+            self._radii_grid = radii_grid
+            self._inter_radii_grid = self._radii_grid[:-1] + 0.5 * np.diff(self._radii_grid)
+
+    if not np.all(np.diff(radii_grid) > 0):
         with pytest.raises(ValueError, match="The radii grid should be strictly increasing!"):
-            Cable._construct_surface_area_grid(radii_grid)
+            Cable._construct_surface_area_grid(DummyCable(radii_grid))
     else:
-        surface_area_grid = Cable._construct_surface_area_grid(radii_grid)
-        inter_r = np.concatenate(([0.0], (radii_grid[:-1] + radii_grid[1:]) / 2))
-        expected_surface_area_grid = np.pi * (inter_r[1:] ** 2 - inter_r[:-1] ** 2)
+        surface_area_grid = Cable._construct_surface_area_grid(DummyCable(radii_grid))
+        surface_area_boundaries = np.concatenate(
+            ([radii_grid[0]], radii_grid[:-1] + 0.5 * np.diff(radii_grid), [radii_grid[-1]])
+        )
+
+        expected_surface_area_grid = np.pi * (surface_area_boundaries[1:] ** 2 - surface_area_boundaries[:-1] ** 2)
         assert np.allclose(surface_area_grid, expected_surface_area_grid)
 
 

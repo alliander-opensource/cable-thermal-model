@@ -47,7 +47,7 @@ $$
 
 Note that with this definition we have that $r_{i+1}^-=r_i^+$ for $1\leq i\leq n-1$.
 We call $r_i^+$ and $r_i^-$ the _outer radius_ and _inner radius_ respectively of the grid point $r_i$.
-We say the _thickness_ of the gridpoint $r_i$ is $r_i^+-r_i^-$. Then the volume corresponding to the gridpoint $r_i$ is given by $\pi (r_i^++r_i^-)(r_i^+-r_i^-)$.
+We say the _thickness_ of the gridpoint $r_i$ is $r_i^+-r_i^-$. Then the surface area corresponding to the gridpoint $r_i$ is given by $S_i = \pi (r_i^++r_i^-)(r_i^+-r_i^-)$.
 
 ## Intermediate thermal resistivity
 
@@ -115,8 +115,8 @@ Using this approximation of the derivative with respect to $r$, we can turn the 
 
 $$
 \begin{align*}
-\frac{1}{r}D_r\left(\frac{r}{\rho}D_r\theta\right)(r_i)&=\frac{1}{r_i(r_i^+-r_i^-)}\left(\frac{r_i^+}{\rho_i^+}(D_r\theta)(r_i^+)-\frac{r_i^-}{\rho^-_i}(D_r\theta)(r_i^-)\right)\\
-&=\frac{1}{r_i(r_i^+-r_i^-)}\left(\frac{r_i^+}{\rho_i^+}\frac{\theta_{i+1}-\theta_i}{r_{i+1}-r_i}-\frac{r_i^-}{\rho^-_i}\frac{\theta_i-\theta_{i-1}}{r_i-r_{i-1}}\right)\\
+\frac{1}{r}D_r\left(\frac{r}{\rho}D_r\theta\right)(r_i)&=\frac{2}{(r_i^-+r_i^+)(r_i^+-r_i^-)}\left(\frac{r_i^+}{\rho_i^+}(D_r\theta)(r_i^+)-\frac{r_i^-}{\rho^-_i}(D_r\theta)(r_i^-)\right)\\
+&=\frac{2\pi}{S_i}\left(\frac{r_i^+}{\rho_i^+}\frac{\theta_{i+1}-\theta_i}{r_{i+1}-r_i}-\frac{r_i^-}{\rho^-_i}\frac{\theta_i-\theta_{i-1}}{r_i-r_{i-1}}\right)\\
 &= \alpha_i\theta_{i+1} +\beta_i\theta_i + \gamma_i\theta_{i-1}\,,
 \end{align*}
 $$
@@ -125,8 +125,8 @@ where
 
 $$
 \begin{align*}
-\alpha_i &= \frac{1}{r_i(r_i^+-r_i^-)}\frac{r_i^+}{\rho_i^+ \Delta r_i}\,,\\
-\gamma_i &= \frac{1}{r_i(r_i^+-r_i^-)}\frac{r_i^-}{\rho_{i-1}^+ \Delta r_{i-1}}\,,\\
+\alpha_i &= \frac{2\pi}{S_i}\frac{r_i^+}{\rho_i^+ \Delta r_i}\,,\\
+\gamma_i &= \frac{2\pi}{S_i}\frac{r_i^-}{\rho_{i-1}^+ \Delta r_{i-1}}\,,\\
 \beta_i &=-\big(\alpha_i+\gamma_i\big)\,.
 \end{align*}
 $$

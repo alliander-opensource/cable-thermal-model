@@ -87,12 +87,12 @@ class CableAnalysis:
         if np.asarray(self.solution).ndim != 1 or outer_index >= len(self.solution):
             raise ValueError("The solution array must be one-dimensional and include values for both grid points.")
 
-        inter_radius = self.cable._inter_radii[inner_index]
+        inter_radius = self.cable._inter_radii_grid[inner_index]
 
         # Calculate the interstitial resistivity value between the two grid points
         inter_rho = self.cable._calculate_inter_rhos(
             radii=self.cable._radii_grid[inner_index : outer_index + 1],
-            inter_radii=self.cable._inter_radii[inner_index:outer_index],
+            inter_radii=self.cable._inter_radii_grid[inner_index:outer_index],
             rhos=self.cable._rho_grid[inner_index : outer_index + 1],
         )[0]
 
