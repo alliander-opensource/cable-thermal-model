@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
 #
 # SPDX-License-Identifier: MPL-2.0
-from copy import deepcopy
 
 import numpy as np
 import pandas as pd
@@ -14,53 +13,45 @@ from cable_thermal_model.environment.measurement_point import (
     MeasurementPointKey,
 )
 from cable_thermal_model.model.cables.cable_soil import CableSoil
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.model import Model
-from cable_thermal_model.model.schemas import ScenarioSchemaSoil, StateSoil
+from cable_thermal_model.model.schemas import ScenarioModelSoil, StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import THERMAL_CAPACITY_COLUMN, THERMAL_RESISTIVITY_COLUMN
 from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 
 
-class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, StaticEnvSoil, CableSoil]):
+class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticEnvSoil, CableSoil]):
     """ModelSoil computes temperatures for underground power cables using the finite difference method.
 
-    In most cases the model is instantiated with a StaticEnvSoil and a valid scenario, then executed via `run()`.
-
+    In most cases the model is instantiated with a StaticEnvSoil and executed with a scenario via `run()`.
 
     Class Attributes:
-        _run_options_class:                 The class used for run options.
-        _state_class:                       The class used for the state of the model.
-        _scenario_schema_class:             The class used for the scenario schema.
+        _run_options_class: Run-options schema class.
+        _state_class: State schema class.
+        _scenario_model_class: Scenario model class.
 
-    Attributes:
-        mirror_cables_with_soil:            A dict containing the mirror cables with soil for each cable in the
-                                            environment
-        logarithmic_soil_gridpoint_density: The density of grid points in the soil layers, this is used to compute
-                                            the number of grid points in the soil layers based on their thickness.
-                                            The default value is 20 grid points per factor 2 increase in soil layer
-                                            thickness. For a cable with radius of 3.1 cm and a soil layer radius
-                                            1 m,
-                                            this would result in 100 grid points in the soil layer.
-        minimal_soil_radius:                The minimal soil radius around a cable. For deeply buried cables, the
-                                            soil radius is set to 2.5 times the cable depth, this parameter sets
-                                            a lower bound to prevent very small soil layers for shallow cables.
+    Internal Runtime State:
+        _cables_with_soil: Per-run cable representations extended with soil layers and updated during simulation.
+        _mirror_cables_with_soil: Per-run mirrored soil cable representations for image-source calculations.
+        _measurement_point_temperature_result: Per-run cache of measurement-point temperatures.
 
-    .
+    Configuration Parameters:
+        logarithmic_soil_gridpoint_density: Soil-grid point density factor used for discretization.
+            Default is 20.
+        minimal_soil_radius: Minimum soil radius around each cable in meters. Default is 5.0.
+            The effective soil radius is max(minimal_soil_radius, 2.5 * abs(cable depth)).
     """
 
     _run_options_class = ModelSoilRunOptions
     _state_class = StateSoil
-    _scenario_schema_class = ScenarioSchemaSoil
+    _scenario_model_class = ScenarioModelSoil
 
-    def __init__(self, static_env: StaticEnvSoil, scenario: DataFrame[ScenarioSchemaSoil]):
-        """Initialize the ModelSoil instance with a static environment and scenario.
-
-        Note: the scenario must contain one `load_<circuit_name>` column per circuit, plus ambient temperature and
-        soil-property columns.
+    def __init__(self, static_env: StaticEnvSoil):
+        """Initialize the ModelSoil instance with a static environment.
 
         Args:
             static_env: A StaticEnvSoil instance containing the soil thermal parameters and cable layout.
-            scenario: A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic load and soil data.
 
         """
         if not isinstance(static_env, StaticEnvSoil):
@@ -71,15 +62,25 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             )
 
         # Set up cables
-        self.cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
-        self.mirror_cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
+        self._cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
+        self._mirror_cables_with_soil: dict[CableKey, PosCable[CableSoil]] = {}
+
         self.logarithmic_soil_gridpoint_density: float = 20
         self.minimal_soil_radius: float = 5.0
-        self.last_soil_property_update_day: int = 0
 
-        self.measurement_point_temperature_result: dict[MeasurementPointKey, np.ndarray] = {}
+        self._measurement_point_temperature_result: dict[MeasurementPointKey, np.ndarray] = {}
 
-        super().__init__(static_env=static_env, scenario=scenario)
+        super().__init__(static_env=static_env)
+
+    @property
+    def cables_in_environment(self) -> dict[CableKey, PosCable[CableSoil]]:
+        """Return per-run soil-extended cable instances for the model.
+
+        Runtime cable properties may deviate from their static baseline defaults. For soil cables, this concerns:
+        - updated soil thermal resistivity and capacity from the active scenario (optionally with soil-drying behavior);
+        - temperature-dependent pipe-fill resistivity where a pipe layer exists.
+        """
+        return self._cables_with_soil
 
     def get_measurement_point_temp(
         self,
@@ -98,12 +99,12 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         """
         measurement_point_temp = state.ambient_temperature
 
-        for cable_key, cable in self.cables_with_soil.items():
+        for cable_key, cable in self._cables_with_soil.items():
             distance_to_cable = measurement_point.distances_to_cables[cable_key]
             measurement_point_temp += cable.cable.get_heating_contribution_at_radius(
                 radius=distance_to_cable, self_heating_contribution=state.self_heating_contribution[cable_key]
             )
-        for cable_key, mirror_cable in self.mirror_cables_with_soil.items():
+        for cable_key, mirror_cable in self._mirror_cables_with_soil.items():
             distance_to_mirror_cable = measurement_point.distances_to_mirror_cables[cable_key]
             measurement_point_temp -= mirror_cable.cable.get_heating_contribution_at_radius(
                 radius=distance_to_mirror_cable, self_heating_contribution=state.self_heating_contribution[cable_key]
@@ -111,50 +112,44 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
 
         return measurement_point_temp
 
-    def _initialize_cables(self):
-        """Initialize cables with soil layers and mirror cables for the boundary condition."""
-        # Start from the static cables without soil, then add a soil layer per cable.
-        # Deep cables may get an extra outer soil layer to extend the domain.
-        # The outer boundary is treated as ambient.
+    def _prepare_for_run(self, first_scenario_row: pd.Series) -> None:
+        """Reset cable state and rebuild the soil-extended representation for the active scenario."""
+        super()._prepare_for_run(first_scenario_row=first_scenario_row)
 
-        super()._initialize_cables()
+        self._initialize_cables_with_soil(
+            soil_rho=first_scenario_row[THERMAL_RESISTIVITY_COLUMN],
+            soil_capacity=first_scenario_row[THERMAL_CAPACITY_COLUMN],
+        )
 
-        self._initialize_cables_with_soil()
-
-        # Create mirror cables to enforce the T=0 boundary condition on y=0.
-        self.mirror_cables_with_soil = {
-            key: return_mirror_cable(pos_cable) for key, pos_cable in self.cables_with_soil.items()
+        self._mirror_cables_with_soil = {
+            key: return_mirror_cable(pos_cable) for key, pos_cable in self._cables_with_soil.items()
         }
 
         for measurement_point in self.static_env._measurement_point_registry.points:
             measurement_point.distances_to_cables = {
                 key: pos_cable.distance_to_point(x=measurement_point.x, y=measurement_point.y)
-                for key, pos_cable in self.cables_with_soil.items()
+                for key, pos_cable in self._cables_with_soil.items()
             }
             measurement_point.distances_to_mirror_cables = {
                 key: pos_cable.distance_to_point(x=measurement_point.x, y=measurement_point.y)
-                for key, pos_cable in self.mirror_cables_with_soil.items()
+                for key, pos_cable in self._mirror_cables_with_soil.items()
             }
 
-    @property
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableSoil]]:
-        """Return the cables used to assemble finite difference vectors."""
-        return self.cables_with_soil
-
-    def _build_initial_state(self) -> StateSoil:
+    def _build_initial_state(self, ambient_temperature: float) -> StateSoil:
         """Builds the initial state for the model.
+
+        Args:
+            ambient_temperature: The ambient temperature to initialize the model state.
 
         Returns:
             StateSoil: An instance of StateSoil containing the initialized temperature,
                             self-heating, and mutual-heating states for each cable.
         """
-        ambient_temperature = self.scenario["ambient_temperature"].iloc[0]
-
         return StateSoil(
             static_env_hash=self.static_env.compute_hash(),
-            temperature=self._initialize_state_from_cables(cables=self.cables, fill_value=ambient_temperature),
-            self_heating_contribution=self._initialize_state_from_cables(cables=self.cables_with_soil),
-            mutual_heating_contribution=self._initialize_state_from_cables(cables=self.cables),
+            temperature=self._initialize_state_from_cables(cables=self._cables, fill_value=ambient_temperature),
+            self_heating_contribution=self._initialize_state_from_cables(cables=self._cables_with_soil),
+            mutual_heating_contribution=self._initialize_state_from_cables(cables=self._cables),
             ambient_temperature=ambient_temperature,
         )
 
@@ -199,10 +194,10 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             dict[CableKey, float]: Temperature increases due to mutual heating, one value per cable.
 
         """
-        mutual_heating_effect = dict.fromkeys(self.cables, 0.0)
+        mutual_heating_effect = dict.fromkeys(self._cables, 0.0)
 
-        for key, pos_cable in self.cables_with_soil.items():
-            other_cables = self.cables_with_soil.copy()
+        for key, pos_cable in self._cables_with_soil.items():
+            other_cables = self._cables_with_soil.copy()
             other_cables.pop(key)
 
             mutual_heating_effect[key] += self._sum_heating_contributions(
@@ -213,7 +208,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             )
 
             mutual_heating_effect[key] -= self._sum_heating_contributions(
-                cables=self.mirror_cables_with_soil,
+                cables=self._mirror_cables_with_soil,
                 self_heating_contribution=self_heating_contribution,
                 x=pos_cable.x,
                 y=pos_cable.y,
@@ -237,35 +232,13 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             soil_capacity: Soil thermal capacity for the current time step.
 
         """
-        for cable_key, pos_cable in self.cables_with_soil.items():
+        for cable_key, pos_cable in self._cables_with_soil.items():
             pos_cable.cable.update_soil_properties(
                 soil_rho=soil_resistivity,
                 soil_c=soil_capacity,
                 temperature_grid=temperature_state[cable_key],
                 soil_drying=soil_drying,
             )
-
-    @staticmethod
-    def _check_if_daily_update_due(
-        seconds_since_start_scenario: float, last_soil_property_update_day: int
-    ) -> tuple[bool, int]:
-        """Check if a daily update of soil properties is due based on the time elapsed since the start of the scenario.
-
-        Args:
-            seconds_since_start_scenario: The number of seconds that have passed since the start of the scenario.
-            last_soil_property_update_day: Day counter indicating when the last soil-property update occurred.
-
-        Returns:
-            A tuple containing a boolean indicating whether a daily update is due and the updated day counter.
-
-        """
-        daily_update_due = False
-        days = seconds_since_start_scenario / (60 * 60 * 24)
-        if days > last_soil_property_update_day:
-            daily_update_due = True
-            last_soil_property_update_day = int(days)
-
-        return daily_update_due, last_soil_property_update_day
 
     def _update_self_heating_contribution(
         self,
@@ -286,7 +259,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         solution_at_boundary = 0.0
 
         new_self_heating_contribution = {}
-        for cable_key, pos_cable in self.cables_with_soil.items():
+        for cable_key, pos_cable in self._cables_with_soil.items():
             new_self_heating_contribution[cable_key] = pos_cable.cable.integrate_timestep(
                 previous_solution=self_heating_contribution[cable_key],
                 time_step=time_step,
@@ -316,7 +289,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         mutual_heating_effect = self._compute_mutual_heating_effect(self_heating_contribution=self_heating_contribution)
 
         new_mutual_heating_contribution = {}
-        for cable_key, pos_cable in self.cables.items():
+        for cable_key, pos_cable in self._cables.items():
             new_mutual_heating_contribution[cable_key] = pos_cable.cable.integrate_timestep(
                 previous_solution=mutual_heating_contribution[cable_key],
                 time_step=time_step,
@@ -342,7 +315,7 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             dict[CableKey, np.ndarray]: Updated temperature state for all cables.
         """
         new_temperature_state = {}
-        for cable_key in self.cables:
+        for cable_key in self._cables:
             mutual_heat = mutual_heating_contribution[cable_key]
             self_heat = self_heating_contribution[cable_key][: mutual_heat.size]
             new_temperature_state[cable_key] = self_heat + mutual_heat + ambient_temperature
@@ -353,7 +326,6 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         self,
         temperature_state: dict[CableKey, np.ndarray],
         scenario_row: pd.Series,
-        elapsed_seconds: float,
     ) -> None:
         """Update pipe-fill resistivity and soil properties if needed.
 
@@ -363,24 +335,18 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
             elapsed_seconds: Time elapsed since the start of the scenario in seconds.
 
         """
+        self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self._cables)
+        self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self._cables_with_soil)
+
         soil_resistivity = scenario_row[THERMAL_RESISTIVITY_COLUMN]
         soil_capacity = scenario_row[THERMAL_CAPACITY_COLUMN]
 
-        self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self.cables)
-        self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self.cables_with_soil)
-
-        daily_update_due, self.last_soil_property_update_day = self._check_if_daily_update_due(
-            seconds_since_start_scenario=elapsed_seconds,
-            last_soil_property_update_day=self.last_soil_property_update_day,
+        self._update_soil_properties_for_all_cables(
+            soil_drying=self.run_options.soil_drying,
+            temperature_state=temperature_state,
+            soil_resistivity=soil_resistivity,
+            soil_capacity=soil_capacity,
         )
-
-        if daily_update_due:
-            self._update_soil_properties_for_all_cables(
-                soil_drying=self.run_options.soil_drying,
-                temperature_state=temperature_state,
-                soil_resistivity=soil_resistivity,
-                soil_capacity=soil_capacity,
-            )
 
     def _update_state(
         self,
@@ -415,71 +381,97 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioSchemaSoil, Static
         )
         return new_state
 
-    def _initialize_empty_temperature_result(self):
+    def _initialize_empty_temperature_result(
+        self,
+        n_scenario_rows: int,
+    ) -> dict[CableKey, dict[CableLayer, np.ndarray]]:
         """Initializes an empty nested dictionary.
 
         Dictionary is used to store temperature results for each cable and each relevant layer.
         """
-        super()._initialize_empty_temperature_result()
+        temperature_result = super()._initialize_empty_temperature_result(n_scenario_rows=n_scenario_rows)
 
-        self.measurement_point_temperature_result = {
-            mp.key: np.full(self.n_scenario_rows, np.nan, dtype=float)
+        self._measurement_point_temperature_result = {
+            mp.key: np.full(n_scenario_rows, np.nan, dtype=float)
             for mp in self.static_env._measurement_point_registry.points
         }
 
-    def _update_temperature_result(self, state: StateSoil, step_idx: int):
-        """Initializes the temperature result dictionary with the initial state values."""
+        return temperature_result
+
+    def _update_temperature_result(
+        self,
+        temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
+        state: StateSoil,
+        step_idx: int,
+    ) -> None:
+        """Update the temperature result dictionary with the current state for a given timestep."""
         super()._update_temperature_result(
+            temperature_result=temperature_result,
             state=state,
             step_idx=step_idx,
         )
 
         for measurement_point in self.static_env._measurement_point_registry.points:
-            self.measurement_point_temperature_result[measurement_point.key][step_idx] = (
+            self._measurement_point_temperature_result[measurement_point.key][step_idx] = (
                 self.get_measurement_point_temp(state=state, measurement_point=measurement_point)
             )
 
-    def _build_temperature_result_dataframe(self) -> DataFrame[TemperatureResultSchema]:
+    def _build_temperature_result_dataframe(
+        self,
+        temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
+        scenario_index: pd.Index,
+    ) -> DataFrame[TemperatureResultSchema]:
         """Builds a DataFrame from the temperature result dictionary.
+
+        Args:
+            temperature_result: A nested dictionary containing temperature results for each cable and layer.
+            scenario_index: Index of the scenario used for the current run.
 
         Returns:
             pd.DataFrame: A DataFrame containing the temperature results for all cables and layers.
 
         """
-        df = super()._build_temperature_result_dataframe()
+        df = super()._build_temperature_result_dataframe(
+            temperature_result=temperature_result,
+            scenario_index=scenario_index,
+        )
 
         # Add measurement point temperatures to the DataFrame
         for measurement_point in self.static_env._measurement_point_registry.points:
-            df[measurement_point.key] = self.measurement_point_temperature_result[measurement_point.key]
+            df[measurement_point.key] = self._measurement_point_temperature_result[measurement_point.key]
 
         return df
 
     def _initialize_cables_with_soil(
         self,
+        soil_rho: float,
+        soil_capacity: float,
     ) -> None:
-        """Add soil layers to cable attribute of the given PosCable.
+        """Build the _cables_with_soil attribute from the existing cables using the provided soil properties.
 
-        Returns:
-            New PosCable instance where the only difference is that the cable now has soil layers.
+        Make sure initialize_cables() is called before this method to ensure that the cables are set up correctly.
+
+        Args:
+            soil_rho: Soil thermal resistivity for the start of the scenario.
+            soil_capacity: Soil thermal capacity for the start of the scenario.
 
         """
-        for key, pos_cable in self.cables.items():
+        self._cables_with_soil = {}
+        for key, pos_cable in self._cables.items():
             soil_radius = max(self.minimal_soil_radius, 2.5 * abs(pos_cable.y))
 
-            # Instantiate Cable objects with the added soil layer
-            pos_cable_ = deepcopy(pos_cable)
-            cable_in_soil = pos_cable_.cable.from_cable_with_added_soil_layer(
-                cable=pos_cable_.cable,
-                soil_rho=self.scenario[THERMAL_RESISTIVITY_COLUMN].iloc[0],
-                soil_capacity=self.scenario[THERMAL_CAPACITY_COLUMN].iloc[0],
+            cable_in_soil = pos_cable.cable.from_cable_with_added_soil_layer(
+                cable=pos_cable.cable,
+                soil_rho=soil_rho,
+                soil_capacity=soil_capacity,
                 soil_radius=soil_radius,
                 logarithmic_soil_gridpoint_density=self.logarithmic_soil_gridpoint_density,
             )
 
-            self.cables_with_soil[key] = PosCable[CableSoil](
+            self._cables_with_soil[key] = PosCable[CableSoil](
                 cable=cable_in_soil,
-                x=pos_cable_.x,
-                y=pos_cable_.y,
-                circuit_name=pos_cable_.circuit_name,
-                cable_position=pos_cable_.cable_position,
+                x=pos_cable.x,
+                y=pos_cable.y,
+                circuit_name=pos_cable.circuit_name,
+                cable_position=pos_cable.cable_position,
             )

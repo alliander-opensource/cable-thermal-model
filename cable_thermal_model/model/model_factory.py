@@ -4,8 +4,6 @@
 
 from typing import overload
 
-import pandas as pd
-
 from cable_thermal_model.environment.static_env import StaticEnv, StaticEnvT
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
@@ -20,26 +18,24 @@ class ModelFactory:
     # Overloaded methods for type checking. Used to infer the return type based on the input static environment type.
     @staticmethod
     @overload
-    def create_model(static_env: StaticEnvAir, scenario: pd.DataFrame) -> ModelAir: ...
+    def create_model(static_env: StaticEnvAir) -> ModelAir: ...
 
     @staticmethod
     @overload
-    def create_model(static_env: StaticEnvSoil, scenario: pd.DataFrame) -> ModelSoil: ...
+    def create_model(static_env: StaticEnvSoil) -> ModelSoil: ...
 
     @staticmethod
     @overload
-    def create_model(static_env: StaticEnv, scenario: pd.DataFrame) -> Model: ...
+    def create_model(static_env: StaticEnv) -> Model: ...
 
     @staticmethod
     def create_model(
         static_env: StaticEnvT,
-        scenario: pd.DataFrame,
     ) -> Model:
         """Create a model instance based on the environment type.
 
         Args:
             static_env (StaticEnvT): Static environment configuration for the model.
-            scenario (pd.DataFrame): Scenario data used by the model.
 
         Returns:
             Model: An instance of ModelAir or ModelSoil, depending on the type of static_env.
@@ -48,9 +44,9 @@ class ModelFactory:
             ValueError: If static_env is not a supported environment type.
         """
         if isinstance(static_env, StaticEnvAir):
-            return ModelAir(static_env=static_env, scenario=scenario)  # type: ignore
+            return ModelAir(static_env=static_env)
         elif isinstance(static_env, StaticEnvSoil):
-            return ModelSoil(static_env=static_env, scenario=scenario)  # type: ignore
+            return ModelSoil(static_env=static_env)
         else:
             raise ValueError(
                 f"Unsupported static environment type: {type(static_env).__name__}. "

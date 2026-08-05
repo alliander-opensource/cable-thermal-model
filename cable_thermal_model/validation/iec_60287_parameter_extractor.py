@@ -6,14 +6,12 @@ from dataclasses import asdict, dataclass
 
 import numpy as np
 import pandas as pd
-from pandera.typing import DataFrame
 
 from cable_thermal_model import ModelFactory, StaticEnvSoil
 from cable_thermal_model.cable.cable_circuit import CableKey
 from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import StateSoil
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 from cable_thermal_model.model.schemas.model_output_schemas import ModelOutputSchema
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
@@ -92,7 +90,7 @@ class _CableContext:
 def _get_cable_context(
     cable: Cable,
     cable_key: CableKey,
-    scenario: DataFrame[ScenarioSchemaSoil],
+    scenario: pd.DataFrame,
     model_output: ModelOutputSchema[StateSoil],
 ) -> _CableContext:
     load_column = f"load_{cable_key.circuit_name}"
@@ -304,7 +302,7 @@ def build_scenario(
     soil_thermal_resistivity: float,
     soil_thermal_capacity: float,
     ambient_temperature: float,
-) -> DataFrame[ScenarioSchemaSoil]:
+) -> pd.DataFrame:
     """Build a static scenario DataFrame used for IEC parameter extraction.
 
     Args:
@@ -323,13 +321,13 @@ def build_scenario(
             "soil_thermal_resistivity": soil_thermal_resistivity,
             "soil_thermal_capacity": soil_thermal_capacity,
         },
-        index=pd.timedelta_range(start="0D", end="30000D", periods=20),
+        index=pd.timedelta_range(start="0D", end="100000D", periods=101),
     )
 
     for circuit_name, rating in circuit_ratings.items():
         scenario[f"load_{circuit_name}"] = rating
 
-    return ScenarioSchemaSoil.validate(scenario)
+    return scenario
 
 
 def extract_iec_60287_parameters(
@@ -359,11 +357,11 @@ def extract_iec_60287_parameters(
         ambient_temperature=ambient_temperature,
     )
 
-    model = ModelFactory.create_model(static_env, scenario)
-    model_output = model.run()
+    model = ModelFactory.create_model(static_env)
+    model_output = model.run(scenario)
 
     parameters = pd.DataFrame()
-    for cable_key, pos_cable in model.cables_with_soil.items():
+    for cable_key, pos_cable in model.cables_in_environment.items():
         context = _get_cable_context(
             cable=pos_cable.cable,
             cable_key=cable_key,

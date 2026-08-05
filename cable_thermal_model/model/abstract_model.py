@@ -6,47 +6,38 @@ from abc import ABC, abstractmethod
 from typing import Generic
 
 import pandas as pd
+import pandera.pandas as pa
 from pandera.typing import DataFrame
 
 from cable_thermal_model.environment.static_env import StaticEnvT
 from cable_thermal_model.model.schemas import ModelOutputSchema
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelT
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
-class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT]):
+class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, StaticEnvT]):
     """Abstract base class for thermal cable models."""
 
     static_env: StaticEnvT
-    scenario: DataFrame[ScenarioSchemaT]
-    _scenario_schema_class: type[ScenarioSchemaT]
+    _scenario_model_class: type[ScenarioModelT]
 
     def __str__(self):
         """Generates a concise string representation of the model."""
         num_circuits = len(self.static_env.circuits)
-        num_days = (self.scenario.index[-1] - self.scenario.index[0]).days
-        num_days = round(num_days, 1) if num_days < 7 else int(num_days)  # round for readability  # noqa: PLR2004
-        return f"Model with {num_circuits} circuit environment and {num_days} day scenario"
+        return f"Model with {num_circuits} circuit environment"
 
     def __repr__(self):
         """Generates an informative string representation of the model."""
-        return (
-            "Environment\n\n"
-            + f"{tab_lines(repr(self.static_env))}\n"
-            + "\n\tScenario\n"
-            + f"{tab_lines(tab_lines(repr(self.scenario.describe())))}\n"
-        )
+        return "Environment\n\n" + f"{tab_lines(repr(self.static_env))}\n"
 
-    def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
-        """Initialise the model with a static environment and scenario DataFrame."""
-        # Validate that the scenario dataframe provides the required cable loads and ambient temperature.
+    def __init__(self, static_env: StaticEnvT):
+        """Initialise the model with a static environment."""
         self.static_env = static_env
-        self.set_scenario(scenario=scenario)
         self._set_run_options(run_options=None)
 
-    def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioSchemaT]:
+    def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioModelT]:
         """Validates that the scenario DataFrame contains all required columns and no missing values.
 
         This method validates the scenario against the AbstractScenarioSchema and also checks that the static
@@ -57,37 +48,23 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
                 missing, or there are missing values in the scenario.
 
         """
-        for circuit in self.static_env.circuits:
-            if "load_" + circuit not in scenario.columns:
-                raise ValueError(f"Scenario dataframe does not contain a load column for circuit '{circuit}'.")
+        scenario_schema = self._scenario_model_class.to_schema().add_columns(
+            {f"load_{circuit_name}": pa.Column(float) for circuit_name in self.static_env.circuits}
+        )
+        scenario_schema.strict = True
+        scenario_schema.validate(scenario)
 
-        return self._scenario_schema_class.validate(scenario)
-
-    def set_scenario(self, scenario: pd.DataFrame):
-        """Sets a new scenario and validates it.
-
-        Args:
-            scenario: The new scenario dataframe
-
-        """
-        self.scenario = self._validate_scenario(scenario=scenario)
-
-        # Set up time grids
-        self.time_max: float = (self.scenario.index[-1] - self.scenario.index[0]).total_seconds()
-        self.time_grid: list[float] = list((self.scenario.index - self.scenario.index[0]).total_seconds())
-        self.time_samples: int = len(self.time_grid)
-
-    @property
-    def n_scenario_rows(self) -> int:
-        """Returns the number of time steps in the scenario."""
-        return len(self.scenario.index)
+        # As we validate the scenario schema, we can safely return the scenario.
+        # Initializing DataFrame[ScenarioModelT] would be double validation, so we use type: ignore to bypass it.
+        return scenario  # type: ignore[return-value]
 
     def run(
         self,
+        scenario: pd.DataFrame,
         initial_state: StateT | None = None,
         run_options: ModelRunOptionsT | dict | None = None,
     ) -> ModelOutputSchema[StateT]:
-        """Computes the temperature solutions for all cable objects.
+        """Computes the temperature solutions for all cable objects in the model for the given scenario.
 
         Notes:
             Be careful about changing default run option values. The following settings affect the
@@ -99,9 +76,10 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             - initial_state
 
         Args:
+            scenario: Scenario dataframe for this run. The dataframe is validated internally before execution.
             initial_state: Heating information from a previous computation.
-            run_options: Run options for the model. If `None` or a dictionary is provided, the
-                options are validated and default values are applied.
+            run_options: Run options for this simulation run. If `None` or a dictionary is provided,
+                the options are validated and default values are applied.
 
         Returns:
             ModelOutputSchema: Temperature solutions for all cables.
@@ -110,12 +88,14 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
             ValueError: If the provided initial state does not match the model environment.
 
         """
+        validated_scenario = self._validate_scenario(scenario=scenario)
         self._set_run_options(run_options=run_options)
 
         self._validate_initial_state(initial_state=initial_state)
 
         # Compute the temperature solution.
         result = self._compute_temperature_solution(
+            scenario=validated_scenario,
             initial_state=initial_state,
         )
 
@@ -128,6 +108,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, Stat
     @abstractmethod
     def _compute_temperature_solution(
         self,
+        scenario: DataFrame[ScenarioModelT],
         initial_state: StateT | None = None,
     ) -> ModelOutputSchema[StateT]:
         """Compute and return the full temperature solution for the configured scenario."""

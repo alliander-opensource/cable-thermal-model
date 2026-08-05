@@ -5,6 +5,7 @@
 from unittest.mock import MagicMock
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
@@ -61,40 +62,57 @@ def test_set_run_options_accepts_model_run_options_instance(model_class: type[Mo
     assert model.run_options is run_options_instance
 
 
-def test_add_solution_location_rejects_invalid_layer_type(model: ModelSoil):
-    """Ensure a clear TypeError is raised for non-CableLayer input."""
-    with pytest.raises(TypeError, match="The layer argument must be of type CableLayer"):
-        model.add_solution_location(layer_name="Conductor")  # type: ignore[arg-type]
+def test_run_rejects_invalid_extra_solution_layer(model: ModelSoil, scenario_constant):
+    """Ensure invalid extra solution layers are rejected through run-option validation."""
+    with pytest.raises(ValueError, match="extra_solution_layers"):
+        model.run(scenario_constant, run_options={"extra_solution_layers": ["NotALayer"]})
+
+
+@pytest.mark.parametrize(
+    "layer",
+    [
+        CableLayer.Conductor,
+        CableLayer.Sheath,
+        CableLayer.Pipe,
+    ],
+)
+def test_run_rejects_standard_layers_in_extra_solution_layers(model: ModelSoil, scenario_constant, layer: CableLayer):
+    """Ensure dedicated output layers cannot be requested through extra_solution_layers."""
+    with pytest.raises(ValueError, match="extra_solution_layers"):
+        model.run(scenario_constant, run_options={"extra_solution_layers": [layer]})
 
 
 def test_initialize_state_from_cables_uses_fill_value(model: ModelSoil):
     """Ensure helper initializes all cable arrays with the provided fill value."""
     fill_value = 42.5
-    initialized = model._initialize_state_from_cables(cables=model.cables, fill_value=fill_value)
+    initialized = model._initialize_state_from_cables(cables=model._cables, fill_value=fill_value)
 
-    assert set(initialized) == set(model.cables)
-    for cable_key in model.cables:
+    assert set(initialized) == set(model._cables)
+    for cable_key in model._cables:
         assert np.all(np.isclose(initialized[cable_key], fill_value))
 
 
-def test_get_circuit_loads_from_scenario_row(model: ModelSoil):
+def test_get_circuit_loads_from_scenario_row(model: ModelSoil, scenario_constant):
     """Ensure scenario row is mapped to circuit load dict using load_<circuit_name> keys."""
-    _, scenario_row = next(model.scenario.iterrows())
+    _, scenario_row = next(scenario_constant.iterrows())
 
     loads = model._get_circuit_loads_from_scenario_row(scenario_row)
 
     assert loads == {"c1": scenario_row["load_c1"]}
 
 
-def test_initialize_temperature_result_contains_expected_layers(model: ModelSoil):
+def test_initialize_temperature_result_contains_expected_layers(model: ModelSoil, scenario_constant):
     """Ensure initialized result includes standard and requested extra layers, and excludes absent layers."""
-    model.add_solution_location(CableLayer.Insulation)
-    initial_state = model._build_initial_state()
+    run_options = {"extra_solution_layers": [CableLayer.Insulation]}
+    model.run(scenario_constant, run_options=run_options)
+    initial_state = model._build_initial_state(scenario_constant["ambient_temperature"].iloc[0])
 
-    model._initialize_temperature_result(state=initial_state)
-    temperature_result = model.temperature_result
+    temperature_result = model._initialize_temperature_result(
+        state=initial_state,
+        n_scenario_rows=len(scenario_constant.index),
+    )
 
-    for cable_key in model.cables:
+    for cable_key in model._cables:
         assert CableLayer.Conductor in temperature_result[cable_key]
         assert CableLayer.Sheath in temperature_result[cable_key]
         assert CableLayer.Insulation in temperature_result[cable_key]
@@ -102,26 +120,30 @@ def test_initialize_temperature_result_contains_expected_layers(model: ModelSoil
         assert np.isfinite(temperature_result[cable_key][CableLayer.Conductor][0])
 
 
-def test_update_pipe_fill_resistivity_skips_cables_without_pipe(model: ModelSoil):
+def test_update_pipe_fill_resistivity_skips_cables_without_pipe(model: ModelSoil, scenario_constant):
     """Ensure no pipe-fill updates happen for cables without a pipe layer."""
-    temperature_state = model._build_initial_state().temperature
+    model.run(scenario_constant)
+    temperature_state = model._build_initial_state(scenario_constant["ambient_temperature"].iloc[0]).temperature
 
     mocked_update_methods = {}
-    for cable_key, pos_cable in model.cables.items():
+    for cable_key, pos_cable in model._cables.items():
         mocked_update_methods[cable_key] = MagicMock()
         pos_cable.cable.update_pipe_fill_resistivity = mocked_update_methods[cable_key]
 
-    model._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=model.cables)
+    model._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=model._cables)
 
     for cable_key in mocked_update_methods:
         mocked_update_methods[cable_key].assert_not_called()
 
 
-def test_update_pipe_fill_resistivity_updates_pipe_cables(model_with_pipe: ModelSoil):
+def test_update_pipe_fill_resistivity_updates_pipe_cables(model_with_pipe: ModelSoil, scenario_constant):
     """Ensure pipe-fill resistivity is updated with the mean PipeFill temperature when a pipe exists."""
-    temperature_state = model_with_pipe._build_initial_state().temperature
+    model_with_pipe.run(scenario_constant)
+    temperature_state = model_with_pipe._build_initial_state(
+        scenario_constant["ambient_temperature"].iloc[0]
+    ).temperature
 
-    for cable_key, pos_cable in model_with_pipe.cables.items():
+    for cable_key, pos_cable in model_with_pipe._cables.items():
         if pos_cable.cable.layer_metrics.pipe is None:
             continue
 
@@ -139,7 +161,7 @@ def test_update_pipe_fill_resistivity_updates_pipe_cables(model_with_pipe: Model
 
 def test_validate_state_model_consistency_rejects_wrong_state_type(model: ModelSoil):
     """Ensure model type check rejects states from a different model class."""
-    cable_key = next(iter(model.cables))
+    cable_key = next(iter(model.static_env.get_cables()))
     wrong_state = StateAir(
         static_env_hash=model.static_env.compute_hash(),
         temperature={cable_key: np.array([20.0])},
@@ -151,11 +173,11 @@ def test_validate_state_model_consistency_rejects_wrong_state_type(model: ModelS
         model._validate_state_model_consistency(wrong_state)
 
 
-def test_initialize_thermal_state_returns_deep_copy(model: ModelSoil):
+def test_initialize_thermal_state_returns_deep_copy(model: ModelSoil, scenario_constant):
     """Ensure provided initial state is deep-copied before reuse."""
-    initial_state = model.run().state
+    initial_state = model.run(scenario_constant).state
 
-    initialized_state = model._initialize_state(initial_state=initial_state)
+    initialized_state = model._initialize_state(scenario_constant, initial_state=initial_state)
 
     assert initialized_state is not initial_state
 
@@ -164,3 +186,19 @@ def test_initialize_thermal_state_returns_deep_copy(model: ModelSoil):
     initialized_state.temperature[cable_key][0] = original_value + 1.0
 
     assert np.isclose(initial_state.temperature[cable_key][0], original_value)
+
+
+def test_validate_scenario_accepts_integer_numeric_columns(model: ModelSoil):
+    """Tests whether integer-valued numeric scenario columns are accepted via schema coercion."""
+    scenario = pd.DataFrame(
+        index=pd.date_range("2020-01-01", "2020-01-03", freq="1h"),
+        data={
+            "load_c1": 100,
+            "ambient_temperature": 10,
+            "soil_thermal_resistivity": 1,
+            "soil_thermal_capacity": 2_000_000,
+        },
+    )
+
+    result = model.run(scenario)
+    assert result.result.shape[0] == scenario.shape[0]
