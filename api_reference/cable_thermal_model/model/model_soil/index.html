@@ -1595,6 +1595,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cable_thermal_model.model.model_soil.ModelSoil.cables_in_environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cables_in_environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#cable_thermal_model.model.model_soil.ModelSoil.get_measurement_point_temp" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2500,6 +2511,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cable_thermal_model.model.model_soil.ModelSoil.cables_in_environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cables_in_environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#cable_thermal_model.model.model_soil.ModelSoil.get_measurement_point_temp" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2572,83 +2594,40 @@
 
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ModelSoil</span><span class="p">(</span><span class="n">static_env</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="StaticEnvSoil (cable_thermal_model.StaticEnvSoil)" href="../../#cable_thermal_model.StaticEnvSoil">StaticEnvSoil</a></span><span class="p">,</span> <span class="n">scenario</span><span class="p">:</span> <span class="n"><span title="pandera.typing.DataFrame">DataFrame</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="ScenarioSchemaSoil (cable_thermal_model.model.schemas.ScenarioSchemaSoil)" href="../schemas/#cable_thermal_model.model.schemas.ScenarioSchemaSoil">ScenarioSchemaSoil</a></span><span class="p">])</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ModelSoil</span><span class="p">(</span><span class="n">static_env</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="StaticEnvSoil (cable_thermal_model.StaticEnvSoil)" href="../../#cable_thermal_model.StaticEnvSoil">StaticEnvSoil</a></span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="Model (cable_thermal_model.model.model.Model)" href="../model/#cable_thermal_model.model.model.Model">Model</a>[<a class="autorefs autorefs-internal" title="ModelSoilRunOptions (cable_thermal_model.model.schemas.run_options.ModelSoilRunOptions)" href="../schemas/run_options/#cable_thermal_model.model.schemas.run_options.ModelSoilRunOptions">ModelSoilRunOptions</a>, <a class="autorefs autorefs-internal" title="StateSoil (cable_thermal_model.model.schemas.StateSoil)" href="../schemas/#cable_thermal_model.model.schemas.StateSoil">StateSoil</a>, <a class="autorefs autorefs-internal" title="ScenarioSchemaSoil (cable_thermal_model.model.schemas.ScenarioSchemaSoil)" href="../schemas/#cable_thermal_model.model.schemas.ScenarioSchemaSoil">ScenarioSchemaSoil</a>, <a class="autorefs autorefs-internal" title="StaticEnvSoil (cable_thermal_model.StaticEnvSoil)" href="../../#cable_thermal_model.StaticEnvSoil">StaticEnvSoil</a>, <a class="autorefs autorefs-internal" title="CableSoil (cable_thermal_model.model.cables.cable_soil.CableSoil)" href="../cables/cable_soil/#cable_thermal_model.model.cables.cable_soil.CableSoil">CableSoil</a>]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="Model (cable_thermal_model.model.model.Model)" href="../model/#cable_thermal_model.model.model.Model">Model</a>[<a class="autorefs autorefs-internal" title="ModelSoilRunOptions (cable_thermal_model.model.schemas.run_options.ModelSoilRunOptions)" href="../schemas/run_options/#cable_thermal_model.model.schemas.run_options.ModelSoilRunOptions">ModelSoilRunOptions</a>, <a class="autorefs autorefs-internal" title="StateSoil (cable_thermal_model.model.schemas.StateSoil)" href="../schemas/#cable_thermal_model.model.schemas.StateSoil">StateSoil</a>, <a class="autorefs autorefs-internal" title="ScenarioModelSoil (cable_thermal_model.model.schemas.ScenarioModelSoil)" href="../schemas/#cable_thermal_model.model.schemas.ScenarioModelSoil">ScenarioModelSoil</a>, <a class="autorefs autorefs-internal" title="StaticEnvSoil (cable_thermal_model.StaticEnvSoil)" href="../../#cable_thermal_model.StaticEnvSoil">StaticEnvSoil</a>, <a class="autorefs autorefs-internal" title="CableSoil (cable_thermal_model.model.cables.cable_soil.CableSoil)" href="../cables/cable_soil/#cable_thermal_model.model.cables.cable_soil.CableSoil">CableSoil</a>]</code></p>
 
 
 
         <p>ModelSoil computes temperatures for underground power cables using the finite difference method.</p>
-<p>In most cases the model is instantiated with a StaticEnvSoil and a valid scenario, then executed via <code>run()</code>.</p>
+<p>In most cases the model is instantiated with a StaticEnvSoil and executed with a scenario via <code>run()</code>.</p>
 
 
 <details class="class-attributes" open>
   <summary>Class Attributes</summary>
-  <p>_run_options_class:                 The class used for run options.
-_state_class:                       The class used for the state of the model.
-_scenario_schema_class:             The class used for the scenario schema.</p>
+  <p>_run_options_class: Run-options schema class.
+_state_class: State schema class.
+_scenario_model_class: Scenario model class.</p>
 </details>
 
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="cable_thermal_model.model.model_soil.ModelSoil.mirror_cables_with_soil">mirror_cables_with_soil</span></code></td>
-            <td>
-                  <code><span title="dict">dict</span>[<a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.CableKey)" href="../../#cable_thermal_model.CableKey">CableKey</a>, <a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable.cable_circuit.PosCable)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.PosCable">PosCable</a>[<a class="autorefs autorefs-internal" title="CableSoil (cable_thermal_model.model.cables.cable_soil.CableSoil)" href="../cables/cable_soil/#cable_thermal_model.model.cables.cable_soil.CableSoil">CableSoil</a>]]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A dict containing the mirror cables with soil for each cable in the
-                                environment</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="cable_thermal_model.model.model_soil.ModelSoil.logarithmic_soil_gridpoint_density">logarithmic_soil_gridpoint_density</span></code></td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The density of grid points in the soil layers, this is used to compute
-                                the number of grid points in the soil layers based on their thickness.
-                                The default value is 20 grid points per factor 2 increase in soil layer
-                                thickness. For a cable with radius of 3.1 cm and a soil layer radius
-                                1 m,
-                                this would result in 100 grid points in the soil layer.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="cable_thermal_model.model.model_soil.ModelSoil.minimal_soil_radius">minimal_soil_radius</span></code></td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The minimal soil radius around a cable. For deeply buried cables, the
-                                soil radius is set to 2.5 times the cable depth, this parameter sets
-                                a lower bound to prevent very small soil layers for shallow cables.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-        <p>.</p>
+<details class="internal-runtime-state" open>
+  <summary>Internal Runtime State</summary>
+  <p>_cables_with_soil: Per-run cable representations extended with soil layers and updated during simulation.
+_mirror_cables_with_soil: Per-run mirrored soil cable representations for image-source calculations.
+_measurement_point_temperature_result: Per-run cache of measurement-point temperatures.</p>
+</details>
 
-        <p>Note: the scenario must contain one <code>load_&lt;circuit_name&gt;</code> column per circuit, plus ambient temperature and
-soil-property columns.</p>
+<details class="configuration-parameters" open>
+  <summary>Configuration Parameters</summary>
+  <p>logarithmic_soil_gridpoint_density: Soil-grid point density factor used for discretization.
+    Default is 20.
+minimal_soil_radius: Minimum soil radius around each cable in meters. Default is 5.0.
+    The effective soil radius is max(minimal_soil_radius, 2.5 * abs(cable depth)).</p>
+</details>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2678,22 +2657,6 @@ soil-property columns.</p>
                 <em>required</em>
             </td>
           </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>scenario</code>
-            </td>
-            <td>
-                  <code><span title="pandera.typing.DataFrame">DataFrame</span>[<a class="autorefs autorefs-internal" title="ScenarioSchemaSoil (cable_thermal_model.model.schemas.ScenarioSchemaSoil)" href="../schemas/#cable_thermal_model.model.schemas.ScenarioSchemaSoil">ScenarioSchemaSoil</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic load and soil data.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
       </tbody>
     </table>
 
@@ -2706,7 +2669,12 @@ soil-property columns.</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>cable_thermal_model/model/model_soil.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
@@ -2724,24 +2692,11 @@ soil-property columns.</p>
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvSoil</span><span class="p">,</span> <span class="n">scenario</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">[</span><span class="n">ScenarioSchemaSoil</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the ModelSoil instance with a static environment and scenario.</span>
-
-<span class="sd">    Note: the scenario must contain one `load_&lt;circuit_name&gt;` column per circuit, plus ambient temperature and</span>
-<span class="sd">    soil-property columns.</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvSoil</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the ModelSoil instance with a static environment.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env: A StaticEnvSoil instance containing the soil thermal parameters and cable layout.</span>
-<span class="sd">        scenario: A pandera DataFrame[ScenarioSchemaSoil] containing the dynamic load and soil data.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">static_env</span><span class="p">,</span> <span class="n">StaticEnvSoil</span><span class="p">):</span>
@@ -2752,15 +2707,15 @@ soil-property columns.</p>
         <span class="p">)</span>
 
     <span class="c1"># Set up cables</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">cables_with_soil</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableSoil</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">mirror_cables_with_soil</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableSoil</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_cables_with_soil</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableSoil</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_mirror_cables_with_soil</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableSoil</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
     <span class="bp">self</span><span class="o">.</span><span class="n">logarithmic_soil_gridpoint_density</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">minimal_soil_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">last_soil_property_update_day</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">measurement_point_temperature_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">MeasurementPointKey</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_measurement_point_temperature_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">MeasurementPointKey</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">,</span> <span class="n">scenario</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -2773,6 +2728,33 @@ soil-property columns.</p>
 
 
 
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="cable_thermal_model.model.model_soil.ModelSoil.cables_in_environment" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">cables_in_environment</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">cables_in_environment</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.CableKey)" href="../../#cable_thermal_model.CableKey">CableKey</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable.cable_circuit.PosCable)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.PosCable">PosCable</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CableSoil (cable_thermal_model.model.cables.cable_soil.CableSoil)" href="../cables/cable_soil/#cable_thermal_model.model.cables.cable_soil.CableSoil">CableSoil</a></span><span class="p">]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return per-run soil-extended cable instances for the model.</p>
+<p>Runtime cable properties may deviate from their static baseline defaults. For soil cables, this concerns:
+- updated soil thermal resistivity and capacity from the active scenario (optionally with soil-drying behavior);
+- temperature-dependent pipe-fill resistivity where a pipe layer exists.</p>
+
+    </div>
+
+</div>
 
 
 
@@ -2865,8 +2847,7 @@ soil-property columns.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/model/model_soil.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 84</span>
-<span class="normal"> 85</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 85</span>
 <span class="normal"> 86</span>
 <span class="normal"> 87</span>
 <span class="normal"> 88</span>
@@ -2893,7 +2874,8 @@ soil-property columns.</p>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_measurement_point_temp</span><span class="p">(</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_measurement_point_temp</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">StateSoil</span><span class="p">,</span>
     <span class="n">measurement_point</span><span class="p">:</span> <span class="n">MeasurementPoint</span><span class="p">,</span>
@@ -2910,12 +2892,12 @@ soil-property columns.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">measurement_point_temp</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">ambient_temperature</span>
 
-    <span class="k">for</span> <span class="n">cable_key</span><span class="p">,</span> <span class="n">cable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables_with_soil</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">cable_key</span><span class="p">,</span> <span class="n">cable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cables_with_soil</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">distance_to_cable</span> <span class="o">=</span> <span class="n">measurement_point</span><span class="o">.</span><span class="n">distances_to_cables</span><span class="p">[</span><span class="n">cable_key</span><span class="p">]</span>
         <span class="n">measurement_point_temp</span> <span class="o">+=</span> <span class="n">cable</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">get_heating_contribution_at_radius</span><span class="p">(</span>
             <span class="n">radius</span><span class="o">=</span><span class="n">distance_to_cable</span><span class="p">,</span> <span class="n">self_heating_contribution</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">self_heating_contribution</span><span class="p">[</span><span class="n">cable_key</span><span class="p">]</span>
         <span class="p">)</span>
-    <span class="k">for</span> <span class="n">cable_key</span><span class="p">,</span> <span class="n">mirror_cable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirror_cables_with_soil</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">cable_key</span><span class="p">,</span> <span class="n">mirror_cable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirror_cables_with_soil</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">distance_to_mirror_cable</span> <span class="o">=</span> <span class="n">measurement_point</span><span class="o">.</span><span class="n">distances_to_mirror_cables</span><span class="p">[</span><span class="n">cable_key</span><span class="p">]</span>
         <span class="n">measurement_point_temp</span> <span class="o">-=</span> <span class="n">mirror_cable</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">get_heating_contribution_at_radius</span><span class="p">(</span>
             <span class="n">radius</span><span class="o">=</span><span class="n">distance_to_mirror_cable</span><span class="p">,</span> <span class="n">self_heating_contribution</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">self_heating_contribution</span><span class="p">[</span><span class="n">cable_key</span><span class="p">]</span>

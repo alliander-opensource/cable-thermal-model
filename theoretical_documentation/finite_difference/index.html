@@ -1400,7 +1400,7 @@ r_i^- &amp;= \frac{r_{i-1}+r_i}{2}=r_i-\Delta r_{i-1}/2,  &amp;\text{ for } i=1,
 \]</div>
 <p>Note that with this definition we have that <span class="arithmatex">\(r_{i+1}^-=r_i^+\)</span> for <span class="arithmatex">\(1\leq i\leq n-1\)</span>.
 We call <span class="arithmatex">\(r_i^+\)</span> and <span class="arithmatex">\(r_i^-\)</span> the <em>outer radius</em> and <em>inner radius</em> respectively of the grid point <span class="arithmatex">\(r_i\)</span>.
-We say the <em>thickness</em> of the gridpoint <span class="arithmatex">\(r_i\)</span> is <span class="arithmatex">\(r_i^+-r_i^-\)</span>. Then the volume corresponding to the gridpoint <span class="arithmatex">\(r_i\)</span> is given by <span class="arithmatex">\(\pi (r_i^++r_i^-)(r_i^+-r_i^-)\)</span>.</p>
+We say the <em>thickness</em> of the gridpoint <span class="arithmatex">\(r_i\)</span> is <span class="arithmatex">\(r_i^+-r_i^-\)</span>. Then the surface area corresponding to the gridpoint <span class="arithmatex">\(r_i\)</span> is given by <span class="arithmatex">\(S_i = \pi (r_i^++r_i^-)(r_i^+-r_i^-)\)</span>.</p>
 <h2 id="intermediate-thermal-resistivity">Intermediate thermal resistivity</h2>
 <p>We define the thermal resistivity at these intermediate grid points using the logarithmic relation of thermal resistivity of multiple circular layers (See <em>Rating of Electric Power Cables Ampacity Computations for Transmission (1997), Section 3.2.1</em>, George J. Anders):</p>
 <div class="arithmatex">\[
@@ -1452,16 +1452,16 @@ D_r\theta = \frac{\theta^+-\theta^-}{r^+-r^-}, \text{ so that } (D_r \theta)(r_i
 <p>Using this approximation of the derivative with respect to <span class="arithmatex">\(r\)</span>, we can turn the right hand side of the heat equation, without internal heat generation <span class="arithmatex">\(W_{int}\)</span>, into a system of linear equations. Namely, for <span class="arithmatex">\(1\leq i\leq n\)</span> we get:</p>
 <div class="arithmatex">\[
 \begin{align*}
-\frac{1}{r}D_r\left(\frac{r}{\rho}D_r\theta\right)(r_i)&amp;=\frac{1}{r_i(r_i^+-r_i^-)}\left(\frac{r_i^+}{\rho_i^+}(D_r\theta)(r_i^+)-\frac{r_i^-}{\rho^-_i}(D_r\theta)(r_i^-)\right)\\
-&amp;=\frac{1}{r_i(r_i^+-r_i^-)}\left(\frac{r_i^+}{\rho_i^+}\frac{\theta_{i+1}-\theta_i}{r_{i+1}-r_i}-\frac{r_i^-}{\rho^-_i}\frac{\theta_i-\theta_{i-1}}{r_i-r_{i-1}}\right)\\
+\frac{1}{r}D_r\left(\frac{r}{\rho}D_r\theta\right)(r_i)&amp;=\frac{2}{(r_i^-+r_i^+)(r_i^+-r_i^-)}\left(\frac{r_i^+}{\rho_i^+}(D_r\theta)(r_i^+)-\frac{r_i^-}{\rho^-_i}(D_r\theta)(r_i^-)\right)\\
+&amp;=\frac{2\pi}{S_i}\left(\frac{r_i^+}{\rho_i^+}\frac{\theta_{i+1}-\theta_i}{r_{i+1}-r_i}-\frac{r_i^-}{\rho^-_i}\frac{\theta_i-\theta_{i-1}}{r_i-r_{i-1}}\right)\\
 &amp;= \alpha_i\theta_{i+1} +\beta_i\theta_i + \gamma_i\theta_{i-1}\,,
 \end{align*}
 \]</div>
 <p>where</p>
 <div class="arithmatex">\[
 \begin{align*}
-\alpha_i &amp;= \frac{1}{r_i(r_i^+-r_i^-)}\frac{r_i^+}{\rho_i^+ \Delta r_i}\,,\\
-\gamma_i &amp;= \frac{1}{r_i(r_i^+-r_i^-)}\frac{r_i^-}{\rho_{i-1}^+ \Delta r_{i-1}}\,,\\
+\alpha_i &amp;= \frac{2\pi}{S_i}\frac{r_i^+}{\rho_i^+ \Delta r_i}\,,\\
+\gamma_i &amp;= \frac{2\pi}{S_i}\frac{r_i^-}{\rho_{i-1}^+ \Delta r_{i-1}}\,,\\
 \beta_i &amp;=-\big(\alpha_i+\gamma_i\big)\,.
 \end{align*}
 \]</div>

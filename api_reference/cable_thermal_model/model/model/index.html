@@ -1511,10 +1511,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cable_thermal_model.model.model.Model.add_solution_location" class="md-nav__link">
+  <a href="#cable_thermal_model.model.model.Model.cables_in_environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        add_solution_location
+        cables_in_environment
       
     </span>
   </a>
@@ -2500,10 +2500,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cable_thermal_model.model.model.Model.add_solution_location" class="md-nav__link">
+  <a href="#cable_thermal_model.model.model.Model.cables_in_environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        add_solution_location
+        cables_in_environment
       
     </span>
   </a>
@@ -2572,12 +2572,12 @@
 
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">Model</span><span class="p">(</span><span class="n">static_env</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.model.abstract_model.StaticEnvT">StaticEnvT</span></span><span class="p">,</span> <span class="n">scenario</span><span class="p">:</span> <span class="n"><span title="pandera.typing.DataFrame">DataFrame</span></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaT">ScenarioSchemaT</span></span><span class="p">])</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">Model</span><span class="p">(</span><span class="n">static_env</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.model.abstract_model.StaticEnvT">StaticEnvT</span></span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="AbstractModel (cable_thermal_model.model.abstract_model.AbstractModel)" href="../abstract_model/#cable_thermal_model.model.abstract_model.AbstractModel">AbstractModel</a>[<span title="cable_thermal_model.model.schemas.run_options.ModelRunOptionsT">ModelRunOptionsT</span>, <span title="cable_thermal_model.model.schemas.state_schemas.StateT">StateT</span>, <span title="cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaT">ScenarioSchemaT</span>, <span title="cable_thermal_model.model.abstract_model.StaticEnvT">StaticEnvT</span>]</code>, <code><span title="typing.Generic">Generic</span>[<span title="cable_thermal_model.model.schemas.run_options.ModelRunOptionsT">ModelRunOptionsT</span>, <span title="cable_thermal_model.model.schemas.state_schemas.StateT">StateT</span>, <span title="cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaT">ScenarioSchemaT</span>, <span title="cable_thermal_model.model.abstract_model.StaticEnvT">StaticEnvT</span>, <span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span>]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="AbstractModel (cable_thermal_model.model.abstract_model.AbstractModel)" href="../abstract_model/#cable_thermal_model.model.abstract_model.AbstractModel">AbstractModel</a>[<span title="cable_thermal_model.model.schemas.run_options.ModelRunOptionsT">ModelRunOptionsT</span>, <span title="cable_thermal_model.model.schemas.state_schemas.StateT">StateT</span>, <span title="cable_thermal_model.model.schemas.model_input_schemas.ScenarioModelT">ScenarioModelT</span>, <span title="cable_thermal_model.model.abstract_model.StaticEnvT">StaticEnvT</span>]</code>, <code><span title="typing.Generic">Generic</span>[<span title="cable_thermal_model.model.schemas.run_options.ModelRunOptionsT">ModelRunOptionsT</span>, <span title="cable_thermal_model.model.schemas.state_schemas.StateT">StateT</span>, <span title="cable_thermal_model.model.schemas.model_input_schemas.ScenarioModelT">ScenarioModelT</span>, <span title="cable_thermal_model.model.abstract_model.StaticEnvT">StaticEnvT</span>, <span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span>]</code></p>
 
 
 
@@ -2585,6 +2585,17 @@
 <p>This class implements the finite difference orchestration shared by concrete models such as ModelAir and
 ModelSoil.</p>
 
+
+<details class="class-attributes" open>
+  <summary>Class Attributes</summary>
+  <p>_run_options_class: The class used to define run options for the model.
+_state_class: The class used to define the thermal state for the model.</p>
+</details>
+
+<details class="internal-runtime-state" open>
+  <summary>Internal Runtime State</summary>
+  <p>_cables: Per-run positioned cable copies aligned with the static environment layout.</p>
+</details>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2614,22 +2625,6 @@ ModelSoil.</p>
                 <em>required</em>
             </td>
           </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>scenario</code>
-            </td>
-            <td>
-                  <code><span title="pandera.typing.DataFrame">DataFrame</span>[<span title="cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaT">ScenarioSchemaT</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The scenario DataFrame describing load conditions over time.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
       </tbody>
     </table>
 
@@ -2642,14 +2637,7 @@ ModelSoil.</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>cable_thermal_model/model/model.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
@@ -2658,23 +2646,16 @@ ModelSoil.</p>
 <span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
-<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvT</span><span class="p">,</span> <span class="n">scenario</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">[</span><span class="n">ScenarioSchemaT</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the model with a static environment and a scenario DataFrame.</span>
+<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvT</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the model with a static environment.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env: The static environment containing cable circuits.</span>
-<span class="sd">        scenario: The scenario DataFrame describing load conditions over time.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="p">,</span> <span class="n">scenario</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="p">)</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_cables</span><span class="p">()</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">extra_solution_layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">solution_</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">temperature_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_cables</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -2688,95 +2669,39 @@ ModelSoil.</p>
 
 
 
+<div class="doc doc-object doc-attribute">
 
 
 
-<div class="doc doc-object doc-function">
+<h3 id="cable_thermal_model.model.model.Model.cables_in_environment" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">cables_in_environment</span>
 
 
-<h3 id="cable_thermal_model.model.model.Model.add_solution_location" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">add_solution_location</span>
-
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_solution_location</span><span class="p">(</span><span class="n">layer_name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="CableLayer (cable_thermal_model.model.cables.enum_classes_cable.CableLayer)" href="../cables/enum_classes_cable/#cable_thermal_model.model.cables.enum_classes_cable.CableLayer">CableLayer</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">cables_in_environment</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.cable.cable_circuit.CableKey)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.CableKey">CableKey</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable.cable_circuit.PosCable)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.PosCable">PosCable</a></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span></span><span class="p">]]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Select an additional solution layer.</p>
-<p>The chosen layer is included in the returned temperature results when calling <code>run()</code>.</p>
+        <p>Return per-run positioned cables, including any model-specific environment extensions.</p>
+<p>Concrete models return model-specific environment representations:
+- ModelAir: standard per-run cable copies.
+- ModelSoil: soil-extended per-run cable copies.</p>
+<p>The cable objects in this runtime mapping may have properties that differ
+from static/default values, depending on temperature state and scenario
+conditions applied during the run.</p>
 
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>layer_name</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="CableLayer (cable_thermal_model.model.cables.enum_classes_cable.CableLayer)" href="../cables/enum_classes_cable/#cable_thermal_model.model.cables.enum_classes_cable.CableLayer">CableLayer</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Cable layer to include in the returned results.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>cable_thermal_model/model/model.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_solution_location</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">layer_name</span><span class="p">:</span> <span class="n">CableLayer</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Select an additional solution layer.</span>
-
-<span class="sd">    The chosen layer is included in the returned temperature results when calling `run()`.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        layer_name: Cable layer to include in the returned results.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">CableLayer</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The layer argument must be of type CableLayer!&quot;</span><span class="p">)</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">extra_solution_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer_name</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
     </div>
 
 </div>
+
+
+
 
 
 

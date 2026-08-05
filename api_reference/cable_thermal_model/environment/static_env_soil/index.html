@@ -2577,7 +2577,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="StaticEnv (cable_thermal_model.environment.static_env.StaticEnv)" href="../static_env/#cable_thermal_model.environment.static_env.StaticEnv">StaticEnv</a>[<a class="autorefs autorefs-internal" title="CableSoil (cable_thermal_model.model.cables.cable_soil.CableSoil)" href="../../model/cables/cable_soil/#cable_thermal_model.model.cables.cable_soil.CableSoil">CableSoil</a>, <a class="autorefs autorefs-internal" title="CircuitInSoilFromCableInputSchema (cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableInputSchema)" href="../../cable/schemas/circuit_schemas/#cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableInputSchema">CircuitInSoilFromCableInputSchema</a>, <a class="autorefs autorefs-internal" title="CircuitInSoilFromCableConstructionalInputSchema (cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableConstructionalInputSchema)" href="../../cable/schemas/circuit_schemas/#cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableConstructionalInputSchema">CircuitInSoilFromCableConstructionalInputSchema</a>, <a class="autorefs autorefs-internal" title="CircuitInSoilFromCableIdInputSchema (cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableIdInputSchema)" href="../../cable/schemas/circuit_schemas/#cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableIdInputSchema">CircuitInSoilFromCableIdInputSchema</a>]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="StaticEnv (cable_thermal_model.environment.static_env.StaticEnv)" href="../static_env/#cable_thermal_model.environment.static_env.StaticEnv">StaticEnv</a>[<a class="autorefs autorefs-internal" title="CableSoil (cable_thermal_model.model.cables.cable_soil.CableSoil)" href="../../model/cables/cable_soil/#cable_thermal_model.model.cables.cable_soil.CableSoil">CableSoil</a>, <a class="autorefs autorefs-internal" title="CircuitInSoilFromCableInputSchema (cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableInputSchema)" href="../../cable/schemas/circuit_schemas/#cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableInputSchema">CircuitInSoilFromCableInputSchema</a>, <a class="autorefs autorefs-internal" title="CircuitInSoilFromCableConstructionalInputSchema (cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableConstructionalInputSchema)" href="../../cable/schemas/circuit_schemas/#cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableConstructionalInputSchema">CircuitInSoilFromCableConstructionalInputSchema</a>, <a class="autorefs autorefs-internal" title="CircuitInSoilFromCableIdInputSchema (cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableIdInputSchema)" href="../../cable/schemas/circuit_schemas/#cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableIdInputSchema">CircuitInSoilFromCableIdInputSchema</a>, <a class="autorefs autorefs-internal" title="CircuitInSoilFromCableSpecsInputSchema (cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableSpecsInputSchema)" href="../../cable/schemas/circuit_schemas/#cable_thermal_model.cable.schemas.circuit_schemas.CircuitInSoilFromCableSpecsInputSchema">CircuitInSoilFromCableSpecsInputSchema</a>]</code></p>
 
 
 
@@ -2592,10 +2592,10 @@
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>cable_thermal_model/environment/static_env_soil.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the StaticEnvSoil instance.&quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_measurement_point_registry</span> <span class="o">=</span> <span class="n">MeasurementPointRegistry</span><span class="p">()</span>
@@ -2719,9 +2719,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env_soil.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 86</span>
 <span class="normal"> 87</span>
 <span class="normal"> 88</span>
 <span class="normal"> 89</span>
@@ -2736,7 +2734,9 @@
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
-<span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_measurement_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ndigits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MeasurementPointKey</span><span class="p">:</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_measurement_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ndigits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MeasurementPointKey</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a measurement point to the environment.</span>
 
 <span class="sd">    Args:</span>

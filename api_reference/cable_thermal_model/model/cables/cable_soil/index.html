@@ -2720,7 +2720,7 @@
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_grid_counts</span> <span class="o">=</span> <span class="n">grid_counts</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_radii_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_inter_radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_inter_radii_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_surface_area_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_rho_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -3084,21 +3084,21 @@ the final grid point, at which a boundary condition is enforced.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/model/cables/cable_soil.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
-<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable_copy_without_soil</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable_copy_without_soil</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This method returns a new CableSoil object with the soil layer removed.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">CableLayer</span><span class="o">.</span><span class="n">SoilOne</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No soil layers detected!&quot;</span><span class="p">)</span>
@@ -3136,7 +3136,7 @@ the final grid point, at which a boundary condition is enforced.</p>
 
     <div class="doc doc-contents ">
 
-        <p>This method creates a copy of the current cable object this was run from, but with an extra added soil layer.</p>
+        <p>Create a fresh copy of the current cable object this was run from, but with an extra added soil layer.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -3270,17 +3270,7 @@ the added soil layers.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/model/cables/cable_soil.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">167</span>
 <span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
@@ -3341,7 +3331,17 @@ the added soil layers.
 <span class="normal">225</span>
 <span class="normal">226</span>
 <span class="normal">227</span>
-<span class="normal">228</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_cable_with_added_soil_layer</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">cable</span><span class="p">:</span> <span class="n">Cable</span><span class="p">,</span>
@@ -3350,7 +3350,7 @@ the added soil layers.
     <span class="n">soil_radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">logarithmic_soil_gridpoint_density</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method creates a copy of the current cable object this was run from, but with an extra added soil layer.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a fresh copy of the current cable object this was run from, but with an extra added soil layer.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cable (Cable):</span>
