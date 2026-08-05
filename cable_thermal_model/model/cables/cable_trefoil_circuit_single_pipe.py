@@ -125,7 +125,7 @@ class CableTrefoilCircuitSinglePipe(Cable):
         """
         # Calculate the thermal resistivity at the interstitial point between the grid points r_s and r_{s+1}
         inter_rho = self._calculate_inter_rhos(
-            self._radii_grid[s : s + 2], self._inter_radii[s : s + 1], self._rho_grid[s : s + 2]
+            self._radii_grid[s : s + 2], self._inter_radii_grid[s : s + 1], self._rho_grid[s : s + 2]
         )[0]
         return (
             2

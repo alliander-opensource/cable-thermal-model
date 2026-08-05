@@ -99,7 +99,7 @@ def test_calculate_loss_for_lead_sheath(TB880_case_10_fd_cable: CableSoil):
 def test_calculate_thermal_resistances(
     TB880_case_10_model: ModelSoil, TB880_case_10_steady_state_full_solution: np.ndarray
 ):
-    TB880_case_10_fd_cable = TB880_case_10_model.cables_with_soil[
+    TB880_case_10_fd_cable = TB880_case_10_model.cables_in_environment[
         CableKey(circuit_name="TB880_case_10", cable_position=CablePosition.Single)
     ].cable
     assert CableLayer.ConductorScreen not in TB880_case_10_fd_cable.layers
@@ -115,7 +115,5 @@ def test_calculate_thermal_resistances(
     t3 = analysis.get_thermal_resistance_cable_layer(layer=CableLayer.Sheath)
     assert np.isclose(t3, 0.0886807855, rtol=RELATIVE_TOLERANCE)
 
-    t4 = analysis.get_thermal_resistance_external_medium(
-        ambient_temperature=TB880_case_10_model.scenario["ambient_temperature"].iloc[-1]
-    )
+    t4 = analysis.get_thermal_resistance_external_medium(ambient_temperature=15.0)
     assert np.isclose(t4, 0.6850633170, rtol=RELATIVE_TOLERANCE)

@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import warnings
 from typing import TypeVar
 
 import pandas as pd
@@ -12,8 +11,8 @@ THERMAL_RESISTIVITY_COLUMN = "soil_thermal_resistivity"
 THERMAL_CAPACITY_COLUMN = "soil_thermal_capacity"
 
 
-# Output schema for scenario dataframe:
-class AbstractScenarioSchema(pa.DataFrameModel):
+# Input model for scenario dataframe:
+class AbstractScenarioModel(pa.DataFrameModel):
     """Base schema for scenario dataframe as used when creating a model.
 
     Structure:
@@ -23,93 +22,36 @@ class AbstractScenarioSchema(pa.DataFrameModel):
         - ambient_temperature (float): ambient temperature in degrees Celsius
     """
 
+    ambient_temperature: pa.typing.Series[float]
+
+    class Config:
+        """Configuration for the schema model."""
+
+        strict = False
+        coerce = True
+
     @pa.dataframe_check(error="Scenario index must be either datetime-like or timedelta-like..")
     @classmethod
     def check_datetime_index(cls, df: pd.DataFrame):
         """Ensure index is datetime-like or timedelta-like."""
         return pd.api.types.is_datetime64_any_dtype(df.index) or pd.api.types.is_timedelta64_dtype(df.index)
 
-    @pa.dataframe_check(error="Scenario columns must include load_<circuit_name> and ambient_temperature.")
-    @classmethod
-    def check_required_columns(cls, df: pd.DataFrame):
-        """Ensure shared required columns are present."""
-        req_columns = {"ambient_temperature"}
-        load_columns = [col for col in df.columns if col.startswith("load_")]
-        if not all(col in df.columns for col in req_columns) or len(load_columns) == 0:
-            raise ValueError(
-                f"Scenario dataframe must include columns: {req_columns} and at least one load_<circuit_name> column."
-            )
-        return True
-
-    @pa.dataframe_check(error="Load columns must be in the format load_<circuit_name> and contain numeric values.")
-    @classmethod
-    def check_load_columns(cls, df: pd.DataFrame):
-        """Ensure load columns are in the correct format and contain numeric values."""
-        load_columns = [col for col in df.columns if col.startswith("load_")]
-        for col in load_columns:
-            if not pd.api.types.is_numeric_dtype(df[col]):
-                raise ValueError(f"Load column {col} must contain numeric values.")
-        return True
-
-    @pa.dataframe_check(error="Ambient temperature must contain numeric values.")
-    @classmethod
-    def check_numeric_columns(cls, df: pd.DataFrame):
-        """Ensure ambient temperature column contains numeric values."""
-        numeric_columns = ["ambient_temperature"]
-        for col in numeric_columns:
-            if not pd.api.types.is_numeric_dtype(df[col]):
-                raise ValueError(f"Column {col} must contain numeric values.")
-        return True
-
     @pa.dataframe_check(error="Scenario dataframe must not contain missing values.")
     @classmethod
     def check_no_missing_values(cls, df: pd.DataFrame):
         """Ensure there are no missing values in the scenario dataframe."""
-        if any(df.isna().sum()):
-            raise ValueError("Scenario contains nan values.")
-        return True
+        return not df.isna().any().any()
 
 
-class ScenarioSchemaAir(AbstractScenarioSchema):
-    """Air scenario schema extending the base scenario schema.
-
-    This schema currently only warns for unused columns (thermal resistivity and capacity).
-    """
-
-    @pa.dataframe_check()
-    @classmethod
-    def check_no_soil_columns(cls, df: pd.DataFrame):
-        """Warn if soil-specific columns are present in the air scenario."""
-        for col in df.columns:
-            if col in [THERMAL_RESISTIVITY_COLUMN, THERMAL_CAPACITY_COLUMN]:
-                warnings.warn(
-                    message=f"Air scenario contains soil-specific column: {col}. This column will be ignored.",
-                    stacklevel=2,
-                )
-        return True
+class ScenarioModelAir(AbstractScenarioModel):
+    """Air scenario schema extending the base scenario schema."""
 
 
-class ScenarioSchemaSoil(AbstractScenarioSchema):
-    """Soil scenario schema extending the base scenario with required soil properties."""
+class ScenarioModelSoil(AbstractScenarioModel):
+    """Soil scenario schema extending the base scenario schema."""
 
-    @pa.dataframe_check(error="Scenario columns must include soil_thermal_resistivity and soil_thermal_capacity.")
-    @classmethod
-    def check_required_soil_columns(cls, df: pd.DataFrame):
-        """Ensure soil-specific required columns are present."""
-        req_columns = {"soil_thermal_resistivity", "soil_thermal_capacity"}
-        if not all(col in df.columns for col in req_columns):
-            raise ValueError(f"Scenario dataframe must include columns: {req_columns}.")
-        return True
-
-    @pa.dataframe_check(error="Soil thermal columns must contain numeric values.")
-    @classmethod
-    def check_numeric_soil_columns(cls, df: pd.DataFrame):
-        """Ensure soil thermal columns contain numeric values."""
-        numeric_columns = ["soil_thermal_resistivity", "soil_thermal_capacity"]
-        for col in numeric_columns:
-            if not pd.api.types.is_numeric_dtype(df[col]):
-                raise ValueError(f"Column {col} must contain numeric values.")
-        return True
+    soil_thermal_resistivity: pa.typing.Series[float]
+    soil_thermal_capacity: pa.typing.Series[float]
 
 
-ScenarioSchemaT = TypeVar("ScenarioSchemaT", bound=AbstractScenarioSchema)
+ScenarioModelT = TypeVar("ScenarioModelT", bound=AbstractScenarioModel)

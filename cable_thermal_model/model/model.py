@@ -15,59 +15,57 @@ from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel, StaticEnvT
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import ModelOutputSchema
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaT
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelT
 from cable_thermal_model.model.schemas.model_output_schemas import TemperatureResultSchema
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 
 
 class Model(
-    AbstractModel[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT],
-    Generic[ModelRunOptionsT, StateT, ScenarioSchemaT, StaticEnvT, CableT],
+    AbstractModel[ModelRunOptionsT, StateT, ScenarioModelT, StaticEnvT],
+    Generic[ModelRunOptionsT, StateT, ScenarioModelT, StaticEnvT, CableT],
 ):
     """Finite Difference Model for Thermal Cable Model.
 
     This class implements the finite difference orchestration shared by concrete models such as ModelAir and
     ModelSoil.
+
+    Class Attributes:
+        _run_options_class: The class used to define run options for the model.
+        _state_class: The class used to define the thermal state for the model.
+
+    Internal Runtime State:
+        _cables: Per-run positioned cable copies aligned with the static environment layout.
     """
 
     _run_options_class: type[ModelRunOptionsT]
     _state_class: type[StateT]
 
-    def __init__(self, static_env: StaticEnvT, scenario: DataFrame[ScenarioSchemaT]):
-        """Initialize the model with a static environment and a scenario DataFrame.
+    def __init__(self, static_env: StaticEnvT):
+        """Initialize the model with a static environment.
 
         Args:
             static_env: The static environment containing cable circuits.
-            scenario: The scenario DataFrame describing load conditions over time.
 
         """
-        super().__init__(static_env, scenario)
+        super().__init__(static_env)
 
-        self.cables: dict[CableKey, PosCable[CableT]] = {}
-        self._initialize_cables()
+        self._cables: dict[CableKey, PosCable[CableT]] = {}
 
-        self.extra_solution_layers: list[CableLayer] = []
-        self.solution_ = None
+    @property
+    @abstractmethod
+    def cables_in_environment(self) -> dict[CableKey, PosCable[CableT]]:
+        """Return per-run positioned cables, including any model-specific environment extensions.
 
-        self.temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]] = {}
+        Concrete models return model-specific environment representations:
+        - ModelAir: standard per-run cable copies.
+        - ModelSoil: soil-extended per-run cable copies.
 
-    def add_solution_location(
-        self,
-        layer_name: CableLayer,
-    ) -> None:
-        """Select an additional solution layer.
-
-        The chosen layer is included in the returned temperature results when calling `run()`.
-
-        Args:
-            layer_name: Cable layer to include in the returned results.
-
+        The cable objects in this runtime mapping may have properties that differ
+        from static/default values, depending on temperature state and scenario
+        conditions applied during the run.
         """
-        if not isinstance(layer_name, CableLayer):
-            raise TypeError("The layer argument must be of type CableLayer!")
-
-        self.extra_solution_layers.append(layer_name)
+        pass
 
     def _set_run_options(self, run_options: ModelRunOptionsT | dict | None) -> None:
         """Define run options for the model.
@@ -92,48 +90,44 @@ class Model(
             )
 
     def _initialize_cables(self):
-        """Copies the cables as defined in the static_env into the model and initializes cable-related indices.
+        """Initialize the per-run cable state from the static environment.
 
-        This method sets up:
-            - The cables dictionary from the static environment.
-            - Indices for conductor and screen layers for each cable, using the dict-based CableLayerProperties.
-            - A flag indicating whether any cable contains a pipe.
+        A deep copy is taken so the model can safely mutate cable objects during a run
+        without changing the static environment definition.
         """
-        self.cables = deepcopy(self.static_env.get_cables())
-        self.number_of_cables = len(self.cables)
-
-    @property
-    @abstractmethod
-    def _cables_for_heat_vectors(self) -> dict[CableKey, PosCable[CableT]]:
-        """Return the cables used to assemble finite difference vectors."""
-        pass
+        self._cables = deepcopy(self.static_env.get_cables())
 
     def _add_dielectric_loss_to_heating_vectors(self) -> None:
         """Add dielectric loss to the heating vectors of all cables if not neglected."""
         if not self.run_options.neglect_dielectric_loss:
-            for pos_cable in self._cables_for_heat_vectors.values():
+            for pos_cable in self.cables_in_environment.values():
                 pos_cable.cable.add_dielectric_loss_to_heating_vector()
 
     def _initialize_state(
         self,
+        ambient_temperature: float,
         initial_state: StateT | None = None,
     ) -> StateT:
         """Initializes the thermal state for the model, either from a provided initial state or by creating a new state.
 
         Args:
+            ambient_temperature: Ambient temperature used to initialize the model state.
             initial_state: An optional initial state to use for the thermal state.
 
         Returns:
             StateT: The initialized thermal state for the model.
         """
-        if initial_state is not None:
-            return initial_state.model_copy(deep=True)
+        if initial_state is None:
+            return self._build_initial_state(ambient_temperature=ambient_temperature)
 
-        return self._build_initial_state()
+        return initial_state.model_copy(deep=True)
 
     @abstractmethod
-    def _build_initial_state(self) -> StateT:
+    def _build_initial_state(self, ambient_temperature: float) -> StateT:
         """Builds the initial thermal state for the model.
+
+        Args:
+            ambient_temperature: The ambient temperature to initialize the model state.
 
         Returns:
             StateT: The initial thermal state for the model.
@@ -163,35 +157,53 @@ class Model(
     def _initialize_temperature_result(
         self,
         state: StateT,
-    ) -> None:
+        n_scenario_rows: int,
+    ) -> dict[CableKey, dict[CableLayer, np.ndarray]]:
         """Initializes a nested dictionary to store temperature results for each cable and each relevant layer.
 
         Args:
             state (StateT):
                 The initial thermal state for each cable, used to initialize the results.
+            n_scenario_rows: Number of time steps in the active scenario.
 
         """
-        self._initialize_empty_temperature_result()
+        temperature_result = self._initialize_empty_temperature_result(n_scenario_rows=n_scenario_rows)
 
         # Add initial temperature state to the results
         self._update_temperature_result(
+            temperature_result=temperature_result,
             state=state,
             step_idx=0,
         )
 
-        return
+        return temperature_result
 
-    def _initialize_empty_temperature_result(self) -> None:
+    def _initialize_empty_temperature_result(
+        self,
+        n_scenario_rows: int,
+    ) -> dict[CableKey, dict[CableLayer, np.ndarray]]:
         """Initializes an empty nested dictionary.
 
         Dictionary is used to store temperature results for each cable and each relevant layer.
         """
-        self.temperature_result = {}
-        for cable_key, _ in self.cables.items():
-            self.temperature_result[cable_key] = {}
-            for layer in [CableLayer.Conductor, CableLayer.Sheath, CableLayer.Pipe] + self.extra_solution_layers:
-                if layer in self.cables[cable_key].cable.layers:
-                    self.temperature_result[cable_key][layer] = np.full(self.n_scenario_rows, np.nan, dtype=float)
+        temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]] = {}
+        for cable_key, _ in self._cables.items():
+            temperature_result[cable_key] = {}
+            for layer in (
+                CableLayer.Conductor,
+                CableLayer.Sheath,
+                CableLayer.Pipe,
+                *self.run_options.extra_solution_layers,
+            ):
+                if layer in self._cables[cable_key].cable.layers:
+                    temperature_result[cable_key][layer] = np.full(n_scenario_rows, np.nan, dtype=float)
+
+        return temperature_result
+
+    def _prepare_for_run(self, first_scenario_row: pd.Series) -> None:
+        """Reset mutable cable state before executing a scenario."""
+        _ = first_scenario_row
+        self._initialize_cables()
 
     def _get_circuit_loads_from_scenario_row(self, scenario_row) -> dict[str, float]:
         """Extract circuit loads from a scenario row produced by iterrows()."""
@@ -202,26 +214,24 @@ class Model(
         self,
         temperature_state: dict[CableKey, np.ndarray],
         scenario_row: pd.Series,
-        elapsed_seconds: float,
     ) -> None:
         """Update cables and refresh matrices in one step."""
         pass
 
-    def _update_heat_vectors(
+    def _update_heating_vectors(
         self,
         temperature_state: dict[CableKey, np.ndarray],
         circuit_loads: dict[str, float],
     ) -> None:
-        """Updates the vectors (right-hand side) of the linear system for each cable at a given timestep.
+        """Updates the heating vectors (right-hand side) of the linear system for each cable at a given timestep.
 
         Args:
             temperature_state (dict[CableKey, np.ndarray]):
                 The temperature state for each cable at the current timestep.
             circuit_loads (dict[str, float]):
                 The load for each circuit at the current timestep.
-
         """
-        for cable_key, pos_cable in self._cables_for_heat_vectors.items():
+        for cable_key, pos_cable in self.cables_in_environment.items():
             circuit_name = cable_key.circuit_name
             conductor_load = circuit_loads[circuit_name]
 
@@ -270,6 +280,7 @@ class Model(
 
     def _update_temperature_result(
         self,
+        temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
         state: StateT,
         step_idx: int,
     ) -> None:
@@ -281,46 +292,47 @@ class Model(
         (center or inside for hollow conductors).
 
         Args:
+            temperature_result: Accumulated temperature arrays for all cables and requested layers.
             state (StateT): Current state of the model.
             step_idx (int): The index of the current timestep in the scenario.
 
         """
-        for cable_key, pos_cable in self.cables.items():
+        for cable_key, pos_cable in self._cables.items():
             cable = pos_cable.cable
             cable_temperatures = state.temperature[cable_key]
 
             conductor_index_inner = cable.get_layer_indices_for_layer(CableLayer.Conductor)[0]
             sheath_index_outer = cable.get_layer_indices_for_layer(CableLayer.Sheath)[-1]
 
-            self.temperature_result[cable_key][CableLayer.Conductor][step_idx] = cable_temperatures[
-                conductor_index_inner
-            ]
-            self.temperature_result[cable_key][CableLayer.Sheath][step_idx] = cable_temperatures[sheath_index_outer]
+            temperature_result[cable_key][CableLayer.Conductor][step_idx] = cable_temperatures[conductor_index_inner]
+            temperature_result[cable_key][CableLayer.Sheath][step_idx] = cable_temperatures[sheath_index_outer]
 
-            for extra_solution_layer in self.extra_solution_layers:
+            for extra_solution_layer in self.run_options.extra_solution_layers:
                 if extra_solution_layer in cable.layers:
                     layer_start_index, layer_end_index = cable.get_layer_indices_for_layer(extra_solution_layer)
                     layer_index_center = int((layer_start_index + layer_end_index) / 2)
 
-                    self.temperature_result[cable_key][extra_solution_layer][step_idx] = cable_temperatures[
+                    temperature_result[cable_key][extra_solution_layer][step_idx] = cable_temperatures[
                         layer_index_center
                     ]
 
             if cable.layer_metrics.pipe is not None:
                 # Fetch temperature of pipe sheath
                 pipe_index_outer = cable.get_layer_indices_for_layer(CableLayer.Pipe)[-1]
-                self.temperature_result[cable_key][CableLayer.Pipe][step_idx] = cable_temperatures[pipe_index_outer]
+                temperature_result[cable_key][CableLayer.Pipe][step_idx] = cable_temperatures[pipe_index_outer]
 
         return
 
     def _build_temperature_result_dataframe(
         self,
+        temperature_result: dict[CableKey, dict[CableLayer, np.ndarray]],
+        scenario_index: pd.Index,
     ) -> DataFrame[TemperatureResultSchema]:
         """Builds a DataFrame from the temperature results for each cable and layer.
 
         Args:
-            temperature_result (dict[CableKey, dict[CableLayer, np.ndarray]]):
-                A nested dictionary containing temperature results for each cable and layer.
+            temperature_result: A nested dictionary containing temperature results for each cable and layer.
+            scenario_index: Index of the scenario used for the current run.
 
         Returns:
             DataFrame[TemperatureResultSchema]:
@@ -329,9 +341,9 @@ class Model(
         """
         temperature_result_dfs = {
             (cable_key.circuit_name, cable_key.cable_position): pd.DataFrame(
-                self.temperature_result[cable_key], index=self.scenario.index
+                temperature_result[cable_key], index=scenario_index
             )
-            for cable_key in self.temperature_result
+            for cable_key in temperature_result
         }
 
         combined_temperature_result_df = pd.concat(
@@ -344,34 +356,43 @@ class Model(
 
     def _compute_temperature_solution(
         self,
+        scenario: DataFrame[ScenarioModelT],
         initial_state: StateT | None = None,
     ) -> ModelOutputSchema[StateT]:
-        """Compute the temperature solution over the entire scenario.
+        """Run one transient thermal simulation over the provided scenario.
+
+        This method coordinates run setup, state initialization, and time-step updates.
+        It returns both the temperature trajectory (for analysis) and the final state
+        (for optional warm-starting of a subsequent run).
 
         Args:
-            initial_state: Optional previously computed state to initialize the simulation.
+            scenario: Time-indexed operating conditions and loads to simulate.
+            initial_state: Optional warm-start state from a previous run.
 
         Returns:
-            ModelOutputSchema[StateT]: The computed temperature solution and final thermal state.
+            ModelOutputSchema[StateT]: The temperature time series and the final
+                thermal state after the last scenario step.
         """
+        scenario_rows = scenario.iterrows()
+        _, first_scenario_row = next(scenario_rows)
+
+        self._prepare_for_run(first_scenario_row=first_scenario_row)
         self._add_dielectric_loss_to_heating_vectors()
 
-        state = self._initialize_state(initial_state=initial_state)
-        self._initialize_temperature_result(state=state)
+        initial_ambient_temperature = first_scenario_row["ambient_temperature"]
+        state = self._initialize_state(ambient_temperature=initial_ambient_temperature, initial_state=initial_state)
+        temperature_result = self._initialize_temperature_result(state=state, n_scenario_rows=len(scenario.index))
 
-        time_grid = (self.scenario.index - self.scenario.index[0]).total_seconds().to_numpy()
-        scenario_rows = self.scenario.iloc[1:].iterrows()
-
+        time_grid = (scenario.index - scenario.index[0]).total_seconds().to_numpy()
         for step_idx, (_, scenario_row) in enumerate(scenario_rows, start=1):
             time_step = time_grid[step_idx] - time_grid[step_idx - 1]
 
             self._update_thermal_properties_if_needed(
                 temperature_state=state.temperature,
                 scenario_row=scenario_row,
-                elapsed_seconds=time_grid[step_idx],
             )
 
-            self._update_heat_vectors(
+            self._update_heating_vectors(
                 temperature_state=state.temperature,
                 circuit_loads=self._get_circuit_loads_from_scenario_row(scenario_row),
             )
@@ -383,10 +404,14 @@ class Model(
             )
 
             self._update_temperature_result(
+                temperature_result=temperature_result,
                 state=state,
                 step_idx=step_idx,
             )
 
-        temperature_result_df = self._build_temperature_result_dataframe()
+        temperature_result_df = self._build_temperature_result_dataframe(
+            temperature_result=temperature_result,
+            scenario_index=scenario.index,
+        )
 
         return ModelOutputSchema(result=temperature_result_df, state=state)

@@ -7,7 +7,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-from pandera.typing import DataFrame
 
 from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.cable_circuit import (
@@ -51,7 +50,6 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.model_soil import ModelSoil
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioSchemaSoil
 
 # Models
 
@@ -59,52 +57,42 @@ _DEFAULT_TEST_CABLE = "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"
 
 
 @pytest.fixture(scope="function")
-def model(single_circuit_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioSchemaSoil]) -> Model:
-    return ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_constant)
+def model(single_circuit_env: StaticEnvSoil) -> Model:
+    return ModelFactory.create_model(static_env=single_circuit_env)
 
 
 @pytest.fixture(scope="function")
-def model_single_config(  # type: ignore
-    single_circuit_single_config_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioSchemaSoil]
-) -> Model:
-    return ModelFactory.create_model(static_env=single_circuit_single_config_env, scenario=scenario_constant)
+def model_single_config(single_circuit_single_config_env: StaticEnvSoil) -> ModelSoil:
+    return ModelFactory.create_model(static_env=single_circuit_single_config_env)
 
 
 @pytest.fixture(scope="function")
 def model_multiple_configs(
-    single_circuit_multiple_configs_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioSchemaSoil]
+    single_circuit_multiple_configs_env: StaticEnvSoil,
 ) -> Model:
-    return ModelFactory.create_model(static_env=single_circuit_multiple_configs_env, scenario=scenario_constant)
+    return ModelFactory.create_model(static_env=single_circuit_multiple_configs_env)
 
 
 @pytest.fixture(scope="function")
-def model_with_pipe(
-    single_circuit_with_pipe_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioSchemaSoil]
-) -> Model:
-    return ModelFactory.create_model(static_env=single_circuit_with_pipe_env, scenario=scenario_constant)
+def model_with_pipe(single_circuit_with_pipe_env: StaticEnvSoil) -> Model:
+    return ModelFactory.create_model(static_env=single_circuit_with_pipe_env)
 
 
 @pytest.fixture(scope="function")
-def model_dynamic_soil(
-    single_circuit_env: StaticEnvSoil, scenario_dynamic_soil_prop: DataFrame[ScenarioSchemaSoil]
-) -> Model:
-    return ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_dynamic_soil_prop)
+def model_dynamic_soil(single_circuit_env: StaticEnvSoil) -> Model:
+    return ModelFactory.create_model(static_env=single_circuit_env)
 
 
 @pytest.fixture(scope="function")
 def model_with_measurement_points(
-    single_circuit_env: StaticEnvSoil, scenario_constant: DataFrame[ScenarioSchemaSoil]
+    single_circuit_env: StaticEnvSoil,
 ) -> tuple[Model, MeasurementPointKey, MeasurementPointKey]:
     """Create a model with measurement points added to the environment."""
     # Add measurement points to the environment
     key1 = single_circuit_env.add_measurement_point(x=0.1, y=-1.0)
     key2 = single_circuit_env.add_measurement_point(x=0.3, y=-1.0)
 
-    return (
-        ModelFactory.create_model(static_env=single_circuit_env, scenario=scenario_constant),
-        key1,
-        key2,
-    )
+    return (ModelFactory.create_model(static_env=single_circuit_env), key1, key2)
 
 
 # Environments
@@ -388,7 +376,7 @@ def circuit_builder():
 
 # Data
 @pytest.fixture(scope="module")
-def max_absolute_temperature_error():
+def max_absolute_temperature_error() -> float:
     """Return the maximum absolute temperature error, which is used in tests that calculate cable temperatures.
 
     The B5901 states that temperatures should be accurate within 2.0 degrees Celsius with and without pipes.
@@ -481,68 +469,61 @@ def scenario_dynamic(load_series_dynamic, frequency) -> pd.DataFrame:
 @pytest.fixture(scope="function")
 def scenario_dynamic_soil_prop(
     load_series_constant, dynamic_soil_resistivitiy_series, dynamic_soil_capacity_series
-) -> DataFrame[ScenarioSchemaSoil]:
-    scenario_dynamic = pd.DataFrame(
+) -> pd.DataFrame:
+    return pd.DataFrame(
         data={
             "load_c1": load_series_constant,
-            "ambient_temperature": 10,
+            "ambient_temperature": 10.0,
             "soil_thermal_capacity": dynamic_soil_capacity_series,
             "soil_thermal_resistivity": dynamic_soil_resistivitiy_series,
         },
         index=load_series_constant.index,
     )
-    return ScenarioSchemaSoil.validate(scenario_dynamic)
 
 
 @pytest.fixture(scope="function")
-def scenario_constant(load_series_constant) -> DataFrame[ScenarioSchemaSoil]:
-    return ScenarioSchemaSoil.validate(
-        pd.DataFrame(
-            data={
-                "load_c1": load_series_constant,
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 0.75,
-                "soil_thermal_capacity": 2e6,
-            },
-            index=load_series_constant.index,
-        )
+def scenario_constant(load_series_constant) -> pd.DataFrame:
+    return pd.DataFrame(
+        data={
+            "load_c1": load_series_constant,
+            "ambient_temperature": 10.0,
+            "soil_thermal_resistivity": 0.75,
+            "soil_thermal_capacity": 2e6,
+        },
+        index=load_series_constant.index,
     )
 
 
 @pytest.fixture(scope="function")
-def scenario_constant_multi(load_series_constant) -> DataFrame[ScenarioSchemaSoil]:
-    return ScenarioSchemaSoil.validate(
-        pd.DataFrame(
-            data={
-                "load_c0": load_series_constant,
-                "load_c1": load_series_constant,
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 0.75,
-                "soil_thermal_capacity": 2e6,
-            },
-            index=load_series_constant.index,
-        )
+def scenario_constant_multi(load_series_constant) -> pd.DataFrame:
+    return pd.DataFrame(
+        data={
+            "load_c0": load_series_constant,
+            "load_c1": load_series_constant,
+            "ambient_temperature": 10.0,
+            "soil_thermal_resistivity": 0.75,
+            "soil_thermal_capacity": 2e6,
+        },
+        index=load_series_constant.index,
     )
 
 
 @pytest.fixture(scope="function")
-def scenario_steady_state() -> DataFrame[ScenarioSchemaSoil]:
-    return ScenarioSchemaSoil.validate(
-        pd.DataFrame(
-            data={
-                "load_c1": 0,
-                "ambient_temperature": 10,
-                "soil_thermal_resistivity": 0.75,
-                "soil_thermal_capacity": 2e6,
-            },
-            index=pd.timedelta_range(start="0D", end="30000D", periods=5),
-        )
+def scenario_steady_state() -> pd.DataFrame:
+    return pd.DataFrame(
+        data={
+            "load_c1": 0,
+            "ambient_temperature": 10.0,
+            "soil_thermal_resistivity": 0.75,
+            "soil_thermal_capacity": 2e6,
+        },
+        index=pd.timedelta_range(start="0D", end="30000D", periods=5),
     )
 
 
 @pytest.fixture(scope="function")
-def b5901_scenario_steady_state(scenario_steady_state: DataFrame[ScenarioSchemaSoil]) -> DataFrame[ScenarioSchemaSoil]:
-    scenario_steady_state["ambient_temperature"] = 15
+def b5901_scenario_steady_state(scenario_steady_state: pd.DataFrame) -> pd.DataFrame:
+    scenario_steady_state["ambient_temperature"] = 15.0
     return scenario_steady_state
 
 
@@ -554,7 +535,7 @@ def scenario_non_uniform() -> pd.DataFrame:
     return pd.DataFrame(
         data={
             "load_c1": 300,
-            "ambient_temperature": 10,
+            "ambient_temperature": 10.0,
             "soil_thermal_resistivity": 0.75,
             "soil_thermal_capacity": 2e6,
         },
@@ -603,7 +584,6 @@ def TB880_case_10_fd_cable() -> CableSoil:
 
 @pytest.fixture(scope="module")
 def TB880_case_10_model(TB880_case_10_fd_cable: CableSoil) -> ModelSoil:
-    I_rating = 165.7415608133
 
     static_env = StaticEnvSoil()
     static_env.add_circuit_from_cable(
@@ -617,21 +597,22 @@ def TB880_case_10_model(TB880_case_10_fd_cable: CableSoil) -> ModelSoil:
         )
     )
 
+    return ModelSoil(static_env)
+
+
+@pytest.fixture(scope="module")
+def TB880_case_10_steady_state_full_solution(TB880_case_10_model: ModelSoil) -> np.ndarray:
+    I_rating = 165.7415608133
     scenario = pd.DataFrame(
         data={
             "load_TB880_case_10": I_rating,
-            "ambient_temperature": 15,
+            "ambient_temperature": 15.0,
             "soil_thermal_resistivity": 1.0,
             "soil_thermal_capacity": 2e6,
         },
         index=pd.timedelta_range(start="0D", end="30000D", periods=100),
     )
-    return ModelSoil(static_env, ScenarioSchemaSoil.validate(scenario))
-
-
-@pytest.fixture(scope="module")
-def TB880_case_10_steady_state_full_solution(TB880_case_10_model: ModelSoil) -> np.ndarray:
-    return TB880_case_10_model.run().state.temperature[
+    return TB880_case_10_model.run(scenario=scenario).state.temperature[
         CableKey(circuit_name="TB880_case_10", cable_position=CablePosition.Single)
     ]
 
