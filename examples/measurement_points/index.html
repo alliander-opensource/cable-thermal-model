@@ -2012,10 +2012,10 @@ Measurement Point Key 2: ('measurement_point', 'x=0.300m', 'y=-1.000m')
 <span class="p">)</span>
 
 <span class="c1"># We set the load of the circuit to oscillate between 50 and 350A with a period of 24 hours.</span>
-<span class="n">scenario</span><span class="p">[</span><span class="s2">"load_circuit_1"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span> <span class="o">+</span> <span class="mi">150</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">scenario</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">hour</span> <span class="o">/</span> <span class="mi">24</span><span class="p">)</span>
-<span class="n">scenario</span><span class="p">[</span><span class="s2">"ambient_temperature"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># Ambient temperature is assumed to be constant at 15 degrees Celsius.</span>
+<span class="n">scenario</span><span class="p">[</span><span class="s2">"load_circuit_1"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">200.0</span> <span class="o">+</span> <span class="mf">150.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">scenario</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">hour</span> <span class="o">/</span> <span class="mi">24</span><span class="p">)</span>
+<span class="n">scenario</span><span class="p">[</span><span class="s2">"ambient_temperature"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">15.0</span>  <span class="c1"># Ambient temperature is assumed to be constant at 15 degrees Celsius.</span>
 <span class="n">scenario</span><span class="p">[</span><span class="s2">"soil_thermal_resistivity"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.75</span>  <span class="c1"># Soil thermal resistivity is assumed to be constant at 0.75 mK/W.</span>
-<span class="n">scenario</span><span class="p">[</span><span class="s2">"soil_thermal_capacity"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2e6</span>  <span class="c1"># Soil thermal capacity is assumed to be constant at 2e6 J/(m³K).</span>
+<span class="n">scenario</span><span class="p">[</span><span class="s2">"soil_thermal_capacity"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0e6</span>  <span class="c1"># Soil thermal capacity is assumed to be constant at 2e6 J/(m³K).</span>
 
 <span class="n">scenario</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
@@ -2028,10 +2028,10 @@ scenario = pd.DataFrame(
 )
 
 # We set the load of the circuit to oscillate between 50 and 350A with a period of 24 hours.
-scenario["load_circuit_1"] = 200 + 150 * np.sin(2 * np.pi * scenario.index.hour / 24)
-scenario["ambient_temperature"] = 15  # Ambient temperature is assumed to be constant at 15 degrees Celsius.
+scenario["load_circuit_1"] = 200.0 + 150.0 * np.sin(2 * np.pi * scenario.index.hour / 24)
+scenario["ambient_temperature"] = 15.0  # Ambient temperature is assumed to be constant at 15 degrees Celsius.
 scenario["soil_thermal_resistivity"] = 0.75  # Soil thermal resistivity is assumed to be constant at 0.75 mK/W.
-scenario["soil_thermal_capacity"] = 2e6  # Soil thermal capacity is assumed to be constant at 2e6 J/(m³K).
+scenario["soil_thermal_capacity"] = 2.0e6  # Soil thermal capacity is assumed to be constant at 2e6 J/(m³K).
 
 scenario.head()</div>
 </div>
@@ -2073,35 +2073,35 @@ scenario.head()</div>
 <tr>
 <th>2026-01-01 00:00:00</th>
 <td>200.000000</td>
-<td>15</td>
+<td>15.0</td>
 <td>0.75</td>
 <td>2000000.0</td>
 </tr>
 <tr>
 <th>2026-01-01 01:00:00</th>
 <td>238.822857</td>
-<td>15</td>
+<td>15.0</td>
 <td>0.75</td>
 <td>2000000.0</td>
 </tr>
 <tr>
 <th>2026-01-01 02:00:00</th>
 <td>275.000000</td>
-<td>15</td>
+<td>15.0</td>
 <td>0.75</td>
 <td>2000000.0</td>
 </tr>
 <tr>
 <th>2026-01-01 03:00:00</th>
 <td>306.066017</td>
-<td>15</td>
+<td>15.0</td>
 <td>0.75</td>
 <td>2000000.0</td>
 </tr>
 <tr>
 <th>2026-01-01 04:00:00</th>
 <td>329.903811</td>
-<td>15</td>
+<td>15.0</td>
 <td>0.75</td>
 <td>2000000.0</td>
 </tr>
@@ -2145,16 +2145,16 @@ This includes cable temperatures (e.g., conductor and sheath) as well as tempera
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ModelFactory</span><span class="o">.</span><span class="n">create_model</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">,</span> <span class="n">scenario</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ModelFactory</span><span class="o">.</span><span class="n">create_model</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">)</span>
 
-<span class="n">solution</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">solution</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">scenario</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
 <span class="n">temperature_result</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">result</span>
 
 <span class="n">temperature_result</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-4">model = ModelFactory.create_model(static_env=static_env, scenario=scenario)
+<div class="clipboard-copy-txt" id="cell-4">model = ModelFactory.create_model(static_env=static_env)
 
-solution = model.run()
+solution = model.run(scenario=scenario)
 temperature_result = solution.result
 
 temperature_result.head()</div>
@@ -2287,7 +2287,7 @@ temperature_result.head()</div>
     <span class="n">temperature_result</span><span class="p">[</span><span class="s2">"circuit_1"</span><span class="p">][</span><span class="n">CablePosition</span><span class="o">.</span><span class="n">Single</span><span class="p">][</span><span class="n">CableLayer</span><span class="o">.</span><span class="n">Sheath</span><span class="p">],</span>
     <span class="n">temperature_result</span><span class="p">[</span><span class="n">measurement_point_key1</span><span class="p">],</span>
     <span class="n">temperature_result</span><span class="p">[</span><span class="n">measurement_point_key2</span><span class="p">],</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">scenario</span><span class="p">[</span><span class="s2">"ambient_temperature"</span><span class="p">],</span>
+    <span class="n">scenario</span><span class="p">[</span><span class="s2">"ambient_temperature"</span><span class="p">],</span>
 <span class="p">]</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"Conductor"</span><span class="p">,</span>
@@ -2315,7 +2315,7 @@ series = [
     temperature_result["circuit_1"][CablePosition.Single][CableLayer.Sheath],
     temperature_result[measurement_point_key1],
     temperature_result[measurement_point_key2],
-    model.scenario["ambient_temperature"],
+    scenario["ambient_temperature"],
 ]
 labels = [
     "Conductor",

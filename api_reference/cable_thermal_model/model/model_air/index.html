@@ -1535,6 +1535,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="ModelAir">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cable_thermal_model.model.model_air.ModelAir.cables_in_environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cables_in_environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2479,6 +2496,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="ModelAir">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cable_thermal_model.model.model_air.ModelAir.cables_in_environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cables_in_environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2538,20 +2572,18 @@
 
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ModelAir</span><span class="p">(</span><span class="n">static_env</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="StaticEnvAir (cable_thermal_model.environment.static_env_air.StaticEnvAir)" href="../../environment/static_env_air/#cable_thermal_model.environment.static_env_air.StaticEnvAir">StaticEnvAir</a></span><span class="p">,</span> <span class="n">scenario</span><span class="p">:</span> <span class="n"><span title="pandera.typing.DataFrame">DataFrame</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="ScenarioSchemaAir (cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaAir)" href="../schemas/model_input_schemas/#cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaAir">ScenarioSchemaAir</a></span><span class="p">])</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">ModelAir</span><span class="p">(</span><span class="n">static_env</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="StaticEnvAir (cable_thermal_model.environment.static_env_air.StaticEnvAir)" href="../../environment/static_env_air/#cable_thermal_model.environment.static_env_air.StaticEnvAir">StaticEnvAir</a></span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="Model (cable_thermal_model.model.model.Model)" href="../model/#cable_thermal_model.model.model.Model">Model</a>[<a class="autorefs autorefs-internal" title="ModelAirRunOptions (cable_thermal_model.model.schemas.run_options.ModelAirRunOptions)" href="../schemas/run_options/#cable_thermal_model.model.schemas.run_options.ModelAirRunOptions">ModelAirRunOptions</a>, <a class="autorefs autorefs-internal" title="StateAir (cable_thermal_model.model.schemas.StateAir)" href="../schemas/#cable_thermal_model.model.schemas.StateAir">StateAir</a>, <a class="autorefs autorefs-internal" title="ScenarioSchemaAir (cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaAir)" href="../schemas/model_input_schemas/#cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaAir">ScenarioSchemaAir</a>, <a class="autorefs autorefs-internal" title="StaticEnvAir (cable_thermal_model.environment.static_env_air.StaticEnvAir)" href="../../environment/static_env_air/#cable_thermal_model.environment.static_env_air.StaticEnvAir">StaticEnvAir</a>, <a class="autorefs autorefs-internal" title="CableAir (cable_thermal_model.model.cables.cable_air.CableAir)" href="../cables/cable_air/#cable_thermal_model.model.cables.cable_air.CableAir">CableAir</a>]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="Model (cable_thermal_model.model.model.Model)" href="../model/#cable_thermal_model.model.model.Model">Model</a>[<a class="autorefs autorefs-internal" title="ModelAirRunOptions (cable_thermal_model.model.schemas.run_options.ModelAirRunOptions)" href="../schemas/run_options/#cable_thermal_model.model.schemas.run_options.ModelAirRunOptions">ModelAirRunOptions</a>, <a class="autorefs autorefs-internal" title="StateAir (cable_thermal_model.model.schemas.StateAir)" href="../schemas/#cable_thermal_model.model.schemas.StateAir">StateAir</a>, <a class="autorefs autorefs-internal" title="ScenarioModelAir (cable_thermal_model.model.schemas.model_input_schemas.ScenarioModelAir)" href="../schemas/model_input_schemas/#cable_thermal_model.model.schemas.model_input_schemas.ScenarioModelAir">ScenarioModelAir</a>, <a class="autorefs autorefs-internal" title="StaticEnvAir (cable_thermal_model.environment.static_env_air.StaticEnvAir)" href="../../environment/static_env_air/#cable_thermal_model.environment.static_env_air.StaticEnvAir">StaticEnvAir</a>, <a class="autorefs autorefs-internal" title="CableAir (cable_thermal_model.model.cables.cable_air.CableAir)" href="../cables/cable_air/#cable_thermal_model.model.cables.cable_air.CableAir">CableAir</a>]</code></p>
 
 
 
         <p>ModelAir computes cable temperatures for installations in air using the finite difference method.</p>
-<p>In most cases the model is instantiated with a StaticEnvAir and a valid scenario, then executed via <code>run()</code>.</p>
+<p>In most cases the model is instantiated with a StaticEnvAir and executed with a scenario via <code>run()</code>.</p>
 
-        <p>Note: the scenario must contain one <code>load_&lt;circuit_name&gt;</code> column per circuit and an
-<code>ambient_temperature</code> column.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2581,23 +2613,6 @@
                 <em>required</em>
             </td>
           </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>scenario</code>
-            </td>
-            <td>
-                  <code><span title="pandera.typing.DataFrame">DataFrame</span>[<a class="autorefs autorefs-internal" title="ScenarioSchemaAir (cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaAir)" href="../schemas/model_input_schemas/#cable_thermal_model.model.schemas.model_input_schemas.ScenarioSchemaAir">ScenarioSchemaAir</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A pandera DataFrame[ScenarioSchemaAir] containing the dynamic load data and ambient
-temperature.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
       </tbody>
     </table>
 
@@ -2610,7 +2625,8 @@ temperature.</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>cable_thermal_model/model/model_air.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
+<span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
@@ -2623,22 +2639,11 @@ temperature.</p>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvAir</span><span class="p">,</span> <span class="n">scenario</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">[</span><span class="n">ScenarioSchemaAir</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the ModelAir instance with a static environment and scenario.</span>
-
-<span class="sd">    Note: the scenario must contain one `load_&lt;circuit_name&gt;` column per circuit and an</span>
-<span class="sd">    `ambient_temperature` column.</span>
+<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvAir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the ModelAir instance with a static environment.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env: A StaticEnvAir instance containing the circuit configuration and cable properties.</span>
-<span class="sd">        scenario: A pandera DataFrame[ScenarioSchemaAir] containing the dynamic load data and ambient</span>
-<span class="sd">            temperature.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">static_env</span><span class="p">,</span> <span class="n">StaticEnvAir</span><span class="p">):</span>
@@ -2648,7 +2653,7 @@ temperature.</p>
             <span class="s2">&quot;ModelSoil instead.&quot;</span>
         <span class="p">)</span>
 
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">,</span> <span class="n">scenario</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -2661,6 +2666,32 @@ temperature.</p>
 
 
 
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="cable_thermal_model.model.model_air.ModelAir.cables_in_environment" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">cables_in_environment</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">cables_in_environment</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.cable.cable_circuit.CableKey)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.CableKey">CableKey</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable.cable_circuit.PosCable)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.PosCable">PosCable</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CableAir (cable_thermal_model.model.cables.cable_air.CableAir)" href="../cables/cable_air/#cable_thermal_model.model.cables.cable_air.CableAir">CableAir</a></span><span class="p">]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return per-run cable instances for the model.</p>
+<p>Runtime cable properties can differ from their static/default values.
+For cables in air, this mainly concerns temperature-dependent pipe-fill resistivity.</p>
+
+    </div>
+
+</div>
 
 
 

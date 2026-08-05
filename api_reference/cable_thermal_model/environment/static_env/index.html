@@ -1065,17 +1065,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cable_thermal_model.environment.static_env.StaticEnv.compute_hash" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        compute_hash
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#cable_thermal_model.environment.static_env.StaticEnv.get_cables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1102,6 +1091,17 @@
     <span class="md-ellipsis">
       
         add_circuit_from_cable_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cable_thermal_model.environment.static_env.StaticEnv.add_circuit_from_cable_specs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_circuit_from_cable_specs
       
     </span>
   </a>
@@ -2577,17 +2577,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cable_thermal_model.environment.static_env.StaticEnv.compute_hash" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        compute_hash
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#cable_thermal_model.environment.static_env.StaticEnv.get_cables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2614,6 +2603,17 @@
     <span class="md-ellipsis">
       
         add_circuit_from_cable_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cable_thermal_model.environment.static_env.StaticEnv.add_circuit_from_cable_specs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add_circuit_from_cable_specs
       
     </span>
   </a>
@@ -2731,7 +2731,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="typing.Generic">Generic</span>[<span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableInputSchemaT">CircuitFromCableInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableConstructionalInputSchemaT">CircuitFromCableConstructionalInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableIdInputSchemaT">CircuitFromCableIdInputSchemaT</span>]</code></p>
+              Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="typing.Generic">Generic</span>[<span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableInputSchemaT">CircuitFromCableInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableConstructionalInputSchemaT">CircuitFromCableConstructionalInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableIdInputSchemaT">CircuitFromCableIdInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableSpecsInputSchemaT">CircuitFromCableSpecsInputSchemaT</span>]</code></p>
 
 
 
@@ -2746,16 +2746,16 @@
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
-<span class="normal">68</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the static environment with empty circuit and cable containers.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CableCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuit_cable_indices</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2784,55 +2784,6 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="cable_thermal_model.environment.static_env.StaticEnv.compute_hash" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">compute_hash</span>
-
-
-</h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">compute_hash</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="str">str</span></span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Compute a deterministic hash of the static environment based on the positioned cable representations.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a deterministic hash of the static environment based on the positioned cable representations.&quot;&quot;&quot;</span>
-    <span class="n">encoded_representations</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">cable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cables</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">cable</span><span class="o">.</span><span class="n">key</span>
-        <span class="n">encoded_representations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">circuit_name</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">cable_position</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">cable</span><span class="o">.</span><span class="n">cable_representation</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-
-    <span class="n">payload</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">encoded_representations</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="n">hash_value</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">hash_value</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
 <h3 id="cable_thermal_model.environment.static_env.StaticEnv.get_cables" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">get_cables</span>
 
@@ -2848,9 +2799,9 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dict of all cables in the static environment.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span>
 </code></pre></div></td></tr></table></div>
@@ -2877,9 +2828,9 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">97</span>
-<span class="normal">98</span>
-<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_cables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_cables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the total number of cables in the static environment.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_cables</span>
 </code></pre></div></td></tr></table></div>
@@ -2896,7 +2847,7 @@
 
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_circuit_from_cable_id</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.environment.static_env.CircuitFromCableIdInputSchemaT">CircuitFromCableIdInputSchemaT</span></span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_circuit_from_cable_id</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.environment.static_env.CircuitFromCableIdInputSchemaT">CircuitFromCableIdInputSchemaT</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2937,57 +2888,103 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_from_cable_id</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_from_cable_id</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableIdInputSchemaT</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds the circuit to the environment based on a Cable Id.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        circuit_input: CircuitFromCableIdInputSchemaT containing the input parameters for the circuit.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Build cable from cable id</span>
-    <span class="n">cable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_cable_from_circuit_input</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
-    <span class="n">multiple_configurations</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">_compute_circuit_configuration</span><span class="p">(</span><span class="n">cable_source_file_path</span><span class="o">=</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">cable_source_file_path</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">circuit_input</span><span class="o">.</span><span class="n">multiple_configurations</span>
-    <span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_add_circuit</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
 
-    <span class="c1"># Add circuit to environment from the constructed cable</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add_circuit_from_cable</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_from_cable_input_schema_cls</span><span class="p">(</span>
-            <span class="n">cable</span><span class="o">=</span><span class="n">cable</span><span class="p">,</span>
-            <span class="n">multiple_configurations</span><span class="o">=</span><span class="n">multiple_configurations</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;multiple_configurations&quot;</span><span class="p">}),</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="bp">self</span>
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="cable_thermal_model.environment.static_env.StaticEnv.add_circuit_from_cable_specs" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">add_circuit_from_cable_specs</span>
+
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_circuit_from_cable_specs</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.environment.static_env.CircuitFromCableSpecsInputSchemaT">CircuitFromCableSpecsInputSchemaT</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Adds the circuit to the environment based on Cable Specs.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>circuit_input</code>
+            </td>
+            <td>
+                  <code><span title="cable_thermal_model.environment.static_env.CircuitFromCableSpecsInputSchemaT">CircuitFromCableSpecsInputSchemaT</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>CircuitFromCableSpecsInputSchemaT containing the input parameters for the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_from_cable_specs</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableSpecsInputSchemaT</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds the circuit to the environment based on Cable Specs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        circuit_input: CircuitFromCableSpecsInputSchemaT containing the input parameters for the circuit.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_add_circuit</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3002,7 +2999,7 @@
 
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_circuit_from_cable_constructional_information</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.environment.static_env.CircuitFromCableConstructionalInputSchemaT">CircuitFromCableConstructionalInputSchemaT</span></span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_circuit_from_cable_constructional_information</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.environment.static_env.CircuitFromCableConstructionalInputSchemaT">CircuitFromCableConstructionalInputSchemaT</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3043,55 +3040,27 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_from_cable_constructional_information</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_from_cable_constructional_information</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableConstructionalInputSchemaT</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds the circuit to the environment based on a Cable Constructional Input Schema.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        circuit_input: CircuitFromCableConstructionalInputSchemaT containing the input parameters for the circuit.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Build cable from cable constructional information</span>
-    <span class="n">cable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_cable_from_circuit_input</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
-    <span class="n">multiple_configurations</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">_compute_circuit_configuration</span><span class="p">()</span> <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">circuit_input</span><span class="o">.</span><span class="n">multiple_configurations</span>
-    <span class="p">]</span>
-
-    <span class="c1"># Add circuit to environment from the constructed cable</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add_circuit_from_cable</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_from_cable_input_schema_cls</span><span class="p">(</span>
-            <span class="n">cable</span><span class="o">=</span><span class="n">cable</span><span class="p">,</span>
-            <span class="n">multiple_configurations</span><span class="o">=</span><span class="n">multiple_configurations</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;multiple_configurations&quot;</span><span class="p">}),</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="bp">self</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_add_circuit</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3106,7 +3075,7 @@
 
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_circuit_from_cable</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.environment.static_env.CircuitFromCableInputSchemaT">CircuitFromCableInputSchemaT</span></span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">add_circuit_from_cable</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">:</span> <span class="n"><span title="cable_thermal_model.environment.static_env.CircuitFromCableInputSchemaT">CircuitFromCableInputSchemaT</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3134,7 +3103,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>CircuitInputSchemaT containing the input
+                <p>CircuitFromCableInputSchemaT containing the input
  parameters for the circuit, including a cable instance.</p>
               </div>
             </td>
@@ -3148,29 +3117,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -3210,14 +3157,34 @@
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span>
-<span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_from_cable</span><span class="p">(</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_from_cable</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableInputSchemaT</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a cable circuit consisting of one or three cables to the environment based on a given cable instance.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">       circuit_input: CircuitInputSchemaT containing the input</span>
+<span class="sd">       circuit_input: CircuitFromCableInputSchemaT containing the input</span>
 <span class="sd">           parameters for the circuit, including a cable instance.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3271,8 +3238,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">number_of_cables</span> <span class="o">+</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">circuit_cables</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_add_cables_to_cable_dict</span><span class="p">(</span><span class="n">circuit_cables</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3301,22 +3266,22 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">355</span>
-<span class="normal">356</span>
-<span class="normal">357</span>
-<span class="normal">358</span>
-<span class="normal">359</span>
-<span class="normal">360</span>
-<span class="normal">361</span>
-<span class="normal">362</span>
-<span class="normal">363</span>
-<span class="normal">364</span>
-<span class="normal">365</span>
-<span class="normal">366</span>
-<span class="normal">367</span>
-<span class="normal">368</span>
-<span class="normal">369</span>
-<span class="normal">370</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_circuit_type</span><span class="p">(</span><span class="n">cable</span><span class="p">:</span> <span class="n">AbstractCable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CircuitType</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines probable circuit type by number of conductors in the cable.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cable</span><span class="p">,</span> <span class="n">CableTrefoilCircuitSinglePipe</span><span class="p">):</span>
@@ -3356,9 +3321,9 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/environment/static_env.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">372</span>
-<span class="normal">373</span>
-<span class="normal">374</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cable_key</span><span class="p">:</span> <span class="n">CableKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cable_key</span><span class="p">:</span> <span class="n">CableKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the Cable-object corresponding to the cable_name from the environment.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="n">cable_key</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
