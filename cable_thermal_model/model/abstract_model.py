@@ -132,7 +132,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
 
         if initial_state is not None:
             expected_keys = self.static_env.get_cables().keys()
-            expected_hash = self.static_env.compute_hash()
+            expected_hash = hash(self.static_env)
 
             found_keys = initial_state.temperature.keys()
             found_hash = initial_state.static_env_hash

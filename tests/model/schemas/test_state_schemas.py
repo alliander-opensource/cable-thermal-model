@@ -16,7 +16,7 @@ def test_state_check_solution_consistency_passes():
     cable_key = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     state = State(
-        static_env_hash="dummy_fingerprint",
+        static_env_hash=123456789,
         temperature={cable_key: np.array([20.0])},
         self_heating_contribution={cable_key: np.array([15.0])},
         ambient_temperature=5.0,
@@ -35,7 +35,7 @@ def test_state_check_solution_consistency_raises_on_mismatch():
 
     with pytest.raises(ValidationError, match="Inconsistent keys between temperature and self_heating"):
         State(
-            static_env_hash="dummy_fingerprint",
+            static_env_hash=123456789,
             temperature=temperature,
             self_heating_contribution=self_heating,
             ambient_temperature=5.0,
@@ -47,7 +47,7 @@ def test_statesoil_validate_mutual_heating_passes():
     cable_key = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     state = StateSoil(
-        static_env_hash="dummy_fingerprint",
+        static_env_hash=123456789,
         temperature={cable_key: np.array([30.0])},
         self_heating_contribution={cable_key: np.array([15.0])},
         mutual_heating_contribution={cable_key: np.array([10.0])},
@@ -68,7 +68,7 @@ def test_statesoil_validate_mutual_heating_raises_on_mismatch():
 
     with pytest.raises(ValidationError, match="CableKeys of mutual_heating_contribution should match"):
         StateSoil(
-            static_env_hash="dummy_fingerprint",
+            static_env_hash=123456789,
             temperature=temperature,
             self_heating_contribution=self_heating,
             mutual_heating_contribution=mutual_heating,
@@ -81,7 +81,7 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
     cable_key_single = CableKey(circuit_name="circuit_1", cable_position=CablePosition.Single)
 
     state = StateAir(
-        static_env_hash="dummy_fingerprint",
+        static_env_hash=123456789,
         temperature={cable_key_single: np.array([20.0])},
         self_heating_contribution={cable_key_single: np.array([15.0])},
         ambient_temperature=5.0,
@@ -97,7 +97,7 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
 
     with pytest.raises(ValidationError, match="StateAir should only contain one circuit"):
         StateAir(
-            static_env_hash="dummy_fingerprint",
+            static_env_hash=123456789,
             temperature=temperature,
             self_heating_contribution=self_heating,
             ambient_temperature=0.0,

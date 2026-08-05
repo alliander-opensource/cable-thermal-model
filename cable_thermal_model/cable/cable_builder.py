@@ -100,7 +100,7 @@ class CableBuilder:
 
         Args:
             cable_specs (pd.Series): A Pandas Series holding the cable specification.
-            grid_points_per_layer (int | None): The number of points per layer to use in FD grids
+            grid_points_per_layer (int): The number of points per layer to use in FD grids
             pipe (PipeInputSchema | None): A pipe instance to be added around the cable.
             cable_class (type[Cable]): The Cable class to instantiate.
 

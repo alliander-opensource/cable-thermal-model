@@ -60,7 +60,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
                 and self-heating states for each cable.
         """
         return StateAir(
-            static_env_hash=self.static_env.compute_hash(),
+            static_env_hash=hash(self.static_env),
             temperature=self._initialize_state_from_cables(cables=self._cables, fill_value=ambient_temperature),
             self_heating_contribution=self._initialize_state_from_cables(cables=self._cables),
             ambient_temperature=ambient_temperature,

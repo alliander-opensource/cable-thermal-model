@@ -294,7 +294,7 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
     valid_solution = {cable_key: np.array([15.0])}
 
     State(
-        static_env_hash="dummy_fingerprint",
+        static_env_hash=123456789,
         temperature=valid_full_solution,
         self_heating_contribution=valid_solution,
         ambient_temperature=5.0,
@@ -305,7 +305,7 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
 
     with pytest.raises(ValidationError, match="Inconsistent keys between temperature and self_heating"):
         State(
-            static_env_hash="dummy_fingerprint",
+            static_env_hash=123456789,
             temperature=valid_full_solution,
             self_heating_contribution=invalid_solution,
             ambient_temperature=5.0,
@@ -315,7 +315,7 @@ def test_state_check_solution_consistency(single_core_cable_xlpe):
 def test_state_check_cable_representations_consistency(model):
     """Test initial-state validation against the model static environment."""
     cable_keys = list(model.static_env.get_cables().keys())
-    env_hash = model.static_env.compute_hash()
+    env_hash = hash(model.static_env)
     state_cls = model._state_class
 
     # Test 1: Matching static environment keys and fingerprint should pass
@@ -355,7 +355,7 @@ def test_state_check_environment_hash_consistency(model):
     state_cls = model._state_class
 
     invalid_state_kwargs = {
-        "static_env_hash": "different-environment-hash",
+        "static_env_hash": 987654321,  # Intentionally incorrect hash
         "temperature": {key: np.array([20.0]) for key in cable_keys},
         "self_heating_contribution": {key: np.array([15.0]) for key in cable_keys},
         "ambient_temperature": 5.0,

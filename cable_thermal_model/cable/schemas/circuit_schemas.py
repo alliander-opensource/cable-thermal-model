@@ -5,6 +5,7 @@
 from pathlib import Path
 from typing import Generic, TypeVar
 
+import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from cable_thermal_model.cable.cable_builder import CableBuilder, CableT
@@ -29,6 +30,13 @@ class BaseCircuitConfiguration(BaseModel):
 
 
 BaseCircuitConfigurationT = TypeVar("BaseCircuitConfigurationT", bound=BaseCircuitConfiguration)
+
+
+class CableSpecs(BaseModel):
+    """Schema carrying cable specifications to build a cable instance."""
+
+    cable_specs: pd.Series = Field(..., description="Cable specifications to build the cable for this circuit.")
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class CircuitConfiguration(BaseCircuitConfiguration):
@@ -97,6 +105,24 @@ class CircuitConfigurationFromCableId(CircuitConfigurationCableNotBuild):
             cable_class=self.cable_class,
             pipe=self.pipe,
             cable_source_file_path=cable_source_file_path,
+        )
+        return self._compute_circuit_configuration_from_cable(cable)
+
+
+class CircuitConfigurationFromCableSpecs(CircuitConfigurationCableNotBuild, CableSpecs):
+    """Circuit configuration where the cable is built from a constructional input schema."""
+
+    def _compute_circuit_configuration(self) -> CircuitConfiguration:
+        """Compute a CircuitConfiguration from a cable constructional input schema.
+
+        Returns:
+            CircuitConfiguration: Circuit configuration with the Cable instance built.
+
+        """
+        cable = CableBuilder.build_cable_from_cable_specs(
+            cable_specs=self.cable_specs,
+            cable_class=self.cable_class,
+            pipe=self.pipe,
         )
         return self._compute_circuit_configuration_from_cable(cable)
 
@@ -227,6 +253,26 @@ class CircuitFromCableIdInputSchema(BaseCircuitInputSchema[CircuitConfigurationF
         )
 
 
+class CircuitFromCableSpecsInputSchema(BaseCircuitInputSchema[CircuitConfigurationFromCableSpecs], CableSpecs):
+    """Input schema for the `add_circuit_from_cable_specs` method of the StaticEnvironment class."""
+
+    def _build_cable(self, cable_class: type[CableT]) -> CableT:
+        """Build a cable instance based on the constructional information and cable class.
+
+        Args:
+            cable_class (type[CableT]): The class of the cable to build.
+
+        Returns:
+            CableT: An instance of the cable class.
+
+        """
+        return CableBuilder.build_cable_from_cable_specs(
+            cable_specs=self.cable_specs,
+            cable_class=cable_class,
+            pipe=self.pipe,
+        )
+
+
 class CircuitInSoilFromCableInputSchema(CircuitFromCableInputSchema[Cable], CircuitInSoilProperties):
     """Input schema for the `add_circuit_from_cable` method of the StaticEnvironmentSoil class."""
 
@@ -244,6 +290,10 @@ class CircuitInSoilFromCableIdInputSchema(CircuitFromCableIdInputSchema, Circuit
     """Input schema for the `add_circuit_from_cable_id` method of the StaticEnvironmentSoil class."""
 
 
+class CircuitInSoilFromCableSpecsInputSchema(CircuitFromCableSpecsInputSchema, CircuitInSoilProperties):
+    """Input schema for the `add_circuit_from_cable_specs` method of the StaticEnvironmentSoil class."""
+
+
 class CircuitInAirFromCableInputSchema(CircuitFromCableInputSchema[CableAir], CircuitInAirProperties):
     """Input schema for the `add_circuit_from_cable` method of the StaticEnvironmentAir class."""
 
@@ -257,3 +307,7 @@ class CircuitInAirFromCableConstructionalInputSchema(CircuitFromCableConstructio
 
 class CircuitInAirFromCableIdInputSchema(CircuitFromCableIdInputSchema, CircuitInAirProperties):
     """Input schema for the `add_circuit_from_cable_id` method of the StaticEnvironmentAir class."""
+
+
+class CircuitInAirFromCableSpecsInputSchema(CircuitFromCableSpecsInputSchema, CircuitInAirProperties):
+    """Input schema for the `add_circuit_from_cable_specs` method of the StaticEnvironmentAir class."""

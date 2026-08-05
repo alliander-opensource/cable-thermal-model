@@ -27,7 +27,7 @@ class State(BaseModel):
 
     """
 
-    static_env_hash: str = Field(
+    static_env_hash: int = Field(
         description="Deterministic hash of the static environment, used for validation and consistency checks."
     )
     temperature: dict[CableKey, np.ndarray] = Field(description="The temperature of each cable over the radii grid.")

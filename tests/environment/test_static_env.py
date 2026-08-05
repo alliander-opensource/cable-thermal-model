@@ -4,20 +4,24 @@
 
 import math
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+from cable_thermal_model.cable.cable_builder import CableBuilder
 from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition, TrefoilCircuit
 from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType
 from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstructionalInputSchema
 from cable_thermal_model.cable.schemas.circuit_schemas import (
     CircuitConfigurationFromCableConstructionalInputSchema,
+    CircuitConfigurationFromCableSpecs,
     CircuitInAirFromCableIdInputSchema,
     CircuitInAirFromCableInputSchema,
     CircuitInSoilFromCableConstructionalInputSchema,
     CircuitInSoilFromCableIdInputSchema,
     CircuitInSoilFromCableInputSchema,
+    CircuitInSoilFromCableSpecsInputSchema,
 )
 from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env import StaticEnv
@@ -32,11 +36,10 @@ from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 
 def test_compute_hash_is_deterministic(single_circuit_env: StaticEnv):
     """Fingerprint generation should be stable for the same environment content."""
-    fingerprint = single_circuit_env.compute_hash()
-    fingerprint_copy = deepcopy(single_circuit_env).compute_hash()
+    env_hash = hash(single_circuit_env)
+    env_hash_copy = hash(deepcopy(single_circuit_env))
 
-    assert fingerprint == fingerprint_copy
-    assert len(fingerprint) == 64
+    assert env_hash == env_hash_copy
 
 
 def test_cable_field_validation_cable_in_air(single_core_cable_xlpe: CableAir):
@@ -477,3 +480,78 @@ def test_set_convection_parameters_value_error(env_air: StaticEnvAir, single_cor
             cable=single_core_cable_xlpe_in_air,
             clipped_to_wall=True,
         )
+
+
+def test_different_methods_create_same_env():
+    """Tests if different methods of creating a static environment yield the same result."""
+    cable_id = "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"
+    general_params = {
+        "x": 0.0,
+        "y": -1.15,
+        "circuit_name": "c1",
+        "circuit_type": CircuitType.Trefoil,
+    }
+
+    static_env_id = StaticEnvSoil()
+    static_env_id.add_circuit_from_cable_id(
+        CircuitInSoilFromCableIdInputSchema(
+            cable_id=cable_id,
+            **general_params,
+        )
+    )
+
+    cable_specs = CableBuilder._load_cable_data_from_file(
+        cable_source_file_path=Path("data/example_cables.csv"),
+        cable_id=cable_id,
+    )
+    static_env_specs = StaticEnvSoil()
+    static_env_specs.add_circuit_from_cable_specs(
+        CircuitInSoilFromCableSpecsInputSchema(
+            cable_specs=cable_specs,
+            **general_params,
+        )
+    )
+    assert hash(static_env_id) == hash(static_env_specs)
+
+    cable = CableBuilder.build_cable_from_cable_specs(cable_specs, cable_class=CableSoil)
+    static_env_cable = StaticEnvSoil()
+    static_env_cable.add_circuit_from_cable(
+        CircuitInSoilFromCableInputSchema(
+            cable=cable,
+            **general_params,
+        )
+    )
+    assert hash(static_env_id) == hash(static_env_cable)
+
+
+def test_add_circuit_from_cable_specs_with_multiple_configurations():
+    """Tests if adding a circuit from cable specs with multiple configurations works correctly."""
+    cable_id = "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"
+    cable_specs = CableBuilder._load_cable_data_from_file(
+        cable_source_file_path=Path("data/example_cables.csv"),
+        cable_id=cable_id,
+    )
+    static_env = StaticEnvSoil()
+    static_env.add_circuit_from_cable_specs(
+        CircuitInSoilFromCableSpecsInputSchema(
+            x=0.0,
+            y=-1.15,
+            circuit_name="c1",
+            cable_specs=cable_specs,
+            circuit_type=CircuitType.Trefoil,
+            multiple_configurations=[
+                CircuitConfigurationFromCableSpecs(
+                    circuit_type=CircuitType.Linear,
+                    dist=0.2,
+                    cable_specs=cable_specs,
+                    length=100,
+                ),
+                CircuitConfigurationFromCableSpecs(
+                    circuit_type=CircuitType.Trefoil,
+                    cable_specs=cable_specs,
+                    length=100,
+                ),
+            ],
+        )
+    )
+    assert static_env.get_number_of_cables() == 3
