@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import math
+import multiprocessing as mp
 from copy import deepcopy
 from pathlib import Path
 
@@ -34,12 +35,40 @@ from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import C
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 
 
+def _compute_static_env_hash(queue: mp.Queue) -> None:
+    env = StaticEnvSoil()
+    env.add_circuit_from_cable_id(
+        CircuitInSoilFromCableIdInputSchema(
+            x=0,
+            y=-0.8,
+            circuit_name="c1",
+            cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
+            circuit_type=CircuitType.Trefoil,
+        )
+    )
+    queue.put(hash(env))
+
+
 def test_compute_hash_is_deterministic(single_circuit_env: StaticEnv):
-    """Fingerprint generation should be stable for the same environment content."""
+    """Hash generation should be stable for the same environment content."""
     env_hash = hash(single_circuit_env)
     env_hash_copy = hash(deepcopy(single_circuit_env))
 
     assert env_hash == env_hash_copy
+
+
+def test_compute_hash_is_stable_across_python_sessions(single_circuit_env: StaticEnv):
+    """The hash should not change when the same environment is rebuilt in another Python process."""
+    ctx = mp.get_context("spawn")
+    queue = ctx.Queue()
+    process = ctx.Process(target=_compute_static_env_hash, args=(queue,))
+    process.start()
+    process_hash = queue.get(timeout=10)
+    process.join(timeout=10)
+
+    assert process.exitcode == 0
+
+    assert hash(single_circuit_env) == process_hash
 
 
 def test_cable_field_validation_cable_in_air(single_core_cable_xlpe: CableAir):
@@ -522,6 +551,15 @@ def test_different_methods_create_same_env():
         )
     )
     assert hash(static_env_id) == hash(static_env_cable)
+
+    static_env_modified = StaticEnvSoil()
+    static_env_modified.add_circuit_from_cable_id(
+        CircuitInSoilFromCableIdInputSchema(
+            cable_id=cable_id,
+            **{**general_params, "circuit_name": "c2"},
+        )
+    )
+    assert hash(static_env_id) != hash(static_env_modified)
 
 
 def test_add_circuit_from_cable_specs_with_multiple_configurations():

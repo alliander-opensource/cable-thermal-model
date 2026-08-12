@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import hashlib
 import warnings
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
@@ -79,12 +80,12 @@ class StaticEnv(
         return f"{self.__class__.__name__}\n" + "\n".join(str_information_circuits)
 
     def __hash__(self) -> int:
-        """Generates a deterministic hash of the static environment.
+        """Generates a deterministic hash for the static environment that is consistent across Python sessions.
 
         Returns:
             int: A deterministic hash value representing the static environment.
         """
-        items = tuple(
+        signature = tuple(
             sorted(
                 (
                     cable.key.circuit_name,
@@ -94,7 +95,12 @@ class StaticEnv(
                 for cable in self.get_cables().values()
             )
         )
-        return hash(items)
+
+        # Built-in hash() is salted per process, so it cannot be used for cross-session stability.
+        hash_bytes = hashlib.blake2b(repr(signature).encode("utf-8"), digest_size=8).digest()
+        hash_int = int.from_bytes(hash_bytes, byteorder="big", signed=True)
+
+        return hash_int
 
     def get_cables(self) -> dict[CableKey, PosCable[CableT]]:
         """Returns a dict of all cables in the static environment."""
