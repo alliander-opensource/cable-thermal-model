@@ -34,8 +34,7 @@ permissions:
 jobs:
   fs-scan:
     name: Trivy filesystem
-    runs-on:
-      group: managed
+    runs-on: mgd-ubuntu24-x64-4c16g
     permissions:
       contents: read
       security-events: write
