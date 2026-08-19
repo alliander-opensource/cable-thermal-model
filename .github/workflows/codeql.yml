@@ -23,7 +23,7 @@ jobs:
     runs-on:
       group: managed-linux
     permissions:
-      # required for all workflows
+      contents: read
       security-events: write
 
     strategy:
