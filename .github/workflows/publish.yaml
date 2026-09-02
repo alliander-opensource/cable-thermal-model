@@ -28,6 +28,8 @@ jobs:
     runs-on: mgd-ubuntu24-x64-4c16g
     permissions:
       contents: write
+    outputs:
+      package_version: ${{ steps.bump_version.outputs.package_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
@@ -40,10 +42,17 @@ jobs:
           cache-key-suffix: publish
 
       - name: Bump package version
+        id: bump_version
         run: |
           uv version --bump "${{ github.event.inputs.bump }}"
-          echo "Version after bump:"
-          uv version
+          VERSION=$(python - <<'PY'
+          import tomllib
+          with open("pyproject.toml", "rb") as f:
+              print(tomllib.load(f)["project"]["version"])
+          PY
+          )
+          echo "package_version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Version after bump: ${VERSION}"
 
       - name: Commit bumped version
         run: |
@@ -61,8 +70,13 @@ jobs:
         env:
           GIT_TOKEN: ${{ secrets.GIT_TOKEN || github.token }}
         run: |
+          if [[ "${GITHUB_REF}" != refs/heads/* ]]; then
+            echo "This workflow must be run on a branch (refs/heads/*); got: ${GITHUB_REF}"
+            exit 1
+          fi
+
           git remote set-url origin "https://x-access-token:${GIT_TOKEN}@github.com/${{ github.repository }}.git"
-          git push origin "HEAD:${{ github.ref_name }}"
+          git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
 
       - name: Build package
         run: uv build
@@ -109,14 +123,6 @@ jobs:
         name: cable-thermal-model-package
         path: dist/
 
-    - name: Get package version
-      id: get_version
-      run: |
-        # Extract version from pyproject.toml
-        VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-        echo "package_version=$VERSION" >> $GITHUB_OUTPUT
-        echo "Package version: $VERSION"
-
     - name: Generate changelog
       id: generate_changelog
       run: |
@@ -152,17 +158,17 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda #v3.0.0
       with:
-        tag_name: v${{ steps.get_version.outputs.package_version }}
-        name: Release v${{ steps.get_version.outputs.package_version }}
+        tag_name: v${{ needs.build-package.outputs.package_version }}
+        name: Release v${{ needs.build-package.outputs.package_version }}
         files: |
           dist/*.tar.gz
           dist/*.whl
         body: |
-          ## Release v${{ steps.get_version.outputs.package_version }}
+          ## Release v${{ needs.build-package.outputs.package_version }}
 
           ### Installation
           ```bash
-          pip install cable-thermal-model==${{ steps.get_version.outputs.package_version }}
+          pip install cable-thermal-model==${{ needs.build-package.outputs.package_version }}
           ```
 
           ### Package Files
