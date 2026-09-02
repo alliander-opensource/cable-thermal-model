@@ -3119,8 +3119,7 @@ conductor center radius at index 0.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
-<span class="normal">139</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">139</span>
 <span class="normal">140</span>
 <span class="normal">141</span>
 <span class="normal">142</span>
@@ -3155,8 +3154,9 @@ conductor center radius at index 0.</p>
 <span class="normal">171</span>
 <span class="normal">172</span>
 <span class="normal">173</span>
-<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_and_validate_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve and validate all layer interface radii.</span>
+<span class="normal">174</span>
+<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_and_validate_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Resolve and validate all layer interface radii.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list[float]: Fully resolved list of interface radii including the</span>
@@ -3165,7 +3165,7 @@ conductor center radius at index 0.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If dimensions are inconsistent or insufficient.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">radii</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
 
     <span class="n">made_progress</span> <span class="o">=</span> <span class="kc">True</span>
@@ -3189,7 +3189,7 @@ conductor center radius at index 0.</p>
 
     <span class="n">resolved_radii</span> <span class="o">=</span> <span class="p">[</span><span class="n">radius</span> <span class="k">for</span> <span class="n">radius</span> <span class="ow">in</span> <span class="n">radii</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">resolved_radii</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">radii</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Insufficient dimension information: could not determine all layer radii.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Insufficient dimension information: could not determine all layer radii."</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">resolved_radii</span>
 </code></pre></div></td></tr></table></div>
@@ -3243,8 +3243,7 @@ outer radii in meters.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
-<span class="normal">177</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
 <span class="normal">180</span>
@@ -3264,8 +3263,9 @@ outer radii in meters.</p>
 <span class="normal">194</span>
 <span class="normal">195</span>
 <span class="normal">196</span>
-<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_outer_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the outer radii of all cable layers.</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_outer_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get the outer radii of all cable layers.</span>
 
 <span class="sd">    Returns a dictionary mapping each cable layer to its outer radius.</span>
 <span class="sd">    If any outer radius is missing, this method first validates and derives</span>
@@ -3275,7 +3275,7 @@ outer radii in meters.</p>
 <span class="sd">        dict[CableLayer, float]: Dictionary mapping cable layers to their</span>
 <span class="sd">            outer radii in meters.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">outer_radii</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">layer</span><span class="p">:</span> <span class="n">layer_input</span><span class="o">.</span><span class="n">outer_radius</span>
         <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">layer_input</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
@@ -3337,8 +3337,7 @@ inner radii in meters.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
-<span class="normal">200</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
 <span class="normal">201</span>
 <span class="normal">202</span>
 <span class="normal">203</span>
@@ -3358,8 +3357,9 @@ inner radii in meters.</p>
 <span class="normal">217</span>
 <span class="normal">218</span>
 <span class="normal">219</span>
-<span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_inner_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the inner radii of all cable layers.</span>
+<span class="normal">220</span>
+<span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_inner_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get the inner radii of all cable layers.</span>
 
 <span class="sd">    Returns a dictionary mapping each cable layer to its inner radius.</span>
 <span class="sd">    If any inner radius is missing, this method first validates and derives</span>
@@ -3369,7 +3369,7 @@ inner radii in meters.</p>
 <span class="sd">        dict[CableLayer, float]: Dictionary mapping cable layers to their</span>
 <span class="sd">            inner radii in meters.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">inner_radii</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">layer</span><span class="p">:</span> <span class="n">layer_input</span><span class="o">.</span><span class="n">inner_radius</span>
         <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">layer_input</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
@@ -3450,8 +3450,7 @@ inner radii in meters.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">222</span>
-<span class="normal">223</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">223</span>
 <span class="normal">224</span>
 <span class="normal">225</span>
 <span class="normal">226</span>
@@ -3469,9 +3468,10 @@ inner radii in meters.</p>
 <span class="normal">238</span>
 <span class="normal">239</span>
 <span class="normal">240</span>
-<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">241</span>
+<span class="normal">242</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_cable_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run global cable-level validations after model creation.</span>
+<span class="w">    </span><span class="sd">"""Run global cable-level validations after model creation.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        CableConstructionalInputSchema: The validated model instance.</span>
@@ -3479,13 +3479,13 @@ inner radii in meters.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If number of conductors is unsupported.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_conductors</span> <span class="o">==</span> <span class="n">CableConductorCount</span><span class="o">.</span><span class="n">Three</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_three_core_cable_specs</span><span class="p">()</span>
     <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_conductors</span> <span class="o">==</span> <span class="n">CableConductorCount</span><span class="o">.</span><span class="n">One</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_single_core_cable_specs</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported number of conductors: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_conductors</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported number of conductors: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_conductors</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">get_and_validate_radii</span><span class="p">()</span>
     <span class="k">return</span> <span class="bp">self</span>
@@ -3560,8 +3560,7 @@ three-core cables.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">243</span>
-<span class="normal">244</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">244</span>
 <span class="normal">245</span>
 <span class="normal">246</span>
 <span class="normal">247</span>
@@ -3593,8 +3592,9 @@ three-core cables.</p>
 <span class="normal">273</span>
 <span class="normal">274</span>
 <span class="normal">275</span>
-<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_three_core_cable_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and finalize constraints specific to three-core cables.</span>
+<span class="normal">276</span>
+<span class="normal">277</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_three_core_cable_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Validate and finalize constraints specific to three-core cables.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        CableConstructionalInputSchema: The validated model instance.</span>
@@ -3603,11 +3603,11 @@ three-core cables.</p>
 <span class="sd">        NotImplementedError: If unsupported screen layers are provided for</span>
 <span class="sd">            three-core cables.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">validate_three_core_cable_insulation</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insulation_input</span><span class="p">,</span> <span class="n">ThreeCoreCableInsulationInputSchema</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;insulation_input must be ThreeCoreCableInsulationInputSchema for three-core cables&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"insulation_input must be ThreeCoreCableInsulationInputSchema for three-core cables"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">single_conductor_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">single_conductor_radius</span> <span class="o">=</span> <span class="p">(</span>
@@ -3616,10 +3616,10 @@ three-core cables.</p>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor_screen_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">insulation_screen_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Conductor / insulation screen layer is not supported for three core cables. For oil-filled cables, &quot;</span>
-            <span class="s2">&quot;use the conductor_screen_material and conductor_screen_thickness &quot;</span>
-            <span class="s2">&quot;fields in the insulation input schema &quot;</span>
-            <span class="s2">&quot;to specify the conductor screen properties.&quot;</span>
+            <span class="s2">"Conductor / insulation screen layer is not supported for three core cables. For oil-filled cables, "</span>
+            <span class="s2">"use the conductor_screen_material and conductor_screen_thickness "</span>
+            <span class="s2">"fields in the insulation input schema "</span>
+            <span class="s2">"to specify the conductor screen properties."</span>
         <span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">insulation_input</span><span class="o">.</span><span class="n">insulation_equivalent_radius_ratio</span> <span class="o">=</span> <span class="p">(</span>
@@ -3674,20 +3674,20 @@ three-core cables.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
-<span class="normal">279</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
 <span class="normal">282</span>
 <span class="normal">283</span>
 <span class="normal">284</span>
-<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_single_conductor_radius_from_conducting_surface_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute single-conductor radius from conducting area.</span>
+<span class="normal">285</span>
+<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_single_conductor_radius_from_conducting_surface_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute single-conductor radius from conducting area.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        float: Radius in meters assuming a circular equivalent conductor.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">conducting_surface_area</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3738,8 +3738,7 @@ geometry is not yet available.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">287</span>
-<span class="normal">288</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span>
 <span class="normal">291</span>
@@ -3756,8 +3755,9 @@ geometry is not yet available.</p>
 <span class="normal">302</span>
 <span class="normal">303</span>
 <span class="normal">304</span>
-<span class="normal">305</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_or_compute_insulation_equivalent_radius_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute equivalent insulation radius ratio for three-core cables.</span>
+<span class="normal">305</span>
+<span class="normal">306</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_or_compute_insulation_equivalent_radius_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute equivalent insulation radius ratio for three-core cables.</span>
 
 <span class="sd">    If insulation_equivalent_radius_ratio is already set, this method returns the existing value.</span>
 
@@ -3765,7 +3765,7 @@ geometry is not yet available.</p>
 <span class="sd">        float | None: Equivalent radius ratio, or `None` when required</span>
 <span class="sd">            geometry is not yet available.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">insulation_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_three_core_cable_insulation</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">insulation_input</span><span class="o">.</span><span class="n">insulation_equivalent_radius_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">insulation_input</span><span class="o">.</span><span class="n">insulation_equivalent_radius_ratio</span>
@@ -3846,8 +3846,7 @@ schema.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">307</span>
-<span class="normal">308</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">308</span>
 <span class="normal">309</span>
 <span class="normal">310</span>
 <span class="normal">311</span>
@@ -3863,8 +3862,9 @@ schema.</p>
 <span class="normal">321</span>
 <span class="normal">322</span>
 <span class="normal">323</span>
-<span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_three_core_cable_insulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreeCoreCableInsulationInputSchema</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and return three-core insulation input schema.</span>
+<span class="normal">324</span>
+<span class="normal">325</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_three_core_cable_insulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreeCoreCableInsulationInputSchema</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Validate and return three-core insulation input schema.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ThreeCoreCableInsulationInputSchema: Typed insulation input.</span>
@@ -3873,12 +3873,12 @@ schema.</p>
 <span class="sd">        ValueError: If insulation input is not the expected three-core</span>
 <span class="sd">            schema.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insulation_input</span><span class="p">,</span> <span class="n">ThreeCoreCableInsulationInputSchema</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Insulation input must be of type &quot;</span>
-            <span class="s2">&quot;ThreeCoreCableInsulationInputSchema to validate three core &quot;</span>
-            <span class="s2">&quot;cable insulation specifications.&quot;</span>
+            <span class="s2">"Insulation input must be of type "</span>
+            <span class="s2">"ThreeCoreCableInsulationInputSchema to validate three core "</span>
+            <span class="s2">"cable insulation specifications."</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">insulation_input</span>
 </code></pre></div></td></tr></table></div>
@@ -3966,8 +3966,7 @@ the currently implemented equations.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">326</span>
-<span class="normal">327</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">327</span>
 <span class="normal">328</span>
 <span class="normal">329</span>
 <span class="normal">330</span>
@@ -4043,8 +4042,9 @@ the currently implemented equations.</p>
 <span class="normal">400</span>
 <span class="normal">401</span>
 <span class="normal">402</span>
-<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_insulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute normalized lumped insulation thermal resistance for three-core cables.</span>
+<span class="normal">403</span>
+<span class="normal">404</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_insulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute normalized lumped insulation thermal resistance for three-core cables.</span>
 
 <span class="sd">    Dispatches to cable-type-specific equations for the normalized lumped</span>
 <span class="sd">    thermal resistance $T_1$ between conductor and sheath/screen, following</span>
@@ -4059,7 +4059,7 @@ the currently implemented equations.</p>
 <span class="sd">            the currently implemented equations.</span>
 <span class="sd">        ValueError: If input data is invalid for the selected cable type.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">insulation_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_three_core_cable_insulation</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">insulation_input</span><span class="o">.</span><span class="n">outer_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -4117,9 +4117,9 @@ the currently implemented equations.</p>
 
     <span class="c1"># Raise a not implemented error if the cable type is not recognized</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Thermal resistance calculation for cable with sheath configuration &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_input</span><span class="o">.</span><span class="n">screen_type</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">screen_input</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="s2"> &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;and conductor shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> is not implemented.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Thermal resistance calculation for cable with sheath configuration "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_input</span><span class="o">.</span><span class="n">screen_type</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">screen_input</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"and conductor shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> is not implemented."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4257,8 +4257,7 @@ oil-pressure cable equations.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">405</span>
-<span class="normal">406</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">406</span>
 <span class="normal">407</span>
 <span class="normal">408</span>
 <span class="normal">409</span>
@@ -4300,13 +4299,14 @@ oil-pressure cable equations.</p>
 <span class="normal">445</span>
 <span class="normal">446</span>
 <span class="normal">447</span>
-<span class="normal">448</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_oil_pressure</span><span class="p">(</span>
+<span class="normal">448</span>
+<span class="normal">449</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_oil_pressure</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">insulation_input</span><span class="p">:</span> <span class="n">ThreeCoreCableInsulationInputSchema</span><span class="p">,</span>
     <span class="n">t1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">dc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute normalized $T_1$ for three-core oil-pressure cables.</span>
+<span class="w">    </span><span class="sd">"""Compute normalized $T_1$ for three-core oil-pressure cables.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        insulation_input: Three-core insulation input including optional</span>
@@ -4322,7 +4322,7 @@ oil-pressure cable equations.</p>
 <span class="sd">        ValueError: If conductor screen material is not supported for</span>
 <span class="sd">            oil-pressure cable equations.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">insulation_input</span><span class="o">.</span><span class="n">conductor_screen_thickness</span>
         <span class="k">if</span> <span class="n">insulation_input</span><span class="o">.</span><span class="n">conductor_screen_thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -4340,9 +4340,9 @@ oil-pressure cable equations.</p>
         <span class="k">return</span> <span class="mf">0.35</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.923</span> <span class="o">-</span> <span class="p">(</span><span class="n">dc</span> <span class="o">/</span> <span class="p">(</span><span class="n">dc</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ti</span><span class="p">)))</span>
 
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Invalid conductor screen material for oil pressure cable: &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">insulation_input</span><span class="o">.</span><span class="n">conductor_screen_material</span><span class="si">}</span><span class="s2">. Expected either &quot;</span>
-        <span class="s2">&quot;MetalizedPaper or MetalTape.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Invalid conductor screen material for oil pressure cable: "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">insulation_input</span><span class="o">.</span><span class="n">conductor_screen_material</span><span class="si">}</span><span class="s2">. Expected either "</span>
+        <span class="s2">"MetalizedPaper or MetalTape."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4438,8 +4438,7 @@ oil-pressure cable equations.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">450</span>
-<span class="normal">451</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">451</span>
 <span class="normal">452</span>
 <span class="normal">453</span>
 <span class="normal">454</span>
@@ -4449,8 +4448,9 @@ oil-pressure cable equations.</p>
 <span class="normal">458</span>
 <span class="normal">459</span>
 <span class="normal">460</span>
-<span class="normal">461</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_xlpe_sl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dc</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute normalized $T_1$ for SL-type XLPE cables.</span>
+<span class="normal">461</span>
+<span class="normal">462</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_xlpe_sl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dc</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute normalized $T_1$ for SL-type XLPE cables.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        t1: Single-conductor insulation thickness in meters.</span>
@@ -4459,7 +4459,7 @@ oil-pressure cable equations.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: Normalized lumped thermal resistance for SL-type XLPE.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">t1</span><span class="p">)</span> <span class="o">/</span> <span class="n">dc</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4587,8 +4587,7 @@ oil-pressure cable equations.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">463</span>
-<span class="normal">464</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">464</span>
 <span class="normal">465</span>
 <span class="normal">466</span>
 <span class="normal">467</span>
@@ -4610,14 +4609,15 @@ oil-pressure cable equations.</p>
 <span class="normal">483</span>
 <span class="normal">484</span>
 <span class="normal">485</span>
-<span class="normal">486</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_pilc</span><span class="p">(</span>
+<span class="normal">486</span>
+<span class="normal">487</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_pilc</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dx</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">da</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">r1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute normalized $T_1$ for PILC cables.</span>
+<span class="w">    </span><span class="sd">"""Compute normalized $T_1$ for PILC cables.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dx: Equivalent diameter of one conductor in meters.</span>
@@ -4628,7 +4628,7 @@ oil-pressure cable equations.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: Normalized lumped thermal resistance for the PILC branch.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># PILC cables are assumed to have sector shaped conductors.</span>
     <span class="c1"># The T1 is calculated using section (4.1.2.2.6) in NEN-IEC 60287-2-1 (2015)</span>
     <span class="n">F2</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="mi">3</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">dx</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">t</span><span class="p">))</span>
@@ -4747,8 +4747,7 @@ common/unscreened branch.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">488</span>
-<span class="normal">489</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">489</span>
 <span class="normal">490</span>
 <span class="normal">491</span>
 <span class="normal">492</span>
@@ -4789,13 +4788,14 @@ common/unscreened branch.</p>
 <span class="normal">527</span>
 <span class="normal">528</span>
 <span class="normal">529</span>
-<span class="normal">530</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_xlpe_common_or_unscreened</span><span class="p">(</span>
+<span class="normal">530</span>
+<span class="normal">531</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_normalized_lumped_sum_thermal_resistance_xlpe_common_or_unscreened</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">t1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">dc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute normalized $T_1$ for common-screen or unscreened XLPE cables.</span>
+<span class="w">    </span><span class="sd">"""Compute normalized $T_1$ for common-screen or unscreened XLPE cables.</span>
 
 <span class="sd">    Uses the quadratic approximation for the geometric factor in</span>
 <span class="sd">    NEN-IEC 60287-2-1 (2015), section 5.3.</span>
@@ -4809,7 +4809,7 @@ common/unscreened branch.</p>
 <span class="sd">        float: Normalized lumped thermal resistance for the XLPE</span>
 <span class="sd">            common/unscreened branch.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Use the quadratic approximation method to determine the geometric</span>
     <span class="c1"># factor as described in section 5.3 of NEN-IEC60287-2-1 (2015).</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">/</span> <span class="n">dc</span>
@@ -4890,8 +4890,7 @@ are inconsistent, or if sector conductors are provided.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">532</span>
-<span class="normal">533</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">533</span>
 <span class="normal">534</span>
 <span class="normal">535</span>
 <span class="normal">536</span>
@@ -4913,29 +4912,30 @@ are inconsistent, or if sector conductors are provided.</p>
 <span class="normal">552</span>
 <span class="normal">553</span>
 <span class="normal">554</span>
-<span class="normal">555</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_single_core_cable_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate constraints specific to single-core cable definitions.</span>
+<span class="normal">555</span>
+<span class="normal">556</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_single_core_cable_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Validate constraints specific to single-core cable definitions.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If single-conductor radius and conductor outer radius</span>
 <span class="sd">            are inconsistent, or if sector conductors are provided.</span>
 <span class="sd">        NotImplementedError: If armour is present on single-core cables.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">validate_single_core_cable_insulation</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">single_conductor_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">single_conductor_radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">outer_radius</span>
     <span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;For single core cables, single_conductor_radius must equal the conductor outer_radius.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"For single core cables, single_conductor_radius must equal the conductor outer_radius."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor_input</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Sector</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Single-core cables can not have sector shaped conductors.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Single-core cables can not have sector shaped conductors."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">armour_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Armour losses are not accounted for in the FD model. &quot;</span>
-            <span class="s2">&quot;Therefore, armoured cables are not supported for single-core cables.&quot;</span>
+            <span class="s2">"Armour losses are not accounted for in the FD model. "</span>
+            <span class="s2">"Therefore, armoured cables are not supported for single-core cables."</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5008,8 +5008,7 @@ schema.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/cable/schemas/cable_input_schemas.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">557</span>
-<span class="normal">558</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">558</span>
 <span class="normal">559</span>
 <span class="normal">560</span>
 <span class="normal">561</span>
@@ -5024,8 +5023,9 @@ schema.</p>
 <span class="normal">570</span>
 <span class="normal">571</span>
 <span class="normal">572</span>
-<span class="normal">573</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_single_core_cable_insulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InsulationInputSchema</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and return single-core insulation input schema.</span>
+<span class="normal">573</span>
+<span class="normal">574</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_single_core_cable_insulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InsulationInputSchema</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Validate and return single-core insulation input schema.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        InsulationInputSchema: Typed insulation input.</span>
@@ -5034,11 +5034,11 @@ schema.</p>
 <span class="sd">        ValueError: If insulation input is not the expected single-core</span>
 <span class="sd">            schema.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insulation_input</span><span class="p">,</span> <span class="n">InsulationInputSchema</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Insulation input must be of type InsulationInputSchema to &quot;</span>
-            <span class="s2">&quot;validate single core cable insulation specifications.&quot;</span>
+            <span class="s2">"Insulation input must be of type InsulationInputSchema to "</span>
+            <span class="s2">"validate single core cable insulation specifications."</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">insulation_input</span>
 </code></pre></div></td></tr></table></div>

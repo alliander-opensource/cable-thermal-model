@@ -3446,7 +3446,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">distance_to_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the distance from this cable center to a point in meters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the distance from this cable center to a point in meters."""</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3474,8 +3474,8 @@
               <summary>Source code in <code>cable_thermal_model/cable/cable_circuit.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">85</span>
 <span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_cable</span><span class="p">:</span> <span class="s2">&quot;PosCable&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the heart-to-heart distance to another positioned cable in meters.&quot;&quot;&quot;</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_cable</span><span class="p">:</span> <span class="s2">"PosCable"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the heart-to-heart distance to another positioned cable in meters."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_point</span><span class="p">(</span><span class="n">other_cable</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">other_cable</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3566,16 +3566,16 @@
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_schema</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">CircuitFromCableInputSchema</span><span class="p">[</span><span class="n">Cable</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;CircuitInitData&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create CircuitInitData from CircuitFromCableInputSchema.&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_schema</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">CircuitFromCableInputSchema</span><span class="p">[</span><span class="n">Cable</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"CircuitInitData"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Create CircuitInitData from CircuitFromCableInputSchema."""</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
-        <span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+        <span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+        <span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
         <span class="n">circuit_type</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">circuit_type</span><span class="p">,</span>
         <span class="n">cable</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">cable</span><span class="p">,</span>
         <span class="n">circuit_name</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">circuit_name</span><span class="p">,</span>
         <span class="n">dist</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">dist</span><span class="p">,</span>
-        <span class="n">y_ref</span><span class="o">=</span><span class="n">CircuitYReference</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="s2">&quot;y_ref&quot;</span><span class="p">,</span> <span class="n">CircuitYReference</span><span class="o">.</span><span class="n">Center</span><span class="p">)),</span>
+        <span class="n">y_ref</span><span class="o">=</span><span class="n">CircuitYReference</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="s2">"y_ref"</span><span class="p">,</span> <span class="n">CircuitYReference</span><span class="o">.</span><span class="n">Center</span><span class="p">)),</span>
         <span class="n">bonding_type</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">bonding_type</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -3646,7 +3646,7 @@
     <span class="n">circuit_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the cable circuit with position, bonding type, and name.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the cable circuit with position, bonding type, and name."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">x</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">y</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuit_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">circuit_name</span>
@@ -3720,7 +3720,7 @@ generated in the screen.</p>
 <span class="normal">194</span>
 <span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize_screen_loss_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines the screen loss functions for the cables in a configuration.</span>
+<span class="w">    </span><span class="sd">"""Determines the screen loss functions for the cables in a configuration.</span>
 
 <span class="sd">    The screen loss functions for the cables in a configuration are then added as attributes of</span>
 <span class="sd">    the cable instances in the configuration. These functions depend on</span>
@@ -3730,10 +3730,10 @@ generated in the screen.</p>
 <span class="sd">    factor is 0, no heat is generated in the screen. If the factor is</span>
 <span class="sd">    0.5 and 400W/m is generated in the conductor, then 200W/m is</span>
 <span class="sd">    generated in the screen.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Method initialize_screen_loss_functions not implemented for class based on CableCircuit: &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Method initialize_screen_loss_functions not implemented for class based on CableCircuit: "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3783,14 +3783,14 @@ Based on IEC 60287-1-3.</p>
 <span class="normal">215</span>
 <span class="normal">216</span>
 <span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_relative_screen_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to put relative screen distances in a matrix.</span>
+<span class="w">    </span><span class="sd">"""Function to put relative screen distances in a matrix.</span>
 
 <span class="sd">    If the conductor is inside the screen, the screen radius is relevant.</span>
 <span class="sd">    Otherwise, one should use the distances between the cable axes.</span>
 <span class="sd">    Based on IEC 60287-1-3.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Method can only be used for circuits with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="si">}</span><span class="s2"> single-core cables.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Method can only be used for circuits with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="si">}</span><span class="s2"> single-core cables."</span><span class="p">)</span>
 
     <span class="n">d_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="p">):</span>
@@ -3844,13 +3844,13 @@ Based on IEC 60287-1-3.</p>
 <span class="normal">232</span>
 <span class="normal">233</span>
 <span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_relative_screen_reactances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to put relative screen reactances in a matrix.</span>
+<span class="w">    </span><span class="sd">"""Function to put relative screen reactances in a matrix.</span>
 
 <span class="sd">    Based on IEC 60287-1-3.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">d_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_relative_screen_distances</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">d_matrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;d_matrix must have shape (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="si">}</span><span class="s2">), got </span><span class="si">{</span><span class="n">d_matrix</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"d_matrix must have shape (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="si">}</span><span class="s2">), got </span><span class="si">{</span><span class="n">d_matrix</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">omega</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">omega</span>
 
     <span class="n">X_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_phases</span><span class="p">))</span>
@@ -3982,7 +3982,7 @@ Based on IEC 60287-1-3.</p>
     <span class="n">cable</span><span class="p">:</span> <span class="n">Cable</span><span class="p">,</span>
     <span class="n">cable_centers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CablePosition</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PosCable</span><span class="p">[</span><span class="n">Cable</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the PosCable instances for the circuit based on the given cable and cable centers.</span>
+<span class="w">    </span><span class="sd">"""Initialize the PosCable instances for the circuit based on the given cable and cable centers.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cable:          Cable instance to use in the circuit</span>
@@ -3991,7 +3991,7 @@ Based on IEC 60287-1-3.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        List of PosCable instances representing the cables in the circuit.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">[</span>
         <span class="n">PosCable</span><span class="p">(</span>
             <span class="n">circuit_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">circuit_name</span><span class="p">,</span>
@@ -4077,7 +4077,7 @@ the circuit.</p>
 <span class="normal">275</span>
 <span class="normal">276</span>
 <span class="normal">277</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_weighted_screen_impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weighted_screen_impedance</span><span class="p">:</span> <span class="n">WeightedScreenImpedance</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the weighted screen impedance for the circuit.</span>
+<span class="w">    </span><span class="sd">"""Set the weighted screen impedance for the circuit.</span>
 
 <span class="sd">    This is used in the calculation of the screen losses for two-sided</span>
 <span class="sd">    bonding.</span>
@@ -4087,7 +4087,7 @@ the circuit.</p>
 <span class="sd">            containing the weighted screen impedance values to use for</span>
 <span class="sd">            the circuit.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">weighted_screen_impedance</span> <span class="o">=</span> <span class="n">weighted_screen_impedance</span>
     <span class="k">for</span> <span class="n">cable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">:</span>
         <span class="n">cable</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">weighted_screen_impedance</span> <span class="o">=</span> <span class="n">weighted_screen_impedance</span>
@@ -4128,12 +4128,12 @@ the circuit.</p>
 <span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_no_screen_no_bonding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bonding_type</span><span class="p">:</span> <span class="n">BondingType</span><span class="p">,</span> <span class="n">cable</span><span class="p">:</span> <span class="n">Cable</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that if no screen is present, no bonding is applied.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Validate that if no screen is present, no bonding is applied."""</span>
     <span class="k">if</span> <span class="n">CableLayer</span><span class="o">.</span><span class="n">Screen</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cable</span><span class="o">.</span><span class="n">layers</span> <span class="ow">and</span> <span class="n">bonding_type</span> <span class="o">!=</span> <span class="n">BondingType</span><span class="o">.</span><span class="n">NoBonding</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid configuration: bonding type </span><span class="si">{</span><span class="n">bonding_type</span><span class="si">}</span><span class="s2"> cannot &quot;</span>
-            <span class="s2">&quot;be applied when no screen is present in the cable. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; Bonding type set to </span><span class="si">{</span><span class="n">BondingType</span><span class="o">.</span><span class="n">NoBonding</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Invalid configuration: bonding type </span><span class="si">{</span><span class="n">bonding_type</span><span class="si">}</span><span class="s2"> cannot "</span>
+            <span class="s2">"be applied when no screen is present in the cable. "</span>
+            <span class="sa">f</span><span class="s2">" Bonding type set to </span><span class="si">{</span><span class="n">BondingType</span><span class="o">.</span><span class="n">NoBonding</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">BondingType</span><span class="o">.</span><span class="n">NoBonding</span>
@@ -4209,7 +4209,7 @@ the circuit.</p>
 <span class="normal">320</span>
 <span class="normal">321</span>
 <span class="normal">322</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit_init_data</span><span class="p">:</span> <span class="n">CircuitInitData</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the single-cable circuit from CircuitInitData.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the single-cable circuit from CircuitInitData."""</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">x</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">y</span>
     <span class="n">cable</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">cable</span>
@@ -4225,7 +4225,7 @@ the circuit.</p>
     <span class="k">elif</span> <span class="n">y_ref</span> <span class="o">==</span> <span class="n">CircuitYReference</span><span class="o">.</span><span class="n">Bottom</span><span class="p">:</span>
         <span class="n">y_circuit_center</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid y_ref value: </span><span class="si">{</span><span class="n">y_ref</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="n">CircuitYReference</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid y_ref value: </span><span class="si">{</span><span class="n">y_ref</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="n">CircuitYReference</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
     <span class="n">bonding_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_no_screen_no_bonding</span><span class="p">(</span><span class="n">bonding_type</span><span class="o">=</span><span class="n">bonding_type</span><span class="p">,</span> <span class="n">cable</span><span class="o">=</span><span class="n">cable</span><span class="p">)</span>
 
@@ -4285,7 +4285,7 @@ the circuit.</p>
 <span class="normal">340</span>
 <span class="normal">341</span>
 <span class="normal">342</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">initialize_screen_loss_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines the screen loss functions for single cable configurations.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Determines the screen loss functions for single cable configurations."""</span>
     <span class="n">cable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span>
 
     <span class="c1"># Screen currents in case of round or oval conductors</span>
@@ -4299,7 +4299,7 @@ the circuit.</p>
     <span class="k">elif</span> <span class="n">cable</span><span class="o">.</span><span class="n">cable_type</span> <span class="o">==</span> <span class="n">CableType</span><span class="o">.</span><span class="n">PILC</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span> <span class="o">=</span> <span class="n">CableScreenLossType</span><span class="o">.</span><span class="n">SingleCablePILC</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CableType: </span><span class="si">{</span><span class="n">cable</span><span class="o">.</span><span class="n">cable_type</span><span class="si">}</span><span class="s2"> not supported.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CableType: </span><span class="si">{</span><span class="n">cable</span><span class="o">.</span><span class="n">cable_type</span><span class="si">}</span><span class="s2"> not supported."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4406,7 +4406,7 @@ the circuit.</p>
 <span class="normal">408</span>
 <span class="normal">409</span>
 <span class="normal">410</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit_init_data</span><span class="p">:</span> <span class="n">CircuitInitData</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the linear circuit from CircuitInitData.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the linear circuit from CircuitInitData."""</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">x</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">y</span>
     <span class="n">circuit_type</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">circuit_type</span> <span class="ow">or</span> <span class="n">CircuitType</span><span class="o">.</span><span class="n">Linear</span>
@@ -4417,7 +4417,7 @@ the circuit.</p>
     <span class="n">y_ref</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">y_ref</span> <span class="ow">or</span> <span class="n">CircuitYReference</span><span class="o">.</span><span class="n">Center</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cable layer metrics must include outer radius for LinearCircuit.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cable layer metrics must include outer radius for LinearCircuit."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">circuit_type</span> <span class="o">==</span> <span class="n">CircuitType</span><span class="o">.</span><span class="n">LinearVertical</span><span class="p">:</span>
         <span class="n">half_circuit_height</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span>
@@ -4431,7 +4431,7 @@ the circuit.</p>
     <span class="k">elif</span> <span class="n">y_ref</span> <span class="o">==</span> <span class="n">CircuitYReference</span><span class="o">.</span><span class="n">Bottom</span><span class="p">:</span>
         <span class="n">y_circuit_center</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">half_circuit_height</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid y_ref value: </span><span class="si">{</span><span class="n">y_ref</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="n">CircuitYReference</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid y_ref value: </span><span class="si">{</span><span class="n">y_ref</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="n">CircuitYReference</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
     <span class="n">bonding_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_no_screen_no_bonding</span><span class="p">(</span><span class="n">bonding_type</span><span class="o">=</span><span class="n">bonding_type</span><span class="p">,</span> <span class="n">cable</span><span class="o">=</span><span class="n">cable</span><span class="p">)</span>
 
@@ -4441,8 +4441,8 @@ the circuit.</p>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;LinearCircuit initialized with too small distance: (</span><span class="si">{</span><span class="n">dist</span><span class="si">}</span><span class="s2">). &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Conductor distance overwritten with cable diameter.&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"LinearCircuit initialized with too small distance: (</span><span class="si">{</span><span class="n">dist</span><span class="si">}</span><span class="s2">). "</span>
+            <span class="sa">f</span><span class="s2">"Conductor distance overwritten with cable diameter."</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span> <span class="o">*</span> <span class="mi">2</span>
@@ -4535,7 +4535,7 @@ the circuit.</p>
 <span class="normal">442</span>
 <span class="normal">443</span>
 <span class="normal">444</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">initialize_screen_loss_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines the screen loss functions for the cables in a linear configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Determines the screen loss functions for the cables in a linear configuration."""</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonding</span> <span class="o">==</span> <span class="n">BondingType</span><span class="o">.</span><span class="n">NoBonding</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span> <span class="o">=</span> <span class="n">CableScreenLossType</span><span class="o">.</span><span class="n">ReturnZero</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span> <span class="o">=</span> <span class="n">CableScreenLossType</span><span class="o">.</span><span class="n">ReturnZero</span>
@@ -4661,7 +4661,7 @@ the circuit.</p>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_init_data</span><span class="p">:</span> <span class="n">CircuitInitData</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the trefoil circuit from CircuitInitData.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the trefoil circuit from CircuitInitData."""</span>
     <span class="c1"># Unpack the circuit initialization data</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">x</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">y</span>
@@ -4671,7 +4671,7 @@ the circuit.</p>
     <span class="n">y_ref</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">y_ref</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cable layer metrics must include outer radius for TrefoilCircuit.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cable layer metrics must include outer radius for TrefoilCircuit."</span><span class="p">)</span>
 
     <span class="n">outer_radius</span> <span class="o">=</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span>
     <span class="k">if</span> <span class="n">y_ref</span> <span class="o">==</span> <span class="n">CircuitYReference</span><span class="o">.</span><span class="n">Top</span><span class="p">:</span>
@@ -4681,12 +4681,12 @@ the circuit.</p>
     <span class="k">elif</span> <span class="n">y_ref</span> <span class="o">==</span> <span class="n">CircuitYReference</span><span class="o">.</span><span class="n">Bottom</span><span class="p">:</span>
         <span class="n">y_circuit_center</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">outer_radius</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid y_ref value: </span><span class="si">{</span><span class="n">y_ref</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="n">CircuitYReference</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid y_ref value: </span><span class="si">{</span><span class="n">y_ref</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="n">CircuitYReference</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">pipe</span> <span class="ow">and</span> <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">trefoil_circuit_in_single_pipe</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Three cables in one pipe configuration is not supported for TrefoilCircuit. Use &quot;</span>
-            <span class="s2">&quot;TrefoilCircuitInSinglePipe instead.&quot;</span>
+            <span class="s2">"Three cables in one pipe configuration is not supported for TrefoilCircuit. Use "</span>
+            <span class="s2">"TrefoilCircuitInSinglePipe instead."</span>
         <span class="p">)</span>
 
     <span class="n">bonding_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_no_screen_no_bonding</span><span class="p">(</span><span class="n">bonding_type</span><span class="o">=</span><span class="n">bonding_type</span><span class="p">,</span> <span class="n">cable</span><span class="o">=</span><span class="n">cable</span><span class="p">)</span>
@@ -4774,7 +4774,7 @@ the circuit.</p>
 <span class="normal">531</span>
 <span class="normal">532</span>
 <span class="normal">533</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">initialize_screen_loss_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines the screen loss functions for the cables in a trefoil configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Determines the screen loss functions for the cables in a trefoil configuration."""</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonding</span> <span class="o">==</span> <span class="n">BondingType</span><span class="o">.</span><span class="n">NoBonding</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span> <span class="o">=</span> <span class="n">CableScreenLossType</span><span class="o">.</span><span class="n">ReturnZero</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span> <span class="o">=</span> <span class="n">CableScreenLossType</span><span class="o">.</span><span class="n">ReturnZero</span>
@@ -4862,7 +4862,7 @@ the circuit.</p>
 <span class="normal">549</span>
 <span class="normal">550</span>
 <span class="normal">551</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit_init_data</span><span class="p">:</span> <span class="n">CircuitInitData</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the trefoil-in-single-pipe circuit from CircuitInitData.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the trefoil-in-single-pipe circuit from CircuitInitData."""</span>
     <span class="c1"># Initialize super, but with two-sided bonding as default</span>
     <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">bonding_type</span> <span class="o">=</span> <span class="n">circuit_init_data</span><span class="o">.</span><span class="n">bonding_type</span> <span class="ow">or</span> <span class="n">BondingType</span><span class="o">.</span><span class="n">TwoSided</span>
 
@@ -4954,12 +4954,12 @@ the circuit.</p>
 <span class="normal">579</span>
 <span class="normal">580</span>
 <span class="normal">581</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">initialize_screen_loss_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines the screen loss functions for the equivalent cable in a trefoil circuit in a single pipe.</span>
+<span class="w">    </span><span class="sd">"""Determines the screen loss functions for the equivalent cable in a trefoil circuit in a single pipe.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        NotImplementedError: If the sheath currents are not symmetric.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonding</span> <span class="o">==</span> <span class="n">BondingType</span><span class="o">.</span><span class="n">NoBonding</span><span class="p">:</span>
@@ -4975,7 +4975,7 @@ the circuit.</p>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetric_sheath_currents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weighted_screen_impedance</span><span class="o">.</span><span class="n">weighted_reactance_matrix</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;Non-symmetric sheath currents are not supported for trefoil circuit in a single pipe.&quot;</span>
+                <span class="s2">"Non-symmetric sheath currents are not supported for trefoil circuit in a single pipe."</span>
             <span class="p">)</span>
 
         <span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span> <span class="o">=</span> <span class="n">CableScreenLossType</span><span class="o">.</span><span class="n">TwoSidedBondingCenter</span>
@@ -5014,7 +5014,7 @@ the circuit.</p>
 <span class="normal">591</span>
 <span class="normal">592</span>
 <span class="normal">593</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_relative_screen_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the relative screen distances for a trefoil circuit with touching cables.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Returns the relative screen distances for a trefoil circuit with touching cables."""</span>
     <span class="n">cable_diameter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">conductor_distance</span>
     <span class="n">screen_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -5137,7 +5137,7 @@ the circuit.</p>
 <span class="normal">618</span>
 <span class="normal">619</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">symmetric_sheath_currents</span><span class="p">(</span><span class="n">weighted_reactance_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the sheath currents for three phases are symmetric.</span>
+<span class="w">    </span><span class="sd">"""Check if the sheath currents for three phases are symmetric.</span>
 
 <span class="sd">    This is the case when the weighted reactance matrix has the following form:</span>
 
@@ -5152,9 +5152,9 @@ the circuit.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        True if the sheath currents are symmetric, False otherwise.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">weighted_reactance_matrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;weighted_reactance_matrix must have shape (2, 3), got </span><span class="si">{</span><span class="n">weighted_reactance_matrix</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"weighted_reactance_matrix must have shape (2, 3), got </span><span class="si">{</span><span class="n">weighted_reactance_matrix</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">x</span> <span class="o">=</span> <span class="n">weighted_reactance_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">symmetric_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">x</span><span class="p">]])</span>  <span class="c1"># type: ignore</span>
@@ -5344,7 +5344,7 @@ cable database example_cables.csv.</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_cable</span><span class="p">(</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableInputSchema</span><span class="p">[</span><span class="n">Cable</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CableCircuit</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build circuit from cable.</span>
+<span class="w">    </span><span class="sd">"""Build circuit from cable.</span>
 
 <span class="sd">    Useful to create circuits from cables that are not (yet) present in the</span>
 <span class="sd">    cable database example_cables.csv.</span>
@@ -5356,7 +5356,7 @@ cable database example_cables.csv.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        A CableCircuit instance that can be added to the static environment.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">circuit_init_data</span> <span class="o">=</span> <span class="n">CircuitInitData</span><span class="o">.</span><span class="n">from_schema</span><span class="p">(</span>
         <span class="n">circuit_input</span>
     <span class="p">)</span>  <span class="c1"># Validate input schema and extract initialization data</span>
@@ -5372,12 +5372,12 @@ cable database example_cables.csv.</p>
                 <span class="n">circuit_input</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">pipe</span>
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">circuit_input</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">trefoil_circuit_in_single_pipe</span>
             <span class="p">):</span>
-                <span class="n">touching</span> <span class="o">=</span> <span class="s2">&quot;cables&quot;</span>
+                <span class="n">touching</span> <span class="o">=</span> <span class="s2">"cables"</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">touching</span> <span class="o">=</span> <span class="s2">&quot;pipes&quot;</span>
+                <span class="n">touching</span> <span class="o">=</span> <span class="s2">"pipes"</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Cable distance is not supported for circuit type </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span><span class="si">}</span><span class="s2">. If touching &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">touching</span><span class="si">}</span><span class="s2"> are desired, dist should be set to </span><span class="si">{</span><span class="kc">None</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Cable distance is not supported for circuit type </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span><span class="si">}</span><span class="s2">. If touching "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">touching</span><span class="si">}</span><span class="s2"> are desired, dist should be set to </span><span class="si">{</span><span class="kc">None</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">cable</span><span class="p">,</span> <span class="n">CableTrefoilCircuitSinglePipe</span><span class="p">):</span>
             <span class="n">circuit</span> <span class="o">=</span> <span class="n">TrefoilCircuitInSinglePipe</span><span class="p">(</span><span class="n">circuit_init_data</span><span class="p">)</span>
@@ -5385,7 +5385,7 @@ cable database example_cables.csv.</p>
             <span class="n">circuit</span> <span class="o">=</span> <span class="n">TrefoilCircuit</span><span class="p">(</span><span class="n">circuit_init_data</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Circuit type </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span><span class="si">}</span><span class="s2"> not supported.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Circuit type </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span><span class="si">}</span><span class="s2"> not supported."</span><span class="p">)</span>
 
     <span class="n">circuit</span><span class="o">.</span><span class="n">initialize_screen_loss_functions</span><span class="p">()</span>
 
@@ -5502,7 +5502,7 @@ Mirror cables are essential in guaranteeing that the boundary conditions are sat
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">return_mirror_cable</span><span class="p">(</span><span class="n">pos_cable</span><span class="p">:</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return mirror cable based on given cable.</span>
+<span class="w">    </span><span class="sd">"""Return mirror cable based on given cable.</span>
 
 <span class="sd">    A mirror cable is an exact copy of a given cable with the only difference being that</span>
 <span class="sd">    the sign of the y-coordinate is switched.</span>
@@ -5512,9 +5512,9 @@ Mirror cables are essential in guaranteeing that the boundary conditions are sat
 <span class="sd">        pos_cable: Cable positioned in the static environment</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        &#39;mirrored&#39; positioned cable</span>
+<span class="sd">        'mirrored' positioned cable</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pos_cable_mirror</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">pos_cable</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">PosCable</span><span class="p">(</span>
         <span class="n">cable</span><span class="o">=</span><span class="n">pos_cable_mirror</span><span class="o">.</span><span class="n">cable</span><span class="p">,</span>

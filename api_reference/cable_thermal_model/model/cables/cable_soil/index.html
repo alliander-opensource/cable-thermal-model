@@ -2704,7 +2704,7 @@
     <span class="n">cable_type</span><span class="p">:</span> <span class="n">CableType</span><span class="p">,</span>
     <span class="n">grid_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
+<span class="w">    </span><span class="sd">"""Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        conductor (CableConductorProperties): Conductor properties of the cable.</span>
@@ -2713,7 +2713,7 @@
 <span class="sd">        cable_type (CableType): The type of the cable.</span>
 <span class="sd">        grid_counts (dict[CableLayer, int]): Number of grid points per cable layer.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">layer_properties</span><span class="p">,</span> <span class="n">layer_metrics</span><span class="p">,</span> <span class="n">cable_type</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_grid_counts</span><span class="p">(</span><span class="n">grid_counts</span><span class="p">)</span>
@@ -2894,7 +2894,7 @@ the final grid point, at which a boundary condition is enforced.</p>
     <span class="n">time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">solution_at_boundary</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method solves the finite difference approximation to the heat equation using the implicit Euler method.</span>
+<span class="w">    </span><span class="sd">"""This method solves the finite difference approximation to the heat equation using the implicit Euler method.</span>
 
 <span class="sd">    For optimization purposes, the method uses the scipy.linalg.solve_banded method to solve the linear system.</span>
 <span class="sd">    This means the three diagonals of finite difference matrix A are instead stored in a (3, N) array, where</span>
@@ -2911,7 +2911,7 @@ the final grid point, at which a boundary condition is enforced.</p>
 <span class="sd">        np.ndarray: The solution [°C] to the heat equation at the next timestep (t+1) for all grid points except</span>
 <span class="sd">            the final grid point, at which a boundary condition is enforced.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_matrix</span><span class="p">(</span><span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">)</span>
     <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heating_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_diagonal_last_element</span> <span class="o">*</span> <span class="n">solution_at_boundary</span>
@@ -3043,7 +3043,7 @@ the final grid point, at which a boundary condition is enforced.</p>
 <span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update_soil_properties</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">soil_rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">soil_c</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">temperature_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">soil_drying</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method updates the soil properties around a cable.</span>
+<span class="w">    </span><span class="sd">"""This method updates the soil properties around a cable.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        soil_rho (float): The thermal resistivity of the soil that is not dried out</span>
@@ -3051,7 +3051,7 @@ the final grid point, at which a boundary condition is enforced.</p>
 <span class="sd">        temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.</span>
 <span class="sd">        soil_drying (bool): Whether the scenario takes soil drying into account.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dry_soil_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dry_soil_radius</span><span class="p">(</span><span class="n">temperature_grid</span><span class="o">=</span><span class="n">temperature_grid</span><span class="p">,</span> <span class="n">soil_drying</span><span class="o">=</span><span class="n">soil_drying</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_update_soil_resistivity</span><span class="p">(</span>
@@ -3099,9 +3099,9 @@ the final grid point, at which a boundary condition is enforced.</p>
 <span class="normal">163</span>
 <span class="normal">164</span>
 <span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable_copy_without_soil</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method returns a new CableSoil object with the soil layer removed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""This method returns a new CableSoil object with the soil layer removed."""</span>
     <span class="k">if</span> <span class="n">CableLayer</span><span class="o">.</span><span class="n">SoilOne</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No soil layers detected!&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No soil layers detected!"</span><span class="p">)</span>
 
     <span class="n">non_soil_layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">layer</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CableLayer</span><span class="o">.</span><span class="n">soil_layers</span><span class="p">()]</span>
     <span class="n">grid_count_for_cable_without_soil</span> <span class="o">=</span> <span class="p">{</span>
@@ -3350,7 +3350,7 @@ the added soil layers.
     <span class="n">soil_radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">logarithmic_soil_gridpoint_density</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a fresh copy of the current cable object this was run from, but with an extra added soil layer.</span>
+<span class="w">    </span><span class="sd">"""Create a fresh copy of the current cable object this was run from, but with an extra added soil layer.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cable (Cable):</span>
@@ -3373,22 +3373,22 @@ the added soil layers.
 <span class="sd">                A completely new CableSoil instance based on the Cable object the method was called from, but with</span>
 <span class="sd">                the added soil layers.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># copy source data so we don&#39;t mutate the original cable</span>
+<span class="sd">    """</span>
+    <span class="c1"># copy source data so we don't mutate the original cable</span>
     <span class="n">layer_properties</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">cable</span><span class="o">.</span><span class="n">layer_properties</span><span class="p">)</span>
     <span class="n">grid_counts</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">cable</span><span class="o">.</span><span class="n">_grid_counts</span><span class="p">)</span>
 
     <span class="n">outer_layer</span> <span class="o">=</span> <span class="n">cable</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">current_outer_radius</span> <span class="o">=</span> <span class="n">layer_properties</span><span class="p">[</span><span class="n">outer_layer</span><span class="p">]</span><span class="o">.</span><span class="n">outer_radius</span>
     <span class="k">if</span> <span class="n">soil_radius</span> <span class="o">&lt;=</span> <span class="n">current_outer_radius</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The soil radius must be larger than the outer radius of the current outer layer!&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The soil radius must be larger than the outer radius of the current outer layer!"</span><span class="p">)</span>
 
     <span class="n">soil_layers</span> <span class="o">=</span> <span class="n">CableLayer</span><span class="o">.</span><span class="n">soil_layers</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">outer_layer</span> <span class="ow">in</span> <span class="n">soil_layers</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">outer_layer</span> <span class="o">==</span> <span class="n">soil_layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The current cable already has the maximum amount of soil layers! &quot;</span>
-                <span class="s2">&quot;This method cannot be used to add more soil layers!&quot;</span>
+                <span class="s2">"The current cable already has the maximum amount of soil layers! "</span>
+                <span class="s2">"This method cannot be used to add more soil layers!"</span>
             <span class="p">)</span>
         <span class="n">new_layer</span> <span class="o">=</span> <span class="n">soil_layers</span><span class="p">[</span><span class="n">soil_layers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">outer_layer</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>

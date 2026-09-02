@@ -2693,17 +2693,17 @@ minimal_soil_radius: Minimum soil radius around each cable in meters. Default is
 <span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvSoil</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the ModelSoil instance with a static environment.</span>
+<span class="w">    </span><span class="sd">"""Initialize the ModelSoil instance with a static environment.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env: A StaticEnvSoil instance containing the soil thermal parameters and cable layout.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">static_env</span><span class="p">,</span> <span class="n">StaticEnvSoil</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Can not use model </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> if static &quot;</span>
-            <span class="s2">&quot;environment is not an environment in soil. Please use &quot;</span>
-            <span class="s2">&quot;ModelAir instead.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Can not use model </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> if static "</span>
+            <span class="s2">"environment is not an environment in soil. Please use "</span>
+            <span class="s2">"ModelAir instead."</span>
         <span class="p">)</span>
 
     <span class="c1"># Set up cables</span>
@@ -2880,7 +2880,7 @@ minimal_soil_radius: Minimum soil radius around each cable in meters. Default is
     <span class="n">state</span><span class="p">:</span> <span class="n">StateSoil</span><span class="p">,</span>
     <span class="n">measurement_point</span><span class="p">:</span> <span class="n">MeasurementPoint</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the temperature at a point in the environment given the state.</span>
+<span class="w">    </span><span class="sd">"""Compute the temperature at a point in the environment given the state.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        measurement_point: The measurement point object containing coordinates and distances to cables.</span>
@@ -2889,7 +2889,7 @@ minimal_soil_radius: Minimum soil radius around each cable in meters. Default is
 <span class="sd">    Returns:</span>
 <span class="sd">        float: Temperature in degrees Celsius.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">measurement_point_temp</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">ambient_temperature</span>
 
     <span class="k">for</span> <span class="n">cable_key</span><span class="p">,</span> <span class="n">cable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cables_with_soil</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

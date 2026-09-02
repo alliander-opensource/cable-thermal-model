@@ -4040,7 +4040,7 @@ values.</p>
     <span class="n">layer_metrics</span><span class="p">:</span> <span class="n">CableLayerMetrics</span><span class="p">,</span>
     <span class="n">cable_type</span><span class="p">:</span> <span class="n">CableType</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize an abstract cable with its conductor, layer, and metric properties.</span>
+<span class="w">    </span><span class="sd">"""Initialize an abstract cable with its conductor, layer, and metric properties.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        conductor (CableConductorProperties): Conductor properties of the cable.</span>
@@ -4048,25 +4048,25 @@ values.</p>
 <span class="sd">        layer_metrics (CableLayerMetrics): Geometric and calculated metrics for the cable layers.</span>
 <span class="sd">        cable_type (CableType): The type of the cable.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">CableConductorProperties</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Expected [conductor] to be of type [CableConductorProperties], but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">conductor</span><span class="p">)</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="sa">f</span><span class="s2">"Expected [conductor] to be of type [CableConductorProperties], but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">conductor</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
         <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">conductor</span> <span class="o">=</span> <span class="n">conductor</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer_properties</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected [layer_properties] to be of type dict, but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">layer_properties</span><span class="p">)</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected [layer_properties] to be of type dict, but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">layer_properties</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">layer_properties</span> <span class="o">=</span> <span class="n">layer_properties</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer_metrics</span><span class="p">,</span> <span class="n">CableLayerMetrics</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Expected [layer_metrics] to be of type [CableLayerMetrics], but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">layer_metrics</span><span class="p">)</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="sa">f</span><span class="s2">"Expected [layer_metrics] to be of type [CableLayerMetrics], but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">layer_metrics</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
         <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span> <span class="o">=</span> <span class="n">layer_metrics</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cable_type</span><span class="p">,</span> <span class="n">CableType</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected [cable_type] to be of type [CableType], but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cable_type</span><span class="p">)</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected [cable_type] to be of type [CableType], but got [</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cable_type</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cable_type</span> <span class="o">=</span> <span class="n">cable_type</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">number_of_conductors</span> <span class="o">==</span> <span class="n">CableConductorCount</span><span class="o">.</span><span class="n">Three</span><span class="p">:</span>
@@ -4074,7 +4074,7 @@ values.</p>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">distance</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingAttributeException</span><span class="p">(</span>
-                <span class="s2">&quot;Trying to instantiate 3-core cable without specified conductor distance.&quot;</span>
+                <span class="s2">"Trying to instantiate 3-core cable without specified conductor distance."</span>
             <span class="p">)</span>
 
         <span class="n">y_dif</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="mi">3</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">/</span> <span class="mi">2</span>
@@ -4491,7 +4491,7 @@ values.</p>
 <span class="normal">346</span>
 <span class="normal">347</span>
 <span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ac_resistance_conductor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the AC resistance of the conductor based on its temperature and distance to other conductors.</span>
+<span class="w">    </span><span class="sd">"""Computes the AC resistance of the conductor based on its temperature and distance to other conductors.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Tc (float): The conductor temperature in degrees Celsius.</span>
@@ -4500,7 +4500,7 @@ values.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: The AC resistance of the conductor in Ohm/m.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">Rdc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dc_resistance_conductor</span><span class="p">(</span><span class="n">Tc</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ac_resistance_conductor_from_dc_resistance</span><span class="p">(</span><span class="n">Rdc</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4605,7 +4605,7 @@ values.</p>
 <span class="normal">386</span>
 <span class="normal">387</span>
 <span class="normal">388</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_skin_effect_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Rdc</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute skin effect factor y_s from DC resistance.</span>
+<span class="w">    </span><span class="sd">"""Compute skin effect factor y_s from DC resistance.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Rdc (float): The DC resistance of the conductor in Ohm/m at the operating temperature.</span>
@@ -4616,7 +4616,7 @@ values.</p>
 <span class="sd">    References:</span>
 <span class="sd">        - IEC 60287-1-1 - section 5.1.3</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">x_coefficient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_x_coefficient</span><span class="p">(</span><span class="n">Rdc</span><span class="p">)</span>
     <span class="n">k_s</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_k_s_and_k_p</span><span class="p">()</span>
     <span class="n">x_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_coefficient</span> <span class="o">*</span> <span class="n">k_s</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
@@ -4753,7 +4753,7 @@ values.</p>
 <span class="normal">418</span>
 <span class="normal">419</span>
 <span class="normal">420</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_proximity_effect_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Rdc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute proximity effect factor y_p from DC resistance.</span>
+<span class="w">    </span><span class="sd">"""Compute proximity effect factor y_p from DC resistance.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Rdc (float): The DC resistance of the conductor in Ohm/m at the operating temperature.</span>
@@ -4765,7 +4765,7 @@ values.</p>
 <span class="sd">    References:</span>
 <span class="sd">        - IEC 60287-1-1 - section 5.1.5</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">x_coefficient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_x_coefficient</span><span class="p">(</span><span class="n">Rdc</span><span class="p">)</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">k_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_k_s_and_k_p</span><span class="p">()</span>
 
@@ -4773,7 +4773,7 @@ values.</p>
     <span class="n">x_p</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_coefficient</span> <span class="o">*</span> <span class="n">k_p</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
     <span class="k">if</span> <span class="n">x_p</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_X_P_THRESHOLD</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The value for [x_p] is greater than [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_X_P_THRESHOLD</span><span class="si">}</span><span class="s2">]. Faults may occur when calculating [y_p]!&quot;</span>
+            <span class="sa">f</span><span class="s2">"The value for [x_p] is greater than [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_X_P_THRESHOLD</span><span class="si">}</span><span class="s2">]. Faults may occur when calculating [y_p]!"</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">shape</span> <span class="ow">in</span> <span class="p">[</span><span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Round</span><span class="p">,</span> <span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Hollow</span><span class="p">]:</span>
@@ -4782,7 +4782,7 @@ values.</p>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Sector</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_y_p_from_x_p</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">conductor_diameter</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">conductor_diameter</span> <span class="o">+</span> <span class="n">s</span><span class="p">,</span> <span class="n">x_p</span><span class="o">=</span><span class="n">x_p</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
 
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Conductor shape [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">] not recognized. Cannot calculate [y_p].&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Conductor shape [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">] not recognized. Cannot calculate [y_p]."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4876,7 +4876,7 @@ values.</p>
 <span class="normal">661</span>
 <span class="normal">662</span>
 <span class="normal">663</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_dc_resistance_conductor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the DC resistance of the conductor at a given conductor temperature.</span>
+<span class="w">    </span><span class="sd">"""Computes the DC resistance of the conductor at a given conductor temperature.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Tc (float): The conductor temperature in degrees Celsius.</span>
@@ -4884,7 +4884,7 @@ values.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: The DC resistance of the conductor in Ohm/m.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">layer_properties</span><span class="p">[</span><span class="n">CableLayer</span><span class="o">.</span><span class="n">Conductor</span><span class="p">]</span><span class="o">.</span><span class="n">electric_rho</span>
         <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">conductor_virtual_cross_section</span>
@@ -5111,7 +5111,7 @@ conductor and the screen respectively in W/m.</p>
     <span class="n">temperature_dependent_electric_resistance</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">ac_current</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates the heat generation in the conductor based on the load and resistance.</span>
+<span class="w">    </span><span class="sd">"""Calculates the heat generation in the conductor based on the load and resistance.</span>
 
 <span class="sd">    In W/m.</span>
 
@@ -5130,7 +5130,7 @@ conductor and the screen respectively in W/m.</p>
 <span class="sd">        tuple[float, float]: A tuple containing the heat generation in the</span>
 <span class="sd">            conductor and the screen respectively in W/m.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">heat_generation_conductor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heat_generation_conductor</span><span class="p">(</span>
         <span class="n">ac_current</span><span class="o">=</span><span class="n">ac_current</span><span class="p">,</span>
         <span class="n">load</span><span class="o">=</span><span class="n">load</span><span class="p">,</span>
@@ -5350,7 +5350,7 @@ conductor and the screen respectively in W/m.</p>
     <span class="n">conductor_temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">temperature_dependent_electric_resistance</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates the heat generation in the conductor based on the load and resistance.</span>
+<span class="w">    </span><span class="sd">"""Calculates the heat generation in the conductor based on the load and resistance.</span>
 
 <span class="sd">    In W/m.</span>
 
@@ -5367,7 +5367,7 @@ conductor and the screen respectively in W/m.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: The heat generation in the conductor in W/m.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">resistance_conductor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dc_resistance_conductor</span><span class="p">(</span>
         <span class="n">Tc</span><span class="o">=</span><span class="p">(</span>
             <span class="n">conductor_temperature</span>
@@ -5379,7 +5379,7 @@ conductor and the screen respectively in W/m.</p>
         <span class="n">distance_conductor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">conductor_distance</span>
         <span class="k">if</span> <span class="n">distance_conductor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Conductor distance has not been set, cannot compute AC resistance factor for conductor.&quot;</span>
+                <span class="s2">"Conductor distance has not been set, cannot compute AC resistance factor for conductor."</span>
             <span class="p">)</span>
         <span class="n">resistance_conductor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ac_resistance_conductor_from_dc_resistance</span><span class="p">(</span>
             <span class="n">Rdc</span><span class="o">=</span><span class="n">resistance_conductor</span><span class="p">,</span>
@@ -5549,7 +5549,7 @@ conductor and the screen respectively in W/m.</p>
     <span class="n">conductor_temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">temperature_dependent_electric_resistance</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates the heat generation in the screen based on the conductor heat generation and screen loss factor.</span>
+<span class="w">    </span><span class="sd">"""Calculates the heat generation in the screen based on the conductor heat generation and screen loss factor.</span>
 
 <span class="sd">    In W/m.</span>
 
@@ -5562,7 +5562,7 @@ conductor and the screen respectively in W/m.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: The heat generation in the screen in W/m.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">heat_generation_conductor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cable_screen_loss_factor</span><span class="p">(</span>
         <span class="n">Ts</span><span class="o">=</span><span class="n">screen_temperature</span>
         <span class="k">if</span> <span class="n">temperature_dependent_electric_resistance</span>
@@ -5698,7 +5698,7 @@ screen.</p>
 <span class="normal">829</span>
 <span class="normal">830</span>
 <span class="normal">831</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable_screen_loss_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ts</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the screen loss factor for the cable.</span>
+<span class="w">    </span><span class="sd">"""Returns the screen loss factor for the cable.</span>
 
 <span class="sd">    THe screen loss factor describes the ratio</span>
 <span class="sd">    of heat generated in the screen relative to the conductor.</span>
@@ -5717,9 +5717,9 @@ screen.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: Screen loss factor (ratio of loss in the screen relative to the conductor).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Screen loss method is not set.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Screen loss method is not set."</span><span class="p">)</span>
     <span class="n">screen_loss_function</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">screen_loss_type</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">screen_loss_function</span><span class="p">(</span><span class="n">Tc</span><span class="p">,</span> <span class="n">Ts</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -5803,7 +5803,7 @@ function.</p>
 <span class="normal">1317</span>
 <span class="normal">1318</span>
 <span class="normal">1319</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_dielectric_loss_for_cable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes dielectric losses per conductor using permittivity and tan(delta) of the insulation material.</span>
+<span class="w">    </span><span class="sd">"""Computes dielectric losses per conductor using permittivity and tan(delta) of the insulation material.</span>
 
 <span class="sd">    This function checks first whether the dielectric loss can be neglected based on the cable configuration.</span>
 <span class="sd">    If so, it returns 0. Otherwise, it computes the dielectric loss using the compute_dielectric_loss_per_conductor</span>
@@ -5815,7 +5815,7 @@ function.</p>
 <span class="sd">    References:</span>
 <span class="sd">        - NEN-IEC 60287-1-1 (2023) - [section 5.2]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">number_of_conductors</span> <span class="o">==</span> <span class="n">CableConductorCount</span><span class="o">.</span><span class="n">Three</span><span class="p">:</span>
         <span class="c1"># According to [section 5.2] in NEN-IEC 60287-1-1 (2023), the dielectric loss can be neglected for</span>
         <span class="c1"># unscreened multicore cables. Screened multicore cables are not supported by the model (yet).</span>

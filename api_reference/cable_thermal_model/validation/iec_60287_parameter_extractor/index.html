@@ -2699,7 +2699,7 @@
 <span class="normal">71</span>
 <span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an IEC60287CableParameters instance from a dictionary, ensuring all required keys are present.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create an IEC60287CableParameters instance from a dictionary, ensuring all required keys are present."""</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2872,7 +2872,7 @@
     <span class="n">soil_thermal_capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">ambient_temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a static scenario DataFrame used for IEC parameter extraction.</span>
+<span class="w">    </span><span class="sd">"""Build a static scenario DataFrame used for IEC parameter extraction.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        circuit_ratings: Mapping of circuit names to their load ratings (A).</span>
@@ -2883,18 +2883,18 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A DataFrame with columns for ambient temperature, soil properties, and load.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">scenario</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;ambient_temperature&quot;</span><span class="p">:</span> <span class="n">ambient_temperature</span><span class="p">,</span>
-            <span class="s2">&quot;soil_thermal_resistivity&quot;</span><span class="p">:</span> <span class="n">soil_thermal_resistivity</span><span class="p">,</span>
-            <span class="s2">&quot;soil_thermal_capacity&quot;</span><span class="p">:</span> <span class="n">soil_thermal_capacity</span><span class="p">,</span>
+            <span class="s2">"ambient_temperature"</span><span class="p">:</span> <span class="n">ambient_temperature</span><span class="p">,</span>
+            <span class="s2">"soil_thermal_resistivity"</span><span class="p">:</span> <span class="n">soil_thermal_resistivity</span><span class="p">,</span>
+            <span class="s2">"soil_thermal_capacity"</span><span class="p">:</span> <span class="n">soil_thermal_capacity</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">timedelta_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;0D&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;100000D&quot;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">101</span><span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">timedelta_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">"0D"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"100000D"</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">101</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">circuit_name</span><span class="p">,</span> <span class="n">rating</span> <span class="ow">in</span> <span class="n">circuit_ratings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">scenario</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;load_</span><span class="si">{</span><span class="n">circuit_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rating</span>
+        <span class="n">scenario</span><span class="p">[</span><span class="sa">f</span><span class="s2">"load_</span><span class="si">{</span><span class="n">circuit_name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rating</span>
 
     <span class="k">return</span> <span class="n">scenario</span>
 </code></pre></div></td></tr></table></div>
@@ -3088,7 +3088,7 @@
     <span class="n">soil_thermal_capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">ambient_temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute IEC validation parameters and return a compact DataFrame.</span>
+<span class="w">    </span><span class="sd">"""Compute IEC validation parameters and return a compact DataFrame.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env: The static environment to solve.</span>
@@ -3100,7 +3100,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A DataFrame with the relevant IEC parameters for all cables in static_env.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">scenario</span> <span class="o">=</span> <span class="n">build_scenario</span><span class="p">(</span>
         <span class="n">circuit_ratings</span><span class="o">=</span><span class="n">circuit_ratings</span><span class="p">,</span>
         <span class="n">soil_thermal_resistivity</span><span class="o">=</span><span class="n">soil_thermal_resistivity</span><span class="p">,</span>
@@ -3253,7 +3253,7 @@
     <span class="n">extracted_parameters</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
     <span class="n">reference_parameters</span><span class="p">:</span> <span class="n">IEC60287CableParameters</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare extracted parameters to reference values and compute differences.</span>
+<span class="w">    </span><span class="sd">"""Compare extracted parameters to reference values and compute differences.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        extracted_parameters: A Series containing the extracted parameters for a cable.</span>
@@ -3262,13 +3262,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A DataFrame comparing extracted and reference parameters, including differences.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">reference_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">reference_parameters</span><span class="p">))</span>
 
-    <span class="n">comparison</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;Extracted&quot;</span><span class="p">:</span> <span class="n">extracted_parameters</span><span class="p">,</span> <span class="s2">&quot;Reference&quot;</span><span class="p">:</span> <span class="n">reference_series</span><span class="p">})</span>
-    <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;Diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;Extracted&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;Reference&quot;</span><span class="p">]</span>
-    <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;Rel Diff (%)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;Diff&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;Reference&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">comparison</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Unit&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">IEC60287CableParameters</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
+    <span class="n">comparison</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"Extracted"</span><span class="p">:</span> <span class="n">extracted_parameters</span><span class="p">,</span> <span class="s2">"Reference"</span><span class="p">:</span> <span class="n">reference_series</span><span class="p">})</span>
+    <span class="n">comparison</span><span class="p">[</span><span class="s2">"Diff"</span><span class="p">]</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">"Extracted"</span><span class="p">]</span> <span class="o">-</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">"Reference"</span><span class="p">]</span>
+    <span class="n">comparison</span><span class="p">[</span><span class="s2">"Rel Diff (%)"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">comparison</span><span class="p">[</span><span class="s2">"Diff"</span><span class="p">]</span> <span class="o">/</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">"Reference"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">comparison</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"Unit"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">IEC60287CableParameters</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">comparison</span>
 </code></pre></div></td></tr></table></div>

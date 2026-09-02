@@ -2674,7 +2674,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
     <span class="n">cable_type</span><span class="p">:</span> <span class="n">CableType</span><span class="p">,</span>
     <span class="n">grid_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
+<span class="w">    </span><span class="sd">"""Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        conductor (CableConductorProperties): Conductor properties of the cable.</span>
@@ -2683,7 +2683,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
 <span class="sd">        cable_type (CableType): The type of the cable.</span>
 <span class="sd">        grid_counts (dict[CableLayer, int]): Number of grid points per cable layer.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">layer_properties</span><span class="p">,</span> <span class="n">layer_metrics</span><span class="p">,</span> <span class="n">cable_type</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_grid_counts</span><span class="p">(</span><span class="n">grid_counts</span><span class="p">)</span>
@@ -2800,7 +2800,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
     <span class="n">cable_type</span><span class="p">:</span> <span class="n">CableType</span><span class="p">,</span>
     <span class="n">grid_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
+<span class="w">    </span><span class="sd">"""Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        conductor (CableConductorProperties): Conductor properties of the cable.</span>
@@ -2809,7 +2809,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
 <span class="sd">        cable_type (CableType): The type of the cable.</span>
 <span class="sd">        grid_counts (dict[CableLayer, int]): Number of grid points per cable layer.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">layer_properties</span><span class="p">,</span> <span class="n">layer_metrics</span><span class="p">,</span> <span class="n">cable_type</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_grid_counts</span><span class="p">(</span><span class="n">grid_counts</span><span class="p">)</span>
@@ -2910,7 +2910,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
     <span class="n">cable_type</span><span class="p">:</span> <span class="n">CableType</span><span class="p">,</span>
     <span class="n">grid_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize CableAir with convection parameters set to None until explicitly configured.</span>
+<span class="w">    </span><span class="sd">"""Initialize CableAir with convection parameters set to None until explicitly configured.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        conductor (CableConductorProperties): Conductor properties of the cable.</span>
@@ -2919,7 +2919,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
 <span class="sd">        cable_type (CableType): The type of the cable.</span>
 <span class="sd">        grid_counts (dict[CableLayer, int]): Number of grid points per cable layer.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_params</span><span class="p">:</span> <span class="n">CableConvectionParams</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">layer_properties</span><span class="p">,</span> <span class="n">layer_metrics</span><span class="p">,</span> <span class="n">cable_type</span><span class="p">,</span> <span class="n">grid_counts</span><span class="p">)</span>

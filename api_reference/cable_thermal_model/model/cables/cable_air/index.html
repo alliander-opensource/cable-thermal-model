@@ -2766,7 +2766,7 @@ of the banded matrix used in convection boundary condition updates.</p>
     <span class="n">cable_type</span><span class="p">:</span> <span class="n">CableType</span><span class="p">,</span>
     <span class="n">grid_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize CableAir with convection parameters set to None until explicitly configured.</span>
+<span class="w">    </span><span class="sd">"""Initialize CableAir with convection parameters set to None until explicitly configured.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        conductor (CableConductorProperties): Conductor properties of the cable.</span>
@@ -2775,7 +2775,7 @@ of the banded matrix used in convection boundary condition updates.</p>
 <span class="sd">        cable_type (CableType): The type of the cable.</span>
 <span class="sd">        grid_counts (dict[CableLayer, int]): Number of grid points per cable layer.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_params</span><span class="p">:</span> <span class="n">CableConvectionParams</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">layer_properties</span><span class="p">,</span> <span class="n">layer_metrics</span><span class="p">,</span> <span class="n">cable_type</span><span class="p">,</span> <span class="n">grid_counts</span><span class="p">)</span>
@@ -2897,7 +2897,7 @@ of the banded matrix used in convection boundary condition updates.</p>
 <span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_convection_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">E</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Cg</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the convection parameters used to compute the convection coefficient.</span>
+<span class="w">    </span><span class="sd">"""Set the convection parameters used to compute the convection coefficient.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Z: Convection parameter Z.</span>
@@ -2907,7 +2907,7 @@ of the banded matrix used in convection boundary condition updates.</p>
 <span class="sd">    References:</span>
 <span class="sd">        - NEN-IEC 60287-2-1 (2023) Section 4.2.1.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_params</span> <span class="o">=</span> <span class="n">CableConvectionParams</span><span class="p">(</span><span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="n">E</span><span class="p">,</span> <span class="n">Cg</span><span class="o">=</span><span class="n">Cg</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_coefficient</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="n">Cg</span> <span class="o">+</span> <span class="n">E</span>
 </code></pre></div></td></tr></table></div>
@@ -3057,7 +3057,7 @@ time grid.</p>
     <span class="n">previous_solution</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the temperature solution for the next time step.</span>
+<span class="w">    </span><span class="sd">"""Computes the temperature solution for the next time step.</span>
 
 <span class="sd">    Computes the temperature solution at time step [t+1] given the solution at the</span>
 <span class="sd">    current time step [t], the finite difference matrix, and the vector for [t].</span>
@@ -3072,7 +3072,7 @@ time grid.</p>
 <span class="sd">        np.ndarray: The updated temperature solution at the new time step</span>
 <span class="sd">            [t+1] for the cable.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_matrix</span><span class="p">(</span><span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">)</span>
 
     <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heating_vector</span> <span class="o">*</span> <span class="n">time_step</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_grid</span> <span class="o">*</span> <span class="n">previous_solution</span>
@@ -3090,7 +3090,7 @@ time grid.</p>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">temp_solution</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">theta_N</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_ERROR_SHEATH</span><span class="p">:</span>
             <span class="k">break</span>
         <span class="k">elif</span> <span class="n">iteration</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_ITERATIONS_PER_TIMESTEP</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solution did not converge after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_ITERATIONS_PER_TIMESTEP</span><span class="si">}</span><span class="s2"> iterations&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Solution did not converge after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_ITERATIONS_PER_TIMESTEP</span><span class="si">}</span><span class="s2"> iterations"</span><span class="p">)</span>
 
         <span class="n">A</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bottomright_index</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boundary_condition_coefficient</span> <span class="o">*</span> <span class="n">theta_N</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">time_step</span>
         <span class="n">theta_N</span> <span class="o">=</span> <span class="n">temp_solution</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>

@@ -2770,10 +2770,10 @@
 <span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span>
-<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@pa</span><span class="o">.</span><span class="n">dataframe_check</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Scenario index must be either datetime-like or timedelta-like..&quot;</span><span class="p">)</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@pa</span><span class="o">.</span><span class="n">dataframe_check</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">"Scenario index must be either datetime-like or timedelta-like.."</span><span class="p">)</span>
 <span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_datetime_index</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure index is datetime-like or timedelta-like.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Ensure index is datetime-like or timedelta-like."""</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_datetime64_any_dtype</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_timedelta64_dtype</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2807,10 +2807,10 @@
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
-<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@pa</span><span class="o">.</span><span class="n">dataframe_check</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Scenario dataframe must not contain missing values.&quot;</span><span class="p">)</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@pa</span><span class="o">.</span><span class="n">dataframe_check</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">"Scenario dataframe must not contain missing values."</span><span class="p">)</span>
 <span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_no_missing_values</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure there are no missing values in the scenario dataframe.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Ensure there are no missing values in the scenario dataframe."""</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>

@@ -2799,16 +2799,16 @@ The temperature delta profile as a result of self-heating due to the load.</p>
 <span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
-<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_solution_consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that temperature and self_heating_contribution share the same cable keys.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Validate that temperature and self_heating_contribution share the same cable keys."""</span>
     <span class="n">keys_temperature</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">keys_solution</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">self_heating_contribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">keys_temperature</span> <span class="o">!=</span> <span class="n">keys_solution</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Inconsistent keys between temperature and self_heating_contribution. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Keys in temperature: </span><span class="si">{</span><span class="n">keys_temperature</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;keys in self_heating_contribution: </span><span class="si">{</span><span class="n">keys_solution</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Inconsistent keys between temperature and self_heating_contribution. "</span>
+            <span class="sa">f</span><span class="s2">"Keys in temperature: </span><span class="si">{</span><span class="n">keys_temperature</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"keys in self_heating_contribution: </span><span class="si">{</span><span class="n">keys_solution</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
@@ -2922,15 +2922,15 @@ temperature increases per grid point as value.</p>
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
-<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_mutual_heating_contribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that mutual_heating_contribution keys match cable keys.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Validate that mutual_heating_contribution keys match cable keys."""</span>
     <span class="n">found_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutual_heating_contribution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">found_keys</span> <span class="o">!=</span> <span class="n">expected_keys</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;CableKeys of mutual_heating_contribution should match with cable_keys of temperature.&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Found keys: </span><span class="si">{</span><span class="n">found_keys</span><span class="si">}</span><span class="s2">, expected keys: </span><span class="si">{</span><span class="n">expected_keys</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"CableKeys of mutual_heating_contribution should match with cable_keys of temperature."</span>
+            <span class="sa">f</span><span class="s2">"Found keys: </span><span class="si">{</span><span class="n">found_keys</span><span class="si">}</span><span class="s2">, expected keys: </span><span class="si">{</span><span class="n">expected_keys</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
@@ -3013,13 +3013,13 @@ temperature increases per grid point as value.</p>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
-<span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_single_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure that all cable keys in StateAir belong to the same circuit.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Ensure that all cable keys in StateAir belong to the same circuit."""</span>
     <span class="n">cable_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
     <span class="n">circuit_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">cable_key</span><span class="o">.</span><span class="n">circuit_name</span> <span class="k">for</span> <span class="n">cable_key</span> <span class="ow">in</span> <span class="n">cable_keys</span><span class="p">}</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">circuit_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;StateAir should only contain one circuit, but found multiple: </span><span class="si">{</span><span class="n">circuit_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"StateAir should only contain one circuit, but found multiple: </span><span class="si">{</span><span class="n">circuit_names</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
             </details>

@@ -2717,23 +2717,23 @@
     <span class="n">pipe_input</span><span class="p">:</span> <span class="n">PipeInputSchema</span><span class="p">,</span>
     <span class="n">outer_radius_cable</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the Pipe from input schema and the outer radius of the enclosed cable.</span>
+<span class="w">    </span><span class="sd">"""Initialize the Pipe from input schema and the outer radius of the enclosed cable.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        pipe_input: Schema containing pipe configuration (SDR, fill type, radii).</span>
 <span class="sd">        outer_radius_cable: Outer radius of the cable that the pipe surrounds, in meters.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius_cable</span> <span class="o">=</span> <span class="n">outer_radius_cable</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">sdr</span> <span class="o">=</span> <span class="n">pipe_input</span><span class="o">.</span><span class="n">sdr</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">fill_mat_df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;pipe_filling_material_properties.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;material&quot;</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="s2">"pipe_filling_material_properties.csv"</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"material"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pipe_input</span><span class="o">.</span><span class="n">fill_type</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">pipe_fill_cap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_mat_df</span><span class="p">[</span><span class="s2">&quot;volumetric specific heat&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pipe_fill_cap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_mat_df</span><span class="p">[</span><span class="s2">"volumetric specific heat"</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">trefoil_circuit_in_single_pipe</span> <span class="o">=</span> <span class="n">pipe_input</span><span class="o">.</span><span class="n">trefoil_circuit_in_single_pipe</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">radius_factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trefoil_circuit_in_single_pipe</span> <span class="k">else</span> <span class="mi">1</span>
@@ -2868,7 +2868,7 @@
     <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine the correct pipe size for a given cable.</span>
+<span class="w">    </span><span class="sd">"""Determine the correct pipe size for a given cable.</span>
 
 <span class="sd">    Notes:</span>
 <span class="sd">        The missing radius size values are calculated using the following rules:</span>
@@ -2884,7 +2884,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple[float, float]: A tuple indicating, in order, the inner and outer radius for the pipe.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inner_radius</span><span class="p">,</span> <span class="n">outer_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_default_pipe_size</span><span class="p">()</span>
@@ -2897,23 +2897,23 @@
     <span class="k">if</span> <span class="n">inner_radius</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius_cable</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_factor</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trefoil_circuit_in_single_pipe</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Cable circuit does not fit into pipe with given radius. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Radius of the circumcircle of the three cables is &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">outer_radius_cable</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">radius_factor</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;inner radius of pipe is </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Cable circuit does not fit into pipe with given radius. "</span>
+                <span class="sa">f</span><span class="s2">"Radius of the circumcircle of the three cables is "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">outer_radius_cable</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">radius_factor</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"inner radius of pipe is </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Cable does not fit into pipe with given radius. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Outer radius of cable is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">outer_radius_cable</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;inner radius of pipe is </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Cable does not fit into pipe with given radius. "</span>
+                <span class="sa">f</span><span class="s2">"Outer radius of cable is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">outer_radius_cable</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"inner radius of pipe is </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">inner_radius</span> <span class="o">&gt;</span> <span class="n">outer_radius</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Specified inner radius of the pipe is larger than the outer radius of the pipe. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Outer radius of cable is </span><span class="si">{</span><span class="n">outer_radius</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;inner radius of pipe is </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Specified inner radius of the pipe is larger than the outer radius of the pipe. "</span>
+            <span class="sa">f</span><span class="s2">"Outer radius of cable is </span><span class="si">{</span><span class="n">outer_radius</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"inner radius of pipe is </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">inner_radius</span><span class="p">,</span> <span class="n">outer_radius</span>
@@ -2994,7 +2994,7 @@ inner and outer radius for the pipe.</p>
 <span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">choose_default_pipe_size</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Choose a default pipe size for a given cable.</span>
+<span class="w">    </span><span class="sd">"""Choose a default pipe size for a given cable.</span>
 
 <span class="sd">    The first conventional size that leaves enough space for the cable is chosen.</span>
 
@@ -3002,7 +3002,7 @@ inner and outer radius for the pipe.</p>
 <span class="sd">        tuple[float, float]: A tuple indicating, in order, the</span>
 <span class="sd">            inner and outer radius for the pipe.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">default_outer_radii</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.055</span><span class="p">,</span> <span class="mf">0.0625</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.100</span><span class="p">]</span>
     <span class="n">default_inner_radii</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdr</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">default_outer_radii</span><span class="p">]</span>
 
@@ -3016,7 +3016,7 @@ inner and outer radius for the pipe.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius</span> <span class="o">=</span> <span class="n">outer_radius</span>
             <span class="k">return</span> <span class="n">inner_radius</span><span class="p">,</span> <span class="n">outer_radius</span>
 
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cable does not fit in any default pipe. Please specify custom pipe size. &quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cable does not fit in any default pipe. Please specify custom pipe size. "</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3117,7 +3117,7 @@ inner and outer radius for the pipe.</p>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">T</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method computes the thermal resistivity by extracting it from the lump sum resistivity.</span>
+<span class="w">    </span><span class="sd">"""This method computes the thermal resistivity by extracting it from the lump sum resistivity.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        T: temperature of the medium in the pipe in degrees Celsius</span>
@@ -3125,7 +3125,7 @@ inner and outer radius for the pipe.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: The thermal resistivity (Km/W) of the pipe filling material.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">T4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lump_sum_resistivity_pipe_fill</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
     <span class="n">equivalent_radius_factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trefoil_circuit_in_single_pipe</span> <span class="k">else</span> <span class="mi">1</span>
     <span class="n">pipe_fill_rho</span> <span class="o">=</span> <span class="p">(</span>

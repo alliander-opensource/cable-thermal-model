@@ -2732,7 +2732,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
     <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a model instance based on the environment type.</span>
+<span class="w">    </span><span class="sd">"""Create a model instance based on the environment type.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env (StaticEnvT): Static environment configuration for the model.</span>
@@ -2742,15 +2742,15 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If static_env is not a supported environment type.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">static_env</span><span class="p">,</span> <span class="n">StaticEnvAir</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ModelAir</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">static_env</span><span class="p">,</span> <span class="n">StaticEnvSoil</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ModelSoil</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unsupported static environment type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">static_env</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">StaticEnvAir</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">StaticEnvSoil</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unsupported static environment type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">static_env</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"Expected </span><span class="si">{</span><span class="n">StaticEnvAir</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">StaticEnvSoil</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

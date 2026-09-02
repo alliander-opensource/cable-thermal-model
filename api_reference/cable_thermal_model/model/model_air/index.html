@@ -2640,17 +2640,17 @@
 <span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvAir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the ModelAir instance with a static environment.</span>
+<span class="w">    </span><span class="sd">"""Initialize the ModelAir instance with a static environment.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env: A StaticEnvAir instance containing the circuit configuration and cable properties.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">static_env</span><span class="p">,</span> <span class="n">StaticEnvAir</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Can not use model &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; if static &quot;</span>
-            <span class="s2">&quot;environment is not an environment in air. Please use &quot;</span>
-            <span class="s2">&quot;ModelSoil instead.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Can not use model '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">' if static "</span>
+            <span class="s2">"environment is not an environment in air. Please use "</span>
+            <span class="s2">"ModelSoil instead."</span>
         <span class="p">)</span>
 
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">)</span>

@@ -3216,7 +3216,7 @@ derives missing values when enough dimensional information is available.</p>
 <span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_surface_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the annular surface area of the layer.</span>
+<span class="w">    </span><span class="sd">"""Calculate the annular surface area of the layer.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        float: Layer annular area computed as pi * (r_o^2 - r_i^2).</span>
@@ -3224,9 +3224,9 @@ derives missing values when enough dimensional information is available.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If inner or outer radius is not defined.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot calculate surface area: inner_radius and outer_radius must be defined.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot calculate surface area: inner_radius and outer_radius must be defined."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outer_radius</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3350,10 +3350,10 @@ derives missing values when enough dimensional information is available.</p>
 <span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span>
-<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;thickness&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"thickness"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_thickness</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that thickness is strictly positive when provided.</span>
+<span class="w">    </span><span class="sd">"""Validate that thickness is strictly positive when provided.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        thickness: Optional thickness value to validate.</span>
@@ -3364,9 +3364,9 @@ derives missing values when enough dimensional information is available.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If thickness is zero or negative.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">thickness</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid layer thickness: </span><span class="si">{</span><span class="n">thickness</span><span class="si">}</span><span class="s2">, must be strictly positive.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid layer thickness: </span><span class="si">{</span><span class="n">thickness</span><span class="si">}</span><span class="s2">, must be strictly positive."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">thickness</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3452,9 +3452,9 @@ derives missing values when enough dimensional information is available.</p>
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_inner_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that the inner radius is non-negative.</span>
+<span class="w">    </span><span class="sd">"""Validate that the inner radius is non-negative.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        _AbstractLayerInputSchema: The validated model instance.</span>
@@ -3462,10 +3462,10 @@ derives missing values when enough dimensional information is available.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If inner_radius is negative.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">inner_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span>
     <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">inner_radius</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid inner_radius: </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2"> must be non-negative.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid inner_radius: </span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2"> must be non-negative."</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3571,9 +3571,9 @@ derives missing values when enough dimensional information is available.</p>
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
-<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_dimension_consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and derive consistent radial dimensions.</span>
+<span class="w">    </span><span class="sd">"""Validate and derive consistent radial dimensions.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        _AbstractLayerInputSchema: The validated model instance.</span>
@@ -3581,22 +3581,22 @@ derives missing values when enough dimensional information is available.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If provided dimensions are physically inconsistent.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">inner_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span>
     <span class="n">outer_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius</span>
     <span class="n">thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span>
     <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">outer_radius</span> <span class="o">&lt;=</span> <span class="n">inner_radius</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid dimensions: outer_radius (</span><span class="si">{</span><span class="n">outer_radius</span><span class="si">}</span><span class="s2">) must &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;be greater than inner_radius (</span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="sa">f</span><span class="s2">"Invalid dimensions: outer_radius (</span><span class="si">{</span><span class="n">outer_radius</span><span class="si">}</span><span class="s2">) must "</span>
+                <span class="sa">f</span><span class="s2">"be greater than inner_radius (</span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">)."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">inner_radius</span> <span class="o">+</span> <span class="n">thickness</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Inconsistent dimensions: outer_radius (</span><span class="si">{</span><span class="n">outer_radius</span><span class="si">}</span><span class="s2">) &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;must equal inner_radius (</span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">) + thickness &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">thickness</span><span class="si">}</span><span class="s2">).&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Inconsistent dimensions: outer_radius (</span><span class="si">{</span><span class="n">outer_radius</span><span class="si">}</span><span class="s2">) "</span>
+                    <span class="sa">f</span><span class="s2">"must equal inner_radius (</span><span class="si">{</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">) + thickness "</span>
+                    <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">thickness</span><span class="si">}</span><span class="s2">)."</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="o">-</span> <span class="n">inner_radius</span>
@@ -3731,10 +3731,10 @@ value is used.</p>
 <span class="normal">141</span>
 <span class="normal">142</span>
 <span class="normal">143</span>
-<span class="normal">144</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;material&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">144</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"material"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_layer_material</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">material</span><span class="p">:</span> <span class="n">Material</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Material</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that a layer material is not explicitly set to `NONE`.</span>
+<span class="w">    </span><span class="sd">"""Validate that a layer material is not explicitly set to `NONE`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        material: Layer material enum value.</span>
@@ -3746,10 +3746,10 @@ value is used.</p>
 <span class="sd">        ValueError: If the material enum exposes a `NONE` value and that</span>
 <span class="sd">            value is used.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">material_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">material</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">material_type</span><span class="p">,</span> <span class="s2">&quot;NONE&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">material</span> <span class="o">==</span> <span class="n">material_type</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid material: </span><span class="si">{</span><span class="n">material</span><span class="si">}</span><span class="s2"> is not a valid material for a cable layer.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">material_type</span><span class="p">,</span> <span class="s2">"NONE"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">material</span> <span class="o">==</span> <span class="n">material_type</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid material: </span><span class="si">{</span><span class="n">material</span><span class="si">}</span><span class="s2"> is not a valid material for a cable layer."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">material</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3893,9 +3893,9 @@ value is used.</p>
 <span class="normal">175</span>
 <span class="normal">176</span>
 <span class="normal">177</span>
-<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_conducting_surface_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that conducting surface area does not exceed layer area.</span>
+<span class="w">    </span><span class="sd">"""Validate that conducting surface area does not exceed layer area.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        _ConductingLayerInputSchema: The validated model instance.</span>
@@ -3903,19 +3903,19 @@ value is used.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If conducting_surface_area exceeds calculated area.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid conducting_surface_area: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span><span class="si">}</span><span class="s2">, must be strictly positive.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Invalid conducting_surface_area: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span><span class="si">}</span><span class="s2">, must be strictly positive."</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">calculated_surface_are</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_surface_area</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span> <span class="o">&gt;</span> <span class="n">calculated_surface_are</span> <span class="o">*</span> <span class="mf">1.15</span><span class="p">:</span>  <span class="c1"># allow 15% tolerance.</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid conducting_surface_area: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span><span class="si">}</span><span class="s2">) exceeds the calculated &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;layer surface area (</span><span class="si">{</span><span class="n">calculated_surface_are</span><span class="si">}</span><span class="s2">). &quot;</span>
-                <span class="s2">&quot;Provided conducting surface area does not physically fit within the layer dimensions.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Invalid conducting_surface_area: "</span>
+                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span><span class="si">}</span><span class="s2">) exceeds the calculated "</span>
+                <span class="sa">f</span><span class="s2">"layer surface area (</span><span class="si">{</span><span class="n">calculated_surface_are</span><span class="si">}</span><span class="s2">). "</span>
+                <span class="s2">"Provided conducting surface area does not physically fit within the layer dimensions."</span>
             <span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
@@ -4113,9 +4113,9 @@ conducting_surface_area exceeds the area calculated from it.</p>
 <span class="normal">223</span>
 <span class="normal">224</span>
 <span class="normal">225</span>
-<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_single_conductor_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that conducting surface area does not exceed area calculated from single conductor radius.</span>
+<span class="w">    </span><span class="sd">"""Validate that conducting surface area does not exceed area calculated from single conductor radius.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ConductorInputSchema: The validated model instance.</span>
@@ -4124,21 +4124,21 @@ conducting_surface_area exceeds the area calculated from it.</p>
 <span class="sd">        ValueError: If single_conductor_radius is provided and</span>
 <span class="sd">            conducting_surface_area exceeds the area calculated from it.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_conductor_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_conductor_radius</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid single_conductor_radius: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">single_conductor_radius</span><span class="si">}</span><span class="s2">, must be strictly positive.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Invalid single_conductor_radius: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">single_conductor_radius</span><span class="si">}</span><span class="s2">, must be strictly positive."</span>
             <span class="p">)</span>
         <span class="n">single_conductor_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_conductor_radius</span><span class="o">**</span><span class="mi">2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span> <span class="o">&gt;</span> <span class="n">single_conductor_area</span> <span class="o">*</span> <span class="mf">1.15</span><span class="p">:</span>  <span class="c1"># allow 15% tolerance.</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid conducting_surface_area: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span><span class="si">}</span><span class="s2"> exceeds the area &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;calculated from single_conductor_radius &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">single_conductor_area</span><span class="si">}</span><span class="s2">). &quot;</span>
-                <span class="s2">&quot;Provided conducting surface area does not physically fit &quot;</span>
-                <span class="s2">&quot;within the area defined by the single conductor radius.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Invalid conducting_surface_area: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">conducting_surface_area</span><span class="si">}</span><span class="s2"> exceeds the area "</span>
+                <span class="sa">f</span><span class="s2">"calculated from single_conductor_radius "</span>
+                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">single_conductor_area</span><span class="si">}</span><span class="s2">). "</span>
+                <span class="s2">"Provided conducting surface area does not physically fit "</span>
+                <span class="s2">"within the area defined by the single conductor radius."</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="bp">self</span>
@@ -4237,9 +4237,9 @@ conducting_surface_area exceeds the area calculated from it.</p>
 <span class="normal">250</span>
 <span class="normal">251</span>
 <span class="normal">252</span>
-<span class="normal">253</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">253</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_conductor_shape_and_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that if inner_radius is not zero, the conductor shape is hollow.</span>
+<span class="w">    </span><span class="sd">"""Validate that if inner_radius is not zero, the conductor shape is hollow.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ConductorInputSchema: The validated model instance.</span>
@@ -4247,19 +4247,19 @@ conducting_surface_area exceeds the area calculated from it.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If inner_radius is greater than zero and shape is not hollow.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Hollow</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Inconsistent conductor geometry: inner_radius is &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2"> but shape is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, expected &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Hollow</span><span class="si">}</span><span class="s2"> for non-zero inner radius.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Inconsistent conductor geometry: inner_radius is "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2"> but shape is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, expected "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Hollow</span><span class="si">}</span><span class="s2"> for non-zero inner radius."</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">CableConductorShape</span><span class="o">.</span><span class="n">Hollow</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Inconsistent conductor geometry: shape is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> but &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;inner_radius is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">, expected inner_radius &gt; &quot;</span>
-            <span class="s2">&quot;0 for hollow conductor shape.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Inconsistent conductor geometry: shape is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> but "</span>
+            <span class="sa">f</span><span class="s2">"inner_radius is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span><span class="si">}</span><span class="s2">, expected inner_radius &gt; "</span>
+            <span class="s2">"0 for hollow conductor shape."</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="bp">self</span>
@@ -4510,9 +4510,9 @@ provided inner radius.</p>
 <span class="normal">334</span>
 <span class="normal">335</span>
 <span class="normal">336</span>
-<span class="normal">337</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">337</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_inner_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute or validate the equivalent inner insulation radius.</span>
+<span class="w">    </span><span class="sd">"""Compute or validate the equivalent inner insulation radius.</span>
 
 <span class="sd">    When both `outer_radius` and `insulation_equivalent_radius_ratio` are</span>
 <span class="sd">    available, this method derives `inner_radius` and validates consistency</span>
@@ -4525,16 +4525,16 @@ provided inner radius.</p>
 <span class="sd">        ValueError: If the derived inner radius conflicts with an already</span>
 <span class="sd">            provided inner radius.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">insulation_equivalent_radius_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">current_inner_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span>
         <span class="n">new_inner_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer_radius</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">insulation_equivalent_radius_ratio</span>
         <span class="k">if</span> <span class="n">current_inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">current_inner_radius</span><span class="p">,</span> <span class="n">new_inner_radius</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Inconsistent dimensions: equivalent inner insulation &quot;</span>
-                    <span class="s2">&quot;radius conflicts with value derived from outer_radius &quot;</span>
-                    <span class="s2">&quot;and radius ratio derived from T1 calculation.&quot;</span>
+                    <span class="s2">"Inconsistent dimensions: equivalent inner insulation "</span>
+                    <span class="s2">"radius conflicts with value derived from outer_radius "</span>
+                    <span class="s2">"and radius ratio derived from T1 calculation."</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">inner_radius</span> <span class="o">=</span> <span class="n">new_inner_radius</span>
@@ -4667,10 +4667,10 @@ conductors in meters.</p>
 <span class="normal">357</span>
 <span class="normal">358</span>
 <span class="normal">359</span>
-<span class="normal">360</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;diameter_over_stranded_conductors&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">360</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"diameter_over_stranded_conductors"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_diameter_over_stranded_conductors</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">diameter_over_stranded_conductors</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the stranded-conductor diameter value.</span>
+<span class="w">    </span><span class="sd">"""Validate the stranded-conductor diameter value.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        diameter_over_stranded_conductors: Diameter over stranded</span>
@@ -4682,11 +4682,11 @@ conductors in meters.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If the diameter is not strictly positive.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">diameter_over_stranded_conductors</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid diameter_over_stranded_conductors: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diameter_over_stranded_conductors</span><span class="si">}</span><span class="s2">, must be strictly positive.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Invalid diameter_over_stranded_conductors: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">diameter_over_stranded_conductors</span><span class="si">}</span><span class="s2">, must be strictly positive."</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">diameter_over_stranded_conductors</span>
 </code></pre></div></td></tr></table></div>
@@ -4816,10 +4816,10 @@ conductor to screen in meters.</p>
 <span class="normal">380</span>
 <span class="normal">381</span>
 <span class="normal">382</span>
-<span class="normal">383</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;single_conductor_insulation_thickness&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">383</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"single_conductor_insulation_thickness"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_single_conductor_insulation_thickness</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">single_conductor_insulation_thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the single-conductor insulation thickness.</span>
+<span class="w">    </span><span class="sd">"""Validate the single-conductor insulation thickness.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        single_conductor_insulation_thickness: Insulation thickness from</span>
@@ -4831,11 +4831,11 @@ conductor to screen in meters.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If thickness is not strictly positive.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">single_conductor_insulation_thickness</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid single_conductor_insulation_thickness: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">single_conductor_insulation_thickness</span><span class="si">}</span><span class="s2">, must be strictly positive.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Invalid single_conductor_insulation_thickness: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">single_conductor_insulation_thickness</span><span class="si">}</span><span class="s2">, must be strictly positive."</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">single_conductor_insulation_thickness</span>
 </code></pre></div></td></tr></table></div>
@@ -5058,10 +5058,10 @@ supported by the model.</p>
 <span class="normal">413</span>
 <span class="normal">414</span>
 <span class="normal">415</span>
-<span class="normal">416</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;screen_type&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="normal">416</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"screen_type"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_screen_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">screen_type</span><span class="p">:</span> <span class="n">CableScreenType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CableScreenType</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate supported screen types.</span>
+<span class="w">    </span><span class="sd">"""Validate supported screen types.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        screen_type: Screen type enum value.</span>
@@ -5073,9 +5073,9 @@ supported by the model.</p>
 <span class="sd">        NotImplementedError: If `scSL` is used, which is currently not</span>
 <span class="sd">            supported by the model.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">screen_type</span> <span class="o">==</span> <span class="n">CableScreenType</span><span class="o">.</span><span class="n">SL</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Screen type </span><span class="si">{</span><span class="n">CableScreenType</span><span class="o">.</span><span class="n">SL</span><span class="si">}</span><span class="s2"> is not supported by the model.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Screen type </span><span class="si">{</span><span class="n">CableScreenType</span><span class="o">.</span><span class="n">SL</span><span class="si">}</span><span class="s2"> is not supported by the model."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">screen_type</span>
 </code></pre></div></td></tr></table></div>
             </details>
