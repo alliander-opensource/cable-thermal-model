@@ -3350,9 +3350,9 @@ SPDX-License-Identifier: MPL-2.0
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span><span class="p">(</span>
-    <span class="n">circuit_name</span><span class="o">=</span><span class="s2">&quot;circuit_1&quot;</span><span class="p">,</span>
-    <span class="n">cable_id</span><span class="o">=</span><span class="s2">&quot;GPLK 10/10 kV 3x185 Al&quot;</span><span class="p">,</span>
-    <span class="n">cable_source_file_path</span><span class="o">=</span><span class="s2">&quot;data/example_cables.csv&quot;</span><span class="p">,</span>
+    <span class="n">circuit_name</span><span class="o">=</span><span class="s2">"circuit_1"</span><span class="p">,</span>
+    <span class="n">cable_id</span><span class="o">=</span><span class="s2">"GPLK 10/10 kV 3x185 Al"</span><span class="p">,</span>
+    <span class="n">cable_source_file_path</span><span class="o">=</span><span class="s2">"data/example_cables.csv"</span><span class="p">,</span>
     <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=-</span><span class="mf">1.0</span>
 <span class="p">)</span>
@@ -3365,7 +3365,7 @@ SPDX-License-Identifier: MPL-2.0
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableInputSchema</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">CircuitInSoilFromCableInputSchema</span><span class="p">(</span>
-    <span class="n">circuit_name</span><span class="o">=</span><span class="s2">&quot;circuit_1&quot;</span><span class="p">,</span>
+    <span class="n">circuit_name</span><span class="o">=</span><span class="s2">"circuit_1"</span><span class="p">,</span>
     <span class="n">cable</span><span class="o">=</span><span class="n">my_cable_object</span><span class="p">,</span>
     <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=-</span><span class="mf">1.0</span>
@@ -3482,12 +3482,12 @@ SPDX-License-Identifier: MPL-2.0
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="n">scenario</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;load_circuit_1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span>
-    <span class="s1">&#39;load_circuit_2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
-    <span class="s1">&#39;ambient_temperature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
-    <span class="s1">&#39;soil_thermal_resistivity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span>
-    <span class="s1">&#39;soil_thermal_capacity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">]</span>
-<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">))</span>
+    <span class="s1">'load_circuit_1'</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span>
+    <span class="s1">'load_circuit_2'</span><span class="p">:</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
+    <span class="s1">'ambient_temperature'</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
+    <span class="s1">'soil_thermal_resistivity'</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span>
+    <span class="s1">'soil_thermal_capacity'</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">]</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">'1h'</span><span class="p">))</span>
 </code></pre></div>
 <h3 id="required-columns-for-air-environments">Required Columns for Air Environments</h3>
 <table>
@@ -3516,9 +3516,9 @@ SPDX-License-Identifier: MPL-2.0
 </table>
 <p><strong>Example:</strong></p>
 <div class="highlight"><pre><span></span><code><span class="n">scenario</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;load_circuit_1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span>
-    <span class="s1">&#39;ambient_temperature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">24</span><span class="p">]</span>
-<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">))</span>
+    <span class="s1">'load_circuit_1'</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span>
+    <span class="s1">'ambient_temperature'</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">24</span><span class="p">]</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">'1h'</span><span class="p">))</span>
 </code></pre></div>
 <h3 id="scenario-validation">Scenario Validation</h3>
 <p>You can validate your scenario before running the model:</p>
@@ -3548,9 +3548,9 @@ SPDX-License-Identifier: MPL-2.0
 
 <span class="c1"># 2. Add a circuit</span>
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span><span class="p">(</span>
-    <span class="n">circuit_name</span><span class="o">=</span><span class="s2">&quot;main_circuit&quot;</span><span class="p">,</span>
-    <span class="n">cable_id</span><span class="o">=</span><span class="s2">&quot;GPLK 10/10 kV 3x185 Al&quot;</span><span class="p">,</span>
-    <span class="n">cable_source_file_path</span><span class="o">=</span><span class="s2">&quot;data/example_cables.csv&quot;</span><span class="p">,</span>
+    <span class="n">circuit_name</span><span class="o">=</span><span class="s2">"main_circuit"</span><span class="p">,</span>
+    <span class="n">cable_id</span><span class="o">=</span><span class="s2">"GPLK 10/10 kV 3x185 Al"</span><span class="p">,</span>
+    <span class="n">cable_source_file_path</span><span class="o">=</span><span class="s2">"data/example_cables.csv"</span><span class="p">,</span>
     <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">circuit_type</span><span class="o">=</span><span class="n">CircuitType</span><span class="o">.</span><span class="n">Trefoil</span><span class="p">,</span>
@@ -3560,11 +3560,11 @@ SPDX-License-Identifier: MPL-2.0
 
 <span class="c1"># 3. Create scenario</span>
 <span class="n">scenario</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;load_main_circuit&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span>
-    <span class="s1">&#39;ambient_temperature&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
-    <span class="s1">&#39;soil_thermal_resistivity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span>
-    <span class="s1">&#39;soil_thermal_capacity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">]</span>
-<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">))</span>
+    <span class="s1">'load_main_circuit'</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span>
+    <span class="s1">'ambient_temperature'</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
+    <span class="s1">'soil_thermal_resistivity'</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span>
+    <span class="s1">'soil_thermal_capacity'</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">]</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">'1h'</span><span class="p">))</span>
 
 <span class="c1"># 4. Run the model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">ModelFactory</span><span class="o">.</span><span class="n">create_model</span><span class="p">(</span><span class="n">static_env</span><span class="o">=</span><span class="n">static_env</span><span class="p">)</span>

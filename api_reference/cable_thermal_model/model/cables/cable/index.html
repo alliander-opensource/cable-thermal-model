@@ -2866,7 +2866,7 @@
     <span class="n">cable_type</span><span class="p">:</span> <span class="n">CableType</span><span class="p">,</span>
     <span class="n">grid_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
+<span class="w">    </span><span class="sd">"""Initialize the Cable with conductor properties, layer data, and grid resolution.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        conductor (CableConductorProperties): Conductor properties of the cable.</span>
@@ -2875,7 +2875,7 @@
 <span class="sd">        cable_type (CableType): The type of the cable.</span>
 <span class="sd">        grid_counts (dict[CableLayer, int]): Number of grid points per cable layer.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">layer_properties</span><span class="p">,</span> <span class="n">layer_metrics</span><span class="p">,</span> <span class="n">cable_type</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_grid_counts</span><span class="p">(</span><span class="n">grid_counts</span><span class="p">)</span>
@@ -3052,16 +3052,16 @@
 <span class="normal">269</span>
 <span class="normal">270</span>
 <span class="normal">271</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update_pipe_fill_resistivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method updates the (temperature dependent) thermal resistivity of the medium in the pipe of the cable.</span>
+<span class="w">    </span><span class="sd">"""This method updates the (temperature dependent) thermal resistivity of the medium in the pipe of the cable.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">pipe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pipe is not set. Cannot update pipe fill resistivity.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Pipe is not set. Cannot update pipe fill resistivity."</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">inner_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pipe inner radius is not set. Cannot update pipe fill resistivity.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Pipe inner radius is not set. Cannot update pipe fill resistivity."</span><span class="p">)</span>
 
     <span class="n">Tfill</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mean_temperature_cable_layer</span><span class="p">(</span><span class="n">temperature_grid</span><span class="o">=</span><span class="n">temperature_grid</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">CableLayer</span><span class="o">.</span><span class="n">PipeFill</span><span class="p">)</span>
 
@@ -3169,7 +3169,7 @@ indices of the grid points for the given layer, in that order.</p>
 <span class="normal">287</span>
 <span class="normal">288</span>
 <span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_layer_indices_for_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">CableLayer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method fetches the inclusive start and end indices of the grid points for a given layer.</span>
+<span class="w">    </span><span class="sd">"""This method fetches the inclusive start and end indices of the grid points for a given layer.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        layer (CableLayer): A CableLayer object representing the layer for</span>
@@ -3179,7 +3179,7 @@ indices of the grid points for the given layer, in that order.</p>
 <span class="sd">        tuple[int, int]: A tuple of integers representing the inclusive start and end</span>
 <span class="sd">            indices of the grid points for the given layer, in that order.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">layer_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
 
     <span class="n">layer_start_index</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid_counts</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[:</span><span class="n">layer_index</span><span class="p">]])</span>
@@ -3291,7 +3291,7 @@ indices of the grid points for the given layer, in that order.</p>
 <span class="normal">514</span>
 <span class="normal">515</span>
 <span class="normal">516</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_heating_contribution_at_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">self_heating_contribution</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interpolate the self-heating contribution at a given radius.</span>
+<span class="w">    </span><span class="sd">"""Interpolate the self-heating contribution at a given radius.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        radius (float): Radial distance at which to evaluate the self-heating contribution.</span>
@@ -3300,7 +3300,7 @@ indices of the grid points for the given layer, in that order.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        float: Interpolated temperature-rise contribution due to cable self-heating at the requested radius.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">radius</span><span class="p">],</span> <span class="n">xp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_radii_grid</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">self_heating_contribution</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3445,7 +3445,7 @@ indices of the grid points for the given layer, in that order.</p>
 <span class="normal">570</span>
 <span class="normal">571</span>
 <span class="normal">572</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable_copy_with_pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipe</span><span class="p">:</span> <span class="n">Pipe</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a new cable instance based on the current self, but with extra added layers that model a pipe.</span>
+<span class="w">    </span><span class="sd">"""Get a new cable instance based on the current self, but with extra added layers that model a pipe.</span>
 
 <span class="sd">    This method adds two layers:</span>
 <span class="sd">     1. pipe_fill layer with an empiric resistance value</span>
@@ -3459,16 +3459,16 @@ indices of the grid points for the given layer, in that order.</p>
 <span class="sd">        (Cable): A new Cable instance based on the Cable instance the method was called from, but with</span>
 <span class="sd">                    the added pipe layers, as if the cable had an outer pipe added.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Check whether there is already a soil layer present around the cable</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">outer_radius</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">outer_radius</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Detected soil layers. &quot;</span>
-            <span class="s2">&quot;The add_outer_pipe method is only intended for cable instances without soil layers.&quot;</span>
+            <span class="s2">"Detected soil layers. "</span>
+            <span class="s2">"The add_outer_pipe method is only intended for cable instances without soil layers."</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_metrics</span><span class="o">.</span><span class="n">pipe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add a pipe as the cable already has a pipe.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot add a pipe as the cable already has a pipe."</span><span class="p">)</span>
 
     <span class="n">new_cable</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -3530,7 +3530,7 @@ indices of the grid points for the given layer, in that order.</p>
 <span class="normal">578</span>
 <span class="normal">579</span>
 <span class="normal">580</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_dielectric_loss_to_heating_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This method calculates and updates the heating vector with dielectric loss.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""This method calculates and updates the heating vector with dielectric loss."""</span>
     <span class="n">dielectric_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dielectric_loss_for_cable</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_update_vector_with_heat_generation_for_layer</span><span class="p">(</span>
         <span class="n">heat_generation</span><span class="o">=</span><span class="n">dielectric_loss</span><span class="p">,</span>

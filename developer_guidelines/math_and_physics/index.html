@@ -2559,13 +2559,13 @@ SPDX-License-Identifier: MPL-2.0
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ts</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The screen loss retrieval method for cables with cross bonding or one-sided bonding.</span>
+<span class="w">        </span><span class="sd">"""The screen loss retrieval method for cables with cross bonding or one-sided bonding.</span>
 <span class="sd">        Linear version, conductor carrying the leading phase.</span>
 
 <span class="sd">        Notes:</span>
 <span class="sd">            Calculates eddy currents in the earthing sheath based on the NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1].</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">Rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resistance_screen</span><span class="p">(</span><span class="n">Ts</span><span class="p">)</span>
 
         <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">/</span> <span class="n">Rs</span> <span class="o">*</span> <span class="mf">1e-7</span>
@@ -2598,7 +2598,7 @@ SPDX-License-Identifier: MPL-2.0
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ts</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The screen loss retrieval method for cables with cross bonding or one-sided bonding.</span>
+<span class="w">        </span><span class="sd">"""The screen loss retrieval method for cables with cross bonding or one-sided bonding.</span>
 
 <span class="sd">        Linear version, conductor carrying the leading phase.</span>
 
@@ -2612,7 +2612,7 @@ SPDX-License-Identifier: MPL-2.0
 <span class="sd">        References:</span>
 <span class="sd">            - NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1]</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">Rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resistance_screen</span><span class="p">(</span><span class="n">Ts</span><span class="p">)</span>
 
         <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">/</span> <span class="n">Rs</span> <span class="o">*</span> <span class="mf">1e-7</span>

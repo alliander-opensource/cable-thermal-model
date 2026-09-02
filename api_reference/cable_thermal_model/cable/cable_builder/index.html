@@ -2659,7 +2659,7 @@
   </span>
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">build_cable_from_cable_id</span><span class="p">(</span><span class="n">cable_id</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">cable_class</span><span class="p">:</span> <span class="n"><span title="type">type</span></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span></span><span class="p">],</span> <span class="n">grid_points_per_layer</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">pipe</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="PipeInputSchema (cable_thermal_model.cable.schemas.pipe_schemas.PipeInputSchema)" href="../schemas/pipe_schemas/#cable_thermal_model.cable.schemas.pipe_schemas.PipeInputSchema">PipeInputSchema</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cable_source_file_path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">=</span> <span class="n"><span title="cable_thermal_model.cable.cable_builder.CableBuilder.__PROJECT_ROOT">__PROJECT_ROOT</span></span> <span class="o">/</span> <span class="s1">&#39;data&#39;</span> <span class="o">/</span> <span class="s1">&#39;example_cables.csv&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span></span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">build_cable_from_cable_id</span><span class="p">(</span><span class="n">cable_id</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">cable_class</span><span class="p">:</span> <span class="n"><span title="type">type</span></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span></span><span class="p">],</span> <span class="n">grid_points_per_layer</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">pipe</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="PipeInputSchema (cable_thermal_model.cable.schemas.pipe_schemas.PipeInputSchema)" href="../schemas/pipe_schemas/#cable_thermal_model.cable.schemas.pipe_schemas.PipeInputSchema">PipeInputSchema</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cable_source_file_path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">=</span> <span class="n"><span title="cable_thermal_model.cable.cable_builder.CableBuilder.__PROJECT_ROOT">__PROJECT_ROOT</span></span> <span class="o">/</span> <span class="s1">'data'</span> <span class="o">/</span> <span class="s1">'example_cables.csv'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2832,9 +2832,9 @@ a CSV or an Excel file.</p>
     <span class="n">cable_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">CableT</span><span class="p">],</span>
     <span class="n">grid_points_per_layer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">pipe</span><span class="p">:</span> <span class="n">PipeInputSchema</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">cable_source_file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">__PROJECT_ROOT</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;example_cables.csv&quot;</span><span class="p">,</span>
+    <span class="n">cable_source_file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">__PROJECT_ROOT</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="s2">"example_cables.csv"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CableT</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builds a new Cable instance based on a cable_id.</span>
+<span class="w">    </span><span class="sd">"""Builds a new Cable instance based on a cable_id.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cable_id (str): The name of a cable mentioned in the file specified by `cable_source_file_path`.</span>
@@ -2842,15 +2842,15 @@ a CSV or an Excel file.</p>
 <span class="sd">        pipe (PipeInputSchema | None): A pipe instance to be added around the cable.</span>
 <span class="sd">        cable_class (type[Cable]): The Cable class to instantiate.</span>
 <span class="sd">        cable_source_file_path (Path): The path to the cable source file.</span>
-<span class="sd">            Defaults to &quot;data/example_cables.csv&quot;. The file can be either</span>
+<span class="sd">            Defaults to "data/example_cables.csv". The file can be either</span>
 <span class="sd">            a CSV or an Excel file.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">            TCable: A new Cable instance (based on a Cable instance).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">cable_class</span><span class="p">,</span> <span class="n">CableTrefoilCircuitSinglePipe</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pipe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;When using Cable class &#39;</span><span class="si">{</span><span class="n">cable_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;, a pipe must be provided.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"When using Cable class '</span><span class="si">{</span><span class="n">cable_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">', a pipe must be provided."</span><span class="p">)</span>
 
     <span class="c1"># load the cable data from the specified file</span>
     <span class="n">cable_specs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_load_cable_data_from_file</span><span class="p">(</span><span class="n">cable_source_file_path</span><span class="p">,</span> <span class="n">cable_id</span><span class="p">)</span>
@@ -3029,7 +3029,7 @@ a CSV or an Excel file.</p>
     <span class="n">grid_points_per_layer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">pipe</span><span class="p">:</span> <span class="n">PipeInputSchema</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CableT</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builds a new Cable instance based on a given set of cable specifications.</span>
+<span class="w">    </span><span class="sd">"""Builds a new Cable instance based on a given set of cable specifications.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cable_specs (pd.Series): A Pandas Series holding the cable specification.</span>
@@ -3040,7 +3040,7 @@ a CSV or an Excel file.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">            TCable: A new Cable instance (based on a Cable instance).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cable_spec_parser</span> <span class="o">=</span> <span class="n">SpecParserFactory</span><span class="o">.</span><span class="n">get_spec_parser</span><span class="p">(</span><span class="n">cable_specs</span><span class="p">)</span>
     <span class="n">cable_constructional_input</span><span class="p">:</span> <span class="n">CableConstructionalInputSchema</span> <span class="o">=</span> <span class="n">cable_spec_parser</span><span class="o">.</span><span class="n">get_cable_constructional_input</span><span class="p">()</span>
 
@@ -3247,7 +3247,7 @@ specification.</p>
     <span class="n">grid_points_per_layer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">pipe</span><span class="p">:</span> <span class="n">PipeInputSchema</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CableT</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build FD cable object.</span>
+<span class="w">    </span><span class="sd">"""Build FD cable object.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cable_constructional_input (CableConstructionalInputSchema):</span>
@@ -3260,18 +3260,18 @@ specification.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        CableT: A finite-difference cable object.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># retrieve the cable&#39;s conductor properties</span>
+<span class="sd">    """</span>
+    <span class="c1"># retrieve the cable's conductor properties</span>
     <span class="n">cable_conductor_properties</span><span class="p">:</span> <span class="n">CableConductorProperties</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_cable_conductor_properties</span><span class="p">(</span>
         <span class="n">cable_constructional_input</span>
     <span class="p">)</span>
 
-    <span class="c1"># retrieve the cable&#39;s layer properties</span>
+    <span class="c1"># retrieve the cable's layer properties</span>
     <span class="n">cable_layer_properties_by_layer</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="n">CableLayerProperties</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_cable_layer_properties</span><span class="p">(</span>
         <span class="n">cable_constructional_input</span>
     <span class="p">)</span>
 
-    <span class="c1"># retrieve the cable&#39;s layer metrics</span>
+    <span class="c1"># retrieve the cable's layer metrics</span>
     <span class="n">cable_layer_metrics</span><span class="p">:</span> <span class="n">CableLayerMetrics</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_cable_layer_metrics</span><span class="p">(</span><span class="n">cable_constructional_input</span><span class="p">)</span>
 
     <span class="c1"># instantiate the cable</span>
@@ -3284,7 +3284,7 @@ specification.</p>
     <span class="p">)</span>
 
     <span class="c1"># generate a warning if the cable type is of an abstract type</span>
-    <span class="c1"># (with abstract method &quot;integrate_timestep&quot; not implemented)</span>
+    <span class="c1"># (with abstract method "integrate_timestep" not implemented)</span>
     <span class="n">require_implemented_cable</span><span class="p">(</span><span class="n">cable</span><span class="p">,</span> <span class="n">hard_stop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># add a pipe around the cable if specified</span>

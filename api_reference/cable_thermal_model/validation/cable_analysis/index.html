@@ -2831,7 +2831,7 @@
 <span class="normal">22</span>
 <span class="normal">23</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_thermal_resistance</span><span class="p">(</span><span class="n">rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">r_inner</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">r_outer</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the thermal resistance of a concentrical layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate the thermal resistance of a concentrical layer."""</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">r_outer</span> <span class="o">/</span> <span class="n">r_inner</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">rho</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2876,7 +2876,7 @@
     <span class="n">heat_flow</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the boundary-temperature correction from a neighboring grid point.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get the boundary-temperature correction from a neighboring grid point."""</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">reference_radius</span> <span class="o">-</span> <span class="n">neighbor_radius</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">reference_radius</span> <span class="o">+</span> <span class="n">neighbor_radius</span><span class="p">)</span> <span class="o">*</span> <span class="n">heat_flow</span> <span class="o">*</span> <span class="n">rho</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2909,7 +2909,7 @@
 <span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_mean_temperature_cable_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">CableLayer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the mean temperature for a cable layer, ``None`` if absent.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate the mean temperature for a cable layer, ``None`` if absent."""</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -2975,14 +2975,14 @@
 <span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_boundary_temperatures_for_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">CableLayer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate inner and outer boundary temperatures for a cable layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate inner and outer boundary temperatures for a cable layer."""</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2"> is not present in the cable, cannot calculate boundary temperatures.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2"> is not present in the cable, cannot calculate boundary temperatures."</span><span class="p">)</span>
     <span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">get_layer_indices_for_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
     <span class="n">outer_neighbor_index</span> <span class="o">=</span> <span class="n">end_index</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">end_index</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">end_index</span>
     <span class="n">required_index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">start_index</span><span class="p">,</span> <span class="n">outer_neighbor_index</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">required_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The solution grid is too short for the requested layer boundaries.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The solution grid is too short for the requested layer boundaries."</span><span class="p">)</span>
 
     <span class="n">heat_flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heat_flow_cable_layer</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">layer</span><span class="p">)</span>
 
@@ -3060,14 +3060,14 @@
 <span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_heat_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inner_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate heat flow per unit length between grid points at inner_index and inner_index + 1.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate heat flow per unit length between grid points at inner_index and inner_index + 1."""</span>
     <span class="n">outer_index</span> <span class="o">=</span> <span class="n">inner_index</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="k">if</span> <span class="n">inner_index</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">outer_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">_radii_grid</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The indices must lie within the finite difference grid of the cable.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The indices must lie within the finite difference grid of the cable."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">outer_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The solution array must be one-dimensional and include values for both grid points.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The solution array must be one-dimensional and include values for both grid points."</span><span class="p">)</span>
 
     <span class="n">inter_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">_inter_radii_grid</span><span class="p">[</span><span class="n">inner_index</span><span class="p">]</span>
 
@@ -3083,7 +3083,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">_radii_grid</span><span class="p">[</span><span class="n">outer_index</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">_radii_grid</span><span class="p">[</span><span class="n">inner_index</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="c1"># Calculate the heat flow using Fourier&#39;s law of heat conduction</span>
+    <span class="c1"># Calculate the heat flow using Fourier's law of heat conduction</span>
     <span class="k">return</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">inter_radius</span> <span class="o">*</span> <span class="n">temperature_gradient</span> <span class="o">/</span> <span class="n">inter_rho</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3123,13 +3123,13 @@ If radius equals a grid point r[i], heat flow between r[i-1] and r[i] is returne
 <span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_heat_flow_at_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate approximate heat flow per unit length for a given radius.</span>
+<span class="w">    </span><span class="sd">"""Calculate approximate heat flow per unit length for a given radius.</span>
 
 <span class="sd">    If radius lies between two grid points r[i] and r[i+1], heat flow between these two points is returned.</span>
 <span class="sd">    If radius equals a grid point r[i], heat flow between r[i-1] and r[i] is returned.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">_radii_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">_radii_grid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The radius must lie within the finite-difference grid of the cable.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The radius must lie within the finite-difference grid of the cable."</span><span class="p">)</span>
 
     <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">_radii_grid</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
@@ -3176,20 +3176,20 @@ If radius equals a grid point r[i], heat flow between r[i-1] and r[i] is returne
 <span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_heat_flow_cable_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">CableLayer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the heat flow per meter for a non-heat-generating cable layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate the heat flow per meter for a non-heat-generating cable layer."""</span>
     <span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">get_layer_indices_for_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">end_index</span> <span class="o">&lt;=</span> <span class="n">start_index</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The outer index should be larger than the inner index.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The outer index should be larger than the inner index."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">CableLayer</span><span class="o">.</span><span class="n">Conductor</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The conductor layer generates heat, cannot calculate heat flow.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The conductor layer generates heat, cannot calculate heat flow."</span><span class="p">)</span>
 
     <span class="n">heat_flow_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heat_flow</span><span class="p">(</span><span class="n">inner_index</span><span class="o">=</span><span class="n">start_index</span><span class="p">)</span>
     <span class="n">heat_flow_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heat_flow</span><span class="p">(</span><span class="n">inner_index</span><span class="o">=</span><span class="n">end_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">heat_flow_start</span><span class="p">,</span> <span class="n">heat_flow_end</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;The heat flow should be the same across both grid points of the layer, but got &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">heat_flow_start</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">heat_flow_end</span><span class="si">}</span><span class="s2"> for layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="s2">"The heat flow should be the same across both grid points of the layer, but got "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">heat_flow_start</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">heat_flow_end</span><span class="si">}</span><span class="s2"> for layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">heat_flow_start</span>
@@ -3228,7 +3228,7 @@ If radius equals a grid point r[i], heat flow between r[i-1] and r[i] is returne
 <span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_heat_loss_cable_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">CableLayer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the net heat loss (W/m) for one layer in the cable.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate the net heat loss (W/m) for one layer in the cable."""</span>
     <span class="n">layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layers</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
@@ -3273,7 +3273,7 @@ If radius equals a grid point r[i], heat flow between r[i-1] and r[i] is returne
 <span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_thermal_resistance_cable_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">CableLayer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the thermal resistance for a cable layer, 0 if absent.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate the thermal resistance for a cable layer, 0 if absent."""</span>
     <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cable</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
 
@@ -3312,7 +3312,7 @@ If radius equals a grid point r[i], heat flow between r[i-1] and r[i] is returne
 <span class="normal">165</span>
 <span class="normal">166</span>
 <span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_thermal_resistance_external_medium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ambient_temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate thermal resistance between cable sheath surface and ambient.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate thermal resistance between cable sheath surface and ambient."""</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">surface_temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_boundary_temperatures_for_layer</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">CableLayer</span><span class="o">.</span><span class="n">Sheath</span><span class="p">)</span>
     <span class="n">heat_flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heat_flow_cable_layer</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">CableLayer</span><span class="o">.</span><span class="n">Sheath</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">surface_temperature</span> <span class="o">-</span> <span class="n">ambient_temperature</span><span class="p">)</span> <span class="o">/</span> <span class="n">heat_flow</span>

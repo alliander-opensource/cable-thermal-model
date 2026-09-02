@@ -2596,7 +2596,7 @@
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvT</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialise the model with a static environment.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialise the model with a static environment."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">static_env</span> <span class="o">=</span> <span class="n">static_env</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_set_run_options</span><span class="p">(</span><span class="n">run_options</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2802,7 +2802,7 @@ the options are validated and default values are applied.</p>
     <span class="n">initial_state</span><span class="p">:</span> <span class="n">StateT</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">run_options</span><span class="p">:</span> <span class="n">ModelRunOptionsT</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelOutputSchema</span><span class="p">[</span><span class="n">StateT</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the temperature solutions for all cable objects in the model for the given scenario.</span>
+<span class="w">    </span><span class="sd">"""Computes the temperature solutions for all cable objects in the model for the given scenario.</span>
 
 <span class="sd">    Notes:</span>
 <span class="sd">        Be careful about changing default run option values. The following settings affect the</span>
@@ -2825,7 +2825,7 @@ the options are validated and default values are applied.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If the provided initial state does not match the model environment.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">validated_scenario</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_scenario</span><span class="p">(</span><span class="n">scenario</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_set_run_options</span><span class="p">(</span><span class="n">run_options</span><span class="o">=</span><span class="n">run_options</span><span class="p">)</span>
 

@@ -2756,7 +2756,7 @@
 <span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the static environment with empty circuit and cable containers.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the static environment with empty circuit and cable containers."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CableCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuit_cable_indices</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2802,7 +2802,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dict of all cables in the static environment.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Returns a dict of all cables in the static environment."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2831,7 +2831,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_cables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the total number of cables in the static environment.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Returns the total number of cables in the static environment."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_cables</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2902,12 +2902,12 @@
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableIdInputSchemaT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds the circuit to the environment based on a Cable Id.</span>
+<span class="w">    </span><span class="sd">"""Adds the circuit to the environment based on a Cable Id.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        circuit_input: CircuitFromCableIdInputSchemaT containing the input parameters for the circuit.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_add_circuit</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2978,12 +2978,12 @@
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableSpecsInputSchemaT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds the circuit to the environment based on Cable Specs.</span>
+<span class="w">    </span><span class="sd">"""Adds the circuit to the environment based on Cable Specs.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        circuit_input: CircuitFromCableSpecsInputSchemaT containing the input parameters for the circuit.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_add_circuit</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3054,12 +3054,12 @@
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableConstructionalInputSchemaT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds the circuit to the environment based on a Cable Constructional Input Schema.</span>
+<span class="w">    </span><span class="sd">"""Adds the circuit to the environment based on a Cable Constructional Input Schema.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        circuit_input: CircuitFromCableConstructionalInputSchemaT containing the input parameters for the circuit.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_add_circuit</span><span class="p">(</span><span class="n">circuit_input</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3181,13 +3181,13 @@
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitFromCableInputSchemaT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a cable circuit consisting of one or three cables to the environment based on a given cable instance.</span>
+<span class="w">    </span><span class="sd">"""Add a cable circuit consisting of one or three cables to the environment based on a given cable instance.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">       circuit_input: CircuitFromCableInputSchemaT containing the input</span>
 <span class="sd">           parameters for the circuit, including a cable instance.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># If circuit_type is not provided, determine it</span>
     <span class="k">if</span> <span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_circuit_type</span><span class="p">(</span><span class="n">cable</span><span class="o">=</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">cable</span><span class="p">)</span>
@@ -3204,12 +3204,12 @@
         <span class="p">]</span>
     <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Three cables in one pipe not implemented for circuit type: </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Three cables in one pipe not implemented for circuit type: </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_type</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_name</span><span class="si">}</span><span class="s2"> already exists in environment. Circuit names should be unique.&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_name</span><span class="si">}</span><span class="s2"> already exists in environment. Circuit names should be unique."</span>
         <span class="p">)</span>
 
     <span class="c1"># Add circuit to domain based on cable object</span>
@@ -3218,8 +3218,8 @@
     <span class="k">if</span> <span class="n">circuit_input</span><span class="o">.</span><span class="n">multiple_configurations</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">[</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_name</span><span class="p">]</span><span class="o">.</span><span class="n">bonding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">BondingType</span><span class="o">.</span><span class="n">TwoSided</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;Circuit is not bonded on two sides, no circulating currents are assumed. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Multiple configurations are not implemented for bonding type </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">bonding_type</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"Circuit is not bonded on two sides, no circulating currents are assumed. "</span>
+                <span class="sa">f</span><span class="s2">"Multiple configurations are not implemented for bonding type </span><span class="si">{</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">bonding_type</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_local_configuration</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">[</span><span class="n">circuit_input</span><span class="o">.</span><span class="n">circuit_name</span><span class="p">],</span>
@@ -3283,20 +3283,20 @@
 <span class="normal">400</span>
 <span class="normal">401</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_circuit_type</span><span class="p">(</span><span class="n">cable</span><span class="p">:</span> <span class="n">AbstractCable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CircuitType</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines probable circuit type by number of conductors in the cable.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Determines probable circuit type by number of conductors in the cable."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cable</span><span class="p">,</span> <span class="n">CableTrefoilCircuitSinglePipe</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">CircuitType</span><span class="o">.</span><span class="n">Trefoil</span>
     <span class="k">if</span> <span class="n">cable</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">number_of_conductors</span> <span class="o">==</span> <span class="n">CableConductorCount</span><span class="o">.</span><span class="n">Three</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">CircuitType</span><span class="o">.</span><span class="n">Single</span>
     <span class="k">if</span> <span class="n">cable</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">number_of_conductors</span> <span class="o">==</span> <span class="n">CableConductorCount</span><span class="o">.</span><span class="n">One</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s1">&#39;&quot;trefoil&quot; is assumed to be the circuit_type, since the cable has a single conductor. &#39;</span>
-            <span class="s1">&#39;If &quot;linear&quot; was meant as circuit_type, please specify.&#39;</span><span class="p">,</span>
+            <span class="s1">'"trefoil" is assumed to be the circuit_type, since the cable has a single conductor. '</span>
+            <span class="s1">'If "linear" was meant as circuit_type, please specify.'</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">CircuitType</span><span class="o">.</span><span class="n">Trefoil</span>
 
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of conductors &#39;</span><span class="si">{</span><span class="n">cable</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">number_of_conductors</span><span class="si">}</span><span class="s2">&#39; not supported.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Number of conductors '</span><span class="si">{</span><span class="n">cable</span><span class="o">.</span><span class="n">conductor</span><span class="o">.</span><span class="n">number_of_conductors</span><span class="si">}</span><span class="s2">' not supported."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3324,7 +3324,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">403</span>
 <span class="normal">404</span>
 <span class="normal">405</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_cable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cable_key</span><span class="p">:</span> <span class="n">CableKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the Cable-object corresponding to the cable_name from the environment.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Gets the Cable-object corresponding to the cable_name from the environment."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">[</span><span class="n">cable_key</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
             </details>

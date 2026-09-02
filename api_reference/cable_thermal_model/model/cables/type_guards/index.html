@@ -2663,7 +2663,7 @@
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">require_implemented_cable</span><span class="p">(</span><span class="n">cable</span><span class="p">:</span> <span class="n">Cable</span><span class="p">,</span> <span class="n">hard_stop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Cable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the cable is implemented.</span>
+<span class="w">    </span><span class="sd">"""Check if the cable is implemented.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cable (Cable): The cable to check.</span>
@@ -2674,12 +2674,12 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        NotImplementedError: If the cable is not implemented and hard_stop is True.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Check if the cable only has the abstract methods implemented, which means it is not implemented.</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cable</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Cable</span><span class="p">,</span> <span class="n">CableTrefoilCircuitSinglePipe</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">hard_stop</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cable</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not implemented&quot;</span><span class="p">)</span>
-        <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cable</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is an abstract Cable class and not fully implemented!&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cable</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not implemented"</span><span class="p">)</span>
+        <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">cable</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is an abstract Cable class and not fully implemented!"</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">cable</span>
 </code></pre></div></td></tr></table></div>

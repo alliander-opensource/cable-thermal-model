@@ -2624,7 +2624,7 @@
 <span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the static environment with empty circuit and cable containers.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the static environment with empty circuit and cable containers."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CableCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuit_cable_indices</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cables</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2739,7 +2739,7 @@ for the circuit in air, including a Cable instance.</p>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">circuit_input</span><span class="p">:</span> <span class="n">CircuitInAirFromCableInputSchema</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the circuit to the environment based on a cable instance.</span>
+<span class="w">    </span><span class="sd">"""Add the circuit to the environment based on a cable instance.</span>
 
 <span class="sd">    Convection parameters are added to the circuit.</span>
 
@@ -2750,10 +2750,10 @@ for the circuit in air, including a Cable instance.</p>
 <span class="sd">    References:</span>
 <span class="sd">        - NEN-IEC 60287-2-1 (2023) - [table 3]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Environment already contains circuit(s). Cannot add multiple circuits to an air environment&quot;</span>
+            <span class="s2">"Environment already contains circuit(s). Cannot add multiple circuits to an air environment"</span>
         <span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">set_environment_convection_parameters</span><span class="p">(</span>
@@ -2902,18 +2902,18 @@ for the circuit in air, including a Cable instance.</p>
     <span class="n">cable</span><span class="p">:</span> <span class="n">CableAir</span><span class="p">,</span>
     <span class="n">clipped_to_wall</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds convection parameters to the cables.</span>
+<span class="w">    </span><span class="sd">"""Adds convection parameters to the cables.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        circuit_type: Type of circuit, one of &#39;single&#39;, &#39;trefoil&#39;, &#39;linear&#39;</span>
-<span class="sd">        dist: Distance between cables, relevant for &#39;linear&#39; circuits</span>
+<span class="sd">        circuit_type: Type of circuit, one of 'single', 'trefoil', 'linear'</span>
+<span class="sd">        dist: Distance between cables, relevant for 'linear' circuits</span>
 <span class="sd">        cable: CableAir instance</span>
 <span class="sd">        clipped_to_wall: Indicator if the circuit is clipped to a wall</span>
 
 <span class="sd">    References:</span>
 <span class="sd">        - NEN-IEC 60287-2-1 (2023) - [table 3]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">Z</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">Cg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_convection_parameters</span><span class="p">(</span><span class="n">circuit_type</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">cable</span><span class="p">,</span> <span class="n">clipped_to_wall</span><span class="p">)</span>
 
     <span class="n">cable</span><span class="o">.</span><span class="n">set_convection_parameters</span><span class="p">(</span><span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="n">E</span><span class="p">,</span> <span class="n">Cg</span><span class="o">=</span><span class="n">Cg</span><span class="p">)</span>

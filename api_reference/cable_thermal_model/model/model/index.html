@@ -2647,12 +2647,12 @@ _state_class: The class used to define the thermal state for the model.</p>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">static_env</span><span class="p">:</span> <span class="n">StaticEnvT</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the model with a static environment.</span>
+<span class="w">    </span><span class="sd">"""Initialize the model with a static environment.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        static_env: The static environment containing cable circuits.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">static_env</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_cables</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableKey</span><span class="p">,</span> <span class="n">PosCable</span><span class="p">[</span><span class="n">CableT</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>

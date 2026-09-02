@@ -2888,7 +2888,7 @@
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize an empty measurement-point registry.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize an empty measurement-point registry."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">MeasurementPoint</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">return</span>
@@ -3078,7 +3078,7 @@
 <span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_measurement_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ndigits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MeasurementPointKey</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a measurement point to the registry.</span>
+<span class="w">    </span><span class="sd">"""Add a measurement point to the registry.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x: x-coordinate of the measurement point.</span>
@@ -3087,11 +3087,11 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The key of the added or already-existing measurement point.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">measurement_point</span> <span class="o">=</span> <span class="n">MeasurementPoint</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="n">ndigits</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">measurement_point</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_point_keys</span><span class="p">:</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">x_str</span><span class="p">,</span> <span class="n">y_str</span> <span class="o">=</span> <span class="n">measurement_point</span><span class="o">.</span><span class="n">key</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Measurement point at </span><span class="si">{</span><span class="n">x_str</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">y_str</span><span class="si">}</span><span class="s2"> already exists. Skipping addition.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Measurement point at </span><span class="si">{</span><span class="n">x_str</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">y_str</span><span class="si">}</span><span class="s2"> already exists. Skipping addition."</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">measurement_point</span><span class="p">)</span>
 
