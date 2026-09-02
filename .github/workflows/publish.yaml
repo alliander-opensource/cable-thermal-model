@@ -3,13 +3,31 @@
 # SPDX-License-Identifier: MPL-2.0
 name: (CI) publish Package
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: |
+          SemVer bump:
+          patch, minor, major, alpha, beta, rc, dev, post, stable
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+          - dev
+          - alpha
+          - beta
+          - rc
+          - post
+          - stable
 
 jobs:
   build-package:
     runs-on: mgd-ubuntu24-x64-4c16g
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
@@ -20,6 +38,31 @@ jobs:
           python-version: "3.13"
           install-args: "--frozen --no-default-groups"
           cache-key-suffix: publish
+
+      - name: Bump package version
+        run: |
+          uv version --bump "${{ github.event.inputs.bump }}"
+          echo "Version after bump:"
+          uv version
+
+      - name: Commit bumped version
+        run: |
+          if git diff --quiet; then
+            echo "No version changes to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(release): bump version (${{ github.event.inputs.bump }})"
+
+      - name: Push bumped version
+        env:
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN || github.token }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GIT_TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin "HEAD:${{ github.ref_name }}"
 
       - name: Build package
         run: uv build
