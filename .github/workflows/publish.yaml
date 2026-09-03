@@ -3,16 +3,29 @@
 # SPDX-License-Identifier: MPL-2.0
 name: (CI) publish Package
 on:
-    workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-package:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+      github.event.pull_request.user.login == 'release-please[bot]')
     runs-on: mgd-ubuntu24-x64-4c16g
-    permissions:
-      contents: read
+    outputs:
+      package_version: ${{ steps.package_version.outputs.package_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
 
       - name: Set up Python and uv
         uses: ./.github/actions/setup-python-env
@@ -20,6 +33,18 @@ jobs:
           python-version: "3.13"
           install-args: "--frozen --no-default-groups"
           cache-key-suffix: publish
+
+      - name: Read package version
+        id: package_version
+        run: |
+          VERSION=$(python - <<'PY'
+          import tomllib
+          with open("pyproject.toml", "rb") as f:
+              print(tomllib.load(f)["project"]["version"])
+          PY
+          )
+          echo "package_version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Package version: ${VERSION}"
 
       - name: Build package
         run: uv build
@@ -29,8 +54,8 @@ jobs:
         with:
           name: cable-thermal-model-package
           path: dist/
-  publish-to-pypi:
-    name: Publish to PyPI
+  publish-to-pypi-test:
+    name: Publish to TestPyPI
     needs:
     - build-package
     runs-on: mgd-ubuntu24-x64-4c16g
@@ -49,86 +74,3 @@ jobs:
       uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b #v1.14.0
       with:
         repository-url: https://test.pypi.org/legacy/ #https://upload.pypi.org/legacy/
-  publish-to-github:
-    name: Publish to GitHub Releases
-    needs:
-    - build-package
-    runs-on: mgd-ubuntu24-x64-4c16g
-    permissions:
-      contents: write
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
-
-    - name: Download all the dists
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
-      with:
-        name: cable-thermal-model-package
-        path: dist/
-
-    - name: Get package version
-      id: get_version
-      run: |
-        # Extract version from pyproject.toml
-        VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-        echo "package_version=$VERSION" >> $GITHUB_OUTPUT
-        echo "Package version: $VERSION"
-
-    - name: Generate changelog
-      id: generate_changelog
-      run: |
-        # Get the previous release tag
-        PREVIOUS_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || echo "")
-
-        if [ -z "$PREVIOUS_TAG" ]; then
-          echo "changelog=First release of the cable-thermal-model package." >> $GITHUB_OUTPUT
-        else
-          echo "Generating changelog from $PREVIOUS_TAG to HEAD"
-
-          # Get merged PRs since last release
-          CHANGELOG=$(gh pr list \
-            --state merged \
-            --base main \
-            --search "merged:>$(gh release view $PREVIOUS_TAG --json publishedAt --jq .publishedAt)" \
-            --json number,title,author \
-            --jq '.[] | "- #\(.number): \(.title) (@\(.author.login))"' \
-            | head -20)
-
-          if [ -z "$CHANGELOG" ]; then
-            echo "changelog=No notable changes since the previous release." >> $GITHUB_OUTPUT
-          else
-            echo "changelog<<EOF" >> $GITHUB_OUTPUT
-            echo "### Changes" >> $GITHUB_OUTPUT
-            echo "$CHANGELOG" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          fi
-        fi
-      env:
-        GH_TOKEN: ${{ github.token }}
-
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda #v3.0.0
-      with:
-        tag_name: v${{ steps.get_version.outputs.package_version }}
-        name: Release v${{ steps.get_version.outputs.package_version }}
-        files: |
-          dist/*.tar.gz
-          dist/*.whl
-        body: |
-          ## Release v${{ steps.get_version.outputs.package_version }}
-
-          ### Installation
-          ```bash
-          pip install cable-thermal-model==${{ steps.get_version.outputs.package_version }}
-          ```
-
-          ### Package Files
-          - Source distribution (`.tar.gz`)
-          - Wheel distribution (`.whl`)
-
-          ---
-
-          ${{ steps.generate_changelog.outputs.changelog }}
-        draft: false
-        prerelease: false
-        generate_release_notes: false # Redundant because we are providing a custom release notes body
