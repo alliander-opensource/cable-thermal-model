@@ -1,0 +1,5 @@
+{
+  "release-type": "python",
+  "package-name": "cable-thermal-model",
+  "changelog-path": "CHANGELOG.md"
+}
