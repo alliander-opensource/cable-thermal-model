@@ -97,7 +97,7 @@ circuit = CircuitInSoilFromCableIdInputSchema(
     cable_id="GPLK 10/10 kV 3x185 Al",
     cable_source_file_path="data/example_cables.csv",
     x=0.0,
-    y=-1.0
+    y=-1.0,
 )
 ```
 
@@ -114,12 +114,7 @@ Pass a pre-built `FDCable` object:
 ```python
 from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableInputSchema
 
-circuit = CircuitInSoilFromCableInputSchema(
-    circuit_name="circuit_1",
-    cable=my_cable_object,
-    x=0.0,
-    y=-1.0
-)
+circuit = CircuitInSoilFromCableInputSchema(circuit_name="circuit_1", cable=my_cable_object, x=0.0, y=-1.0)
 ```
 
 ### Pipe Configuration
@@ -150,7 +145,7 @@ from cable_thermal_model import PipeInputSchema, PipeFillType
 pipe = PipeInputSchema(
     outer_radius=0.08,  # 160 mm outer diameter
     fill_type=PipeFillType.Water,
-    sdr=11.0
+    sdr=11.0,
 )
 ```
 
@@ -173,13 +168,16 @@ Scenarios are defined using pandas DataFrames with a `DatetimeIndex`. Each row r
 import pandas as pd
 from datetime import datetime
 
-scenario = pd.DataFrame({
-    'load_circuit_1': [200, 250, 300],
-    'load_circuit_2': [150, 175, 200],
-    'ambient_temperature': [15, 16, 17],
-    'soil_thermal_resistivity': [0.75, 0.75, 0.75],
-    'soil_thermal_capacity': [2e6, 2e6, 2e6]
-}, index=pd.date_range(start=datetime(2026, 1, 1), periods=3, freq='1h'))
+scenario = pd.DataFrame(
+    {
+        "load_circuit_1": [200, 250, 300],
+        "load_circuit_2": [150, 175, 200],
+        "ambient_temperature": [15, 16, 17],
+        "soil_thermal_resistivity": [0.75, 0.75, 0.75],
+        "soil_thermal_capacity": [2e6, 2e6, 2e6],
+    },
+    index=pd.date_range(start=datetime(2026, 1, 1), periods=3, freq="1h"),
+)
 ```
 
 ### Required Columns for Air Environments
@@ -192,10 +190,10 @@ scenario = pd.DataFrame({
 **Example:**
 
 ```python
-scenario = pd.DataFrame({
-    'load_circuit_1': [200, 250, 300],
-    'ambient_temperature': [20, 22, 24]
-}, index=pd.date_range(start=datetime(2026, 1, 1), periods=3, freq='1h'))
+scenario = pd.DataFrame(
+    {"load_circuit_1": [200, 250, 300], "ambient_temperature": [20, 22, 24]},
+    index=pd.date_range(start=datetime(2026, 1, 1), periods=3, freq="1h"),
+)
 ```
 
 ### Scenario Validation
@@ -221,12 +219,7 @@ Here's a minimal complete example for a cable in soil:
 ```python
 from datetime import datetime
 import pandas as pd
-from cable_thermal_model import (
-    StaticEnvSoil,
-    ModelFactory,
-    CircuitType,
-    BondingType
-)
+from cable_thermal_model import StaticEnvSoil, ModelFactory, CircuitType, BondingType
 from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
 
 # 1. Create static environment
@@ -240,17 +233,20 @@ circuit = CircuitInSoilFromCableIdInputSchema(
     x=0.0,
     y=-1.0,
     circuit_type=CircuitType.Trefoil,
-    bonding_type=BondingType.TwoSided
+    bonding_type=BondingType.TwoSided,
 )
 static_env.add_circuit_from_cable_id(circuit)
 
 # 3. Create scenario
-scenario = pd.DataFrame({
-    'load_main_circuit': [200, 250, 300],
-    'ambient_temperature': [15, 16, 17],
-    'soil_thermal_resistivity': [0.75, 0.75, 0.75],
-    'soil_thermal_capacity': [2e6, 2e6, 2e6]
-}, index=pd.date_range(start=datetime(2026, 1, 1), periods=3, freq='1h'))
+scenario = pd.DataFrame(
+    {
+        "load_main_circuit": [200, 250, 300],
+        "ambient_temperature": [15, 16, 17],
+        "soil_thermal_resistivity": [0.75, 0.75, 0.75],
+        "soil_thermal_capacity": [2e6, 2e6, 2e6],
+    },
+    index=pd.date_range(start=datetime(2026, 1, 1), periods=3, freq="1h"),
+)
 
 # 4. Run the model
 model = ModelFactory.create_model(static_env=static_env)

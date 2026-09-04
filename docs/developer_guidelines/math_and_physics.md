@@ -37,28 +37,26 @@ A good example of code where these guidelines would apply can be found in:
 For this example we'll look at an older version of the method "_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading" and how it should be altered:
 
 ```python
-def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(
-        self, Tc: float, Ts: float
-    ) -> float:
-        """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
-        Linear version, conductor carrying the leading phase.
+def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(self, Tc: float, Ts: float) -> float:
+    """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
+    Linear version, conductor carrying the leading phase.
 
-        Notes:
-            Calculates eddy currents in the earthing sheath based on the NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1].
+    Notes:
+        Calculates eddy currents in the earthing sheath based on the NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1].
 
-        """
-        Rs = self._get_resistance_screen(Ts)
+    """
+    Rs = self._get_resistance_screen(Ts)
 
-        m = self.omega / Rs * 1e-7
-        Delta1, Delta2 = 0, 0
-        if m > self._M_THRESHOLD:
-            Delta1 = 4.7 * m**0.7 * (self.d / (2 * self.s)) ** (0.16 * m + 2)
-            Delta2 = 21 * m**3.3 * (self.d / (2 * self.s)) ** (1.47 * m + 5.06)
+    m = self.omega / Rs * 1e-7
+    Delta1, Delta2 = 0, 0
+    if m > self._M_THRESHOLD:
+        Delta1 = 4.7 * m**0.7 * (self.d / (2 * self.s)) ** (0.16 * m + 2)
+        Delta2 = 21 * m**3.3 * (self.d / (2 * self.s)) ** (1.47 * m + 5.06)
 
-        lambda0 = 1.5 * (m**2 / (1 + m**2)) * (self.d / (2 * self.s)) ** 2
-        lambda1_eddy = self._get_lambda1_eddy(Ts, Tc, lambda0, (Delta1 + Delta2))
+    lambda0 = 1.5 * (m**2 / (1 + m**2)) * (self.d / (2 * self.s)) ** 2
+    lambda1_eddy = self._get_lambda1_eddy(Ts, Tc, lambda0, (Delta1 + Delta2))
 
-        return lambda1_eddy
+    return lambda1_eddy
 ```
 
 
@@ -93,36 +91,34 @@ Some improvements still need to be made though:
 Resulting in the following adjusted method:
 
 ```python
-def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(
-        self, Tc: float, Ts: float
-    ) -> float:
-        """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
+def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(self, Tc: float, Ts: float) -> float:
+    """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
 
-        Linear version, conductor carrying the leading phase.
+    Linear version, conductor carrying the leading phase.
 
-        Args:
-            Tc (float): The conductor temperature in degrees Celsius.
-            Ts (float): The screen temperature in degrees Celsius.
+    Args:
+        Tc (float): The conductor temperature in degrees Celsius.
+        Ts (float): The screen temperature in degrees Celsius.
 
-        Notes:
-            Calculates eddy currents in the earthing sheath based on the NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1].
+    Notes:
+        Calculates eddy currents in the earthing sheath based on the NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1].
 
-        References:
-            - NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1]
+    References:
+        - NEN-IEC 60287-1-1 (2023) - [section 5.3.7.1]
 
-        """
-        Rs = self._get_resistance_screen(Ts)
+    """
+    Rs = self._get_resistance_screen(Ts)
 
-        m = self.omega / Rs * 1e-7
-        Delta1, Delta2 = 0, 0
-        if m > self._M_THRESHOLD:
-            Delta1 = 4.7 * m**0.7 * (self.d / (2 * self.s)) ** (0.16 * m + 2)
-            Delta2 = 21 * m**3.3 * (self.d / (2 * self.s)) ** (1.47 * m + 5.06)
+    m = self.omega / Rs * 1e-7
+    Delta1, Delta2 = 0, 0
+    if m > self._M_THRESHOLD:
+        Delta1 = 4.7 * m**0.7 * (self.d / (2 * self.s)) ** (0.16 * m + 2)
+        Delta2 = 21 * m**3.3 * (self.d / (2 * self.s)) ** (1.47 * m + 5.06)
 
-        lambda0 = 1.5 * (m**2 / (1 + m**2)) * (self.d / (2 * self.s)) ** 2
-        lambda1_eddy = self._get_lambda1_eddy(Ts, Tc, lambda0, (Delta1 + Delta2))
+    lambda0 = 1.5 * (m**2 / (1 + m**2)) * (self.d / (2 * self.s)) ** 2
+    lambda1_eddy = self._get_lambda1_eddy(Ts, Tc, lambda0, (Delta1 + Delta2))
 
-        return lambda1_eddy
+    return lambda1_eddy
 ```
 
 
