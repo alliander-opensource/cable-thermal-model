@@ -46,7 +46,7 @@ jobs:
         name: cable-thermal-model-package
         path: dist/
     - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b #v1.14.0
+      uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 #v1.14.2
       with:
         repository-url: https://test.pypi.org/legacy/ #https://upload.pypi.org/legacy/
   publish-to-github:
@@ -107,7 +107,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
 
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda #v3.0.0
+      uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 #v3.0.3
       with:
         tag_name: v${{ steps.get_version.outputs.package_version }}
         name: Release v${{ steps.get_version.outputs.package_version }}
