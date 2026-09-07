@@ -25,20 +25,20 @@ jobs:
           manifest-file: .github/.release-please-manifest.json
 
       - name: Checkout release PR branch
-        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        if: ${{ steps.release.outputs.pr != '' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+          ref: ${{ fromJSON(steps.release.outputs.pr || '{}').headBranchName }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
-        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        if: ${{ steps.release.outputs.pr != '' }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.12"
 
       - name: Sync uv.lock with the bumped version
-        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        if: ${{ steps.release.outputs.pr != '' }}
         run: |
           python -m pip install --upgrade "uv==0.11.26"
           uv lock
@@ -46,10 +46,10 @@ jobs:
       # Committing through the GraphQL API makes GitHub sign the commit with its own
       # key, so no signing key has to be stored in this repository.
       - name: Commit uv.lock
-        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        if: ${{ steps.release.outputs.pr != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+          BRANCH: ${{ fromJSON(steps.release.outputs.pr || '{}').headBranchName }}
         run: |
           if git diff --quiet -- uv.lock; then
             echo "uv.lock already up to date"
