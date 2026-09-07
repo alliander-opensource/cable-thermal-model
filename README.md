@@ -102,17 +102,11 @@ The **reuse** pre-commit hook ensures that all files have proper copyright heade
 After installation, verify that the package is correctly installed by importing some of the main classes:
 
 ```python
-from cable_thermal_model import (
-    CircuitType,
-    BondingType,
-    StaticEnvSoil,
-    StaticEnvAir,
-    ModelFactory,
-    CableKey
-)
+from cable_thermal_model import CircuitType, BondingType, StaticEnvSoil, StaticEnvAir, ModelFactory, CableKey
 
 # Check the installed version
-from cable_thermal_model  import __version__
+from cable_thermal_model import __version__
+
 print(f"Cable Thermal Model version: {__version__}")
 ```
 
