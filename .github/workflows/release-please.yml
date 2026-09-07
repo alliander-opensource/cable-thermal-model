@@ -55,6 +55,7 @@ jobs:
             echo "uv.lock already up to date"
             exit 0
           fi
+          base64 -w0 uv.lock > "$RUNNER_TEMP/uv.lock.b64"
           jq -n \
             --arg repo "$GITHUB_REPOSITORY" \
             --arg branch "$BRANCH" \
