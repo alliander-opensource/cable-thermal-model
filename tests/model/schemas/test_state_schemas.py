@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
+import json
+
 import numpy as np
 import pytest
 from pydantic_core import ValidationError
@@ -56,7 +58,7 @@ def test_state_check_solution_consistency_raises_on_mismatch():
 
 
 def test_simple_state_soil(simple_state_soil):
-    """StateSoil should accept matching mutual_heating keys."""
+    """Validate that the simple_state_soil fixture works correctly."""
     state = StateSoil.model_validate(simple_state_soil)
     assert isinstance(state, StateSoil)
 
@@ -101,8 +103,7 @@ def test_stateair_validate_single_circuit_passes_and_rejects_multiple_circuits()
 
 
 def test_state_serialization_and_deserialization(simple_state_soil):
-    """Test serialization and deserialization of State, StateSoil, and StateAir."""
-    # Serialize to dict
+    """Test JSON serialization and deserialization of StateSoil."""
     serialized_state_soil = simple_state_soil.model_dump_json()
 
     # Deserialize back to StateSoil
@@ -124,10 +125,14 @@ def test_integer_in_state():
 
     serialized_state = state.model_dump_json()
 
+    json_data = json.loads(serialized_state)
+    temperature_values = next(iter(json_data["temperature"].values()))
+    self_heating_values = next(iter(json_data["self_heating_contribution"].values()))
+
     # Check that the serialized JSON contains float values
-    assert ":[20.0]}" in serialized_state
-    assert ":[15.0]}" in serialized_state
-    assert ":5.0}" in serialized_state
+    assert isinstance(temperature_values[0], float)
+    assert isinstance(self_heating_values[0], float)
+    assert isinstance(json_data["ambient_temperature"], float)
 
     # An integer in the json should still result in the same State
     deserialized_state = State.model_validate_json(serialized_state.replace(".0", ""))
