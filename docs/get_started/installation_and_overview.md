@@ -89,17 +89,11 @@ The **reuse** pre-commit hook ensures that all files have proper copyright heade
 After installation, verify that the package is correctly installed by importing the main classes:
 
 ```python
-from cable_thermal_model import (
-    CircuitType,
-    BondingType,
-    StaticEnvSoil,
-    StaticEnvAir,
-    ModelFactory,
-    CableKey
-)
+from cable_thermal_model import CircuitType, BondingType, StaticEnvSoil, StaticEnvAir, ModelFactory, CableKey
 
 # Check the installed version
-from cable_thermal_model  import __version__
+from cable_thermal_model import __version__
+
 print(f"Cable Thermal Model version: {__version__}")
 ```
 
@@ -183,12 +177,14 @@ Define time-dependent parameters like loads and ambient conditions:
 ```python
 import pandas as pd
 
-scenario = pd.DataFrame({
-    'load_circuit_1': [200, 250, 300],  # Amperes
-    'ambient_temperature': [15, 16, 17],  # Celsius
-    'soil_thermal_resistivity': [0.75, 0.75, 0.75],  # mK/W
-    # ... other required parameters
-})
+scenario = pd.DataFrame(
+    {
+        "load_circuit_1": [200, 250, 300],  # Amperes
+        "ambient_temperature": [15, 16, 17],  # Celsius
+        "soil_thermal_resistivity": [0.75, 0.75, 0.75],  # mK/W
+        # ... other required parameters
+    }
+)
 ```
 
 ### 3. Run the Model

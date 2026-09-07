@@ -23,9 +23,7 @@ jobs:
       package_version: ${{ steps.package_version.outputs.package_version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
 
       - name: Set up Python and uv
         uses: ./.github/actions/setup-python-env
@@ -71,6 +69,6 @@ jobs:
         name: cable-thermal-model-package
         path: dist/
     - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b #v1.14.0
+      uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 #v1.14.2
       with:
         repository-url: https://test.pypi.org/legacy/ #https://upload.pypi.org/legacy/
