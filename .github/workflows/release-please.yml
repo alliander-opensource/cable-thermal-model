@@ -55,11 +55,13 @@ jobs:
             echo "uv.lock already up to date"
             exit 0
           fi
+          # base64 goes through a file: as an argv entry it exceeds ARG_MAX
+          base64 -w0 uv.lock > "$RUNNER_TEMP/uv.lock.b64"
           jq -n \
             --arg repo "$GITHUB_REPOSITORY" \
             --arg branch "$BRANCH" \
             --arg oid "$(git rev-parse HEAD)" \
-            --arg contents "$(base64 -w0 uv.lock)" \
+            --rawfile contents "$RUNNER_TEMP/uv.lock.b64" \
             '{
               query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }",
               variables: {
@@ -67,7 +69,7 @@ jobs:
                   branch: { repositoryNameWithOwner: $repo, branchName: $branch },
                   expectedHeadOid: $oid,
                   message: { headline: "sync uv.lock with released version" },
-                  fileChanges: { additions: [ { path: "uv.lock", contents: $contents } ] }
+                  fileChanges: { additions: [ { path: "uv.lock", contents: ($contents | rtrimstr("\n")) } ] }
                 }
               }
             }' > "$RUNNER_TEMP/commit.json"
