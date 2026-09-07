@@ -7,6 +7,7 @@ on:
     types: [closed]
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,7 +17,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true &&
-      github.event.pull_request.user.login == 'release-please[bot]')
+      startsWith(github.event.pull_request.head.ref, 'release-please--branches--'))
     runs-on: mgd-ubuntu24-x64-4c16g
     steps:
       - name: Checkout code
@@ -53,7 +54,7 @@ jobs:
         with:
           name: cable-thermal-model-package
           path: dist/
-      - name: Publish distribution to TestPyPI
+      - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 #v1.14.2
         with:
           repository-url: https://test.pypi.org/legacy/ #https://upload.pypi.org/legacy/
