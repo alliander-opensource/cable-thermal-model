@@ -19,8 +19,6 @@ jobs:
       (github.event.pull_request.merged == true &&
       github.event.pull_request.user.login == 'release-please[bot]')
     runs-on: mgd-ubuntu24-x64-4c16g
-    outputs:
-      package_version: ${{ steps.package_version.outputs.package_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
@@ -31,18 +29,6 @@ jobs:
           python-version: "3.13"
           install-args: "--frozen --no-default-groups"
           cache-key-suffix: publish
-
-      - name: Read package version
-        id: package_version
-        run: |
-          VERSION=$(python - <<'PY'
-          import tomllib
-          with open("pyproject.toml", "rb") as f:
-              print(tomllib.load(f)["project"]["version"])
-          PY
-          )
-          echo "package_version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Package version: ${VERSION}"
 
       - name: Build package
         run: uv build
