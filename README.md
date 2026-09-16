@@ -11,6 +11,11 @@ SPDX-License-Identifier: MPL-2.0
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=coverage)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=alliander-opensource_cable-thermal-model&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=alliander-opensource_cable-thermal-model)
+![Temp OpenSSF Badge](https://img.shields.io/badge/OpenSSF%20(Official%20Badge%20Pending)-6.0-blue)
+
+<!-- # Temporary badge to indicate expected OpenSSF score based on the action. In use until uploads to OpenSSF are fixed. -->
+
+
 
 Cable Thermal Model is a physical model which can be used to calculate cable
 temperature profiles in situations with dynamic profiles for loads, ambient temperature,
@@ -102,17 +107,11 @@ The **reuse** pre-commit hook ensures that all files have proper copyright heade
 After installation, verify that the package is correctly installed by importing some of the main classes:
 
 ```python
-from cable_thermal_model import (
-    CircuitType,
-    BondingType,
-    StaticEnvSoil,
-    StaticEnvAir,
-    ModelFactory,
-    CableKey
-)
+from cable_thermal_model import CircuitType, BondingType, StaticEnvSoil, StaticEnvAir, ModelFactory, CableKey
 
 # Check the installed version
-from cable_thermal_model  import __version__
+from cable_thermal_model import __version__
+
 print(f"Cable Thermal Model version: {__version__}")
 ```
 
