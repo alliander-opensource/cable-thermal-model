@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 [build-system]
-requires = ["uv_build>=0.11.26,<0.12.0"]
+requires = ["uv_build>=0.11.26,<0.13.0"]
 build-backend = "uv_build"
 
 [project]
 name = "cable-thermal-model"
-version = "2.1.1"
+version = "2.2.1"
 description = "Cable Thermal Model (CTM) is a physical model used to calculate dynamic cable temperatures."
 requires-python = ">= 3.11, <3.15"
 readme = "README.md"
@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "pandas>=2.2.3,<3.0.0",
     "scipy>=1.15.0,<2.0.0",
-    "structlog>=25.0.0,<26.0.0",
+    "structlog>=25.0.0,<27.0.0",
     "pydantic>=2.13.4,<3.0.0",
     "numpy>=2.4.6,<3.0.0",
     "pandera>=0.31.1",
@@ -42,7 +42,7 @@ dev = [
     "pytest-xdist>=3.6.1,<4.0.0",
     "mypy>=2.0.0,<3",
     "pandas-stubs>=3.0.0.260204,<4",
-    "ruff>=0.15.15,<0.16",
+    "ruff>=0.15.15,<0.17",
     "pre-commit>=4.6.0,<5",
     "scipy-stubs>=1.17.1.5,<2",
     "pytest>=9.0.3,<10",

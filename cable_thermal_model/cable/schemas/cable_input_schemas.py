@@ -79,6 +79,7 @@ class CableConstructionalInputSchema(BaseModel):
             CableInsulationMaterial.XLPEUnfilled,
             CableInsulationMaterial.XLPEFilled,
             CableInsulationMaterial.PPL,
+            CableInsulationMaterial.PE,
         ]:
             return CableType.XLPE
         elif insulation_material == CableInsulationMaterial.PaperMassImpregnated:

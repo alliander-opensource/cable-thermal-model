@@ -5,9 +5,24 @@
 from typing import TypeVar
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
 
 from cable_thermal_model.cable.cable_circuit import CableKey
+
+
+def _serialize_temperature_dict(value: dict[CableKey, np.ndarray]) -> dict[str, list[float]]:
+    """Serialize a dictionary of cable temperatures to JSON-compatible lists."""
+    return {key.model_dump_json(): array.astype(float).tolist() for key, array in value.items()}
+
+
+def _deserialize_temperature_dict(
+    temperature_dict: dict[str | CableKey, list[float] | np.ndarray],
+) -> dict[CableKey, np.ndarray]:
+    """Deserialize a dictionary of cable temperatures from JSON-compatible lists back to numpy arrays."""
+    return {
+        key if isinstance(key, CableKey) else CableKey.model_validate_json(key): np.array(array, dtype=float)
+        for key, array in temperature_dict.items()
+    }
 
 
 class State(BaseModel):
@@ -52,6 +67,18 @@ class State(BaseModel):
             )
         return self
 
+    @field_serializer("temperature", "self_heating_contribution")
+    def serialize_temperature(self, arrays: dict[CableKey, np.ndarray]) -> dict[str, list[float]]:
+        """Serialize numpy arrays to lists for JSON compatibility."""
+        return _serialize_temperature_dict(arrays)
+
+    @field_validator("temperature", "self_heating_contribution", mode="before")
+    def deserialize_temperature(
+        cls, value: dict[str | CableKey, list[float] | np.ndarray]
+    ) -> dict[CableKey, np.ndarray]:
+        """Deserialize lists back to numpy arrays."""
+        return _deserialize_temperature_dict(value)
+
 
 StateT = TypeVar("StateT", bound=State)
 
@@ -71,6 +98,18 @@ class StateSoil(State):
     mutual_heating_contribution: dict[CableKey, np.ndarray] = Field(
         description="The temperature delta of each cable over the radii grid due to mutual heating from other cables."
     )
+
+    @field_serializer("mutual_heating_contribution")
+    def serialize_mutual_heating_contribution(self, arrays: dict[CableKey, np.ndarray]) -> dict[str, list[float]]:
+        """Serialize mutual-heating arrays to lists for JSON compatibility."""
+        return _serialize_temperature_dict(arrays)
+
+    @field_validator("mutual_heating_contribution", mode="before")
+    def deserialize_mutual_heating_contribution(
+        cls, value: dict[str | CableKey, list[float] | np.ndarray]
+    ) -> dict[CableKey, np.ndarray]:
+        """Deserialize lists back to numpy arrays for mutual-heating."""
+        return _deserialize_temperature_dict(value)
 
     @model_validator(mode="after")
     def validate_mutual_heating_contribution(self):
