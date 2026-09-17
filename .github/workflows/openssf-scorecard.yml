@@ -6,6 +6,9 @@
 # Results are published to the OpenSSF Scorecard API when publish_results is true.
 # Results are also uploaded to GitHub Code Scanning.
 
+# NOTE: Currently our special runners are not allowed to publish the results to OpenSSF's servers.
+#       This doesn't affect the running of this action and this NOTE will be removed once uploading is possible.
+
 name: Scorecard supply-chain security
 on:
   # For Branch-Protection check. Only the default branch is supported. See
