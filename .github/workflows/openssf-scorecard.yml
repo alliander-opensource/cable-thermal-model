@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# This workflow uses the OpenSSF Scorecard CLI directly to support custom runners.
-# Note: publish_results (OpenSSF badge/API) is not available without the scorecard-action.
-# Results are still uploaded to GitHub Code Scanning.
+# This workflow runs OpenSSF Scorecard via ossf/scorecard-action on a custom runner.
+# Results are published to the OpenSSF Scorecard API when publish_results is true.
+# Results are also uploaded to GitHub Code Scanning.
 
 name: Scorecard supply-chain security
 on:
