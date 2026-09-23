@@ -27,6 +27,7 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableInsulationMaterial,
     CableLayer,
     CableScreenType,
+    CableSheathMaterial,
     CableType,
 )
 
@@ -572,3 +573,20 @@ class CableConstructionalInputSchema(BaseModel):
                 "validate single core cable insulation specifications."
             )
         return self.insulation_input
+
+    @model_validator(mode="after")
+    def check_pvc_insulation_voltage_level(self):
+        """Check and update PVC sheath material based on insulation voltage level.
+
+        If the nominal phase voltage of the insulation is 35 kV or higher and the sheath material is PVC,
+        the sheath material is updated to PVC_above_35kV. This material has a higher thermal resistance.
+
+        Returns:
+            self: The updated cable input schema instance.
+        """
+        if (
+            self.insulation_input.nominal_phase_voltage >= 35_000
+            and self.sheath_input.material == CableSheathMaterial.PVC
+        ):
+            self.sheath_input.material = CableSheathMaterial.PVC_above_35kV
+        return self

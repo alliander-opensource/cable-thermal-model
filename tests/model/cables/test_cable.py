@@ -41,7 +41,11 @@ from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInAir
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType, PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import (
+    CableLayer,
+    CableScreenLossType,
+    PipeFillType,
+)
 from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 from tests.conftest import test_cable_fixtures
@@ -644,6 +648,11 @@ def test_integrate_timestep_cable_air(single_core_cable_xlpe_in_air: CableAir):
 
     # Check that the new solution has increasing temperature values
     assert np.all(new_solution > 0), "Temperature values should be positive."
+
+
+def test_high_voltage_cable_with_pvc_sheath(three_core_cable_od: CableSoil):
+    """Test that a high voltage cable with a PVC sheath has the correct material set for the sheath."""
+    assert three_core_cable_od.layer_properties[CableLayer.Sheath].rho == pytest.approx(6.0)
 
 
 # TODO in refactor:
