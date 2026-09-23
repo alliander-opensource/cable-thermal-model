@@ -170,6 +170,7 @@ class CableSheathMaterial(Material):
     Lead = "pcLead"
     PE = "pcPE"
     PVC = "pcPVC"
+    PVC_above_35kV = "pcPVC-35kV"
 
 
 class CableOilDuct(StrEnum):
