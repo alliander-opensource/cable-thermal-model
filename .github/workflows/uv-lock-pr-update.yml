@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: Update uv.lock for pull request
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  update-lockfile:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: mgd-ubuntu24-x64-4c16g
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out pull request branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Regenerate uv.lock
+        run: uv lock --upgrade
+
+      - name: Open lockfile update PR
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          base: ${{ github.event.pull_request.head.ref }}
+          branch: chore/uv-lock-update-pr-${{ github.event.pull_request.number }}
+          commit-message: "chore: regenerate uv.lock"
+          sign-commits: true
+          title: "chore: regenerate uv.lock for PR #${{ github.event.pull_request.number }}"
+          body: |
+            Automated lockfile regeneration (`uv lock --upgrade`) for #${{ github.event.pull_request.number }}.
+          delete-branch: true
