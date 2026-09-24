@@ -71,6 +71,7 @@ Historical Contributors:
 - Brian Westerweel
 - Wouter van Harten
 - Jan Tijink
+- Tongyou Gu
 
 Currently still active contributors:
 - Bram Vloedgraven

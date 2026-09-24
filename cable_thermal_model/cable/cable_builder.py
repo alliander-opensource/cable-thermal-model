@@ -29,7 +29,6 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorSurfaceType,
     CableLayer,
     CableScreenType,
-    CableSheathMaterial,
 )
 from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.model.cables.type_guards import require_implemented_cable
@@ -271,7 +270,6 @@ class CableBuilder:
                 materials needed for the CableConstructionalInputSchema object.
 
         """
-        _pvc_voltage_threshold = 35_000
         materials_in_order = [layer.material for layer in cable_constructional_input.layers.values()]
 
         try:
@@ -286,13 +284,6 @@ class CableBuilder:
             properties = {
                 key: cls.MATERIALS_DF[col].loc[materials_in_order].to_numpy() for key, col in property_map.items()
             }
-            # Special PVC case
-            if (
-                cable_constructional_input.insulation_input.nominal_phase_voltage > _pvc_voltage_threshold
-                and cable_constructional_input.sheath_input.material == CableSheathMaterial.PVC
-            ):
-                index = materials_in_order.index(CableSheathMaterial.PVC)
-                properties["rho"][index] = cls.MATERIALS_DF["thermal resistivity"].loc["pcPVC-35kV"]
 
         except KeyError as key_error:
             missing_materials = [mat for mat in materials_in_order if mat not in cls.MATERIALS_DF.index]

@@ -93,7 +93,7 @@ def test_invalid_cable_layer(valid_output_temperature_result_df):
 
 
 def test_non_numeric_values(valid_output_temperature_result_df):
-    invalid_df = valid_output_temperature_result_df.copy()
+    invalid_df = valid_output_temperature_result_df.copy().astype(object)
     invalid_df.iloc[0, 0] = "not a number"
 
     with pytest.raises(SchemaError, match="All temperature values must be of float type."):
