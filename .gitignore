@@ -161,3 +161,6 @@ cython_debug/
 .devcontainer/
 
 *.code-workspace
+
+# Exclude lock file due to differences in OS and IS repositories
+uv.lock

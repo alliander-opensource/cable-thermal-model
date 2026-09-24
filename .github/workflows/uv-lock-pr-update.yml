@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: Update uv.lock for pull request
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  update-lockfile:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: mgd-ubuntu24-x64-4c16g
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out pull request branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Regenerate uv.lock
+        run: uv lock
+
+      - name: Upload regenerated lockfile
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: uv-lockfile
+          path: uv.lock
+          if-no-files-found: error
+          retention-days: 1
