@@ -38,6 +38,8 @@ jobs:
       security-events: write
       # Needed to read repository contents.
       contents: read
+      # Needed to publish results to OpenSSF Scorecard API.
+      id-token: write
 
     steps:
       - name: "Checkout code"
