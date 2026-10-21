@@ -88,6 +88,7 @@ nav:
       - Class diagram: developer_guidelines/class_diagram.md
       - Math and physics: developer_guidelines/math_and_physics.md
       - Schemas: schemas.md
+      - Workflows: developer_guidelines/workflows.md
   - Examples:
       - Example calculation: examples/example_calculation.ipynb
       - Add cables: examples/build_cable_example.ipynb
