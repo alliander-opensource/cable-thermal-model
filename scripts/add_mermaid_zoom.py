@@ -27,7 +27,7 @@ HEAD_CLOSE = re.compile(r"</head\s*>", re.IGNORECASE)
 BODY_OPEN = re.compile(r"<body\b[^>]*>", re.IGNORECASE)
 BODY_CLOSE = re.compile(r"</body\s*>", re.IGNORECASE)
 MERMAID_SCRIPT = re.compile(
-    r"""<script\b(?=[^>]*\bsrc\s*=\s*["'][^"']*mermaid[^"']*["'])[^>]*>\s*</script(?:\s+[^>]*)?\s*>""",
+    r"""<script\b(?=[^>]*\bsrc\s*=\s*["'][^"']*mermaid[^"']*["'])[^>]*>\s*<\s*/\s*script(?:\s+[^>]*)?\s*>""",
     re.IGNORECASE,
 )
 PINNED_MERMAID_SCRIPT = '<script src="https://cdn.jsdelivr.net/npm/mermaid@12.2.0/dist/mermaid.min.js"></script>'
