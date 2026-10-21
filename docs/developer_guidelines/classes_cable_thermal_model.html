@@ -1,0 +1,1035 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pyreverse Mermaid Diagram</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #diagram-viewport {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #diagram-viewport.is-panning {
+      cursor: grabbing;
+    }
+
+    #diagram {
+      width: 100%;
+      height: 100%;
+    }
+
+    #diagram svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-width: none !important;
+      user-select: none;
+    }
+  </style>
+</head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@12.2.0/dist/mermaid.min.js"></script>
+      <main id="diagram-viewport" data-mermaid-zoom="1" aria-label="Diagram viewport. Scroll to zoom and drag to pan.">
+  <div id="diagram" class="mermaid">
+
+        classDiagram
+          class AbstractCable {
+            Ft : float
+            X : float
+            Xm : float
+            alpha_screen : float
+            c : float
+            cable_type
+            conductor
+            d : float
+            electric_rho_screen : float
+            layer_count : int
+            layer_metrics
+            layer_properties : dict[CableLayer, CableLayerProperties]
+            layers : list[CableLayer]
+            non_soil_layer_count : int
+            omega : float
+            s : float
+            weighted_screen_impedance : WeightedScreenImpedance | None
+            get_ac_resistance_conductor(Tc: float, s: float) float
+            get_cable_screen_loss_factor(Ts: float, Tc: float) float
+            get_dc_resistance_conductor(Tc: float) float
+            get_dielectric_loss_for_cable() float
+            get_heat_generation_conductor(ac_current: bool, load: float, conductor_temperature: float, temperature_dependent_electric_resistance: bool) float
+            get_heat_generation_conductor_and_screen(load: float, conductor_temperature: float, screen_temperature: float, temperature_dependent_electric_resistance: bool, ac_current: bool) tuple[float, float]
+            get_heat_generation_screen(heat_generation_conductor: float, screen_temperature: float, conductor_temperature: float, temperature_dependent_electric_resistance: bool) float
+            get_proximity_effect_factor(Rdc: float, s: float) float
+            get_skin_effect_factor(Rdc: float) float
+          }
+          style AbstractCable fill:#BBCC33
+          class AbstractLayerInputSchema {
+            inner_radius : float | None
+            material
+            model_config : ConfigDict
+            outer_radius : float | None
+            thickness : float | None
+            calculate_surface_area() float
+            validate_dimension_consistency() Self
+            validate_inner_radius() Self
+            validate_layer_material(material: Material) Material
+            validate_thickness(thickness: float | None) float | None
+          }
+          style AbstractLayerInputSchema fill:#99DDFF
+          class AbstractModel {
+            run_options : ModelRunOptionsT
+            static_env : StaticEnvT
+            run(scenario: pd.DataFrame, initial_state: StateT | None, run_options: ModelRunOptionsT | dict | None) ModelOutputSchema[StateT]
+          }
+          style AbstractModel fill:#BBCC33
+          class AbstractScenarioModel {
+            ambient_temperature : pa.typing.Series[float]
+            check_datetime_index(df: pd.DataFrame)
+            check_no_missing_values(df: pd.DataFrame)
+          }
+          style AbstractScenarioModel fill:#BBCC33
+          class ArmourInputSchema {
+            material
+          }
+          style ArmourInputSchema fill:#99DDFF
+          class BaseCircuitConfiguration {
+            circuit_type
+            dist : float | None
+            length : float
+            model_config : ConfigDict
+          }
+          style BaseCircuitConfiguration fill:#99DDFF
+          class BaseCircuitInputSchema {
+            bonding_type : BondingType | None
+            circuit_name : str
+            circuit_type : CircuitType | None
+            dist : float | None
+            multiple_configurations : list[BaseCircuitConfigurationT]
+            pipe : PipeInputSchema | None
+          }
+          style BaseCircuitInputSchema fill:#99DDFF
+          class BeddingInputSchema {
+            material
+          }
+          style BeddingInputSchema fill:#99DDFF
+          class BondingType {
+            name
+          }
+          style BondingType fill:#99DDFF
+          class Cable {
+            grid_size : int
+            info : str
+            add_dielectric_loss_to_heating_vector() None
+            get_cable_copy_with_pipe(pipe: Pipe) Self
+            get_heating_contribution_at_radius(radius: float, self_heating_contribution: np.ndarray) float
+            get_layer_indices_for_layer(layer: CableLayer) tuple[int, int]
+            update_pipe_fill_resistivity(temperature_grid: np.ndarray) None
+          }
+          style Cable fill:#BBCC33
+          class CableAir {
+            MAX_ERROR_SHEATH : float
+            MAX_ITERATIONS_PER_TIMESTEP : int
+            convection_coefficient : float | None
+            convection_params : CableConvectionParams | None
+            integrate_timestep(previous_solution: np.ndarray, time_step: float) np.ndarray
+            set_convection_parameters(Z: float, E: float, Cg: float)
+          }
+          style CableAir fill:#BBCC33
+          class CableAnalysis {
+            cable
+            solution : ndarray
+            get_boundary_temperatures_for_layer(layer: CableLayer) tuple[float, float]
+            get_heat_flow(inner_index: int) float
+            get_heat_flow_at_radius(r: float) float
+            get_heat_flow_cable_layer(layer: CableLayer) float
+            get_heat_loss_cable_layer(layer: CableLayer) float
+            get_mean_temperature_cable_layer(layer: CableLayer) float | None
+            get_temperature_correction(reference_radius: float, neighbor_radius: float, heat_flow: float, rho: float) float
+            get_thermal_resistance(rho: float, r_inner: float, r_outer: float) float
+            get_thermal_resistance_cable_layer(layer: CableLayer) float
+            get_thermal_resistance_external_medium(ambient_temperature: float) float
+          }
+          style CableAnalysis fill:#EEDD88
+          class CableArmourConfiguration {
+            name
+          }
+          style CableArmourConfiguration fill:#BBCC33
+          class CableArmourMaterial {
+            name
+          }
+          style CableArmourMaterial fill:#BBCC33
+          class CableArmourType {
+            name
+          }
+          style CableArmourType fill:#BBCC33
+          class CableBeddingMaterial {
+            name
+          }
+          style CableBeddingMaterial fill:#BBCC33
+          class CableBuilder {
+            IEC_TABLE : DataFrame
+            MATERIALS_DF : DataFrame
+            build_cable(cable_constructional_input: CableConstructionalInputSchema, cable_class: type[CableT], grid_points_per_layer: int, pipe: PipeInputSchema | None) CableT
+            build_cable_from_cable_id(cable_id: str, cable_class: type[CableT], grid_points_per_layer: int, pipe: PipeInputSchema | None, cable_source_file_path: Path) CableT
+            build_cable_from_cable_specs(cable_specs: pd.Series, cable_class: type[CableT], grid_points_per_layer: int, pipe: PipeInputSchema | None) CableT
+          }
+          style CableBuilder fill:#99DDFF
+          class CableCircuit {
+            bonding
+            cables : list[PosCable]
+            circuit_name : str
+            dist : float | None
+            n_phases : int
+            weighted_screen_impedance : WeightedScreenImpedance | None
+            x : float
+            y : float
+            get_relative_screen_distances() np.ndarray
+            get_relative_screen_reactances() np.ndarray
+            initialize_pos_cables(cable: Cable, cable_centers: dict[CablePosition, tuple[float, float]]) list[PosCable[Cable]]
+            initialize_screen_loss_functions()* None
+            set_weighted_screen_impedance(weighted_screen_impedance: WeightedScreenImpedance | None)
+            validate_no_screen_no_bonding(bonding_type: BondingType, cable: Cable)
+          }
+          style CableCircuit fill:#99DDFF
+          class CableConductorCount {
+            name
+          }
+          style CableConductorCount fill:#BBCC33
+          class CableConductorHeatSourceAt {
+            name
+          }
+          style CableConductorHeatSourceAt fill:#BBCC33
+          class CableConductorInsulationScreenMaterial {
+            name
+          }
+          style CableConductorInsulationScreenMaterial fill:#BBCC33
+          class CableConductorMaterial {
+            name
+          }
+          style CableConductorMaterial fill:#BBCC33
+          class CableConductorProperties {
+            material
+            model_config : ConfigDict
+            number_of_conductors
+            shape
+            surface_type
+          }
+          style CableConductorProperties fill:#BBCC33
+          class CableConductorShape {
+            name
+          }
+          style CableConductorShape fill:#BBCC33
+          class CableConductorSurfaceType {
+            name
+          }
+          style CableConductorSurfaceType fill:#BBCC33
+          class CableConductorType {
+            material
+            shape
+            surface_type
+          }
+          style CableConductorType fill:#BBCC33
+          class CableConstructionalInputSchema {
+            armour_input : ArmourInputSchema | None
+            bedding_input : BeddingInputSchema | None
+            cable_type : CableType
+            conductor_input
+            conductor_screen_input : ConductorScreenInputSchema | None
+            insulation_input
+            insulation_screen_input : InsulationScreenInputSchema | None
+            layers : dict[CableLayer, AbstractLayerInputSchema]
+            number_of_conductors
+            oil_duct_input : InternalOilDuctInputSchema | None
+            screen_input : ScreenInputSchema | None
+            sheath_input
+            check_pvc_insulation_voltage_level()
+            compute_normalized_lumped_sum_thermal_resistance_insulation() float | None
+            compute_normalized_lumped_sum_thermal_resistance_oil_pressure(insulation_input: ThreeCoreCableInsulationInputSchema, t1: float, dc: float) float
+            compute_normalized_lumped_sum_thermal_resistance_pilc(dx: float, da: float, r1: float, t: float) float
+            compute_normalized_lumped_sum_thermal_resistance_xlpe_common_or_unscreened(t1: float, dc: float, t: float) float
+            compute_normalized_lumped_sum_thermal_resistance_xlpe_sl(t1: float, dc: float) float
+            compute_single_conductor_radius_from_conducting_surface_area() float
+            get_and_validate_radii() list[float]
+            get_inner_radii() dict[CableLayer, float]
+            get_or_compute_insulation_equivalent_radius_ratio() float | None
+            get_outer_radii() dict[CableLayer, float]
+            validate_cable_specs() Self
+            validate_single_core_cable_insulation() InsulationInputSchema
+            validate_single_core_cable_specs()
+            validate_three_core_cable_insulation() ThreeCoreCableInsulationInputSchema
+            validate_three_core_cable_specs() Self
+          }
+          style CableConstructionalInputSchema fill:#99DDFF
+          class CableConvectionParams {
+            Cg : float
+            E : float
+            Z : float
+          }
+          style CableConvectionParams fill:#BBCC33
+          class CableId {
+            cable_id : str
+            cable_source_file_path : Path
+          }
+          style CableId fill:#99DDFF
+          class CableInput {
+            cable : CableT
+            model_config : ConfigDict
+          }
+          style CableInput fill:#99DDFF
+          class CableInsulationMaterial {
+            name
+          }
+          style CableInsulationMaterial fill:#BBCC33
+          class CableKey {
+            cable_position
+            circuit_name : str
+            model_config : ConfigDict
+          }
+          style CableKey fill:#99DDFF
+          class CableLayer {
+            name
+            soil_layers() list[CableLayer]
+          }
+          style CableLayer fill:#BBCC33
+          class CableLayerMetrics {
+            armour_cross_section : float | None
+            cable_radius : float
+            conductor_centers : list[tuple[float, float]]
+            conductor_cross_section : float
+            conductor_distance : float | None
+            conductor_equivalent_outer_diameter : float | None
+            conductor_radius_original : float
+            conductor_virtual_cross_section : float
+            core_to_sector_distance : float | None
+            diameter_over_stranded_conductors : float | None
+            insulation_material
+            load_series : np.ndarray | None
+            model_config : ConfigDict
+            nominal_phase_voltage : float
+            original_insulation_thickness : float | None
+            outer_radius : float
+            pipe : Pipe | None
+            screen_cross_section : float | None
+            screen_loss_type : CableScreenLossType | None
+            sector_radius : float | None
+          }
+          style CableLayerMetrics fill:#BBCC33
+          class CableLayerProperties {
+            alpha : float
+            capacity : float
+            electric_rho : float
+            epsilon : float
+            inner_radius : float
+            layer
+            model_config : ConfigDict
+            outer_radius : float
+            rho : float
+            tan_delta : float
+          }
+          style CableLayerProperties fill:#BBCC33
+          class CableOilDuct {
+            name
+          }
+          style CableOilDuct fill:#BBCC33
+          class CableOilMaterial {
+            name
+          }
+          style CableOilMaterial fill:#BBCC33
+          class CablePipeMaterial {
+            name
+          }
+          style CablePipeMaterial fill:#BBCC33
+          class CablePosition {
+            name
+          }
+          style CablePosition fill:#99DDFF
+          class CableScreenLossType {
+            name
+          }
+          style CableScreenLossType fill:#BBCC33
+          class CableScreenMaterial {
+            name
+          }
+          style CableScreenMaterial fill:#BBCC33
+          class CableScreenType {
+            name
+          }
+          style CableScreenType fill:#BBCC33
+          class CableSheathMaterial {
+            name
+          }
+          style CableSheathMaterial fill:#BBCC33
+          class CableSoil {
+            weighted_screen_impedance
+            from_cable_with_added_soil_layer(cable: Cable, soil_rho: float, soil_capacity: float, soil_radius: float, logarithmic_soil_gridpoint_density: float) Self
+            get_cable_copy_without_soil() Self
+            integrate_timestep(previous_solution: np.ndarray, time_step: float, solution_at_boundary: float) np.ndarray
+            update_soil_properties(soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool) None
+          }
+          style CableSoil fill:#BBCC33
+          class CableSpecParser {
+            cable_specs : Series
+            get_armour_input() ArmourInputSchema | None
+            get_bedding_input() BeddingInputSchema | None
+            get_cable_constructional_input() CableConstructionalInputSchema
+            get_conductor_input()* ConductorInputSchema
+            get_conductor_screen_input()* ConductorScreenInputSchema | None
+            get_insulation_input()* InsulationInputSchema
+            get_insulation_screen_input()* InsulationScreenInputSchema | None
+            get_internal_oil_duct_input()* InternalOilDuctInputSchema | None
+            get_screen_input() ScreenInputSchema | None
+            get_sheath_input() SheathInputSchema
+          }
+          style CableSpecParser fill:#99DDFF
+          class CableSpecs {
+            cable_specs : Series
+            model_config : ConfigDict
+          }
+          style CableSpecs fill:#99DDFF
+          class CableTrefoilCircuitSinglePipe {
+          }
+          style CableTrefoilCircuitSinglePipe fill:#BBCC33
+          class CableTrefoilCircuitSinglePipeInAir {
+          }
+          style CableTrefoilCircuitSinglePipeInAir fill:#BBCC33
+          class CableTrefoilCircuitSinglePipeInSoil {
+          }
+          style CableTrefoilCircuitSinglePipeInSoil fill:#BBCC33
+          class CableType {
+            name
+          }
+          style CableType fill:#BBCC33
+          class CableWireTapeLay {
+            name
+          }
+          style CableWireTapeLay fill:#BBCC33
+          class CircuitBuilder {
+            from_cable(circuit_input: CircuitFromCableInputSchema[Cable]) CableCircuit
+          }
+          style CircuitBuilder fill:#99DDFF
+          class CircuitConfiguration {
+            cable
+          }
+          style CircuitConfiguration fill:#99DDFF
+          class CircuitConfigurationCableNotBuild {
+            cable_class : type[Cable]
+            pipe : PipeInputSchema | None
+          }
+          style CircuitConfigurationCableNotBuild fill:#99DDFF
+          class CircuitConfigurationFromCableConstructionalInputSchema {
+            cable_constructional_information
+          }
+          style CircuitConfigurationFromCableConstructionalInputSchema fill:#99DDFF
+          class CircuitConfigurationFromCableId {
+            cable_id : str
+          }
+          style CircuitConfigurationFromCableId fill:#99DDFF
+          class CircuitConfigurationFromCableSpecs {
+          }
+          style CircuitConfigurationFromCableSpecs fill:#99DDFF
+          class CircuitFromCableConstructionalInputSchema {
+            cable_constructional_information
+          }
+          style CircuitFromCableConstructionalInputSchema fill:#99DDFF
+          class CircuitFromCableIdInputSchema {
+          }
+          style CircuitFromCableIdInputSchema fill:#99DDFF
+          class CircuitFromCableInputSchema {
+          }
+          style CircuitFromCableInputSchema fill:#99DDFF
+          class CircuitFromCableSpecsInputSchema {
+          }
+          style CircuitFromCableSpecsInputSchema fill:#99DDFF
+          class CircuitInAirFromCableConstructionalInputSchema {
+          }
+          style CircuitInAirFromCableConstructionalInputSchema fill:#99DDFF
+          class CircuitInAirFromCableIdInputSchema {
+          }
+          style CircuitInAirFromCableIdInputSchema fill:#99DDFF
+          class CircuitInAirFromCableInputSchema {
+          }
+          style CircuitInAirFromCableInputSchema fill:#99DDFF
+          class CircuitInAirFromCableSpecsInputSchema {
+          }
+          style CircuitInAirFromCableSpecsInputSchema fill:#99DDFF
+          class CircuitInAirProperties {
+            clipped_to_wall : bool
+          }
+          style CircuitInAirProperties fill:#99DDFF
+          class CircuitInSoilFromCableConstructionalInputSchema {
+          }
+          style CircuitInSoilFromCableConstructionalInputSchema fill:#99DDFF
+          class CircuitInSoilFromCableIdInputSchema {
+          }
+          style CircuitInSoilFromCableIdInputSchema fill:#99DDFF
+          class CircuitInSoilFromCableInputSchema {
+          }
+          style CircuitInSoilFromCableInputSchema fill:#99DDFF
+          class CircuitInSoilFromCableSpecsInputSchema {
+          }
+          style CircuitInSoilFromCableSpecsInputSchema fill:#99DDFF
+          class CircuitInSoilProperties {
+            x : float
+            y : float
+            y_ref
+          }
+          style CircuitInSoilProperties fill:#99DDFF
+          class CircuitInitData {
+            bonding_type : BondingType | None
+            cable
+            circuit_name : str
+            circuit_type : CircuitType | None
+            dist : float | None
+            model_config : ConfigDict
+            x : float
+            y : float
+            y_ref
+            from_schema(schema: CircuitFromCableInputSchema[Cable]) 'CircuitInitData'
+          }
+          style CircuitInitData fill:#99DDFF
+          class CircuitType {
+            name
+          }
+          style CircuitType fill:#99DDFF
+          class CircuitYReference {
+            name
+          }
+          style CircuitYReference fill:#99DDFF
+          class ConductingLayerInputSchema {
+            conducting_surface_area : float
+            validate_conducting_surface_area() Self
+          }
+          style ConductingLayerInputSchema fill:#99DDFF
+          class ConductorInputSchema {
+            material
+            shape
+            single_conductor_radius : float | None
+            surface_type
+            validate_conductor_shape_and_radius() Self
+            validate_single_conductor_radius() Self
+          }
+          style ConductorInputSchema fill:#99DDFF
+          class ConductorScreenInputSchema {
+            material
+          }
+          style ConductorScreenInputSchema fill:#99DDFF
+          class Config {
+            coerce : bool
+            strict : bool
+          }
+          style Config fill:#BBCC33
+          class IEC60287CableParameters {
+            ac_resistance_conductor : float
+            ampacity : float
+            armour_loss : float
+            armour_loss_factor : float
+            armour_temperature : float | None
+            conductor_loss : float
+            conductor_temperature : float
+            dc_resistance_conductor_at_20 : float
+            dc_resistance_screen : float
+            dielectric_loss : float
+            proximity_effect_factor : float
+            screen_loss : float
+            screen_loss_factor : float
+            screen_temperature : float
+            skin_effect_factor : float
+            surface_temperature : float
+            t1 : float
+            t2 : float
+            t3 : float
+            t4 : float
+            total_loss : float
+            units : dict
+            from_dict(d: dict)
+          }
+          style IEC60287CableParameters fill:#EEDD88
+          class InsulationInputSchema {
+            material
+            nominal_phase_voltage : float
+          }
+          style InsulationInputSchema fill:#99DDFF
+          class InsulationScreenInputSchema {
+            material
+          }
+          style InsulationScreenInputSchema fill:#99DDFF
+          class InternalOilDuctInputSchema {
+            material
+          }
+          style InternalOilDuctInputSchema fill:#99DDFF
+          class LinearCircuit {
+            cables
+            dist
+            initialize_screen_loss_functions()
+          }
+          style LinearCircuit fill:#99DDFF
+          class Material {
+            name
+          }
+          style Material fill:#BBCC33
+          class MeasurementPoint {
+            distances_to_cables : dict[CableKey, float]
+            distances_to_mirror_cables : dict[CableKey, float]
+            key : MeasurementPointKey
+            ndigits : int
+            x : float
+            y : float
+          }
+          style MeasurementPoint fill:#44BB99
+          class MeasurementPointRegistry {
+            measurement_point_keys : set[MeasurementPointKey]
+            points : set[MeasurementPoint]
+            add_measurement_point(x: float, y: float, ndigits: int) MeasurementPointKey
+          }
+          style MeasurementPointRegistry fill:#44BB99
+          class MissingAttributeException {
+          }
+          style MissingAttributeException fill:#AAAA00
+          class MissingMaterialException {
+          }
+          style MissingMaterialException fill:#AAAA00
+          class Model {
+            cables_in_environment : dict[CableKey, PosCable[CableT]]
+            run_options
+          }
+          style Model fill:#BBCC33
+          class ModelAir {
+            cables_in_environment : dict[CableKey, PosCable[CableAir]]
+          }
+          style ModelAir fill:#BBCC33
+          class ModelAirRunOptions {
+          }
+          style ModelAirRunOptions fill:#BBCC33
+          class ModelFactory {
+            create_model(static_env: StaticEnvAir) ModelAir
+          }
+          style ModelFactory fill:#BBCC33
+          class ModelOutputSchema {
+            model_config : ConfigDict
+            result : DataFrame[TemperatureResultSchema]
+            state : StateT
+          }
+          style ModelOutputSchema fill:#BBCC33
+          class ModelRunOptions {
+            ac_current : bool
+            extra_solution_layers : tuple[CableLayer, ...]
+            model_config : ConfigDict
+            neglect_dielectric_loss : bool
+            temperature_dependent_electric_resistance : bool
+          }
+          style ModelRunOptions fill:#BBCC33
+          class ModelSoil {
+            cables_in_environment : dict[CableKey, PosCable[CableSoil]]
+            logarithmic_soil_gridpoint_density : float
+            minimal_soil_radius : float
+            get_measurement_point_temp(state: StateSoil, measurement_point: MeasurementPoint) float
+          }
+          style ModelSoil fill:#BBCC33
+          class ModelSoilRunOptions {
+            soil_drying : bool
+          }
+          style ModelSoilRunOptions fill:#BBCC33
+          class Pipe {
+            fill_mat_df
+            inner_radius : NoneType
+            outer_radius : NoneType
+            outer_radius_cable : float
+            pipe_fill_cap : float
+            radius_factor : int
+            sdr
+            trefoil_circuit_in_single_pipe
+            choose_default_pipe_size() tuple[float, float]
+            determine_pipe_size(inner_radius: float | None, outer_radius: float | None) tuple[float, float]
+            get_thermal_resistivity_pipe_fill(T: float) float
+          }
+          style Pipe fill:#BBCC33
+          class PipeFillType {
+            name
+          }
+          style PipeFillType fill:#BBCC33
+          class PipeInputSchema {
+            fill_type
+            inner_radius : float | None
+            outer_radius : float | None
+            sdr : float
+            trefoil_circuit_in_single_pipe : bool
+          }
+          style PipeInputSchema fill:#99DDFF
+          class PosCable {
+            cable : CableT
+            cable_position
+            cable_representation : str
+            circuit_name : str
+            key : CableKey
+            model_config : ConfigDict
+            x : float
+            y : float
+            distance_to(other_cable: 'PosCable') float
+            distance_to_point(x: float, y: float) float
+          }
+          style PosCable fill:#99DDFF
+          class ScenarioModelAir {
+          }
+          style ScenarioModelAir fill:#BBCC33
+          class ScenarioModelSoil {
+            soil_thermal_capacity : pa.typing.Series[float]
+            soil_thermal_resistivity : pa.typing.Series[float]
+          }
+          style ScenarioModelSoil fill:#BBCC33
+          class ScreenInputSchema {
+            material
+            screen_type
+            validate_screen_type(screen_type: CableScreenType) CableScreenType
+          }
+          style ScreenInputSchema fill:#99DDFF
+          class SheathInputSchema {
+            material
+          }
+          style SheathInputSchema fill:#99DDFF
+          class SingleCable {
+            cables
+            initialize_screen_loss_functions()
+          }
+          style SingleCable fill:#99DDFF
+          class SingleCoreSpecParser {
+            get_conductor_input() ConductorInputSchema
+            get_conductor_screen_input() ConductorScreenInputSchema | None
+            get_insulation_input() InsulationInputSchema
+            get_insulation_screen_input() InsulationScreenInputSchema | None
+            get_internal_oil_duct_input() InternalOilDuctInputSchema | None
+          }
+          style SingleCoreSpecParser fill:#99DDFF
+          class SpecParserFactory {
+            get_spec_parser(cable_specs: pd.Series) CableSpecParser
+          }
+          style SpecParserFactory fill:#99DDFF
+          class State {
+            ambient_temperature : float
+            model_config : ConfigDict
+            self_heating_contribution : dict[CableKey, np.ndarray]
+            static_env_hash : int
+            temperature : dict[CableKey, np.ndarray]
+            check_solution_consistency()
+            deserialize_temperature(value: dict[str | CableKey, list[float] | np.ndarray]) dict[CableKey, np.ndarray]
+            serialize_temperature(arrays: dict[CableKey, np.ndarray]) dict[str, list[float]]
+          }
+          style State fill:#BBCC33
+          class StateAir {
+            validate_single_circuit()
+          }
+          style StateAir fill:#BBCC33
+          class StateSoil {
+            mutual_heating_contribution : dict[CableKey, np.ndarray]
+            deserialize_mutual_heating_contribution(value: dict[str | CableKey, list[float] | np.ndarray]) dict[CableKey, np.ndarray]
+            serialize_mutual_heating_contribution(arrays: dict[CableKey, np.ndarray]) dict[str, list[float]]
+            validate_mutual_heating_contribution()
+          }
+          style StateSoil fill:#BBCC33
+          class StaticEnv {
+            cables : dict[CableKey, PosCable[CableT]]
+            circuit_cable_indices : dict[str, list[int]]
+            circuits : dict[str, CableCircuit]
+            crossing_cables : bool
+            n_phases : int
+            number_of_cables : int
+            add_circuit_from_cable(circuit_input: CircuitFromCableInputSchemaT) None
+            add_circuit_from_cable_constructional_information(circuit_input: CircuitFromCableConstructionalInputSchemaT) None
+            add_circuit_from_cable_id(circuit_input: CircuitFromCableIdInputSchemaT) None
+            add_circuit_from_cable_specs(circuit_input: CircuitFromCableSpecsInputSchemaT) None
+            get_cable(cable_key: CableKey) PosCable[CableT]
+            get_cables() dict[CableKey, PosCable[CableT]]
+            get_circuit_type(cable: AbstractCable) CircuitType
+            get_number_of_cables() int
+          }
+          style StaticEnv fill:#44BB99
+          class StaticEnvAir {
+            add_circuit_from_cable(circuit_input: CircuitInAirFromCableInputSchema)
+            set_environment_convection_parameters(circuit_type: CircuitType | None, dist: float | None, cable: CableAir, clipped_to_wall: bool)
+          }
+          style StaticEnvAir fill:#44BB99
+          class StaticEnvSoil {
+            add_measurement_point(x: float, y: float, ndigits: int) MeasurementPointKey
+          }
+          style StaticEnvSoil fill:#44BB99
+          class TemperatureResultSchema {
+            check_cable_positions(df: pd.DataFrame) bool
+            check_circuit_names(df: pd.DataFrame) bool
+            check_datetime_index(df: pd.DataFrame)
+            check_multiindex_columns(df: pd.DataFrame)
+            check_temperature_values(df: pd.DataFrame) bool
+          }
+          style TemperatureResultSchema fill:#BBCC33
+          class ThreeCoreCableInsulationInputSchema {
+            conductor_screen_material : CableConductorInsulationScreenMaterial | None
+            conductor_screen_thickness : float | None
+            diameter_over_stranded_conductors : float
+            inner_radius
+            insulation_equivalent_radius_ratio : float | None
+            single_conductor_insulation_thickness : float
+            compute_inner_radius() Self
+            validate_diameter_over_stranded_conductors(diameter_over_stranded_conductors: float) float
+            validate_single_conductor_insulation_thickness(single_conductor_insulation_thickness: float) float
+          }
+          style ThreeCoreCableInsulationInputSchema fill:#99DDFF
+          class ThreeCoreSpecParser {
+            get_conductor_input() ConductorInputSchema
+            get_conductor_screen_input() ConductorScreenInputSchema | None
+            get_insulation_input() ThreeCoreCableInsulationInputSchema
+            get_insulation_screen_input() InsulationScreenInputSchema | None
+            get_internal_oil_duct_input() InternalOilDuctInputSchema | None
+          }
+          style ThreeCoreSpecParser fill:#99DDFF
+          class TrefoilCircuit {
+            cables
+            initialize_screen_loss_functions()
+          }
+          style TrefoilCircuit fill:#99DDFF
+          class TrefoilCircuitInSinglePipe {
+            get_relative_screen_distances() np.ndarray
+            initialize_screen_loss_functions()
+            symmetric_sheath_currents(weighted_reactance_matrix: np.ndarray) bool
+          }
+          style TrefoilCircuitInSinglePipe fill:#99DDFF
+          class WeightedScreenImpedance {
+            model_config : ConfigDict
+            weighted_reactance_matrix : ndarray
+            weighted_resistance_factor : float
+          }
+          style WeightedScreenImpedance fill:#BBCC33
+          class _CableContext {
+            ambient_temperature : float
+            ampacity : float
+            analysis
+            armour_temperature : float | None
+            cable
+            cable_key
+            conductor_temperature : float
+            screen_temperature : float
+            surface_temperature : float
+          }
+          style _CableContext fill:#EEDD88
+          LinearCircuit --|> CableCircuit
+          SingleCable --|> CableCircuit
+          TrefoilCircuit --|> CableCircuit
+          TrefoilCircuitInSinglePipe --|> SingleCable
+          SingleCoreSpecParser --|> CableSpecParser
+          ThreeCoreSpecParser --|> CableSpecParser
+          ArmourInputSchema --|> ConductingLayerInputSchema
+          BeddingInputSchema --|> AbstractLayerInputSchema
+          ConductingLayerInputSchema --|> AbstractLayerInputSchema
+          ConductorInputSchema --|> ConductingLayerInputSchema
+          ConductorScreenInputSchema --|> AbstractLayerInputSchema
+          InsulationInputSchema --|> AbstractLayerInputSchema
+          InsulationScreenInputSchema --|> AbstractLayerInputSchema
+          InternalOilDuctInputSchema --|> AbstractLayerInputSchema
+          ScreenInputSchema --|> ConductingLayerInputSchema
+          SheathInputSchema --|> AbstractLayerInputSchema
+          ThreeCoreCableInsulationInputSchema --|> InsulationInputSchema
+          CircuitConfiguration --|> BaseCircuitConfiguration
+          CircuitConfigurationCableNotBuild --|> BaseCircuitConfiguration
+          CircuitConfigurationFromCableConstructionalInputSchema --|> CircuitConfigurationCableNotBuild
+          CircuitConfigurationFromCableId --|> CircuitConfigurationCableNotBuild
+          CircuitConfigurationFromCableSpecs --|> CableSpecs
+          CircuitConfigurationFromCableSpecs --|> CircuitConfigurationCableNotBuild
+          CircuitFromCableIdInputSchema --|> CableId
+          CircuitFromCableSpecsInputSchema --|> CableSpecs
+          CircuitInAirFromCableConstructionalInputSchema --|> CircuitFromCableConstructionalInputSchema
+          CircuitInAirFromCableConstructionalInputSchema --|> CircuitInAirProperties
+          CircuitInAirFromCableIdInputSchema --|> CircuitFromCableIdInputSchema
+          CircuitInAirFromCableIdInputSchema --|> CircuitInAirProperties
+          CircuitInAirFromCableInputSchema --|> CircuitFromCableInputSchema
+          CircuitInAirFromCableInputSchema --|> CircuitInAirProperties
+          CircuitInAirFromCableSpecsInputSchema --|> CircuitFromCableSpecsInputSchema
+          CircuitInAirFromCableSpecsInputSchema --|> CircuitInAirProperties
+          CircuitInSoilFromCableConstructionalInputSchema --|> CircuitFromCableConstructionalInputSchema
+          CircuitInSoilFromCableConstructionalInputSchema --|> CircuitInSoilProperties
+          CircuitInSoilFromCableIdInputSchema --|> CircuitFromCableIdInputSchema
+          CircuitInSoilFromCableIdInputSchema --|> CircuitInSoilProperties
+          CircuitInSoilFromCableSpecsInputSchema --|> CircuitFromCableSpecsInputSchema
+          CircuitInSoilFromCableSpecsInputSchema --|> CircuitInSoilProperties
+          StaticEnvAir --|> StaticEnv
+          StaticEnvSoil --|> StaticEnv
+          Cable --|> AbstractCable
+          CableAir --|> Cable
+          CableSoil --|> Cable
+          CableTrefoilCircuitSinglePipe --|> Cable
+          CableTrefoilCircuitSinglePipeInAir --|> CableAir
+          CableTrefoilCircuitSinglePipeInAir --|> CableTrefoilCircuitSinglePipe
+          CableTrefoilCircuitSinglePipeInSoil --|> CableSoil
+          CableTrefoilCircuitSinglePipeInSoil --|> CableTrefoilCircuitSinglePipe
+          CableArmourMaterial --|> Material
+          CableBeddingMaterial --|> Material
+          CableConductorInsulationScreenMaterial --|> Material
+          CableConductorMaterial --|> Material
+          CableInsulationMaterial --|> Material
+          CableOilMaterial --|> Material
+          CablePipeMaterial --|> Material
+          CableScreenMaterial --|> Material
+          CableSheathMaterial --|> Material
+          Model --|> AbstractModel
+          ModelAir --|> Model
+          ModelSoil --|> Model
+          ScenarioModelAir --|> AbstractScenarioModel
+          ScenarioModelSoil --|> AbstractScenarioModel
+          StateAir --|> State
+          StateSoil --|> State
+          StaticEnv --> CableCircuit : circuits
+          StaticEnv --> CableKey : cables
+          _CableContext --> CableKey : cable_key
+          CableKey --> CablePosition : cable_position
+          PosCable --> CablePosition : cable_position
+          CableCircuit --> PosCable : cables
+          BaseCircuitConfiguration --> CircuitType : circuit_type
+          CircuitInitData --> CircuitYReference : y_ref
+          CircuitInSoilProperties --> CircuitYReference : y_ref
+          CircuitConfigurationFromCableConstructionalInputSchema --> CableConstructionalInputSchema : cable_constructional_information
+          CircuitFromCableConstructionalInputSchema --> CableConstructionalInputSchema : cable_constructional_information
+          CableConstructionalInputSchema --> ConductorInputSchema : conductor_input
+          CableConstructionalInputSchema --> InsulationInputSchema : insulation_input
+          CableConstructionalInputSchema --> SheathInputSchema : sheath_input
+          CircuitInitData --> Cable : cable
+          CircuitConfiguration --> Cable : cable
+          CableAnalysis --> Cable : cable
+          _CableContext --> Cable : cable
+          ArmourInputSchema --> CableArmourMaterial : material
+          BeddingInputSchema --> CableBeddingMaterial : material
+          CableConstructionalInputSchema --> CableConductorCount : number_of_conductors
+          CableConductorProperties --> CableConductorCount : number_of_conductors
+          ConductorScreenInputSchema --> CableConductorInsulationScreenMaterial : material
+          InsulationScreenInputSchema --> CableConductorInsulationScreenMaterial : material
+          ConductorInputSchema --> CableConductorMaterial : material
+          CableConductorProperties --> CableConductorMaterial : material
+          CableConductorType --> CableConductorMaterial : material
+          ConductorInputSchema --> CableConductorShape : shape
+          CableConductorProperties --> CableConductorShape : shape
+          CableConductorType --> CableConductorShape : shape
+          ConductorInputSchema --> CableConductorSurfaceType : surface_type
+          CableConductorProperties --> CableConductorSurfaceType : surface_type
+          CableConductorType --> CableConductorSurfaceType : surface_type
+          InsulationInputSchema --> CableInsulationMaterial : material
+          CableLayerMetrics --> CableInsulationMaterial : insulation_material
+          CableLayerProperties --> CableLayer : layer
+          InternalOilDuctInputSchema --> CableOilMaterial : material
+          ScreenInputSchema --> CableScreenMaterial : material
+          ScreenInputSchema --> CableScreenType : screen_type
+          SheathInputSchema --> CableSheathMaterial : material
+          AbstractLayerInputSchema --> Material : material
+          PipeInputSchema --> PipeFillType : fill_type
+          _CableContext --> CableAnalysis : analysis
+          MeasurementPoint --* MeasurementPointRegistry : points
+          CableConvectionParams --* CableAir : convection_params
+          BondingType --o CableCircuit : bonding
+          CableConductorProperties --o AbstractCable : conductor
+          CableLayerMetrics --o AbstractCable : layer_metrics
+          CableLayerProperties --o AbstractCable : layer_properties
+          CableLayer --o AbstractCable : layer_properties
+          CableType --o AbstractCable : cable_type
+
+         </div>
+</main>
+  <script>
+  mermaid.initialize({ startOnLoad: false });
+  mermaid.run({ querySelector: "#diagram" }).then(() => {
+    const viewport = document.querySelector("#diagram-viewport");
+    const svg = document.querySelector("#diagram svg");
+
+    if (!(viewport instanceof HTMLElement) || !(svg instanceof SVGSVGElement)) {
+      throw new Error("Mermaid did not render the diagram.");
+    }
+
+    const initialViewBox = svg.viewBox.baseVal;
+    if (initialViewBox.width <= 0 || initialViewBox.height <= 0) {
+      throw new Error("The rendered diagram has no usable viewBox.");
+    }
+
+    let zoom = 1;
+    let pan = null;
+
+    viewport.addEventListener("wheel", (event) => {
+      event.preventDefault();
+
+      const matrix = svg.getScreenCTM();
+      if (!matrix) {
+        throw new Error("The rendered diagram has no screen transform.");
+      }
+
+      const pointer = svg.createSVGPoint();
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+      const anchor = pointer.matrixTransform(matrix.inverse());
+      const viewBox = svg.viewBox.baseVal;
+      const nextZoom = Math.min(8, Math.max(0.25, zoom * Math.exp(-event.deltaY * 0.001)));
+      const ratio = nextZoom / zoom;
+
+      svg.setAttribute(
+        "viewBox",
+        `${anchor.x - (anchor.x - viewBox.x) / ratio} ` +
+          `${anchor.y - (anchor.y - viewBox.y) / ratio} ` +
+          `${viewBox.width / ratio} ${viewBox.height / ratio}`,
+      );
+      zoom = nextZoom;
+    }, { passive: false });
+
+    viewport.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || !svg.contains(event.target)) {
+        return;
+      }
+
+      const matrix = svg.getScreenCTM();
+      if (!matrix) {
+        throw new Error("The rendered diagram has no screen transform.");
+      }
+
+      const viewBox = svg.viewBox.baseVal;
+      pan = {
+        pointerId: event.pointerId,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        x: viewBox.x,
+        y: viewBox.y,
+        width: viewBox.width,
+        height: viewBox.height,
+        scaleX: matrix.a,
+        scaleY: matrix.d,
+      };
+      viewport.setPointerCapture(event.pointerId);
+      viewport.classList.add("is-panning");
+      event.preventDefault();
+    });
+
+    viewport.addEventListener("pointermove", (event) => {
+      if (!pan || event.pointerId !== pan.pointerId) {
+        return;
+      }
+
+      const deltaX = (event.clientX - pan.clientX) / pan.scaleX;
+      const deltaY = (event.clientY - pan.clientY) / pan.scaleY;
+      svg.setAttribute(
+        "viewBox",
+        `${pan.x - deltaX} ${pan.y - deltaY} ${pan.width} ${pan.height}`,
+      );
+    });
+
+    const endPan = (event) => {
+      if (pan && event.pointerId === pan.pointerId) {
+        pan = null;
+        viewport.classList.remove("is-panning");
+      }
+    };
+
+    viewport.addEventListener("pointerup", endPan);
+    viewport.addEventListener("pointercancel", endPan);
+  });
+</script>
+</body>
+</html>

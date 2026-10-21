@@ -85,6 +85,7 @@ nav:
       - Model input: get_started/model_input.md
   - API Reference: api_reference/
   - Developer Guidelines:
+      - Class diagram: developer_guidelines/class_diagram.md
       - Math and physics: developer_guidelines/math_and_physics.md
       - Schemas: schemas.md
   - Examples:
