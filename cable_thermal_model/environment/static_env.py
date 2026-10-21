@@ -9,8 +9,8 @@ from typing import Generic, TypeVar
 
 import numpy as np
 
-from cable_thermal_model.cable.cable_builder import CableT
-from cable_thermal_model.cable.cable_circuit import (
+from cable_thermal_model.cable_configuration.cable_builder import CableT
+from cable_thermal_model.cable_configuration.cable_circuit import (
     BondingType,
     CableCircuit,
     CableKey,
@@ -18,7 +18,7 @@ from cable_thermal_model.cable.cable_circuit import (
     CircuitType,
     PosCable,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     BaseCircuitInputSchema,
     CircuitConfiguration,
     CircuitFromCableConstructionalInputSchema,

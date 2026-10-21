@@ -140,7 +140,7 @@ Understanding the project layout helps when exploring examples and source code:
 ```
 cable-thermal-model/
 ├── cable_thermal_model/          # Main package source code
-│   ├── cable/             # Cable and circuit definitions
+│   ├── cable_configuration/ # Cable construction and circuit definitions
 │   ├── environment/       # Environment modeling (soil/air)
 │   ├── model/             # Core thermal model implementation
 │   ├── utils/             # Utility functions

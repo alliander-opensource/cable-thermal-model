@@ -6,7 +6,7 @@ SPDX-License-Identifier: MPL-2.0
 
 # Handling math and physics in CTM code
 
-A lot of the modelling we do involves equations surrounding physics directly. As such there can be a thin line between keeping formulas recognizable and code “Pythonesque”.
+A lot of the modeling we do involves equations surrounding physics directly. As such there can be a thin line between keeping formulas recognizable and code “Pythonesque”.
 
 To keep the CTM project accessible for as many contributors as possible and help individuals determine whether they could support a module or method we have set up guidelines on how we handle code that is related to physics or math.
 

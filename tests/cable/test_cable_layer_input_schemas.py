@@ -5,7 +5,7 @@
 import numpy as np
 import pytest
 
-from cable_thermal_model.cable.schemas.cable_layer_input_schemas import (
+from cable_thermal_model.cable_configuration.schemas.cable_layer_input_schemas import (
     AbstractLayerInputSchema,
     BeddingInputSchema,
     ConductorInputSchema,

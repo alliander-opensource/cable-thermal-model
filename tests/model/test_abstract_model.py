@@ -9,7 +9,7 @@ import pytest
 from pandera.errors import SchemaError, SchemaErrors
 from pydantic_core import ValidationError
 
-from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition, PosCable
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey, CablePosition, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel
 from cable_thermal_model.model.model_soil import ModelSoil
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil

@@ -109,7 +109,7 @@ Where type must be one of the following:
 - perf: A code change that improves performance
 - refactor: A code change that neither fixes a bug nor adds a feature
 - style: Changes that do not affect the meaning of the code (white-space,
-  formatting, missing semi-colons, etc)
+  formatting, missing semicolons, etc.)
 - test: Adding missing tests or correcting existing tests
 
 If your change is `BREAKING`, add it to the `<body>` of your commit message and
@@ -119,7 +119,7 @@ mark `!` after your `<type>`, e.g.
 ```text
 feat!: let user provide wattage parameter to Transformer object
 
-BREAKING: Beforehand our `Transformer` could be initialised without wattage,
+BREAKING: Beforehand our `Transformer` could be initialized without wattage,
 now I've added the parameter `wattage` that is needed for (some feature I am
 making in this PR), because ... .
 ```

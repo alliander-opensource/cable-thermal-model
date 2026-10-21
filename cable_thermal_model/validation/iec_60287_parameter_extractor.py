@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from cable_thermal_model import ModelFactory, StaticEnvSoil
-from cable_thermal_model.cable.cable_circuit import CableKey
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey
 from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import StateSoil

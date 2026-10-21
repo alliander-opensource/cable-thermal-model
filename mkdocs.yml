@@ -103,7 +103,7 @@ plugins:
       full_output: llms-full.txt
       markdown_description: |-
         Documentation for the Cable Thermal Model project that can be used
-        to simulate the thermal behaviour of electrical cables.
+        to simulate the thermal behavior of electrical cables.
         The documentation includes example calculations, API reference and
         technical details about the model.
       sections:

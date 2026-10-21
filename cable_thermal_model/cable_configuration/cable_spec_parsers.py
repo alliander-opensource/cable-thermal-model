@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 
-from cable_thermal_model.cable.schemas.cable_input_schemas import (
+from cable_thermal_model.cable_configuration.schemas.cable_input_schemas import (
     ArmourInputSchema,
     BeddingInputSchema,
     CableConstructionalInputSchema,

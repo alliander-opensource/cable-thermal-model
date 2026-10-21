@@ -54,8 +54,8 @@ import re
 import numpy as np
 import pytest
 
-from cable_thermal_model.cable.cable_builder import CableBuilder
-from cable_thermal_model.cable.cable_circuit import (
+from cable_thermal_model.cable_configuration.cable_builder import CableBuilder
+from cable_thermal_model.cable_configuration.cable_circuit import (
     BondingType,
     CablePosition,
     CircuitBuilder,
@@ -67,12 +67,12 @@ from cable_thermal_model.cable.cable_circuit import (
     TrefoilCircuit,
     TrefoilCircuitInSinglePipe,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitFromCableInputSchema,
     CircuitInSoilFromCableIdInputSchema,
     CircuitInSoilFromCableInputSchema,
 )
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.abstract_cable import WeightedScreenImpedance
 from cable_thermal_model.model.cables.cable_soil import CableSoil

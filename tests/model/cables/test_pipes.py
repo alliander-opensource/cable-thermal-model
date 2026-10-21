@@ -5,7 +5,7 @@
 import numpy as np
 import pytest
 
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
 from cable_thermal_model.model.cables.pipe import Pipe
 

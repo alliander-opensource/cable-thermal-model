@@ -5,16 +5,16 @@
 
 import pandas as pd
 
-from cable_thermal_model.cable.cable_circuit import (
+from cable_thermal_model.cable_configuration.cable_circuit import (
     CircuitType,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitInSoilFromCableConstructionalInputSchema,
     CircuitInSoilFromCableIdInputSchema,
     CircuitInSoilFromCableInputSchema,
     CircuitInSoilFromCableSpecsInputSchema,
 )
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.measurement_point import MeasurementPointKey, MeasurementPointRegistry
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.cables.cable_soil import CableSoil

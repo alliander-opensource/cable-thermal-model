@@ -26,8 +26,8 @@ from cable_thermal_model import (
     PipeInputSchema,
     StaticEnvSoil,
 )
-from cable_thermal_model.cable.cable_circuit import CableKey
-from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
 from cable_thermal_model.validation.iec_60287_parameter_extractor import (
     IEC60287CableParameters,
     extract_iec_60287_parameters,

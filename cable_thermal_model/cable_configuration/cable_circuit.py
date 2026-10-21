@@ -11,12 +11,12 @@ from typing import Generic
 import numpy as np
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from cable_thermal_model.cable.cable_builder import CableT
-from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.cable_builder import CableT
+from cable_thermal_model.cable_configuration.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitFromCableInputSchema,
 )
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableType, WeightedScreenImpedance
 from cable_thermal_model.model.cables.cable import (
     Cable,

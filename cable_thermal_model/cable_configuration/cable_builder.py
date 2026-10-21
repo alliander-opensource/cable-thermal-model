@@ -10,10 +10,12 @@ from typing import TypeVar
 import numpy as np
 import pandas as pd
 
-from cable_thermal_model.cable.cable_spec_parsers import SpecParserFactory
-from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstructionalInputSchema
-from cable_thermal_model.cable.schemas.cable_layer_input_schemas import ThreeCoreCableInsulationInputSchema
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.cable_spec_parsers import SpecParserFactory
+from cable_thermal_model.cable_configuration.schemas.cable_input_schemas import CableConstructionalInputSchema
+from cable_thermal_model.cable_configuration.schemas.cable_layer_input_schemas import (
+    ThreeCoreCableInsulationInputSchema,
+)
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import (
     CableConductorProperties,
     CableLayerMetrics,
