@@ -50,7 +50,7 @@ HEAD_CONTENT = """\
       inset: 0;
       overflow: hidden;
       cursor: grab;
-      touch-action: none;
+      touch-action: pinch-zoom;
     }
 
     #diagram-viewport.is-panning {
