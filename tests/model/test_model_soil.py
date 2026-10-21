@@ -13,18 +13,18 @@ from pandera.errors import SchemaError, SchemaErrors
 from pandera.typing import DataFrame
 from pydantic import ValidationError
 
-from cable_thermal_model.cable.cable_circuit import (
+from cable_thermal_model.cable_configuration.cable_circuit import (
     BondingType,
     CableKey,
     CablePosition,
     CircuitType,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitConfigurationFromCableId,
     CircuitInSoilFromCableIdInputSchema,
     CircuitInSoilFromCableInputSchema,
 )
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.measurement_point import MeasurementPointKey
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil

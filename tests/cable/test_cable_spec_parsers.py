@@ -10,8 +10,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from cable_thermal_model.cable.cable_builder import CableBuilder
-from cable_thermal_model.cable.cable_spec_parsers import SingleCoreSpecParser, SpecParserFactory, ThreeCoreSpecParser
+from cable_thermal_model.cable_configuration.cable_builder import CableBuilder
+from cable_thermal_model.cable_configuration.cable_spec_parsers import (
+    SingleCoreSpecParser,
+    SpecParserFactory,
+    ThreeCoreSpecParser,
+)
 from cable_thermal_model.model.cables.abstract_cable import CableConductorType, CableType
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import (
@@ -31,7 +35,7 @@ _RADIAL_APPROXIMATION_RESOLUTION_IN_METERS = 1e-9
 def test_single_core_sector_shaped_exception():
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(ValueError, match="Single-core cables can not have sector shaped conductors."),
@@ -42,7 +46,7 @@ def test_single_core_sector_shaped_exception():
 def test_circular_conductor_zero_diameter_exception():
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(ValueError, match="Invalid dimensions: outer_radius"),
@@ -53,7 +57,7 @@ def test_circular_conductor_zero_diameter_exception():
 def test_zero_conductor_area_exception():
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(ValueError, match="Invalid conducting_surface_area: 0.0, must be strictly positive."),
@@ -64,7 +68,7 @@ def test_zero_conductor_area_exception():
 def test_consistence_conductor_area_and_diameter_exception():
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(
@@ -76,7 +80,7 @@ def test_consistence_conductor_area_and_diameter_exception():
 
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(
@@ -92,7 +96,7 @@ def test_consistence_conductor_area_and_diameter_exception():
 def test_single_core_cable_with_armour_exception():
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(
@@ -313,7 +317,7 @@ def test_scSL_screen_type_not_implemented_exception():
 
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(

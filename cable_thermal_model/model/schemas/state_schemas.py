@@ -7,7 +7,7 @@ from typing import TypeVar
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
 
-from cable_thermal_model.cable.cable_circuit import CableKey
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey
 
 
 def _serialize_temperature_dict(value: dict[CableKey, np.ndarray]) -> dict[str, list[float]]:

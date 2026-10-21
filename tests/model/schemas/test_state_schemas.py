@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from pydantic_core import ValidationError
 
-from cable_thermal_model.cable.cable_circuit import CableKey, CablePosition
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey, CablePosition
 from cable_thermal_model.model.schemas.state_schemas import State, StateAir, StateSoil
 
 

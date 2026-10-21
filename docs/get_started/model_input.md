@@ -90,7 +90,7 @@ Reference a cable from a CSV file containing cable specifications:
 **Example:**
 
 ```python
-from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
 
 circuit = CircuitInSoilFromCableIdInputSchema(
     circuit_name="circuit_1",
@@ -112,7 +112,7 @@ See the [build cable example](../examples/build_cable_example.ipynb) for a compl
 Pass a pre-built `FDCable` object:
 
 ```python
-from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableInputSchema
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import CircuitInSoilFromCableInputSchema
 
 circuit = CircuitInSoilFromCableInputSchema(circuit_name="circuit_1", cable=my_cable_object, x=0.0, y=-1.0)
 ```
@@ -220,7 +220,7 @@ Here's a minimal complete example for a cable in soil:
 from datetime import datetime
 import pandas as pd
 from cable_thermal_model import StaticEnvSoil, ModelFactory, CircuitType, BondingType
-from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
 
 # 1. Create static environment
 static_env = StaticEnvSoil()
