@@ -83,7 +83,7 @@ We recommend using uv for development:
 
 ```bash
 # Install all dependencies including development tools
-uv sync --group dev
+uv sync --group dev --group docs
 
 ```
 

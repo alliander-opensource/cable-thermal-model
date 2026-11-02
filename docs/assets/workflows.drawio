@@ -1,0 +1,124 @@
+<mxfile host="Electron" agent="GitHub Copilot">
+  <diagram id="ctm-workflow" name="Simulation workflow">
+    <mxGraphModel dx="2445" dy="2161" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1120" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#1f2937;" value="Cable Thermal Model — public API workflow" vertex="1">
+          <mxGeometry height="40" width="1000" x="40" y="-1080" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=12;align=left;spacing=8;" value="Blue = public exports&lt;br&gt;Lavender = internal collaborators&lt;br&gt;Green = simulation and results&lt;div&gt;Yellow = external data&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="290" x="1430" y="-1080" as="geometry" />
+        </mxCell>
+        <mxCell id="inputs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=8;" value="&lt;b&gt;Caller inputs&lt;br&gt;&lt;/b&gt;CircuitType / BondingType / CircuitYReference&lt;br&gt;Cable data or circuit schema&lt;br&gt;PipeInputSchema (optional)" vertex="1">
+          <mxGeometry height="130" width="300" x="730" y="-1020" as="geometry" />
+        </mxCell>
+        <mxCell id="env-air" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=8;" value="StaticEnvAir&#xa;add_circuit_from_cable(...)&#xa;Inherited: add by cable ID, specs, or constructional data&#xa;One circuit; derives convection parameters" vertex="1">
+          <mxGeometry height="150" width="360" x="1200" y="-847.5" as="geometry" />
+        </mxCell>
+        <mxCell id="env-soil" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=8;" value="StaticEnvSoil&#xa;add_circuit_from_cable(...) and inherited add methods&#xa;Supports multiple circuits&#xa;add_measurement_point(x, y)" vertex="1">
+          <mxGeometry height="145" width="360" x="200" y="-845" as="geometry" />
+        </mxCell>
+        <mxCell id="build" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;spacing=8;" value="&lt;b&gt;Circuit and cable construction&lt;br&gt;&lt;/b&gt;CableBuilder creates a finite-difference cable&lt;br&gt;CircuitBuilder selects a layout and positions cables&lt;br&gt;CircuitType, BondingType, CablePosition" vertex="1">
+          <mxGeometry height="155" width="350" x="705" y="-640" as="geometry" />
+        </mxCell>
+        <mxCell id="static-data" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=8;" value="&lt;b&gt;Configured static environment&lt;br&gt;&lt;/b&gt;circuits and positioned cables&lt;br&gt;CableKey = (circuit_name, cable_position)&lt;br&gt;PipeFillType / CableLayer describe cable setup" vertex="1">
+          <mxGeometry height="145" width="350" x="705" y="-400" as="geometry" />
+        </mxCell>
+        <mxCell id="factory" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;spacing=8;" value="ModelFactory.create_model(static_env)&#xa;dispatches by environment type" vertex="1">
+          <mxGeometry height="95" width="350" x="705" y="-160" as="geometry" />
+        </mxCell>
+        <mxCell id="model-air" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;spacing=8;" value="ModelAir&#xa;Internal concrete implementation&#xa;Air-specific run options and StateAir" vertex="1">
+          <mxGeometry height="95" width="350" x="210" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="model-soil" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;spacing=8;" value="ModelSoil&#xa;Internal concrete implementation&#xa;Soil-specific run options and StateSoil" vertex="1">
+          <mxGeometry height="95" width="350" x="1200" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="scenario" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;spacing=8;" value="&lt;b&gt;Scenario input&lt;br&gt;&lt;/b&gt;Datetime/timedelta index, ambient_temperature, load_{circuit}&lt;br&gt;&lt;i&gt;Soil also requires soil_thermal_resistivity and soil_thermal_capacity&lt;/i&gt;" vertex="1">
+          <mxGeometry height="130" width="350" x="220" y="242.5" as="geometry" />
+        </mxCell>
+        <mxCell id="warm-state" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=8;" value="&lt;b&gt;Optional previous state&lt;br&gt;&lt;/b&gt;StateAir or StateSoil&lt;br&gt;Warm-start only when type, cable keys, and environment hash match" vertex="1">
+          <mxGeometry height="115" width="350" x="220" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="run" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;spacing=8;" value="model.run(scenario, initial_state, run_options)&#xa;Validates scenario columns and model/state consistency&#xa;Rejects mismatched environment keys or hash" vertex="1">
+          <mxGeometry height="135" width="340" x="710" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="initialize" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;spacing=8;" value="&lt;b&gt;Prepare run&lt;br&gt;&lt;/b&gt;Copy static cables for safe runtime updates&lt;br&gt;Build initial thermal state or deep-copy warm-start state" vertex="1">
+          <mxGeometry height="110" width="340" x="1300" y="252.5" as="geometry" />
+        </mxCell>
+        <mxCell id="loop" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;spacing=8;" value="Per scenario time step&#xa;Update thermal properties&#xa;Update cable heating vectors from loads&#xa;Integrate finite-difference heat equation (implicit Euler)&#xa;Record requested layer temperatures" vertex="1">
+          <mxGeometry height="150" width="350" x="990" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="air-step" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;spacing=7;" value="&lt;b&gt;Air-specific update&lt;br&gt;&lt;/b&gt;Refresh pipe-fill resistivity&lt;br&gt;Integrate self-heating&lt;br&gt;Temperature = self-heating + ambient" vertex="1">
+          <mxGeometry height="115" width="350" x="530" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="soil-step" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;spacing=7;" value="&lt;b&gt;Soil-specific update&lt;br&gt;&lt;/b&gt;Add soil layers and mirror cables&lt;br&gt;Update soil properties and pipe-fill resistivity&lt;br&gt;Integrate self- and mutual-heating; include measurement points" vertex="1">
+          <mxGeometry height="130" width="350" x="1440" y="792.5" as="geometry" />
+        </mxCell>
+        <mxCell id="output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;spacing=8;" value="ModelOutputSchema&#xa;result: TemperatureResultSchema DataFrame&#xa;Columns: (circuit, cable position, CableLayer)&#xa;Soil runs can include measurement-point columns" vertex="1">
+          <mxGeometry height="130" width="350" x="990" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="state" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;spacing=8;" value="&lt;b&gt;Final reusable state&lt;br&gt;&lt;/b&gt;StateAir: temperature, self-heating, ambient temperature&lt;br&gt;StateSoil also stores mutual-heating contribution&lt;br&gt;Pydantic serialization supports persistence" vertex="1">
+          <mxGeometry height="125" width="350" x="990" y="1240" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="inputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#6c8ebf;" target="env-air">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="inputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#6c8ebf;" target="env-soil">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="env-air" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;" target="build">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="env-soil" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;" target="build">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="build" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;" target="static-data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="static-data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#6c8ebf;" target="factory">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="factory" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;fontSize=12;" target="model-air" value="air">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="factory" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;fontSize=12;" target="model-soil" value="soil">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="scenario" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#d6b656;" target="run">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="warm-state" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#6c8ebf;" target="run">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="model-air" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;" target="run">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="model-soil" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;" target="run">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#82b366;" target="initialize">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="initialize" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#82b366;" target="loop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="loop" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;fontSize=12;" target="air-step" value="ModelAir">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="loop" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#9673a6;fontSize=12;" target="soil-step" value="ModelSoil">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="air-step" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#82b366;" target="output">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="soil-step" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#82b366;" target="output">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="output" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeColor=#82b366;" target="state">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
