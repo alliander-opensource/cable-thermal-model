@@ -257,7 +257,7 @@
 <span class="md-ellipsis">
     
   
-    cable
+    cable_configuration
   
 
     
@@ -269,13 +269,13 @@
 <span class="md-nav__icon md-icon"></span>
             
   
-    cable
+    cable_configuration
   
 
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/cable_builder/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/cable_builder/">
 <span class="md-ellipsis">
     
   
@@ -287,7 +287,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/cable_circuit/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/cable_circuit/">
 <span class="md-ellipsis">
     
   
@@ -299,7 +299,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/cable_spec_parsers/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/cable_spec_parsers/">
 <span class="md-ellipsis">
     
   
@@ -334,7 +334,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/enums/circuit_enums/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/enums/circuit_enums/">
 <span class="md-ellipsis">
     
   
@@ -372,7 +372,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/schemas/cable_input_schemas/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/cable_input_schemas/">
 <span class="md-ellipsis">
     
   
@@ -384,7 +384,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/schemas/cable_layer_input_schemas/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/cable_layer_input_schemas/">
 <span class="md-ellipsis">
     
   
@@ -396,7 +396,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/schemas/circuit_schemas/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/circuit_schemas/">
 <span class="md-ellipsis">
     
   
@@ -408,7 +408,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable/schemas/pipe_schemas/">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/pipe_schemas/">
 <span class="md-ellipsis">
     
   
@@ -1886,7 +1886,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">CableLayer</span><span class="p">,</span> <span class="n">CablePosition</span><span class="p">,</span> <span class="n">ModelFactory</span><span class="p">,</span> <span class="n">StaticEnvSoil</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable_configuration.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
 
 <span class="n">example_cables_csv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">(</span><span class="s2">"data"</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">"example_cables.csv"</span><span class="p">)))</span>
 
@@ -1909,7 +1909,7 @@ import numpy as np
 import pandas as pd
 
 from cable_thermal_model import CableLayer, CablePosition, ModelFactory, StaticEnvSoil
-from cable_thermal_model.cable.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
 
 example_cables_csv_path = Path(str(files("data").joinpath("example_cables.csv")))
 

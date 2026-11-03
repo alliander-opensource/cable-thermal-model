@@ -538,7 +538,7 @@
   <span class="md-ellipsis">
     
   
-    cable
+    cable_configuration
   
 
     
@@ -554,7 +554,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    cable
+    cable_configuration
   
 
           </label>
@@ -567,7 +567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/cable_builder/" class="md-nav__link">
+      <a href="../../cable_configuration/cable_builder/" class="md-nav__link">
         
   
   
@@ -595,7 +595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/cable_circuit/" class="md-nav__link">
+      <a href="../../cable_configuration/cable_circuit/" class="md-nav__link">
         
   
   
@@ -623,7 +623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/cable_spec_parsers/" class="md-nav__link">
+      <a href="../../cable_configuration/cable_spec_parsers/" class="md-nav__link">
         
   
   
@@ -698,7 +698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/enums/circuit_enums/" class="md-nav__link">
+      <a href="../../cable_configuration/enums/circuit_enums/" class="md-nav__link">
         
   
   
@@ -781,7 +781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/schemas/cable_input_schemas/" class="md-nav__link">
+      <a href="../../cable_configuration/schemas/cable_input_schemas/" class="md-nav__link">
         
   
   
@@ -809,7 +809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/schemas/cable_layer_input_schemas/" class="md-nav__link">
+      <a href="../../cable_configuration/schemas/cable_layer_input_schemas/" class="md-nav__link">
         
   
   
@@ -837,7 +837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/schemas/circuit_schemas/" class="md-nav__link">
+      <a href="../../cable_configuration/schemas/circuit_schemas/" class="md-nav__link">
         
   
   
@@ -865,7 +865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cable/schemas/pipe_schemas/" class="md-nav__link">
+      <a href="../../cable_configuration/schemas/pipe_schemas/" class="md-nav__link">
         
   
   
@@ -2787,7 +2787,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="typing.Generic">Generic</span>[<span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableInputSchemaT">CircuitFromCableInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableConstructionalInputSchemaT">CircuitFromCableConstructionalInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableIdInputSchemaT">CircuitFromCableIdInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableSpecsInputSchemaT">CircuitFromCableSpecsInputSchemaT</span>]</code></p>
+              Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="typing.Generic">Generic</span>[<span title="cable_thermal_model.cable_configuration.cable_builder.CableT">CableT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableInputSchemaT">CircuitFromCableInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableConstructionalInputSchemaT">CircuitFromCableConstructionalInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableIdInputSchemaT">CircuitFromCableIdInputSchemaT</span>, <span title="cable_thermal_model.environment.static_env.CircuitFromCableSpecsInputSchemaT">CircuitFromCableSpecsInputSchemaT</span>]</code></p>
 
 
 
@@ -2845,7 +2845,7 @@
 
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_cables</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.cable.cable_circuit.CableKey)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.CableKey">CableKey</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable.cable_circuit.PosCable)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.PosCable">PosCable</a></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span></span><span class="p">]]</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_cables</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.cable_configuration.cable_circuit.CableKey)" href="../../cable_configuration/cable_circuit/#cable_thermal_model.cable_configuration.cable_circuit.CableKey">CableKey</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable_configuration.cable_circuit.PosCable)" href="../../cable_configuration/cable_circuit/#cable_thermal_model.cable_configuration.cable_circuit.PosCable">PosCable</a></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.cable_configuration.cable_builder.CableT">CableT</span></span><span class="p">]]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3312,7 +3312,7 @@
   </span>
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_circuit_type</span><span class="p">(</span><span class="n">cable</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="AbstractCable (cable_thermal_model.model.cables.abstract_cable.AbstractCable)" href="../../model/cables/abstract_cable/#cable_thermal_model.model.cables.abstract_cable.AbstractCable">AbstractCable</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="CircuitType (cable_thermal_model.cable.cable_circuit.CircuitType)" href="../../cable/enums/circuit_enums/#cable_thermal_model.cable.enums.circuit_enums.CircuitType">CircuitType</a></span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_circuit_type</span><span class="p">(</span><span class="n">cable</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="AbstractCable (cable_thermal_model.model.cables.abstract_cable.AbstractCable)" href="../../model/cables/abstract_cable/#cable_thermal_model.model.cables.abstract_cable.AbstractCable">AbstractCable</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="CircuitType (cable_thermal_model.cable_configuration.cable_circuit.CircuitType)" href="../../cable_configuration/enums/circuit_enums/#cable_thermal_model.cable_configuration.enums.circuit_enums.CircuitType">CircuitType</a></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3367,7 +3367,7 @@
 
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_cable</span><span class="p">(</span><span class="n">cable_key</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.cable.cable_circuit.CableKey)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.CableKey">CableKey</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable.cable_circuit.PosCable)" href="../../cable/cable_circuit/#cable_thermal_model.cable.cable_circuit.PosCable">PosCable</a></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.cable.cable_builder.CableT">CableT</span></span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">get_cable</span><span class="p">(</span><span class="n">cable_key</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="CableKey (cable_thermal_model.cable_configuration.cable_circuit.CableKey)" href="../../cable_configuration/cable_circuit/#cable_thermal_model.cable_configuration.cable_circuit.CableKey">CableKey</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="PosCable (cable_thermal_model.cable_configuration.cable_circuit.PosCable)" href="../../cable_configuration/cable_circuit/#cable_thermal_model.cable_configuration.cable_circuit.PosCable">PosCable</a></span><span class="p">[</span><span class="n"><span title="cable_thermal_model.cable_configuration.cable_builder.CableT">CableT</span></span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
