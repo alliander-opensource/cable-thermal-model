@@ -939,7 +939,7 @@
   <span class="md-ellipsis">
     
   
-    cable
+    cable_configuration
   
 
     
@@ -955,7 +955,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    cable
+    cable_configuration
   
 
           </label>
@@ -968,7 +968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/cable_builder/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/cable_builder/" class="md-nav__link">
         
   
   
@@ -996,7 +996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/cable_circuit/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/cable_circuit/" class="md-nav__link">
         
   
   
@@ -1024,7 +1024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/cable_spec_parsers/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/cable_spec_parsers/" class="md-nav__link">
         
   
   
@@ -1099,7 +1099,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/enums/circuit_enums/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/enums/circuit_enums/" class="md-nav__link">
         
   
   
@@ -1182,7 +1182,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/schemas/cable_input_schemas/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/schemas/cable_input_schemas/" class="md-nav__link">
         
   
   
@@ -1210,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/schemas/cable_layer_input_schemas/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/schemas/cable_layer_input_schemas/" class="md-nav__link">
         
   
   
@@ -1238,7 +1238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/schemas/circuit_schemas/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/schemas/circuit_schemas/" class="md-nav__link">
         
   
   
@@ -1266,7 +1266,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api_reference/cable_thermal_model/cable/schemas/pipe_schemas/" class="md-nav__link">
+      <a href="../../api_reference/cable_thermal_model/cable_configuration/schemas/pipe_schemas/" class="md-nav__link">
         
   
   
@@ -3403,7 +3403,7 @@ SPDX-License-Identifier: MPL-2.0
 </tbody>
 </table>
 <p><strong>Example:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable_configuration.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span><span class="p">(</span>
     <span class="n">circuit_name</span><span class="o">=</span><span class="s2">"circuit_1"</span><span class="p">,</span>
@@ -3418,7 +3418,7 @@ SPDX-License-Identifier: MPL-2.0
 <p>See the <a href="../../examples/build_cable_example/">build cable example</a> for a complete demonstration of constructional input.</p>
 <h4 id="3-from-cable-object">3. From Cable Object</h4>
 <p>Pass a pre-built <code>FDCable</code> object:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableInputSchema</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable_configuration.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableInputSchema</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">CircuitInSoilFromCableInputSchema</span><span class="p">(</span><span class="n">circuit_name</span><span class="o">=</span><span class="s2">"circuit_1"</span><span class="p">,</span> <span class="n">cable</span><span class="o">=</span><span class="n">my_cable_object</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
 </code></pre></div>
@@ -3590,7 +3590,7 @@ SPDX-License-Identifier: MPL-2.0
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaticEnvSoil</span><span class="p">,</span> <span class="n">ModelFactory</span><span class="p">,</span> <span class="n">CircuitType</span><span class="p">,</span> <span class="n">BondingType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable_configuration.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
 
 <span class="c1"># 1. Create static environment</span>
 <span class="n">static_env</span> <span class="o">=</span> <span class="n">StaticEnvSoil</span><span class="p">()</span>
