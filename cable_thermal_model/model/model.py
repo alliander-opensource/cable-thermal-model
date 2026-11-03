@@ -212,7 +212,7 @@ class Model(
     @abstractmethod
     def _update_thermal_properties_if_needed(
         self,
-        temperature_state: dict[CableKey, np.ndarray],
+        state: StateT,
         scenario_row: pd.Series,
     ) -> None:
         """Update cables and refresh matrices in one step."""
@@ -354,6 +354,20 @@ class Model(
 
         return TemperatureResultSchema.validate(combined_temperature_result_df)
 
+    def _get_temperature_state_with_environment(
+        self,
+        state: StateT,
+    ) -> dict[CableKey, np.ndarray]:
+        """Retrieve the temperature state including environmental effects.
+
+        Args:
+            state (StateT): The current thermal state of the system.
+
+        Returns:
+            dict[CableKey, np.ndarray]: The temperature state for each cable.
+        """
+        return state.temperature
+
     def _compute_temperature_solution(
         self,
         scenario: DataFrame[ScenarioModelT],
@@ -388,7 +402,7 @@ class Model(
             time_step = time_grid[step_idx] - time_grid[step_idx - 1]
 
             self._update_thermal_properties_if_needed(
-                temperature_state=state.temperature,
+                state=state,
                 scenario_row=scenario_row,
             )
 

@@ -27,6 +27,7 @@ Notes:
 
 """
 
+from copy import deepcopy
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -402,6 +403,44 @@ def test_get_cable_copy_with_added_soil_layer(three_core_cable_pilc: CableSoil):
             )
 
 
+def test_get_cable_soil_copy_from_base_cable(three_core_cable_pilc: CableSoil, monkeypatch):
+    base_cable = Cable(
+        conductor=deepcopy(three_core_cable_pilc.conductor),
+        layer_properties=deepcopy(three_core_cable_pilc.layer_properties),
+        layer_metrics=deepcopy(three_core_cable_pilc.layer_metrics),
+        cable_type=three_core_cable_pilc.cable_type,
+        grid_counts=deepcopy(three_core_cable_pilc._grid_counts),
+    )
+
+    cable_with_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=base_cable,
+        soil_rho=0.7,
+        soil_capacity=2.0e6,
+        soil_radius=0.7,
+        logarithmic_soil_gridpoint_density=8,
+    )
+
+    assert type(cable_with_soil) is CableSoil
+    assert CableLayer.SoilOne in cable_with_soil.layer_properties
+    assert cable_with_soil._heating_vector.size == cable_with_soil.grid_size - 1
+    assert CableLayer.SoilOne not in base_cable.layer_properties
+    assert cable_with_soil.info != base_cable.info
+
+    base_cable.testing_attribute = "test_value"
+    assert hasattr(base_cable, "testing_attribute")
+    assert not hasattr(cable_with_soil, "testing_attribute")
+
+    cable_with_soil = CableSoil.from_cable_with_added_soil_layer(
+        cable=base_cable,
+        soil_rho=0.7,
+        soil_capacity=2.0e6,
+        soil_radius=0.7,
+        logarithmic_soil_gridpoint_density=8,
+    )
+
+    assert hasattr(cable_with_soil, "testing_attribute")
+
+
 def test_fd_cable_init_invalid_grid_counts_type(single_core_cable_xlpe: CableSoil):
     with pytest.raises(TypeError, match="The grid_counts argument must be a dictionary of integers!"):
         CableSoil(
@@ -478,11 +517,11 @@ def test_get_dry_soil_radius(three_core_cable_pilc: CableSoil):
     )
     temperature_grid = np.full(cable_with_soil.grid_size, 20.0)
 
-    assert cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=False) is None
-    assert cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=True) is None
+    assert cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, dry_soil_rho=False) is None
+    assert cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, dry_soil_rho=True) is None
 
     temperature_grid[-1] = cable_with_soil._SOIL_DRYING_TEMPERATURE + 5
-    dry_radius = cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=True)
+    dry_radius = cable_with_soil._get_dry_soil_radius(temperature_grid=temperature_grid, dry_soil_rho=True)
     assert np.isclose(dry_radius, cable_with_soil._radii_grid[-1])
 
 
@@ -504,7 +543,7 @@ def test_update_soil_resistivity_with_dry_zone(three_core_cable_pilc: CableSoil)
         / 2
     )
 
-    cable_with_soil._update_soil_resistivity(soil_rho=0.9, dry_soil_radius=dry_soil_radius)
+    cable_with_soil._apply_soil_drying(soil_rho=0.9, dry_soil_radius=dry_soil_radius)
     end_index = (cable_with_soil._radii_grid <= dry_soil_radius).sum() - 1
 
     assert np.allclose(cable_with_soil._rho_grid[start_index : end_index + 1], 2.5)
@@ -522,7 +561,7 @@ def test_update_soil_resistivity_without_dry_zone(three_core_cable_pilc: CableSo
     start_index = cable_with_soil._get_soil_grid_start_index()
     dry_soil_radius = three_core_cable_pilc.layer_metrics.outer_radius
 
-    cable_with_soil._update_soil_resistivity(soil_rho=0.9, dry_soil_radius=dry_soil_radius)
+    cable_with_soil._apply_soil_drying(soil_rho=0.9, dry_soil_radius=dry_soil_radius)
 
     assert np.allclose(cable_with_soil._rho_grid[start_index:], 0.9)
 

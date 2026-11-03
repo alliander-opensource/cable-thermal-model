@@ -459,19 +459,19 @@ class Cable(AbstractCable):
             self._rho_grid[start_index : end_index + 1] = rho_values
             self._invalidate_finite_difference_matrix_diagonals()
 
-    def _update_capacity_grid(self, start_index: int, end_index: int, capacity: float) -> None:
+    def _update_capacity_grid(self, start_index: int, end_index: int, c_values: np.ndarray | float) -> None:
         """Update a slice of the capacity-grid with a new value.
 
         Args:
             start_index (int): The starting index of the slice to update (inclusive).
             end_index (int): The ending index of the slice to update (inclusive).
-            capacity (float): The new capacity value to set for the specified slice.
+            c_values (np.ndarray | float): The new capacity value(s) to set for the specified slice.
 
         """
         if start_index > end_index:
             raise ValueError("The start_index exceeds the end_index. Cannot update the capacity grid.")
 
-        self._capacity_grid[start_index : end_index + 1] = capacity
+        self._capacity_grid[start_index : end_index + 1] = c_values
 
     def _update_vector_with_heat_generation_for_layer(self, heat_generation: float, layer: CableLayer) -> None:
         """Update the heating vector with heat generation distributed over one cable layer.

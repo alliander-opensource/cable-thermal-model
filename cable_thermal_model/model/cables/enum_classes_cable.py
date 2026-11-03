@@ -203,15 +203,13 @@ class CableLayer(StrEnum):
     PipeFill = "PipeFill"
     Screen = "Screen"
     Sheath = "Sheath"
-    SoilOne = "Soil_1"
-    SoilTwo = "Soil_2"
-    SoilThree = "Soil_3"
-    SoilFour = "Soil_4"
+    WetSoil = "Wet soil"
+    DrySoil = "Dry soil"
 
     @classmethod
     def soil_layers(cls) -> list[CableLayer]:
         """Return a list of all soil layers."""
-        return [layer for layer in cls if layer.name.startswith("Soil")]
+        return [layer for layer in cls if "soil" in layer.name.lower()]
 
 
 class CableScreenLossType(StrEnum):

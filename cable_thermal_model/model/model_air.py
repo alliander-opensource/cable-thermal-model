@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import numpy as np
 import pandas as pd
 
 from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
@@ -68,13 +67,13 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
 
     def _update_thermal_properties_if_needed(
         self,
-        temperature_state: dict[CableKey, np.ndarray],
+        state: StateAir,
         scenario_row: pd.Series,
     ) -> None:
         """Update the pipe-fill resistivity if changed.
 
         Args:
-            temperature_state: Current temperature state for all cables.
+            state: Current state for all cables.
             scenario_row: Current scenario row.
 
         Notes:
@@ -83,7 +82,7 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
         _ = scenario_row  # Unused in this subclass
 
         self._update_pipe_fill_resistivity(
-            temperature_state=temperature_state,
+            temperature_state=state.temperature,
             cables=self._cables,
         )
 

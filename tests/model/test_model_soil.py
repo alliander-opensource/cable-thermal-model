@@ -549,7 +549,7 @@ def test_update_soil_properties_for_all_cables_calls_each_cable(model: ModelSoil
         update_mocks[pos_cable.key] = update_mock
 
     model._update_soil_properties_for_all_cables(
-        soil_drying=True,
+        dry_soil_rho=True,
         temperature_state=temperature_state,
         soil_resistivity=1.6,
         soil_capacity=2.5e6,

@@ -12,7 +12,7 @@ from cable_thermal_model.environment.measurement_point import (
     MeasurementPoint,
     MeasurementPointKey,
 )
-from cable_thermal_model.model.cables.cable_soil import CableSoil
+from cable_thermal_model.model.cables.cable_soil import CableSoil, SoilDryingProperties
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.schemas import ScenarioModelSoil, StateSoil
@@ -218,22 +218,28 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticE
 
     def _update_soil_properties_for_all_cables(
         self,
-        soil_drying: bool,
         temperature_state: dict[CableKey, np.ndarray],
         soil_resistivity: float,
         soil_capacity: float,
+        soil_drying: None | SoilDryingProperties = None,
     ) -> None:
         """Update soil properties for all cables if needed.
 
         Args:
-            soil_drying: Whether the scenario takes soil drying into account.
+            soil_drying (None | SoilDryingProperties): Whether the scenario takes soil drying into account, if provided, contains the properties of the dried-out soil.
             temperature_state: Full temperature state per cable at the current timestep.
             soil_resistivity: Soil thermal resistivity for the current time step.
             soil_capacity: Soil thermal capacity for the current time step.
 
         """
-        for cable_key, pos_cable in self._cables_with_soil.items():
-            pos_cable.cable.update_soil_properties(
+        for cable_key in self._cables_with_soil:
+            self._cables_with_soil[cable_key].cable.update_soil_properties(
+                soil_rho=soil_resistivity,
+                soil_c=soil_capacity,
+                temperature_grid=temperature_state[cable_key],
+                soil_drying=soil_drying,
+            )
+            self._mirror_cables_with_soil[cable_key].cable.update_soil_properties(
                 soil_rho=soil_resistivity,
                 soil_c=soil_capacity,
                 temperature_grid=temperature_state[cable_key],
@@ -324,22 +330,26 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticE
 
     def _update_thermal_properties_if_needed(
         self,
-        temperature_state: dict[CableKey, np.ndarray],
+        state: StateSoil,
         scenario_row: pd.Series,
     ) -> None:
         """Update pipe-fill resistivity and soil properties if needed.
 
         Args:
-            temperature_state: Current temperature state for all cables.
+            state: Current thermal state for all cables.
             scenario_row: Current scenario row.
-            elapsed_seconds: Time elapsed since the start of the scenario in seconds.
 
         """
+        temperature_state = self._get_temperature_state_with_environment(state=state)
         self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self._cables)
         self._update_pipe_fill_resistivity(temperature_state=temperature_state, cables=self._cables_with_soil)
 
         soil_resistivity = scenario_row[THERMAL_RESISTIVITY_COLUMN]
         soil_capacity = scenario_row[THERMAL_CAPACITY_COLUMN]
+
+        previous_radii_grid = {
+            cable_key: self._cables_with_soil[cable_key].cable._radii_grid for cable_key in self._cables_with_soil
+        }
 
         self._update_soil_properties_for_all_cables(
             soil_drying=self.run_options.soil_drying,
@@ -347,6 +357,13 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticE
             soil_resistivity=soil_resistivity,
             soil_capacity=soil_capacity,
         )
+
+        for cable_key in self.cables_in_environment:
+            state.self_heating_contribution[cable_key] = np.interp(
+                self._cables_with_soil[cable_key].cable._radii_grid,
+                previous_radii_grid[cable_key],
+                state.self_heating_contribution[cable_key],
+            )
 
     def _update_state(
         self,
@@ -475,3 +492,27 @@ class ModelSoil(Model[ModelSoilRunOptions, StateSoil, ScenarioModelSoil, StaticE
                 circuit_name=pos_cable.circuit_name,
                 cable_position=pos_cable.cable_position,
             )
+
+    def _get_temperature_state_with_environment(
+        self,
+        state: StateSoil,
+    ) -> dict[CableKey, np.ndarray]:
+        """Retrieve the temperature state including environmental effects.
+
+        Args:
+            state (StateSoil): The current thermal state of the system.
+
+        Returns:
+            dict[CableKey, np.ndarray]: The temperature state for each cable.
+        """
+        temperature_state_with_environment = {
+            cable_key: state.self_heating_contribution[cable_key] + state.ambient_temperature
+            for cable_key in state.self_heating_contribution
+        }
+
+        for cable_key in state.mutual_heating_contribution:
+            mutual_heating = state.mutual_heating_contribution[cable_key]
+            temperature_state_with_environment[cable_key][: mutual_heating.shape[0]] += mutual_heating
+            temperature_state_with_environment[cable_key][mutual_heating.shape[0] :] += mutual_heating[-1]
+
+        return temperature_state_with_environment

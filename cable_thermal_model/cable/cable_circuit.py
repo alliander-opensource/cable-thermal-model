@@ -21,6 +21,7 @@ from cable_thermal_model.model.cables.abstract_cable import CableType, WeightedS
 from cable_thermal_model.model.cables.cable import (
     Cable,
 )
+from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
 from cable_thermal_model.utils.str_utils import tab_lines
@@ -116,7 +117,7 @@ class CircuitInitData(BaseModel):
         )
 
 
-def return_mirror_cable(pos_cable: PosCable[CableT]) -> PosCable[CableT]:
+def return_mirror_cable(pos_cable: PosCable[CableSoil]) -> PosCable[CableSoil]:
     """Return mirror cable based on given cable.
 
     A mirror cable is an exact copy of a given cable with the only difference being that
@@ -140,7 +141,7 @@ def return_mirror_cable(pos_cable: PosCable[CableT]) -> PosCable[CableT]:
     )
 
 
-class CableCircuit(ABC):
+class CableCircuit(ABC, Generic[CableT]):
     """Abstract base class for cable config."""
 
     def __init__(
@@ -155,7 +156,7 @@ class CableCircuit(ABC):
         self.x: float = x
         self.y: float = y
         self.circuit_name: str = circuit_name
-        self.cables: list[PosCable] = []
+        self.cables: list[PosCable[CableT]] = []
         self.bonding: BondingType = bonding
         self.dist: float | None = dist
 

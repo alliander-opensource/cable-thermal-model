@@ -6,6 +6,7 @@ from typing import Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from cable_thermal_model.model.cables.cable_soil import SoilDryingProperties
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas.state_schemas import StateAir, StateSoil, StateT
 
@@ -68,9 +69,9 @@ class ModelRunOptions(BaseModel, Generic[StateT]):
 class ModelSoilRunOptions(ModelRunOptions[StateSoil]):
     """Run-time options for the soil model, extending ModelRunOptions with soil-drying support."""
 
-    soil_drying: bool = Field(
-        default=False,
-        description="Whether to let soil dry out around cables due to cable heating.",
+    soil_drying: None | SoilDryingProperties = Field(
+        default=None,
+        description="Whether to let soil dry out around cables due to cable heating. If provided, contains the properties of the dried-out soil.",
     )
 
 

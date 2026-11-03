@@ -5,16 +5,23 @@ from copy import deepcopy
 from typing import Self
 
 import numpy as np
+from pydantic import BaseModel
 
 from cable_thermal_model.model.cables.abstract_cable import CableLayerProperties
 from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 
 
+class SoilDryingProperties(BaseModel):
+    critical_soil_drying_temperature: float
+    dry_soil_rho: float
+    dry_soil_c: float
+
+
 class CableSoil(Cable):
     """Finite difference cable model with soil discretization."""
 
-    _SOIL_DRYING_TEMPERATURE = 30
+    DRY_SOIL_RADIUS = 5.0
 
     def _set_heating_vector(self) -> None:
         """Initialize the heating vector for the cable."""
@@ -52,7 +59,11 @@ class CableSoil(Cable):
         return np.append(self._solve_system(A=A, b=b), solution_at_boundary)
 
     def update_soil_properties(
-        self, soil_rho: float, soil_c: float, temperature_grid: np.ndarray, soil_drying: bool = False
+        self,
+        soil_rho: float,
+        soil_c: float,
+        temperature_grid: np.ndarray,
+        soil_drying: None | SoilDryingProperties = None,
     ) -> None:
         """This method updates the soil properties around a cable.
 
@@ -60,39 +71,24 @@ class CableSoil(Cable):
             soil_rho (float): The thermal resistivity of the soil that is not dried out
             soil_c (float): The thermal capacity of the soil that is not dried out
             temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.
-            soil_drying (bool): Whether the scenario takes soil drying into account.
+            soil_drying (None | SoilDryingProperties): Whether the scenario takes soil drying into account, if provided, contains the properties of the dried-out soil.
 
         """
-        dry_soil_radius = self._get_dry_soil_radius(temperature_grid=temperature_grid, soil_drying=soil_drying)
-
-        self._update_soil_resistivity(
-            soil_rho=soil_rho,
-            dry_soil_radius=dry_soil_radius,
+        self._apply_soil_drying(
+            soil_rho=soil_rho, soil_c=soil_c, temperature_grid=temperature_grid, soil_drying=soil_drying
         )
-
-        self._update_soil_capacity(soil_c=soil_c)
-
-    def _update_soil_capacity(self, soil_c: float) -> None:
-        """This method updates the soil capacity values around a cable.
-
-        If multiple soil layers are present, it sets them all (the entire soil).
-
-        Args:
-            soil_c (float): A float representing the thermal capacity of the
-                (entire) soil.
-
-        """
-        if not isinstance(soil_c, (int, float, np.integer, np.floating)):
-            raise ValueError("The soil_c argument must be of type int or float!")
-
-        start_index = self._get_soil_grid_start_index()
-        self._update_capacity_grid(start_index=start_index, end_index=self.grid_size - 1, capacity=soil_c)
 
     def _get_soil_grid_start_index(self) -> int:
         """Return the first grid index that belongs to soil around the cable."""
         return int((self._radii_grid <= self.layer_metrics.outer_radius).sum())
 
-    def _update_soil_resistivity(self, soil_rho: float, dry_soil_radius: float | None = None) -> None:
+    def _apply_soil_drying(
+        self,
+        soil_rho: float,
+        soil_c: float,
+        temperature_grid: np.ndarray,
+        soil_drying: None | SoilDryingProperties = None,
+    ) -> None:
         """This method updates the soil resistivity values around a cable.
 
         This is meant to represent the IEC dried-out soil model. The soil will consist of an inner part of dried-out
@@ -104,53 +100,120 @@ class CableSoil(Cable):
             to a single layer, yet has multiple distinct values.
 
         Args:
-            soil_rho (float):
-                The new thermal resistivity of the soil that is not dried out.
-            dry_soil_radius (float | None):
-                The radius of the dried-out soil around the cable. If None, no dried-out soil is assumed.
-                All grid points with radius <= dry_soil_radius are treated as dry.
+            soil_rho (float): The thermal resistivity of the soil that is not dried out
+            soil_c (float): The thermal capacity of the soil that is not dried out
+            temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.
+            soil_drying (None | SoilDryingProperties):
+                An instance of the SoilDrying class containing the parameters for soil drying. If None, no soil drying is applied.
 
         """
-        soil_start_index = self._get_soil_grid_start_index()
-        new_rho_values = np.full(self.grid_size - soil_start_index, soil_rho)
+        if soil_drying is None:
+            return
 
-        if dry_soil_radius is not None:
-            dry_soil_end_index = int((self._radii_grid <= dry_soil_radius).sum()) - 1
-            if dry_soil_end_index >= soil_start_index:
-                dry_soil_rho = 2.5  # mK/W, value taken from NPR3626
-                new_rho_values[: dry_soil_end_index - soil_start_index + 1] = dry_soil_rho
-
-        self._update_rho_grid(
-            start_index=soil_start_index,
-            end_index=self.grid_size - 1,
-            rho_values=new_rho_values,
+        critical_soil_drying_temperature = soil_drying.critical_soil_drying_temperature
+        dry_soil_radius = self._get_dry_soil_radius(
+            temperature_grid=temperature_grid, critical_soil_drying_temperature=critical_soil_drying_temperature
         )
 
-    def _get_dry_soil_radius(self, temperature_grid: np.ndarray, soil_drying: bool) -> float | None:
+        if abs(dry_soil_radius - self.DRY_SOIL_RADIUS) < 0.1:
+            return
+
+        self.DRY_SOIL_RADIUS = dry_soil_radius
+
+        if CableLayer.WetSoil in self.layers:
+            if CableLayer.DrySoil in self.layers:
+                self.layer_properties[CableLayer.DrySoil].outer_radius = dry_soil_radius
+                self.layer_properties[CableLayer.WetSoil].inner_radius = dry_soil_radius
+            else:
+                if dry_soil_radius > self.layer_properties[CableLayer.WetSoil].inner_radius:
+                    self.layer_properties[CableLayer.DrySoil] = CableLayerProperties(
+                        layer=CableLayer.DrySoil,
+                        inner_radius=self.layer_properties[CableLayer.WetSoil].inner_radius,
+                        outer_radius=dry_soil_radius,
+                        rho=soil_drying.dry_soil_rho,
+                        capacity=soil_drying.dry_soil_c,
+                    )
+                    self.layer_properties[CableLayer.WetSoil].inner_radius = dry_soil_radius
+                    self.layer_properties = {
+                        layer: self.layer_properties[layer]
+                        for layer in sorted(self.layer_properties, key=lambda l: 1 if l == CableLayer.WetSoil else 0)
+                    }
+                if dry_soil_radius >= self.layer_properties[CableLayer.WetSoil].outer_radius:
+                    del self.layer_properties[CableLayer.WetSoil]
+        elif CableLayer.DrySoil in self.layers:
+            if dry_soil_radius < self.layer_properties[CableLayer.DrySoil].outer_radius:
+                self.layer_properties[CableLayer.WetSoil] = CableLayerProperties(
+                    layer=CableLayer.WetSoil,
+                    inner_radius=dry_soil_radius,
+                    outer_radius=self.layer_properties[CableLayer.DrySoil].outer_radius,
+                    rho=soil_rho,
+                    capacity=soil_c,
+                )
+                self.layer_properties[CableLayer.DrySoil].outer_radius = dry_soil_radius
+            if dry_soil_radius <= self.layer_properties[CableLayer.DrySoil].inner_radius:
+                del self.layer_properties[CableLayer.DrySoil]
+        else:
+            raise ValueError("No soil layers detected!")
+
+        if CableLayer.DrySoil in self.layer_properties and (
+            self.layer_properties[CableLayer.DrySoil].outer_radius
+            - self.layer_properties[CableLayer.DrySoil].inner_radius
+            < 1e-3
+        ):
+            self.layer_properties[CableLayer.WetSoil].inner_radius = self.layer_properties[
+                CableLayer.DrySoil
+            ].inner_radius
+            del self.layer_properties[CableLayer.DrySoil]
+        elif CableLayer.WetSoil in self.layer_properties and (
+            self.layer_properties[CableLayer.WetSoil].outer_radius
+            - self.layer_properties[CableLayer.WetSoil].inner_radius
+            < 1e-3
+        ):
+            self.layer_properties[CableLayer.DrySoil].outer_radius = self.layer_properties[
+                CableLayer.WetSoil
+            ].outer_radius
+            del self.layer_properties[CableLayer.WetSoil]
+
+        for cable_layer in CableLayer.soil_layers():
+            if cable_layer in self.layer_properties:
+                radius_factor = (
+                    self.layer_properties[cable_layer].outer_radius / self.layer_properties[cable_layer].inner_radius
+                )
+                self._grid_counts[cable_layer] = int(max(2, int(20 * np.log2(radius_factor))))
+
+        self._set_calculated_fields()
+
+    def _get_dry_soil_radius(self, temperature_grid: np.ndarray, critical_soil_drying_temperature: float) -> float:
         """Return the dried-out soil radius from the current temperature grid.
 
-        When soil drying is enabled, all grid points with temperature >= ``_SOIL_DRYING_TEMPERATURE``
+        When soil drying is enabled, all grid points with temperature >= ``critical_soil_drying_temperature``
         are considered dried out and the radius of the outermost such grid point is returned, if any.
 
         Args:
             temperature_grid (np.ndarray): The temperature grid for the cable, as calculated for a given timestep.
-            soil_drying (bool): Whether the scenario takes soil drying into account.
+            critical_soil_drying_temperature (float): The critical temperature at which soil is considered dried out.
 
         Returns:
             float | None: Radius of dried-out soil, or None if drying is disabled or absent.
         """
-        if not soil_drying:
-            return None
+        soil_start_index = self._get_soil_grid_start_index()
+        soil_temperature_grid = temperature_grid[soil_start_index:]
+        if soil_temperature_grid[0] < critical_soil_drying_temperature:
+            return self.layer_metrics.outer_radius
 
-        dry_idxs = np.nonzero(temperature_grid >= self._SOIL_DRYING_TEMPERATURE)[0]
-        if dry_idxs.size == 0:
-            return None
-
-        return float(self._radii_grid[dry_idxs[-1]])
+        soil_radii_grid = self._radii_grid[soil_start_index:]
+        return np.interp(
+            critical_soil_drying_temperature,
+            soil_temperature_grid[::-1],
+            soil_radii_grid[::-1],
+        )
 
     def get_cable_copy_without_soil(self) -> Self:
         """This method returns a new CableSoil object with the soil layer removed."""
-        if CableLayer.SoilOne not in self.layers:
+        for layer in self.layers:
+            if layer in CableLayer.soil_layers():
+                break
+        else:
             raise ValueError("No soil layers detected!")
 
         non_soil_layers = [layer for layer in self.layers if layer not in CableLayer.soil_layers()]
@@ -197,28 +260,16 @@ class CableSoil(Cable):
                     the added soil layers.
 
         """
-        # copy source data so we don't mutate the original cable
-        layer_properties = deepcopy(cable.layer_properties)
-        grid_counts = deepcopy(cable._grid_counts)
+        new_cable_soil_cable = cls.__new__(cls)
+        new_cable_soil_cable.__dict__.update(deepcopy(cable.__dict__))
 
-        outer_layer = cable.layers[-1]
-        current_outer_radius = layer_properties[outer_layer].outer_radius
+        outer_layer = new_cable_soil_cable.layers[-1]
+        current_outer_radius = new_cable_soil_cable.layer_properties[outer_layer].outer_radius
         if soil_radius <= current_outer_radius:
             raise ValueError("The soil radius must be larger than the outer radius of the current outer layer!")
 
-        soil_layers = CableLayer.soil_layers()
-        if outer_layer in soil_layers:
-            if outer_layer == soil_layers[-1]:
-                raise ValueError(
-                    "The current cable already has the maximum amount of soil layers! "
-                    "This method cannot be used to add more soil layers!"
-                )
-            new_layer = soil_layers[soil_layers.index(outer_layer) + 1]
-        else:
-            new_layer = soil_layers[0]
-
-        layer_properties[new_layer] = CableLayerProperties(
-            layer=new_layer,
+        new_cable_soil_cable.layer_properties[CableLayer.WetSoil] = CableLayerProperties(
+            layer=CableLayer.WetSoil,
             inner_radius=current_outer_radius,
             outer_radius=soil_radius,
             rho=soil_rho,
@@ -226,13 +277,8 @@ class CableSoil(Cable):
         )
 
         radius_factor = soil_radius / current_outer_radius
-        grid_counts[new_layer] = max(2, int(logarithmic_soil_gridpoint_density * np.log2(radius_factor)))
-        new_cable_soil_cable = cls(
-            conductor=deepcopy(cable.conductor),
-            layer_properties=layer_properties,
-            layer_metrics=deepcopy(cable.layer_metrics),
-            cable_type=cable.cable_type,
-            grid_counts=grid_counts,
+        new_cable_soil_cable._grid_counts[CableLayer.WetSoil] = int(
+            max(2, int(logarithmic_soil_gridpoint_density * np.log2(radius_factor)))
         )
-        new_cable_soil_cable.weighted_screen_impedance = cable.weighted_screen_impedance
+        new_cable_soil_cable._set_calculated_fields()
         return new_cable_soil_cable
