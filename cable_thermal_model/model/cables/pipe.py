@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 
 
 class Pipe:

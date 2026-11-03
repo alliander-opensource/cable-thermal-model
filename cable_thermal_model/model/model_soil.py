@@ -7,7 +7,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from cable_thermal_model import CableKey, StaticEnvSoil
-from cable_thermal_model.cable.cable_circuit import PosCable, return_mirror_cable
+from cable_thermal_model.cable_configuration.cable_circuit import PosCable, return_mirror_cable
 from cable_thermal_model.environment.measurement_point import (
     MeasurementPoint,
     MeasurementPointKey,

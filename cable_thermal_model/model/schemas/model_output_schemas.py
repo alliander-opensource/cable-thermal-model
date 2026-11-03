@@ -9,7 +9,7 @@ import pandera.pandas as pa
 from pandera.typing import DataFrame
 from pydantic import BaseModel, ConfigDict
 
-from cable_thermal_model.cable.cable_circuit import CablePosition
+from cable_thermal_model.cable_configuration.cable_circuit import CablePosition
 from cable_thermal_model.environment.measurement_point import MEASUREMENT_POINT_KEY_PREFIX
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas.state_schemas import StateT

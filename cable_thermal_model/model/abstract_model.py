@@ -33,7 +33,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         return "Environment\n\n" + f"{tab_lines(repr(self.static_env))}\n"
 
     def __init__(self, static_env: StaticEnvT):
-        """Initialise the model with a static environment."""
+        """Initialize the model with a static environment."""
         self.static_env = static_env
         self._set_run_options(run_options=None)
 

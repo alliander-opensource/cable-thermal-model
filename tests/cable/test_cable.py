@@ -7,8 +7,8 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from cable_thermal_model.cable.cable_builder import CableBuilder
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.cable_builder import CableBuilder
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.abstract_cable import CableConductorProperties, CableLayerMetrics
 from cable_thermal_model.model.cables.cable import (
     Cable,
@@ -128,7 +128,7 @@ def test_cable_builder_generic_verify_valid_layer_properties(
 ):
     # Generation
     with patch(
-        "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+        "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
         side_effect=mock_load_cable_data_from_file,
     ):
         constructed_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
@@ -227,7 +227,7 @@ def test_cable_builder_generic_verify_valid_layer_metrics_and_conductor(
 ):
     # Generation
     with patch(
-        "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+        "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
         side_effect=mock_load_cable_data_from_file,
     ):
         constructed_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, cable_class=CableSoil)
@@ -324,7 +324,7 @@ def test_build_build_cable_trefoil_in_single_pipe_without_pipe_raises_value_erro
     """Test that building a FDCableTrefoilCircuitInSinglePipe without providing a pipe raises a ValueError."""
     with (
         patch(
-            "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+            "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
             side_effect=mock_load_cable_data_from_file,
         ),
         pytest.raises(

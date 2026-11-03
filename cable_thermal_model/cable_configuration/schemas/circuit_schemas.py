@@ -8,10 +8,10 @@ from typing import Generic, TypeVar
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
-from cable_thermal_model.cable.cable_builder import CableBuilder, CableT
-from cable_thermal_model.cable.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
-from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstructionalInputSchema
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.cable_builder import CableBuilder, CableT
+from cable_thermal_model.cable_configuration.enums.circuit_enums import BondingType, CircuitType, CircuitYReference
+from cable_thermal_model.cable_configuration.schemas.cable_input_schemas import CableConstructionalInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.model.cables.cable import (
     Cable,
 )

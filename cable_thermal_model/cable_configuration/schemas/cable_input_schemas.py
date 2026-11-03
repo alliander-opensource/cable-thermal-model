@@ -7,7 +7,7 @@ from typing import Self
 import numpy as np
 from pydantic import BaseModel, Field, computed_field, model_validator
 
-from cable_thermal_model.cable.schemas.cable_layer_input_schemas import (
+from cable_thermal_model.cable_configuration.schemas.cable_layer_input_schemas import (
     AbstractLayerInputSchema,
     ArmourInputSchema,
     BeddingInputSchema,

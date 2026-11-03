@@ -34,8 +34,8 @@ import pytest
 
 import cable_thermal_model.model.cables.cable as cable_module
 import cable_thermal_model.model.cables.cable_air as cable_air_module
-from cable_thermal_model.cable.cable_builder import CableBuilder
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.cable_builder import CableBuilder
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.cable_air import CableAir

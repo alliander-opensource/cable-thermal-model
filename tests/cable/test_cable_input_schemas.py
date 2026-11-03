@@ -8,10 +8,10 @@ from unittest.mock import patch
 
 import pytest
 
-from cable_thermal_model.cable.cable_builder import CableBuilder
-from cable_thermal_model.cable.cable_spec_parsers import SingleCoreSpecParser, ThreeCoreSpecParser
-from cable_thermal_model.cable.schemas.cable_input_schemas import CableConstructionalInputSchema
-from cable_thermal_model.cable.schemas.cable_layer_input_schemas import (
+from cable_thermal_model.cable_configuration.cable_builder import CableBuilder
+from cable_thermal_model.cable_configuration.cable_spec_parsers import SingleCoreSpecParser, ThreeCoreSpecParser
+from cable_thermal_model.cable_configuration.schemas.cable_input_schemas import CableConstructionalInputSchema
+from cable_thermal_model.cable_configuration.schemas.cable_layer_input_schemas import (
     ConductorInputSchema,
     InsulationInputSchema,
     SheathInputSchema,
@@ -216,7 +216,7 @@ def test_cable_constructional_input_schema_dimension_validation(
 def test_t1_computation(cable_id: str, expected_t1: float):
     """Test T1 computation for three-core cables."""
     with patch(
-        "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+        "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
         side_effect=mock_load_cable_data_from_file,
     ):
         cable_specs = CableBuilder._load_cable_data_from_file(Path("data/example_cables.csv"), cable_id=cable_id)
@@ -240,7 +240,7 @@ def test_t1_computation(cable_id: str, expected_t1: float):
 def test_t1_computation_single_core_cable():
     cable_id = "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"
     with patch(
-        "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+        "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
         side_effect=mock_load_cable_data_from_file,
     ):
         cable_specs = CableBuilder._load_cable_data_from_file(Path("data/example_cables.csv"), cable_id=cable_id)
@@ -303,7 +303,7 @@ def test_get_radii_recursion(outer):
 def test_EPR_cable_unrecognized_cable_type():
     cable_id = "test_cable_EPR"
     with patch(
-        "cable_thermal_model.cable.cable_builder.CableBuilder._load_cable_data_from_file",
+        "cable_thermal_model.cable_configuration.cable_builder.CableBuilder._load_cable_data_from_file",
         side_effect=mock_load_cable_data_from_file,
     ):
         cable_specs = CableBuilder._load_cable_data_from_file(Path("data/example_cables.csv"), cable_id=cable_id)

@@ -313,14 +313,14 @@ class AbstractCable:
 
     @property
     def s(self) -> float:
-        """Centre-to-centre distance between conductors in metres."""
+        """Center-to-center distance between conductors in meters."""
         if self.layer_metrics.conductor_distance is None:
             raise ValueError("Conductor distance is not set.")
         return self.layer_metrics.conductor_distance
 
     @property
     def Ft(self) -> float:
-        """Armour loss factor (1 when no armour is present)."""
+        """Armor loss factor (1 when no armor is present)."""
         return self._get_armour_factor(self.d) if CableLayer.Armour in self.layers else 1
 
     @property
@@ -365,7 +365,7 @@ class AbstractCable:
         y_p = self.get_proximity_effect_factor(Rdc=Rdc, s=s)
 
         # According to guidance point 25 of Cigré TB 880, a factor of 1.5 should be applied to the skin and proximity
-        # effect when armour is present, to account for the additional losses in the conductor caused by the armour.
+        # effect when armor is present, to account for the additional losses in the conductor caused by the armor.
         ac_resistance_factor = 1.5 if CableLayer.Armour in self.layers else 1.0
         return (1 + ac_resistance_factor * (y_s + y_p)) * Rdc
 

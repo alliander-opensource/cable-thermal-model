@@ -8,15 +8,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from cable_thermal_model.cable.cable_builder import CableBuilder
-from cable_thermal_model.cable.cable_circuit import (
+from cable_thermal_model.cable_configuration.cable_builder import CableBuilder
+from cable_thermal_model.cable_configuration.cable_circuit import (
     BondingType,
     CableKey,
     CablePosition,
     CircuitBuilder,
     CircuitType,
 )
-from cable_thermal_model.cable.schemas.cable_input_schemas import (
+from cable_thermal_model.cable_configuration.schemas.cable_input_schemas import (
     CableConstructionalInputSchema,
     CableScreenType,
     ConductorInputSchema,
@@ -24,13 +24,13 @@ from cable_thermal_model.cable.schemas.cable_input_schemas import (
     ScreenInputSchema,
     SheathInputSchema,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitConfigurationFromCableId,
     CircuitInAirFromCableIdInputSchema,
     CircuitInSoilFromCableIdInputSchema,
     CircuitInSoilFromCableInputSchema,
 )
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.measurement_point import MeasurementPointKey
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil

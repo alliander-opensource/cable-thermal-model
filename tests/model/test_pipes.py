@@ -7,17 +7,17 @@ import pandas as pd
 import pytest
 
 from cable_thermal_model import CircuitType
-from cable_thermal_model.cable.cable_circuit import (
+from cable_thermal_model.cable_configuration.cable_circuit import (
     CableKey,
     CablePosition,
     SingleCable,
 )
-from cable_thermal_model.cable.enums.circuit_enums import CircuitYReference
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.enums.circuit_enums import CircuitYReference
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitInAirFromCableIdInputSchema,
     CircuitInSoilFromCableIdInputSchema,
 )
-from cable_thermal_model.cable.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable_air import CableAir

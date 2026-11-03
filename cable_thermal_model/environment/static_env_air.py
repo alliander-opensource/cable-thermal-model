@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
-from cable_thermal_model.cable.cable_circuit import (
+from cable_thermal_model.cable_configuration.cable_circuit import (
     CircuitType,
 )
-from cable_thermal_model.cable.schemas.circuit_schemas import (
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitInAirFromCableConstructionalInputSchema,
     CircuitInAirFromCableIdInputSchema,
     CircuitInAirFromCableInputSchema,

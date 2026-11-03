@@ -6,7 +6,7 @@ import logging
 
 from pydantic import BaseModel, Field, computed_field
 
-from cable_thermal_model.cable.cable_circuit import CableKey
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey
 
 logger = logging.getLogger(__name__)
 

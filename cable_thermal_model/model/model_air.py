@@ -5,7 +5,7 @@
 import numpy as np
 import pandas as pd
 
-from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey, PosCable
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.model import Model

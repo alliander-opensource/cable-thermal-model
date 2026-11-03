@@ -25,7 +25,7 @@ The Cable Thermal Model is designed to model heat generation in cables. In short
 
 The Cable Thermal Model is designed with three major use cases in mind:
 
-**Modelling conductor temperature**: To maximize utilization of cable infrastructure, we need to understand the thermal limits under various loading conditions. The conductor temperature is the primary indicator of cable thermal stress and determines the safe current-carrying capacity (ampacity). This model provides accurate estimates of conductor temperatures based on load profiles and environmental conditions, enabling operators to confidently utilize cables closer to their thermal limits without risking asset damage.
+**Modeling conductor temperature**: To maximize utilization of cable infrastructure, we need to understand the thermal limits under various loading conditions. The conductor temperature is the primary indicator of cable thermal stress and determines the safe current-carrying capacity (ampacity). This model provides accurate estimates of conductor temperatures based on load profiles and environmental conditions, enabling operators to confidently utilize cables closer to their thermal limits without risking asset damage.
 
 **Network planning and design validation**: When designing new cable installations or modifying existing networks, engineers need to verify that cable configurations meet thermal requirements. The model allows testing different cable types, burial depths, circuit arrangements, and environmental conditions to optimize designs before installation. This reduces the risk of thermal overloads and ensures compliance with safety standards.
 

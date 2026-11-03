@@ -33,7 +33,7 @@ repos:
     -   id: ruff-format
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.4.0
+    rev: v2.4.1
     hooks:
     -   id: mypy
         additional_dependencies:
@@ -43,7 +43,7 @@ repos:
         exclude: 'tests/'
 
 -   repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
     -   id: conventional-pre-commit
         stages: [commit-msg]
@@ -67,7 +67,7 @@ repos:
         -   "MD041"
 
 -   repo: https://github.com/fsfe/reuse-tool
-    rev: v6.2.0
+    rev: v6.3.0
     hooks:
     -   id: reuse
 
@@ -85,7 +85,7 @@ repos:
         -   "--keep-output"
 
 -   repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
     -   id: conventional-pre-commit
         stages: [commit-msg]

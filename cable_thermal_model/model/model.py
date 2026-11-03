@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 from pandera.typing import DataFrame
 
-from cable_thermal_model.cable.cable_builder import CableT
-from cable_thermal_model.cable.cable_circuit import CableKey, PosCable
+from cable_thermal_model.cable_configuration.cable_builder import CableT
+from cable_thermal_model.cable_configuration.cable_circuit import CableKey, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel, StaticEnvT
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import ModelOutputSchema
