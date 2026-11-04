@@ -98,6 +98,7 @@ nav:
       - The heat equation: theoretical_documentation/heat_equation.md
       - Finite difference method: theoretical_documentation/finite_difference.md
       - Stateful computations: theoretical_documentation/stateful_computations.md
+      - Heat sources: theoretical_documentation/heat_sources.md
 
 plugins:
   - llmstxt:
