@@ -45,7 +45,8 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableInsulationMaterial,
     CableScreenMaterial,
     CableSheathMaterial,
-    PipeFillType,
+    PipeFillMaterial,
+    PipeMaterial,
 )
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_factory import ModelFactory
@@ -146,7 +147,7 @@ def single_circuit_with_pipe_env() -> StaticEnvSoil:
             circuit_name="c1",
             cable_id=_DEFAULT_TEST_CABLE,
             circuit_type=CircuitType.Trefoil,
-            pipe=PipeInputSchema(fill_type=PipeFillType.Air),
+            pipe=PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air),
         )
     )
     return env
@@ -194,7 +195,7 @@ def single_circuit_multiple_configs_env() -> StaticEnvSoil:
                 ),
                 CircuitConfigurationFromCableId(
                     circuit_type=CircuitType.Trefoil,
-                    pipe=PipeInputSchema(fill_type=PipeFillType.Air),
+                    pipe=PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air),
                     length=10000,
                     cable_id=_DEFAULT_TEST_CABLE,
                 ),
@@ -215,7 +216,7 @@ def two_circuit_with_pipe_env(env: StaticEnvSoil) -> StaticEnvSoil:
                 circuit_name=f"c{i}",
                 cable_id=_DEFAULT_TEST_CABLE,
                 circuit_type=CircuitType.Trefoil,
-                pipe=PipeInputSchema(fill_type=PipeFillType.Air),
+                pipe=PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air),
             )
         )
     return env
@@ -363,7 +364,9 @@ def trefoil_in_single_pipe() -> CableTrefoilCircuitSinglePipeInSoil:
     return CableBuilder.build_cable_from_cable_id(
         cable_id=_DEFAULT_TEST_CABLE,
         cable_class=CableTrefoilCircuitSinglePipeInSoil,
-        pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+        pipe=PipeInputSchema(
+            material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+        ),
     )
 
 
@@ -509,10 +512,10 @@ def scenario_constant_multi(load_series_constant) -> pd.DataFrame:
 
 
 @pytest.fixture(scope="function")
-def scenario_steady_state() -> pd.DataFrame:
+def scenario_steady_state_soil() -> pd.DataFrame:
     return pd.DataFrame(
         data={
-            "load_c1": 0,
+            "load_c1": 575.0,
             "ambient_temperature": 10.0,
             "soil_thermal_resistivity": 0.75,
             "soil_thermal_capacity": 2e6,
@@ -522,9 +525,21 @@ def scenario_steady_state() -> pd.DataFrame:
 
 
 @pytest.fixture(scope="function")
-def b5901_scenario_steady_state(scenario_steady_state: pd.DataFrame) -> pd.DataFrame:
-    scenario_steady_state["ambient_temperature"] = 15.0
-    return scenario_steady_state
+def scenario_steady_state_air() -> pd.DataFrame:
+    return pd.DataFrame(
+        data={
+            "load_c1": 575.0,
+            "ambient_temperature": 30.0,
+            "solar_radiation_intensity": 0.0,
+        },
+        index=pd.timedelta_range(start="0D", end="30000D", periods=5),
+    )
+
+
+@pytest.fixture(scope="function")
+def b5901_scenario_steady_state(scenario_steady_state_soil: pd.DataFrame) -> pd.DataFrame:
+    scenario_steady_state_soil["ambient_temperature"] = 15.0
+    return scenario_steady_state_soil
 
 
 @pytest.fixture(scope="function")
@@ -557,7 +572,7 @@ def vca_pipe_results():
             test_case["cable_type"],
             float(test_case["pipe_outer_radius"]) * 1e-3,  # Convert to meters
             float(test_case["sdr"]),
-            PipeFillType(test_case["pipe_fill_type"]),
+            PipeFillMaterial(test_case["pipe_fill_material"]),
             float(test_case["current"]),
             float(test_case["conductor_temperature"]),
             float(test_case["pipe_temperature"]),

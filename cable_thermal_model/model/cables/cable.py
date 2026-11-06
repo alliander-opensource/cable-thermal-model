@@ -14,7 +14,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
     CableLayerMetrics,
     CableLayerProperties,
 )
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableType
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableType, Material
 from cable_thermal_model.model.cables.pipe import Pipe
 
 
@@ -546,14 +546,19 @@ class Cable(AbstractCable):
         # Create a new cable, using the get_redefined_cable() method, with the new values where the cable should be
         # altered to accommodate the pipe.
         grid_counts = new_cable._grid_counts
-        layer_properties: list[tuple[CableLayer, float, float, float]] = [
-            (CableLayer.PipeFill, pipe.inner_radius, pipe.get_thermal_resistivity_pipe_fill(), pipe.pipe_fill_cap),
-            (CableLayer.Pipe, pipe.outer_radius, 3.5, 2.4e6),
-        ]
+        layer_properties: dict[CableLayer, tuple[Material, float, float, float]] = {
+            CableLayer.PipeFill: (
+                pipe.fill_type,
+                pipe.inner_radius,
+                pipe.get_thermal_resistivity_pipe_fill(),
+                pipe.fill_thermal_capacity,
+            ),
+            CableLayer.Pipe: (pipe.material, pipe.outer_radius, pipe.thermal_resistivity, pipe.thermal_capacity),
+        }
 
-        for layer, layer_outer_radius, rho, capacity in layer_properties:
+        for layer, (material, layer_outer_radius, rho, capacity) in layer_properties.items():
             new_cable.layer_properties[layer] = CableLayerProperties(
-                layer=layer,
+                material=material,
                 inner_radius=new_cable.layer_properties[new_cable.layers[-1]].outer_radius,
                 outer_radius=layer_outer_radius,
                 rho=rho,

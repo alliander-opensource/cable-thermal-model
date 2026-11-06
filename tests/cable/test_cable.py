@@ -23,7 +23,8 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableInsulationMaterial,
     CableLayer,
     CableType,
-    PipeFillType,
+    PipeFillMaterial,
+    PipeMaterial,
 )
 from cable_thermal_model.model.cables.pipe import Pipe
 from tests.conftest import mock_load_cable_data_from_file
@@ -347,15 +348,16 @@ def test_equivalent_single_core_creation():
 @pytest.mark.parametrize(
     "cable_outer_diameter_mm,fill_type,temp,expected_T4",
     [
-        (51.0, PipeFillType.Air, 15, 0.6506),
-        (72.0, PipeFillType.Water, 60, 0.0607),
+        (51.0, PipeFillMaterial.Air, 15, 0.6506),
+        (72.0, PipeFillMaterial.Water, 60, 0.0607),
     ],
 )
 def test_T4_pipe_fill(cable_outer_diameter_mm, temp, fill_type, expected_T4):
     pipe = Pipe(
         pipe_input=PipeInputSchema(
+            material=PipeMaterial.PE,
             inner_radius=0.045,
-            fill_type=fill_type,
+            fill_material=fill_type,
         ),
         outer_radius_cable=cable_outer_diameter_mm / 2e3,
     )

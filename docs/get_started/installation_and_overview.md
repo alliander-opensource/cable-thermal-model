@@ -111,7 +111,7 @@ cable_thermal_model.
     [enum]      BondingType           # Bonding configuration (no bonding, single/two-sided)
     [enum]      CircuitYReference     # Y-position reference for circuits
     [enum]      CableLayer            # Cable layer identifiers (conductor, insulation, etc.)
-    [enum]      PipeFillType          # Pipe filling material types
+    [enum]      PipeFillMaterial      # Pipe filling material types
     [enum]      CablePosition         # Position of cables in a circuit
     [class]     PipeInputSchema       # Schema for pipe configuration
     [class]     StaticEnvSoil         # Static environment for cables in soil

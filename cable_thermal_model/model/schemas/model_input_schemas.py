@@ -46,6 +46,10 @@ class AbstractScenarioModel(pa.DataFrameModel):
 class ScenarioModelAir(AbstractScenarioModel):
     """Air scenario schema extending the base scenario schema."""
 
+    solar_radiation_intensity: pa.typing.Series[float] = pa.Field(
+        description="Solar radiation intensity in W/m^2", ge=0
+    )
+
 
 class ScenarioModelSoil(AbstractScenarioModel):
     """Soil scenario schema extending the base scenario schema."""

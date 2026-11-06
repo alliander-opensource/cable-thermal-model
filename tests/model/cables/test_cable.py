@@ -30,6 +30,7 @@ Notes:
 from unittest.mock import MagicMock
 
 import numpy as np
+import pandas as pd
 import pytest
 
 import cable_thermal_model.model.cables.cable as cable_module
@@ -44,7 +45,8 @@ from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import C
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableLayer,
     CableScreenLossType,
-    PipeFillType,
+    PipeFillMaterial,
+    PipeMaterial,
 )
 from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
@@ -420,7 +422,7 @@ def test_update_pipe_fill_resistivity_without_pipe_raises(single_core_cable_xlpe
 
 def test_update_pipe_fill_resistivity_without_inner_radius_raises(single_core_cable_xlpe: CableSoil):
     pipe = Pipe(
-        pipe_input=PipeInputSchema(fill_type=PipeFillType.Air, inner_radius=0.06),
+        pipe_input=PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, inner_radius=0.06),
         outer_radius_cable=single_core_cable_xlpe.layer_metrics.outer_radius,
     )
     cable_with_pipe = single_core_cable_xlpe.get_cable_copy_with_pipe(pipe=pipe)
@@ -541,7 +543,7 @@ def test_update_soil_capacity_invalid_type_raises(three_core_cable_pilc: CableSo
 
 def test_get_cable_copy_with_pipe_error(single_core_cable_xlpe: CableSoil):
     pipe = Pipe(
-        pipe_input=PipeInputSchema(fill_type=PipeFillType.Air, inner_radius=0.06),
+        pipe_input=PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, inner_radius=0.06),
         outer_radius_cable=single_core_cable_xlpe.layer_metrics.outer_radius,
     )
 
@@ -594,11 +596,70 @@ def test_fd_cable_in_air_integrate_timestep_non_convergence_raises(
         single_core_cable_xlpe_in_air.integrate_timestep(previous_solution=previous_solution, time_step=1.0)
 
 
+def test_load_absorption_coefficient(single_core_cable_xlpe_in_air: CableAir, monkeypatch):
+    cable = single_core_cable_xlpe_in_air
+    layer_material = cable.layer_properties[cable.layers[-1]].material
+    absorption_coefficient = 0.73
+    materials_df = pd.DataFrame(
+        {"absorption coefficient of solar radiation": [absorption_coefficient]},
+        index=[layer_material.value],
+    )
+    monkeypatch.setattr(cable_air_module, "read_material_properties", lambda: materials_df)
+
+    assert cable._load_absorption_coefficient() == absorption_coefficient
+
+
+def test_load_absorption_coefficient_raises_when_value_is_missing(single_core_cable_xlpe_in_air: CableAir, monkeypatch):
+    cable = single_core_cable_xlpe_in_air
+    layer_material = cable.layer_properties[cable.layers[-1]].material
+    materials_df = pd.DataFrame(
+        {"absorption coefficient of solar radiation": [np.nan]},
+        index=[layer_material.value],
+    )
+    monkeypatch.setattr(cable_air_module, "read_material_properties", lambda: materials_df)
+
+    with pytest.raises(ValueError, match="Absorption coefficient for solar radiation"):
+        cable._load_absorption_coefficient()
+
+
+def test_get_absorption_coefficient_caches_value(single_core_cable_xlpe_in_air: CableAir, monkeypatch):
+    cable = single_core_cable_xlpe_in_air
+    cable.absorption_coefficient = None
+    load_absorption_coefficient = MagicMock(return_value=0.73)
+    monkeypatch.setattr(cable, "_load_absorption_coefficient", load_absorption_coefficient)
+
+    assert cable._get_absorption_coefficient() == 0.73
+    assert cable._get_absorption_coefficient() == 0.73
+
+    load_absorption_coefficient.assert_called_once_with()
+
+
+def test_add_solar_radiation_to_heating_vector(single_core_cable_xlpe_in_air: CableAir, monkeypatch):
+    cable = single_core_cable_xlpe_in_air
+    absorption_coefficient = 0.73
+    solar_radiation_intensity = 850.0
+    cable._heating_vector = np.zeros_like(cable._heating_vector)
+    monkeypatch.setattr(cable, "_get_absorption_coefficient", lambda: absorption_coefficient)
+
+    cable._add_solar_radiation_to_heating_vector(solar_radiation_intensity)
+
+    expected_contribution = (
+        absorption_coefficient * solar_radiation_intensity * 2 * cable._radii_grid[-1] / cable._surface_area_grid[-1]
+    )
+    assert cable._heating_vector[-1] == pytest.approx(expected_contribution)
+    assert np.all(cable._heating_vector[:-1] == 0.0)
+
+
 def test_trefoil_in_single_pipe_in_air_requires_convection_parameters():
     cable = CableBuilder.build_cable_from_cable_id(
         cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
         cable_class=CableTrefoilCircuitSinglePipeInAir,
-        pipe=PipeInputSchema(inner_radius=0.1, fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+        pipe=PipeInputSchema(
+            material=PipeMaterial.PE,
+            inner_radius=0.1,
+            fill_material=PipeFillMaterial.Air,
+            trefoil_circuit_in_single_pipe=True,
+        ),
     )
     previous_solution = np.zeros(cable.grid_size)
 

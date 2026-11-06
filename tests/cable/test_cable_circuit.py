@@ -77,7 +77,7 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.abstract_cable import WeightedScreenImpedance
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInSoil
-from cable_thermal_model.model.cables.enum_classes_cable import CableScreenLossType, PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import CableScreenLossType, PipeFillMaterial, PipeMaterial
 
 # CONSTANTS
 _RADIAL_APPROXIMATION_RESOLUTION_IN_METERS = 1e-9
@@ -226,11 +226,17 @@ def test_screen_loss_function_linear(
     "cable_id,pipe,screen_temperature,conductor_temperature,expected_lambda1",
     [
         ("OD 50kV 1x400Cu", None, 75.3, 85.0, 0.0602),
-        ("OD 50kV 1x400Cu", PipeInputSchema(fill_type=PipeFillType.Air), 77.0, 85.0, 0.1785),
+        (
+            "OD 50kV 1x400Cu",
+            PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air),
+            77.0,
+            85.0,
+            0.1785,
+        ),
         ("YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", None, 75.9, 90.0, 0.1089),
         (
             "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-            PipeInputSchema(fill_type=PipeFillType.Air),
+            PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air),
             79.4,
             90.0,
             0.3677,
@@ -495,12 +501,30 @@ def test_get_relative_screen_distance_trefoil_compare_with_trefoil_in_single_pip
 @pytest.mark.parametrize(
     "circuit_type, pipe, expected_result",
     [
-        (CircuitType.Trefoil, PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True), True),
-        (CircuitType.Trefoil, PipeInputSchema(fill_type=PipeFillType.Air), False),
-        (CircuitType.Single, PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True), False),
+        (
+            CircuitType.Trefoil,
+            PipeInputSchema(
+                material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+            ),
+            True,
+        ),
+        (CircuitType.Trefoil, PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air), False),
+        (
+            CircuitType.Single,
+            PipeInputSchema(
+                material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+            ),
+            False,
+        ),
         (CircuitType.Trefoil, None, False),
-        (None, PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True), True),
-        (None, PipeInputSchema(fill_type=PipeFillType.Air), False),
+        (
+            None,
+            PipeInputSchema(
+                material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+            ),
+            True,
+        ),
+        (None, PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air), False),
     ],
 )
 def test_trefoil_in_single_pipe(circuit_type: CircuitType, pipe: PipeInputSchema, expected_result: bool):
@@ -520,7 +544,11 @@ def test_non_trefoil_circuit_in_single_pipe_not_inmplemented_error():
                 circuit_name="c1",
                 cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
                 pipe=PipeInputSchema(
-                    fill_type=PipeFillType.Water, outer_radius=0.2, sdr=11, trefoil_circuit_in_single_pipe=True
+                    material=PipeMaterial.PE,
+                    fill_material=PipeFillMaterial.Water,
+                    outer_radius=0.2,
+                    sdr=11,
+                    trefoil_circuit_in_single_pipe=True,
                 ),
                 circuit_type=CircuitType.Linear,
             )
@@ -537,7 +565,11 @@ def test_non_trefoil_circuit_in_single_pipe_not_inmplemented_error():
                 circuit_name="c1",
                 cable_id="YMeKrvaslqwd 12/20kV 3x240 Alrm + as50",
                 pipe=PipeInputSchema(
-                    fill_type=PipeFillType.Water, outer_radius=0.2, sdr=11, trefoil_circuit_in_single_pipe=True
+                    material=PipeMaterial.PE,
+                    fill_material=PipeFillMaterial.Water,
+                    outer_radius=0.2,
+                    sdr=11,
+                    trefoil_circuit_in_single_pipe=True,
                 ),
                 circuit_type=CircuitType.Single,
             )
@@ -547,7 +579,9 @@ def test_non_trefoil_circuit_in_single_pipe_not_inmplemented_error():
 def test_trefoil_circuit_in_single_pipe_initialization():
     cable = CableBuilder.build_cable_from_cable_id(
         cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
-        pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+        pipe=PipeInputSchema(
+            material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+        ),
         cable_class=CableTrefoilCircuitSinglePipeInSoil,
     )
     test_circuit = TrefoilCircuitInSinglePipe(CircuitInitData(x=0, y=-1, cable=cable, circuit_name="c1"))
@@ -575,7 +609,11 @@ def test_trefoil_in_single_pipe_trefoil_circuit_error():
             cable_id="YMeKrvaslqwd 12/20kV 3x240 Alrm + as50",
             cable_class=CableSoil,
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True, inner_radius=0.1, outer_radius=0.2
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Air,
+                trefoil_circuit_in_single_pipe=True,
+                inner_radius=0.1,
+                outer_radius=0.2,
             ),
         )
         TrefoilCircuit(CircuitInitData(x=0, y=-1, cable=cable, circuit_name="c1"))

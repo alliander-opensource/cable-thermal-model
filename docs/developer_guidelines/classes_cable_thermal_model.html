@@ -653,12 +653,17 @@
             get_thermal_resistivity_pipe_fill(T: float) float
           }
           style Pipe fill:#BBCC33
-          class PipeFillType {
+          class PipeFillMaterial {
             name
           }
-          style PipeFillType fill:#BBCC33
+          style PipeFillMaterial fill:#BBCC33
+          class PipeMaterial {
+            name
+          }
+          style PipeMaterial fill:#BBCC33
           class PipeInputSchema {
-            fill_type
+            material : PipeMaterial
+            fill_material : PipeFillMaterial
             inner_radius : float | None
             outer_radius : float | None
             sdr : float
@@ -924,7 +929,8 @@
           ScreenInputSchema --> CableScreenType : screen_type
           SheathInputSchema --> CableSheathMaterial : material
           AbstractLayerInputSchema --> Material : material
-          PipeInputSchema --> PipeFillType : fill_type
+          PipeInputSchema --> PipeMaterial : material
+          PipeInputSchema --> PipeFillMaterial : fill_material
           _CableContext --> CableAnalysis : analysis
           MeasurementPoint --* MeasurementPointRegistry : points
           CableConvectionParams --* CableAir : convection_params

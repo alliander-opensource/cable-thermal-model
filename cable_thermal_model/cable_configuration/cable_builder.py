@@ -35,6 +35,7 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
 from cable_thermal_model.model.cables.pipe import Pipe
 from cable_thermal_model.model.cables.type_guards import require_implemented_cable
 from cable_thermal_model.utils.exceptions import MissingMaterialException
+from cable_thermal_model.utils.read_material_properties import read_material_properties
 
 CableT = TypeVar("CableT", bound=Cable)
 
@@ -42,11 +43,9 @@ CableT = TypeVar("CableT", bound=Cable)
 class CableBuilder:
     """Utility class responsible for constructing Cable objects based on various input specifications."""
 
-    __PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
+    __PROJECT_ROOT = Path(__file__).parents[2].resolve()
     _SHEATH_CABLE_TYPE_STRING: str = "Sheath/cable type"
-    MATERIALS_DF: pd.DataFrame = pd.read_csv(__PROJECT_ROOT / "data" / "material_properties.csv", sep=";").set_index(
-        "material"
-    )
+    MATERIALS_DF = read_material_properties()
     IEC_TABLE: pd.DataFrame = pd.read_csv(
         __PROJECT_ROOT / "data" / "IEC_conductor_resistance_table.csv", index_col=[0, 1]
     )
@@ -298,7 +297,7 @@ class CableBuilder:
 
         return {
             cable_layer: CableLayerProperties(
-                layer=cable_layer,
+                material=cable_layer_properties.material,
                 inner_radius=inner_radii[cable_layer],
                 outer_radius=outer_radii[cable_layer],
                 rho=properties["rho"][idx],
@@ -308,7 +307,7 @@ class CableBuilder:
                 epsilon=properties["epsilon"][idx],
                 tan_delta=properties["tan_delta"][idx],
             )
-            for idx, cable_layer in enumerate(cable_constructional_input.layers.keys())
+            for idx, (cable_layer, cable_layer_properties) in enumerate(cable_constructional_input.layers.items())
         }
 
     @classmethod

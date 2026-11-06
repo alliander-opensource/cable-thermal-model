@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
-- `CircuitType`, `BondingType`, `CircuitYReference`, `CableLayer`, `PipeFillType`, `CablePosition` enums
+- `CircuitType`, `BondingType`, `CircuitYReference`, `CableLayer`, `PipeFillMaterial`, `CablePosition` enums
 - `PipeInputSchema`, `StaticEnvSoil`, `StaticEnvAir` configuration classes
 - `ModelFactory` for creating cable temperature models
 - `CableKey` for cable identification

@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
-from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import PipeFillMaterial, PipeMaterial
 from cable_thermal_model.model.cables.pipe import Pipe
 
 
@@ -22,8 +22,9 @@ from cable_thermal_model.model.cables.pipe import Pipe
 )
 def test_nonfitting_pipe(outer_radius_cable, trefoil_circuit_in_single_pipe, expected_error):
     pipe_input = PipeInputSchema(
+        material=PipeMaterial.PE,
         outer_radius=0.055,
-        fill_type=PipeFillType.Water,
+        fill_material=PipeFillMaterial.Water,
         trefoil_circuit_in_single_pipe=trefoil_circuit_in_single_pipe,
     )
     if expected_error is None:
