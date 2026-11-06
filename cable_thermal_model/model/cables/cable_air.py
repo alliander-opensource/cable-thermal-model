@@ -77,7 +77,7 @@ class CableAir(Cable):
 
         This method reads the absorption coefficient based on the cable's properties.
         """
-        materials_df = read_material_properties()
+        materials_df = read_material_properties().apply(pd.to_numeric)
         layer_material = self.layer_properties[self.layers[-1]].material
 
         absorption_coefficient_found = False

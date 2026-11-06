@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+#
+# SPDX-License-Identifier: MPL-2.0
+
 from pathlib import Path
 
 import pandas as pd

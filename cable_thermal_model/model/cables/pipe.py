@@ -32,23 +32,25 @@ class Pipe:
         self.sdr = pipe_input.sdr
         self.fill_type = pipe_input.fill_material
 
-        filling_materials_df = pd.read_csv(path / "data" / "pipe_filling_material_properties.csv", sep=";").set_index(
-            "material"
+        filling_materials_df = (
+            pd.read_csv(path / "data" / "pipe_filling_material_properties.csv", sep=";")
+            .set_index("material")
+            .apply(pd.to_numeric)
         )
 
         self.convection_parameters = (
-            pd.to_numeric(filling_materials_df.at[self.fill_type, "U"]),
-            pd.to_numeric(filling_materials_df.at[self.fill_type, "V"]),
-            pd.to_numeric(filling_materials_df.at[self.fill_type, "Y"]),
+            filling_materials_df.at[self.fill_type, "U"],
+            filling_materials_df.at[self.fill_type, "V"],
+            filling_materials_df.at[self.fill_type, "Y"],
         )
 
-        self.fill_thermal_capacity = pd.to_numeric(filling_materials_df.at[self.fill_type, "volumetric specific heat"])
+        self.fill_thermal_capacity = filling_materials_df.at[self.fill_type, "volumetric specific heat"]
 
-        materials_df = read_material_properties()
+        materials_df = read_material_properties().apply(pd.to_numeric)
 
         self.material = PipeMaterial.PE
-        self.thermal_resistivity = pd.to_numeric(materials_df.at[self.material.value, "thermal resistivity"])
-        self.thermal_capacity = pd.to_numeric(materials_df.at[self.material.value, "volumetric specific heat"])
+        self.thermal_resistivity = materials_df.at[self.material.value, "thermal resistivity"]
+        self.thermal_capacity = materials_df.at[self.material.value, "volumetric specific heat"]
 
         self.trefoil_circuit_in_single_pipe = pipe_input.trefoil_circuit_in_single_pipe
 
