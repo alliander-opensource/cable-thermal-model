@@ -114,3 +114,30 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
             ambient_temperature=ambient_temperature,
         )
         return new_state
+
+    def _update_heating_vectors(
+        self,
+        temperature_state: dict[CableKey, np.ndarray],
+        scenario_row: pd.Series,
+    ) -> None:
+        """Updates the heating vectors (right-hand side) of the linear system for each cable at a given timestep.
+
+        Next to the base model class functionality, add solar radiation contribution to the heating vectors.
+
+        Args:
+            temperature_state (dict[CableKey, np.ndarray]):
+                The temperature state for each cable at the current timestep.
+            scenario_row (pd.Series):
+                The scenario row containing circuit loads and other environmental data at the current timestep.
+        """
+        super()._update_heating_vectors(
+            temperature_state=temperature_state,
+            scenario_row=scenario_row,
+        )
+
+        solar_radiation_intensity = scenario_row["solar_radiation_intensity"]
+        if solar_radiation_intensity > 0:
+            for _, pos_cable in self.cables_in_environment.items():
+                pos_cable.cable._add_solar_radiation_to_heating_vector(
+                    solar_radiation_intensity=solar_radiation_intensity
+                )

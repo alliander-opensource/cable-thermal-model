@@ -19,7 +19,7 @@ from cable_thermal_model.environment.measurement_point import MeasurementPointKe
 from cable_thermal_model.environment.static_env import StaticEnv
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInSoil
-from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import PipeFillMaterial, PipeMaterial
 from data.settings import circuits_path
 
 
@@ -63,7 +63,7 @@ class StaticEnvSoil(
 
         """
         if bool(pipe):
-            return PipeInputSchema(fill_type=PipeFillType.Air)
+            return PipeInputSchema(material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air)
         else:
             return None
 

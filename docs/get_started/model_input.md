@@ -126,25 +126,24 @@ When cables are installed in pipes, use `PipeInputSchema` to specify pipe proper
 | `outer_radius` | `float` | m | Outer radius of the pipe | Required |
 | `inner_radius` | `float` | m | Inner radius of the pipe | Calculated from SDR |
 | `sdr` | `float` | - | Standard Dimension Ratio (outer diameter / wall thickness) | 11.0 |
-| `fill_type` | `PipeFillType` | - | Material filling the pipe | Required |
+| `material` | `PipeMaterial` | - | Material of the pipe itself | Required |
+| `fill_material` | `PipeFillMaterial` | - | Material filling the pipe | Required |
 | `trefoil_circuit_in_single_pipe` | `bool` | - | Whether three cables form a trefoil inside one pipe | `False` |
 
 ##### Pipe Fill Type Options
 
 - **`Air`**: Air-filled pipe
 - **`Water`**: Water-filled pipe
-- **`Sand`**: Sand-filled pipe
-- **`Bentonite`**: Bentonite-filled pipe
-- **`ControlledLowStrengthMaterial`**: CLSM-filled pipe
 
 **Example:**
 
 ```python
-from cable_thermal_model import PipeInputSchema, PipeFillType
+from cable_thermal_model import PipeInputSchema, PipeFillMaterial, PipeMaterial
 
 pipe = PipeInputSchema(
     outer_radius=0.08,  # 160 mm outer diameter
-    fill_type=PipeFillType.Water,
+    material=PipeMaterial.PE,
+    fill_material=PipeFillMaterial.Water,
     sdr=11.0,
 )
 ```

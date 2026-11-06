@@ -173,6 +173,12 @@ class CableSheathMaterial(Material):
     PVC_above_35kV = "pcPVC-35kV"
 
 
+class CableEnvironmentMaterial(Material):
+    """Enum class for possible cable environment materials."""
+
+    Soil = "emSoil"
+
+
 class CableOilDuct(StrEnum):
     """Enum class for possible cable oil duct configurations. Values derived from example_cables.csv."""
 
@@ -250,8 +256,15 @@ class CableConductorHeatSourceAt(StrEnum):
     Shell = "shell"
 
 
-class PipeFillType(StrEnum):
+class PipeFillMaterial(Material):
     """Enum class for possible types of material filling the pipe surrounding a cable."""
 
     Air = "air"
     Water = "water"
+
+
+class PipeMaterial(Material):
+    """Enum class for possible materials of pipes."""
+
+    PE = "dmPE"
+    PVC = "dmPVC"

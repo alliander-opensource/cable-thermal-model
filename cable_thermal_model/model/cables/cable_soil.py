@@ -8,7 +8,7 @@ import numpy as np
 
 from cable_thermal_model.model.cables.abstract_cable import CableLayerProperties
 from cable_thermal_model.model.cables.cable import Cable
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
+from cable_thermal_model.model.cables.enum_classes_cable import CableEnvironmentMaterial, CableLayer
 
 
 class CableSoil(Cable):
@@ -218,7 +218,7 @@ class CableSoil(Cable):
             new_layer = soil_layers[0]
 
         layer_properties[new_layer] = CableLayerProperties(
-            layer=new_layer,
+            material=CableEnvironmentMaterial.Soil,
             inner_radius=current_outer_radius,
             outer_radius=soil_radius,
             rho=soil_rho,

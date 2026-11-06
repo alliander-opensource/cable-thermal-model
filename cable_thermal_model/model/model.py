@@ -221,16 +221,18 @@ class Model(
     def _update_heating_vectors(
         self,
         temperature_state: dict[CableKey, np.ndarray],
-        circuit_loads: dict[str, float],
+        scenario_row: pd.Series,
     ) -> None:
         """Updates the heating vectors (right-hand side) of the linear system for each cable at a given timestep.
 
         Args:
             temperature_state (dict[CableKey, np.ndarray]):
                 The temperature state for each cable at the current timestep.
-            circuit_loads (dict[str, float]):
-                The load for each circuit at the current timestep.
+            scenario_row (pd.Series):
+                The scenario row containing circuit loads and other environmental data at the current timestep.
         """
+        circuit_loads = self._get_circuit_loads_from_scenario_row(scenario_row)
+
         for cable_key, pos_cable in self.cables_in_environment.items():
             circuit_name = cable_key.circuit_name
             conductor_load = circuit_loads[circuit_name]
@@ -394,7 +396,7 @@ class Model(
 
             self._update_heating_vectors(
                 temperature_state=state.temperature,
-                circuit_loads=self._get_circuit_loads_from_scenario_row(scenario_row),
+                scenario_row=scenario_row,
             )
 
             state = self._update_state(

@@ -15,7 +15,7 @@ from cable_thermal_model.cable_configuration.enums.circuit_enums import (
 from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillMaterial, PipeMaterial
 from cable_thermal_model.model.model_air import StateAir
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.model_soil import StateSoil
@@ -25,7 +25,8 @@ __all__ = [
     "BondingType",
     "CircuitYReference",
     "PipeInputSchema",
-    "PipeFillType",
+    "PipeFillMaterial",
+    "PipeMaterial",
     "StaticEnvSoil",
     "StaticEnvAir",
     "ModelFactory",

@@ -22,7 +22,7 @@
         <mxCell id="build" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;spacing=8;" value="&lt;b&gt;Circuit and cable construction&lt;br&gt;&lt;/b&gt;CableBuilder creates a finite-difference cable&lt;br&gt;CircuitBuilder selects a layout and positions cables&lt;br&gt;CircuitType, BondingType, CablePosition" vertex="1">
           <mxGeometry height="155" width="350" x="705" y="-640" as="geometry" />
         </mxCell>
-        <mxCell id="static-data" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=8;" value="&lt;b&gt;Configured static environment&lt;br&gt;&lt;/b&gt;circuits and positioned cables&lt;br&gt;CableKey = (circuit_name, cable_position)&lt;br&gt;PipeFillType / CableLayer describe cable setup" vertex="1">
+        <mxCell id="static-data" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;spacing=8;" value="&lt;b&gt;Configured static environment&lt;br&gt;&lt;/b&gt;circuits and positioned cables&lt;br&gt;CableKey = (circuit_name, cable_position)&lt;br&gt;PipeFillMaterial / CableLayer describe cable setup" vertex="1">
           <mxGeometry height="145" width="350" x="705" y="-400" as="geometry" />
         </mxCell>
         <mxCell id="factory" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;spacing=8;" value="ModelFactory.create_model(static_env)&#xa;dispatches by environment type" vertex="1">

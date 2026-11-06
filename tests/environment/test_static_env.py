@@ -32,7 +32,7 @@ from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.cable_air import CableAir
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInAir
-from cable_thermal_model.model.cables.enum_classes_cable import PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import PipeFillMaterial, PipeMaterial
 
 
 def _compute_static_env_hash(queue: mp.Queue) -> None:
@@ -317,7 +317,11 @@ def test_staticenv_add_circuit_in_air_from_cable_id_trefoil_in_single_pipe():
             circuit_name="c1",
             cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Air, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Air,
+                outer_radius=0.1,
+                sdr=11,
+                trefoil_circuit_in_single_pipe=True,
             ),
             circuit_type=CircuitType.Trefoil,
         )
