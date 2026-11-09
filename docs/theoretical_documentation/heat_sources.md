@@ -34,13 +34,13 @@ W_{int, i} = P/A_{layer}\,\text{ for each } i \text { inside the cable layer.}
 $$
 Here $A_{layer}$ denotes the surface area of the cable layer and $W_{int}$ denotes the internal heating vector, see [Finite difference method](./theoretical_documentation/finite_difference.md).
 
-> **_NOTE:_** Here we use the surface area of the layer as modelled in CTM, instead of the equivalent surface area used to calculate the heat generation for conductors mentioned above in [Heat generation inside the conductor](#heat-generation-inside-the-conductor). If $r_{inner}$ and $r_{outer}$ denote the inner and outer radius of the cable layer, the area is thus given by $ A_{layer} = \pi(r_{outer}^2-r_{inner}^2)$.
+> **_NOTE:_** Here we use the surface area of the layer as modelled in CTM, instead of the equivalent surface area used to calculate the heat generation for conductors mentioned above. If $r_{inner}$ and $r_{outer}$ denote the inner and outer radius of the cable layer, the area is thus given by $ A_{layer} = \pi(r_{outer}^2-r_{inner}^2)$.
 
 ### Electrical resistance
 
 The electrical resistance $\rho_{elec}$ of the conductor material is dependent on the temperature and computed as
 $$
-\rho_{elec} = \rho_{20}(1+\alpha)(T-20)\,,
+\rho_{elec} = \rho_{20}\big(1+\alpha(T-20)\big)\,,
 $$
 where $\alpha$ denotes the _temperature coefficient_ of the conductor material and $\rho_{20}$ is the electrical resistance of the conductor material at 20 °C. Both constants $\alpha$ and $\rho_{20}$ can be found in the `material_properties.csv` file inside the `data` directory.
 
@@ -65,12 +65,13 @@ In the second step we truncate each cable so that only the gridpoints internal t
 
 <div class="center-drawio" markdown="1">![](../assets/mutual-heating-mirrored.drawio)</div>
 
-We then solve a system of linear equations for a second time, but for the truncated cable instead, and with a different outer boundary condition. Instead of setting it to zero, which would correspond to the ambient temperature, we use the solution from Step 1 of cable B at distance $d$. Note that in reality, the temperature of cable B at the sheath of cable A will be higher at points on the sheath that are closer to cable B and lower at points that are further away from cable B. However, the temperature at distance $d$ provides a good average and is also used by the IEC norms implementing mutual heating.
+We then solve a system of linear equations for a second time, but for the truncated cable instead.
+This second solve does not include any internal heat generation (so $W_{int}=0$), but does use a different outer boundary condition. Instead of setting it to zero, which would correspond to the ambient temperature, we use the solution from Step 1 of cable B at distance $d$. Note that in reality, the temperature of cable B at the sheath of cable A will be higher at points on the sheath that are closer to cable B and lower at points that are further away from cable B. However, the temperature at distance $d$ provides a good average and is also used by the IEC norms implementing mutual heating.
 
 To further compensate for the fact that we assume the the temperature of the ground surface equals the ambient temperature, we _substract_ the solutions from Step 1 of cable A and cable B at distances $d_{A,A'}$ and $d_{A,B'}$  respectively. The boundary condition is thus given by
 
 $$
-s'_{B}(r)-s'_{A}(d_{A,A'})-s'_{B}(d_{B,B'})\,.
+s'_{B}(r)-s'_{A}(d_{A,A'})-s'_{B}(d_{A,B'})\,.
 $$
 
 We repeat this calculation for cable B, resulting in _mutual heating solutions_ $s''_{A}(r)$ and $s''_B(r)$, for $r$ less than the respective cable radii.
