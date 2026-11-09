@@ -167,7 +167,7 @@ $$
 
 ### Boundary conditions
 
-The matrix equation above still contains two unknowns, namely $\theta_0$ and $\theta_N$. These correspond to the _boundary conditions_ of the problem we are trying to solve. We deal with this as follows.
+The matrix equation above still contains two unknowns, namely $\theta_0$ and $\theta_n$. These correspond to the _boundary conditions_ of the problem we are trying to solve. We deal with this as follows.
 
 #### Outside boundary
 At the outer boundary $r_n$ we use a _Dirichlet boundary condition_, i.e., we set $\theta_n$ to be equal to a specified temperature of our choice.
