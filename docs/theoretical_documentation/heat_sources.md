@@ -61,7 +61,7 @@ We first consider the two cables separately and calculate the temperature of the
 
 ### Step 2. Mutual heating and mirror cables
 
-In the second step we truncate each cable so that only the gridpoints internal to the cable and a single soil gridpoint remain. Moreover, for each cable we consider a _mirror image_ of that cable as if it were above the ground. Starting with cable A, we calculate all the distances to the other cables (now four in total) as depicted in the image below.
+In the second step we truncate each cable so that only the gridpoints internal to the cable and a single soil gridpoint remain. Moreover, for each cable we consider a _mirror image_ of that cable as if it were above the ground. Starting with cable A, we calculate all the distances to the other cables (now four in total) as depicted in the image below. See also Figure 1 in IEC norm 60287-2-1.
 
 <div class="center-drawio" markdown="1">![](../assets/mutual-heating-mirrored.drawio)</div>
 
