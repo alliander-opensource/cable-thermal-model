@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
-from cable_thermal_model.model.cables.enum_classes_cable import PipeMaterial
 from cable_thermal_model.utils.read_material_properties import read_material_properties
 
 
@@ -48,7 +47,7 @@ class Pipe:
 
         materials_df = read_material_properties().apply(pd.to_numeric)
 
-        self.material = PipeMaterial.PE
+        self.material = pipe_input.material
         self.thermal_resistivity = materials_df.at[self.material.value, "thermal resistivity"]
         self.thermal_capacity = materials_df.at[self.material.value, "volumetric specific heat"]
 

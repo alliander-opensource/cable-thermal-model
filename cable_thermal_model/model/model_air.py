@@ -136,8 +136,5 @@ class ModelAir(Model[ModelAirRunOptions, StateAir, ScenarioModelAir, StaticEnvAi
         )
 
         solar_radiation_intensity = scenario_row["solar_radiation_intensity"]
-        if solar_radiation_intensity > 0:
-            for _, pos_cable in self.cables_in_environment.items():
-                pos_cable.cable._add_solar_radiation_to_heating_vector(
-                    solar_radiation_intensity=solar_radiation_intensity
-                )
+        for _, pos_cable in self.cables_in_environment.items():
+            pos_cable.cable._add_solar_radiation_to_heating_vector(solar_radiation_intensity=solar_radiation_intensity)

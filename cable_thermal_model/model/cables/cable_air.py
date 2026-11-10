@@ -117,10 +117,17 @@ class CableAir(Cable):
         Args:
             solar_radiation_intensity (float): The intensity of the solar radiation [W/m^2].
         """
-        absorption_coefficient = self._get_absorption_coefficient()
-        self._heating_vector[-1] = (
-            absorption_coefficient * solar_radiation_intensity * 2 * self._radii_grid[-1] / self._surface_area_grid[-1]
-        )
+        if solar_radiation_intensity > 0:
+            absorption_coefficient = self._get_absorption_coefficient()
+            self._heating_vector[-1] = (
+                absorption_coefficient
+                * solar_radiation_intensity
+                * 2
+                * self._radii_grid[-1]
+                / self._surface_area_grid[-1]
+            )
+        else:
+            self._heating_vector[-1] = 0
 
     def integrate_timestep(
         self,
