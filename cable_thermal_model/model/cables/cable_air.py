@@ -106,8 +106,10 @@ class CableAir(Cable):
             float: The absorption coefficient.
 
         """
-        if self.absorption_coefficient is None:
+        layer_material = self.layer_properties[self.layers[-1]].material
+        if self.absorption_coefficient is None or getattr(self, "_absorption_material", None) != layer_material:
             self.absorption_coefficient = self._load_absorption_coefficient()
+            self._absorption_material = layer_material
 
         return self.absorption_coefficient
 
