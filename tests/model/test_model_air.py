@@ -19,6 +19,8 @@ from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitInAirFromCableIdInputSchema,
     CircuitInSoilFromCableIdInputSchema,
 )
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.model.cables.enum_classes_cable import PipeFillMaterial, PipeMaterial
 from cable_thermal_model.model.model_air import ModelAir, StateAir
 from cable_thermal_model.model.model_soil import StateSoil
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelAir
@@ -300,3 +302,65 @@ def test_use_wrong_static_env_type():
         ),
     ):
         ModelAir(static_env=StaticEnvSoil())
+
+
+@pytest.mark.parametrize("pipe_outer_diameter,pipe_absorption_factor", [(None, None), (110.0, 0.4)])
+@pytest.mark.parametrize(
+    "cable_id,cable_outer_diameter,cable_absorption_factor",
+    [("YMeKrvaslqwd 12/20kV 3x240 Alrm + as50", 76.4, 0.4), ("GPLK 10/10 kV 3x185 Al", 67.0, 0.8)],
+)
+def test_cable_without_load_with_solar_radiation(
+    pipe_outer_diameter, pipe_absorption_factor, cable_id, cable_outer_diameter, cable_absorption_factor
+):
+    """Test a cable without load but with solar radiation."""
+    env = StaticEnvAir()
+    circuit_name = "test_circuit"
+
+    ambient_temperature = 30.0
+    solar_radiation_intensity = 100.0
+
+    pipe = (
+        PipeInputSchema(
+            outer_radius=pipe_outer_diameter / 2e3, material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air
+        )
+        if pipe_outer_diameter is not None
+        else None
+    )
+
+    env.add_circuit_from_cable_id(
+        CircuitInAirFromCableIdInputSchema(
+            cable_id=cable_id,
+            circuit_name=circuit_name,
+            circuit_type=CircuitType.Single,
+            pipe=pipe,
+        )
+    )
+
+    scenario = pd.DataFrame(
+        index=pd.timedelta_range("0 days", "240 hour", periods=10),
+        data={
+            "ambient_temperature": ambient_temperature,
+            f"load_{circuit_name}": 0.0,
+            "solar_radiation_intensity": solar_radiation_intensity,
+        },
+    )
+
+    model = ModelAir(env)
+
+    temperature_result = model.run(scenario, initial_state=None).result
+    sheath_temperature = temperature_result[circuit_name][CablePosition.Single][CableLayer.Sheath].iloc[-1]
+
+    assert sheath_temperature > ambient_temperature
+
+    Z, C_G, E = (0.21, 0.60, 3.94)
+    D_e = pipe_outer_diameter / 1e3 if pipe_outer_diameter is not None else cable_outer_diameter / 1e3
+    h = Z / D_e**C_G + E
+
+    T_4 = 1 / (np.pi * D_e * h * (sheath_temperature - ambient_temperature) ** (1 / 4))
+
+    W_dissipation = (sheath_temperature - ambient_temperature) / T_4
+
+    expected_absorption_factor = (
+        pipe_absorption_factor if pipe_absorption_factor is not None else cable_absorption_factor
+    )
+    assert pytest.approx(W_dissipation) == expected_absorption_factor * D_e * solar_radiation_intensity
