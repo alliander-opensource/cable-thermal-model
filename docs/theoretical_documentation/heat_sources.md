@@ -30,7 +30,7 @@ When dealing with alternating currents, the alternating magnetic field induces c
 In Cable Thermal Model we distribute the heat generation evenly across a cable layer. For a specific cable layer (typically the conductor or screen) this means that
 
 $$
-W_{int, i} = P/A_{layer}\,\text{ for each } i \text { inside the cable layer.}
+W_{int, i} = P_{layer}/A_{layer}\,\text{ for each } i \text { inside the cable layer.}
 $$
 Here $A_{layer}$ denotes the surface area of the cable layer and $W_{int}$ denotes the internal heating vector, see [Finite difference method](./finite_difference.md).
 
@@ -57,7 +57,7 @@ We use an example to illustrate the algorithm that we are using a 1-dimensional 
 
 ### Step 1. Internal heating
 
-We first consider the two cables separately and calculate the temperature of the cables and the surrounding soil according to method explained on [Finite difference method](./theoretical_documentation/finite_difference.md). Let $s'_A(r)$ and $s'_B(r)$ denote the solutions at radius $r$ of cables A and B respectively.
+We first consider the two cables separately and calculate the temperature of the cables and the surrounding soil according to method explained on [Finite difference method](./finite_difference.md). Let $\theta'_A(r)$ and $\theta'_B(r)$ denote the solutions at radius $r$ of cables A and B respectively.
 
 ### Step 2. Mutual heating and mirror cables
 
@@ -66,22 +66,25 @@ In the second step we truncate each cable so that only the gridpoints internal t
 <div class="center-drawio" markdown="1">![](../assets/mutual-heating-mirrored.drawio)</div>
 
 We then solve a system of linear equations for a second time, but for the truncated cable instead.
-This second solve does not include any internal heat generation (so $W_{int}=0$), but does use a different outer boundary condition. Instead of setting it to zero, which would correspond to the ambient temperature, we use the solution from Step 1 of cable B at distance $d$. Note that in reality, the temperature of cable B at the sheath of cable A will be higher at points on the sheath that are closer to cable B and lower at points that are further away from cable B. However, the temperature at distance $d$ provides a good average and is also used by the IEC norms implementing mutual heating.
+This second solve does not include any internal heat generation (so $W_{int}=0$).
+Furthermore, at the cable boundary, the boundary of the truncated domain, the temperature does not necessarily correspond to the ambient temperature.
+We have to use a different outer boundary condition instead.
+Instead of setting it to zero, which would correspond to the ambient temperature, we use the solution from Step 1 of cable B at distance $d$. Note that in reality, the temperature of cable B at the sheath of cable A will be higher at points on the sheath that are closer to cable B and lower at points that are further away from cable B. However, the temperature at distance $d$ provides a good average and is also used by the IEC norms implementing mutual heating.
 
 To further compensate for the fact that we assume the the temperature of the ground surface equals the ambient temperature, we _substract_ the solutions from Step 1 of cable A and cable B at distances $d_{A,A'}$ and $d_{A,B'}$  respectively. The boundary condition is thus given by
 
 $$
-s'_{B}(r)-s'_{A}(d_{A,A'})-s'_{B}(d_{A,B'})\,.
+\theta'_{B}(d)-\theta'_{A}(d_{A,A'})-\theta'_{B}(d_{A,B'})\,.
 $$
 
-We repeat this calculation for cable B, resulting in _mutual heating solutions_ $s''_{A}(r)$ and $s''_B(r)$, for $r$ less than the respective cable radii.
+We repeat this calculation for cable B, resulting in _mutual heating solutions_ $\theta''_{A}(r)$ and $\theta''_B(r)$, for $r$ less than the respective cable radii.
 
 ### Step 3. Add the results
 
 Finally, we add the solutions of Step 1 and Step 2 to the ambient temperature $T_{amb}$ to obtain the final solution. For instance, for cable A we get the solution
 
 $$
-s_A(r) = s'_A(r) + s''_A(r) + T_{amb}\,,
+T_A(r) = \theta'_A(r) + \theta''_A(r) + T_{amb}\,,
 $$
 
 for $r$ less than the radius of cable A.
