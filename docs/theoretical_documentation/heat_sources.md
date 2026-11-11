@@ -32,7 +32,7 @@ In Cable Thermal Model we distribute the heat generation evenly across a cable l
 $$
 W_{int, i} = P/A_{layer}\,\text{ for each } i \text { inside the cable layer.}
 $$
-Here $A_{layer}$ denotes the surface area of the cable layer and $W_{int}$ denotes the internal heating vector, see [Finite difference method](./theoretical_documentation/finite_difference.md).
+Here $A_{layer}$ denotes the surface area of the cable layer and $W_{int}$ denotes the internal heating vector, see [Finite difference method](./finite_difference.md).
 
 > **_NOTE:_** Here we use the surface area of the layer as modelled in CTM, instead of the equivalent surface area used to calculate the heat generation for conductors mentioned above. If $r_{inner}$ and $r_{outer}$ denote the inner and outer radius of the cable layer, the area is thus given by $ A_{layer} = \pi(r_{outer}^2-r_{inner}^2)$.
 
