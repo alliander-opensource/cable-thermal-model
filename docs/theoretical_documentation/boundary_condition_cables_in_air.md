@@ -38,11 +38,11 @@ $$
 W_{solar \ radiation} = \sigma D_e E_e
 $$
 
-$\sigma$ denotes the absorption coefficient of solar radiation and is provided for different cable surfaces in Table 4 of NEN-IEC 60287-2-1 (2023). $E_e$ is the intensity of solar radiation in W/m².
+Here, $\sigma$ is the solar radiation absorption coefficient. Values for different cable surfaces are listed in Table 4 of NEN-IEC 60287-2-1 (2023). The solar radiation intensity, $E_e$, is expressed in W/m².
 
 ### Boundary condition in the FD model
 
-At the boundary of the cable, there can not be any discontinuities. I.e. heat coming into the boundary (from the cable) has to leave the boundary to the environment. Heat transfer in the cable is merely assumed to be conduction:
+At the boundary of the cable, there can not be any discontinuities. I.e. heat coming into the boundary (from the cable) has to leave the boundary to the environment. Thus:
 
 $$
 \frac{-2\pi r_n}{\rho_n}\frac{\partial \theta}{\partial r}\bigg|_{r=r_n} = \frac{\theta_n}{T_4} - \sigma D_e E_e
@@ -66,8 +66,8 @@ We can now add an equation to the matrix to solve for $\theta_n$ with
 
 $$
 \begin{align*}
-\beta_n &= -\frac{2\pi}{S_n} \bigg[r_n h \theta_n^{1/4} + \frac{r_n^-}{\rho_n^-\Delta r_{n-1}}\bigg],\\
-\gamma_n &= \frac{2\pi}{S_n} \frac{r_n^-}{\rho_n^-\Delta r_{n-1}}.
+\gamma_n &= \frac{2\pi}{S_n} \frac{r_n^-}{\rho_n^-\Delta r_{n-1}},\\
+\beta_n &= -\frac{2\pi r_n h \theta_n^{1/4}}{S_n} - \gamma_n.
 \end{align*}
 $$
 
@@ -105,4 +105,4 @@ W_{int,n}
 \end{pmatrix}
 $$
 
-The $\theta_n^{1/4}$ term in $\beta_n$ is calculated iteratively within each timestep.
+As the $\beta_n$ term depends on $\theta_n$, this system of equations is not linear anymore. However, we do solve the system as a linear system of equations and iterate until $\beta_n$ stabilizes. The solution at the previous timestep of $\theta_n$ is taken as the initial guess at the first iteration.

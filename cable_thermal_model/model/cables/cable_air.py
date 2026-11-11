@@ -80,24 +80,17 @@ class CableAir(Cable):
         materials_df = read_material_properties().apply(pd.to_numeric)
         layer_material = self.layer_properties[self.layers[-1]].material
 
-        absorption_coefficient_found = False
-
         try:
             absorption_coefficient = materials_df.at[
                 layer_material.value,
                 "absorption coefficient of solar radiation",
             ]
             if not pd.isna(absorption_coefficient):
-                absorption_coefficient_found = True
+                return pd.to_numeric(absorption_coefficient)
         except KeyError:
             pass
 
-        if not absorption_coefficient_found:
-            raise ValueError(
-                f"Absorption coefficient for solar radiation for material {layer_material.value} not found."
-            )
-
-        return pd.to_numeric(absorption_coefficient)
+        raise ValueError(f"Absorption coefficient for solar radiation for material {layer_material.value} not found.")
 
     def _get_absorption_coefficient(self) -> float:
         """Retrieve the absorption coefficient for the cable.

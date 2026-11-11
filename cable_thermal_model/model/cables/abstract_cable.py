@@ -82,7 +82,7 @@ class CableLayerProperties(BaseModel):
     This dataclass holds the physical properties for a single cable layer.
 
     Attributes:
-        layer (CableLayer): The type of cable layer this object represents.
+        material (Material): The material of the cable layer.
         inner_radius (float): The inner radius of the cable layer (in meters).
         outer_radius (float): The outer radius of the cable layer (in meters).
         rho (float): The thermal resistivity value of the layer (in mK/W).
