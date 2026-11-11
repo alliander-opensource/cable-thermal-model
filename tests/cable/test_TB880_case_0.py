@@ -22,12 +22,13 @@ from cable_thermal_model import (
     BondingType,
     CablePosition,
     CircuitType,
-    PipeFillType,
+    PipeFillMaterial,
     PipeInputSchema,
     StaticEnvSoil,
 )
 from cable_thermal_model.cable_configuration.cable_circuit import CableKey
 from cable_thermal_model.cable_configuration.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
+from cable_thermal_model.model.cables.enum_classes_cable import PipeMaterial
 from cable_thermal_model.validation.iec_60287_parameter_extractor import (
     IEC60287CableParameters,
     extract_iec_60287_parameters,
@@ -193,9 +194,10 @@ TEST_CASES = [
         name="ducts",
         bonding_type=BondingType.TwoSided,
         pipe=PipeInputSchema(
+            material=PipeMaterial.PE,
             inner_radius=0.0597,
             outer_radius=0.07,
-            fill_type=PipeFillType.Air,
+            fill_material=PipeFillMaterial.Air,
             sdr=13.6,
             trefoil_circuit_in_single_pipe=False,
         ),

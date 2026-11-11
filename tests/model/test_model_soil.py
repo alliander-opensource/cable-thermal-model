@@ -31,7 +31,7 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.abstract_model import ModelOutputSchema
 from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.cable_soil import CableSoil
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillMaterial, PipeMaterial
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import StateAir
 from cable_thermal_model.model.model_soil import ModelSoil, StateSoil
@@ -107,10 +107,9 @@ def test_model_steady_state_linear_circuit(
         assert np.isclose(vca_temp, ctm_temp, atol=max_absolute_temperature_error)
 
 
-def test_model_validate_steady_state(scenario_steady_state: pd.DataFrame):
+def test_model_validate_steady_state(scenario_steady_state_soil: pd.DataFrame):
     """Test whether the steady state solution matches the heat generation at different radii."""
     env = StaticEnvSoil()
-    load = 575.0
     env.add_circuit_from_cable_id(
         CircuitInSoilFromCableIdInputSchema(
             x=0.0,
@@ -120,10 +119,9 @@ def test_model_validate_steady_state(scenario_steady_state: pd.DataFrame):
             circuit_type=CircuitType.Trefoil,
         )
     )
-    scenario_steady_state["load_c1"] = load
 
     model = ModelSoil(env)
-    steady_state = model.run(scenario_steady_state).state
+    steady_state = model.run(scenario_steady_state_soil).state
 
     # Select a cable from the circuit
     cable_key = next(iter(model.cables_in_environment.keys()))
@@ -140,7 +138,7 @@ def test_model_validate_steady_state(scenario_steady_state: pd.DataFrame):
 
     # Calculate the heat generated in the conductor and screen
     heat_generation_conductor, heat_generation_screen = cable.get_heat_generation_conductor_and_screen(
-        load=load,
+        load=scenario_steady_state_soil["load_c1"].iloc[-1],
         conductor_temperature=conductor_temperature,
         screen_temperature=screen_temperature,
         temperature_dependent_electric_resistance=True,
@@ -231,21 +229,21 @@ def test_model_steady_state_vca(
 
 
 @pytest.mark.parametrize(
-    "rho,vca_temp,y,pipe_fill_type",
+    "rho,vca_temp,y,pipe_fill_material",
     [
-        (0.25, 35.5, -1.15, PipeFillType.Air),
-        (0.75, 58.0, -1.15, PipeFillType.Air),
-        (1.25, 82.3, -1.15, PipeFillType.Air),
-        (0.25, 26.5, -1, PipeFillType.Water),
-        (1.25, 71.9, -1, PipeFillType.Water),
-        (0.5, 58.0, -5, PipeFillType.Air),
-        (0.5, 50.1, -5, PipeFillType.Water),
-        (0.5, 55.8, -10, PipeFillType.Water),
-        (0.5, 65.1, -30, PipeFillType.Water),
+        (0.25, 35.5, -1.15, PipeFillMaterial.Air),
+        (0.75, 58.0, -1.15, PipeFillMaterial.Air),
+        (1.25, 82.3, -1.15, PipeFillMaterial.Air),
+        (0.25, 26.5, -1, PipeFillMaterial.Water),
+        (1.25, 71.9, -1, PipeFillMaterial.Water),
+        (0.5, 58.0, -5, PipeFillMaterial.Air),
+        (0.5, 50.1, -5, PipeFillMaterial.Water),
+        (0.5, 55.8, -10, PipeFillMaterial.Water),
+        (0.5, 65.1, -30, PipeFillMaterial.Water),
     ],
 )
 def test_model_steady_state_pipes_vca(
-    max_absolute_temperature_error: int, rho: float, y: float, vca_temp: float, pipe_fill_type: PipeFillType
+    max_absolute_temperature_error: int, rho: float, y: float, vca_temp: float, pipe_fill_material: PipeFillMaterial
 ):
     """Test Elst 4 situation.
 
@@ -268,7 +266,8 @@ def test_model_steady_state_pipes_vca(
             circuit_type=CircuitType.Trefoil,
             dist=0,
             pipe=PipeInputSchema(
-                fill_type=pipe_fill_type,
+                material=PipeMaterial.PE,
+                fill_material=pipe_fill_material,
                 inner_radius=0.045,
                 outer_radius=0.055,
             ),
@@ -283,7 +282,8 @@ def test_model_steady_state_pipes_vca(
             circuit_type=CircuitType.Trefoil,
             dist=0,
             pipe=PipeInputSchema(
-                fill_type=pipe_fill_type,
+                material=PipeMaterial.PE,
+                fill_material=pipe_fill_material,
                 inner_radius=0.045,
                 outer_radius=0.055,
             ),
@@ -738,7 +738,9 @@ def test_model_trefoil_in_single_pipe_two_configurations():
         ),
         CircuitConfigurationFromCableId(
             circuit_type=CircuitType.Trefoil,
-            pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+            pipe=PipeInputSchema(
+                material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+            ),
             length=1000,
             cable_id=cable_id,
         ),
@@ -764,7 +766,9 @@ def test_model_trefoil_in_single_pipe_two_configurations():
             cable_id=cable_id,
             circuit_type=CircuitType.Trefoil,
             bonding_type=BondingType.TwoSided,
-            pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+            pipe=PipeInputSchema(
+                material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+            ),
             multiple_configurations=multiple_configurations_from_cable_id,
         )
     )
@@ -783,7 +787,9 @@ def test_model_trefoil_in_single_pipe_three_configurations():
         ),
         CircuitConfigurationFromCableId(
             circuit_type=CircuitType.Trefoil,
-            pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+            pipe=PipeInputSchema(
+                material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+            ),
             length=1000,
             cable_id=cable_id,
         ),
@@ -817,7 +823,9 @@ def test_model_trefoil_in_single_pipe_three_configurations():
                 cable_id=cable_id,
                 circuit_type=CircuitType.Trefoil,
                 bonding_type=BondingType.TwoSided,
-                pipe=PipeInputSchema(fill_type=PipeFillType.Air, trefoil_circuit_in_single_pipe=True),
+                pipe=PipeInputSchema(
+                    material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air, trefoil_circuit_in_single_pipe=True
+                ),
                 multiple_configurations=multiple_configurations_from_cable_id,
             )
         )

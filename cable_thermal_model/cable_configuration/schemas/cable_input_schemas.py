@@ -575,14 +575,14 @@ class CableConstructionalInputSchema(BaseModel):
         return self.insulation_input
 
     @model_validator(mode="after")
-    def check_pvc_insulation_voltage_level(self):
+    def check_pvc_insulation_voltage_level(self) -> Self:
         """Check and update PVC sheath material based on insulation voltage level.
 
         If the nominal phase voltage of the insulation is 35 kV or higher and the sheath material is PVC,
         the sheath material is updated to PVC_above_35kV. This material has a higher thermal resistance.
 
         Returns:
-            self: The updated cable input schema instance.
+            CableConstructionalInputSchema: The updated cable input schema instance.
         """
         if (
             self.insulation_input.nominal_phase_voltage >= 35_000

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import numpy as np
+import pandas as pd
 
 from cable_thermal_model.model.cables.abstract_cable import (
     CableConductorProperties,
@@ -11,6 +12,7 @@ from cable_thermal_model.model.cables.abstract_cable import (
 )
 from cable_thermal_model.model.cables.cable import Cable
 from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableType
+from cable_thermal_model.utils.read_material_properties import read_material_properties
 
 
 class CableAir(Cable):
@@ -48,6 +50,7 @@ class CableAir(Cable):
         """
         self.convection_params: CableConvectionParams | None = None
         self.convection_coefficient: float | None = None
+        self.absorption_coefficient: float | None = None
         super().__init__(conductor, layer_properties, layer_metrics, cable_type, grid_counts)
 
     def _set_heating_vector(self) -> None:
@@ -68,6 +71,58 @@ class CableAir(Cable):
         """
         self.convection_params = CableConvectionParams(Z=Z, E=E, Cg=Cg)
         self.convection_coefficient = Z / (self.layer_metrics.outer_radius * 2) ** Cg + E
+
+    def _load_absorption_coefficient(self) -> float:
+        """Read the absorption coefficient for the cable.
+
+        This method reads the absorption coefficient based on the cable's properties.
+        """
+        materials_df = read_material_properties().apply(pd.to_numeric)
+        layer_material = self.layer_properties[self.layers[-1]].material
+
+        try:
+            absorption_coefficient = materials_df.at[
+                layer_material.value,
+                "absorption coefficient of solar radiation",
+            ]
+            if not pd.isna(absorption_coefficient):
+                return pd.to_numeric(absorption_coefficient)
+        except KeyError:
+            pass
+
+        raise ValueError(f"Absorption coefficient for solar radiation for material {layer_material.value} not found.")
+
+    def _get_absorption_coefficient(self) -> float:
+        """Retrieve the absorption coefficient for the cable.
+
+        Returns:
+            float: The absorption coefficient.
+
+        """
+        layer_material = self.layer_properties[self.layers[-1]].material
+        if self.absorption_coefficient is None or getattr(self, "_absorption_material", None) != layer_material:
+            self.absorption_coefficient = self._load_absorption_coefficient()
+            self._absorption_material = layer_material
+
+        return self.absorption_coefficient
+
+    def _add_solar_radiation_to_heating_vector(self, solar_radiation_intensity: float) -> None:
+        """Add the solar radiation contribution to the heating vector.
+
+        Args:
+            solar_radiation_intensity (float): The intensity of the solar radiation [W/m^2].
+        """
+        if solar_radiation_intensity > 0:
+            absorption_coefficient = self._get_absorption_coefficient()
+            self._heating_vector[-1] = (
+                absorption_coefficient
+                * solar_radiation_intensity
+                * 2
+                * self._radii_grid[-1]
+                / self._surface_area_grid[-1]
+            )
+        else:
+            self._heating_vector[-1] = 0
 
     def integrate_timestep(
         self,

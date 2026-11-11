@@ -21,16 +21,14 @@ from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInp
 from cable_thermal_model.environment.static_env_air import StaticEnvAir
 from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.cable_air import CableAir
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillType
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, PipeFillMaterial, PipeMaterial
 from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 from tests.conftest import vca_pipe_results
 
 
-def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: pd.DataFrame):
+def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state_soil: pd.DataFrame):
     """Test that a trefoil cable in a single pipe in soil behaves as expected."""
-    load = 575.0
-
     static_env = StaticEnvSoil()
     static_env.add_circuit_from_cable_id(
         CircuitInSoilFromCableIdInputSchema(
@@ -39,18 +37,19 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: pd.DataFrame):
             circuit_name="c1",
             cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Water, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Water,
+                outer_radius=0.1,
+                sdr=11,
+                trefoil_circuit_in_single_pipe=True,
             ),
             circuit_type=CircuitType.Trefoil,
         )
     )
 
-    # Add load to the scenario
-    scenario_steady_state["load_c1"] = load
-
     # Compute the steady state solution
     model = ModelFactory.create_model(static_env)
-    steady_state = model.run(scenario_steady_state).state
+    steady_state = model.run(scenario_steady_state_soil).state
 
     # Select a cable from the circuit
     cable_key = list(model.cables_in_environment.keys())[0]
@@ -67,7 +66,7 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: pd.DataFrame):
 
     # Calculate the heat generated in the conductor and screen
     heat_generation_conductor, heat_generation_screen = cable.get_heat_generation_conductor_and_screen(
-        load=load,
+        load=scenario_steady_state_soil["load_c1"].iloc[-1],
         conductor_temperature=conductor_temperature,
         screen_temperature=screen_temperature,
         temperature_dependent_electric_resistance=True,
@@ -92,7 +91,9 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state: pd.DataFrame):
     )
 
 
-def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: pd.DataFrame):
+def test_trefoil_in_single_pipe_in_air_compare_to_soil(
+    scenario_steady_state_soil: pd.DataFrame, scenario_steady_state_air: pd.DataFrame
+):
     """Compare trefoil circuits in single pipes in air and soil.
 
     When we ignore the effect of temperature-dependent resistance, the heat flow at the cable boundary should be
@@ -107,7 +108,11 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: pd
             circuit_name="c1",
             cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Air, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Air,
+                outer_radius=0.1,
+                sdr=11,
+                trefoil_circuit_in_single_pipe=True,
             ),
             circuit_type=CircuitType.Trefoil,
         )
@@ -119,25 +124,25 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: pd
             circuit_name="c1",
             cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Air, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Air,
+                outer_radius=0.1,
+                sdr=11,
+                trefoil_circuit_in_single_pipe=True,
             ),
             circuit_type=CircuitType.Trefoil,
         )
     )
 
-    # Add load to the scenario
-    load = 575.0
-    scenario_steady_state["load_c1"] = load
-
     run_options = {"temperature_dependent_electric_resistance": False}
 
     # Compute the steady state solution for both environments
     model_soil = ModelFactory.create_model(static_env_soil)
-    steady_state_soil = model_soil.run(scenario_steady_state, run_options=run_options).state
+    steady_state_soil = model_soil.run(scenario_steady_state_soil, run_options=run_options).state
 
     model_air = ModelFactory.create_model(static_env_air)
     steady_state_air = model_air.run(
-        scenario=scenario_steady_state.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"]),
+        scenario=scenario_steady_state_air,
         run_options=run_options,
     ).state
 
@@ -163,30 +168,27 @@ def test_trefoil_in_single_pipe_in_air_compare_to_soil(scenario_steady_state: pd
     assert np.isclose(heat_flow_soil, heat_flow_air, atol=0.1)
 
 
-def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: pd.DataFrame):
+def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state_air: pd.DataFrame):
     """Test that a trefoil cable in a single pipe in air behaves as expected."""
-    load = 575.0
-
     static_env = StaticEnvAir()
     static_env.add_circuit_from_cable_id(
         CircuitInAirFromCableIdInputSchema(
             circuit_name="c1",
             cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Air, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Air,
+                outer_radius=0.1,
+                sdr=11,
+                trefoil_circuit_in_single_pipe=True,
             ),
             circuit_type=CircuitType.Trefoil,
         )
     )
 
-    # Add load to the scenario
-    scenario_steady_state["load_c1"] = load
-
     # Compute the steady state solution
     model = ModelFactory.create_model(static_env)
-    steady_state = model.run(
-        scenario=scenario_steady_state.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"])
-    ).state
+    steady_state = model.run(scenario=scenario_steady_state_air).state
 
     # Select a cable from the circuit
     cable_key = CableKey(circuit_name="c1", cable_position=CablePosition.TrefoilCircuitInSinglePipe)
@@ -203,7 +205,7 @@ def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: pd.DataF
 
     # Calculate the heat generated in the conductor and screen
     heat_generation_conductor, heat_generation_screen = cable.get_heat_generation_conductor_and_screen(
-        load=load,
+        load=scenario_steady_state_air["load_c1"].iloc[-1],
         conductor_temperature=conductor_temperature,
         screen_temperature=screen_temperature,
         temperature_dependent_electric_resistance=True,
@@ -228,11 +230,14 @@ def test_trefoil_in_single_pipe_in_air_heat_flow(scenario_steady_state: pd.DataF
     )
 
 
-def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame):
+def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state_air: pd.DataFrame):
     """Test that a trefoil cable in a single pipe in air behaves as expected under standard operation."""
-    load = 575.0
     pipe_input_schema = PipeInputSchema(
-        fill_type=PipeFillType.Air, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+        material=PipeMaterial.PE,
+        fill_material=PipeFillMaterial.Air,
+        outer_radius=0.1,
+        sdr=11,
+        trefoil_circuit_in_single_pipe=True,
     )
 
     static_env = StaticEnvAir()
@@ -245,14 +250,9 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame)
         )
     )
 
-    # Add load to the scenario
-    scenario_steady_state["load_c1"] = load
-
     # Compute the steady state solution
     model = ModelFactory.create_model(static_env)
-    steady_state = model.run(
-        scenario=scenario_steady_state.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"])
-    ).state
+    steady_state = model.run(scenario=scenario_steady_state_air).state
 
     # Select a cable from the circuit
     cable_key = list(model.cables_in_environment.keys())[0]
@@ -274,7 +274,7 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame)
 
 @pytest.mark.parametrize(
     (
-        "cable_id, pipe_outer_radius, pipe_fill_type, load, "
+        "cable_id, pipe_outer_radius, pipe_fill_material, load, "
         "conductor_temperature, pipe_temperature, "
         "trefoil_circuit_in_single_pipe, cable_position"
     ),
@@ -282,7 +282,7 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame)
         (
             "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             0.055,
-            PipeFillType.Air,
+            PipeFillMaterial.Air,
             661.7,
             90.0,
             58.1,
@@ -293,7 +293,7 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame)
         (
             "YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             0.1,
-            PipeFillType.Water,
+            PipeFillMaterial.Water,
             575.0,
             56.0,
             38.7,
@@ -303,7 +303,7 @@ def test_trefoil_in_single_pipe_in_air_norm(scenario_steady_state: pd.DataFrame)
         (
             "YMeKrvaslqwd 12/20kV 3x240 Alrm + as50",
             0.080,
-            PipeFillType.Water,
+            PipeFillMaterial.Water,
             427.8,
             90.0,
             50.5,
@@ -317,7 +317,7 @@ def test_pipe_b5901_cases(
     max_absolute_temperature_error: float,
     cable_id: str,
     pipe_outer_radius: float,
-    pipe_fill_type: PipeFillType,
+    pipe_fill_material: PipeFillMaterial,
     load: float,
     conductor_temperature: float,
     pipe_temperature: float,
@@ -332,7 +332,8 @@ def test_pipe_b5901_cases(
     3. three-core cable, one 160mm water-filled pipe
     """
     pipe = PipeInputSchema(
-        fill_type=pipe_fill_type,
+        material=PipeMaterial.PE,
+        fill_material=pipe_fill_material,
         outer_radius=pipe_outer_radius,
         sdr=11,
         trefoil_circuit_in_single_pipe=trefoil_circuit_in_single_pipe,
@@ -360,7 +361,7 @@ def test_pipe_b5901_cases(
 
 
 @pytest.mark.parametrize(
-    "cable_id, pipe_outer_radius, sdr, pipe_fill_type, load, conductor_temperature, pipe_temperature",
+    "cable_id, pipe_outer_radius, sdr, pipe_fill_material, load, conductor_temperature, pipe_temperature",
     vca_pipe_results(),
 )
 def test_pipe_model_steady_state_vca(
@@ -368,7 +369,7 @@ def test_pipe_model_steady_state_vca(
     cable_id: str,
     pipe_outer_radius: float,
     sdr: float,
-    pipe_fill_type: PipeFillType,
+    pipe_fill_material: PipeFillMaterial,
     load: float,
     conductor_temperature: float,
     pipe_temperature: float,
@@ -377,7 +378,8 @@ def test_pipe_model_steady_state_vca(
     """Test that the pipe model matches the VCA results for a given cable and pipe configuration."""
     # Setup test environment
     pipe = PipeInputSchema(
-        fill_type=pipe_fill_type,
+        material=PipeMaterial.PE,
+        fill_material=pipe_fill_material,
         outer_radius=pipe_outer_radius,
         sdr=sdr,
     )
@@ -407,8 +409,6 @@ def test_pipe_model_steady_state_vca(
 def test_two_trefoil_circuits_in_single_pipes_vca(
     b5901_scenario_steady_state: pd.DataFrame, max_absolute_temperature_error: float
 ):
-    load = 575.0
-
     # Add two trefoil circuits in single pipes to the environment
     static_env = StaticEnvSoil()
     static_env.add_circuit_from_cable_id(
@@ -418,7 +418,11 @@ def test_two_trefoil_circuits_in_single_pipes_vca(
             circuit_name="c1",
             cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Water, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Water,
+                outer_radius=0.1,
+                sdr=11,
+                trefoil_circuit_in_single_pipe=True,
             ),
             circuit_type=CircuitType.Trefoil,
         )
@@ -430,15 +434,18 @@ def test_two_trefoil_circuits_in_single_pipes_vca(
             circuit_name="c2",
             cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
             pipe=PipeInputSchema(
-                fill_type=PipeFillType.Water, outer_radius=0.1, sdr=11, trefoil_circuit_in_single_pipe=True
+                material=PipeMaterial.PE,
+                fill_material=PipeFillMaterial.Water,
+                outer_radius=0.1,
+                sdr=11,
+                trefoil_circuit_in_single_pipe=True,
             ),
             circuit_type=CircuitType.Trefoil,
         )
     )
 
-    # Add load to the scenario
-    b5901_scenario_steady_state["load_c1"] = load
-    b5901_scenario_steady_state["load_c2"] = load
+    # Add load of second circuit to the scenario
+    b5901_scenario_steady_state["load_c2"] = b5901_scenario_steady_state["load_c1"]
 
     # Compute the steady state solution
     model = ModelFactory.create_model(static_env)

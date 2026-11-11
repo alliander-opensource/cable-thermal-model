@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
+from copy import deepcopy
+
 import numpy as np
 import pandas as pd
 import pytest
-from pandera.errors import SchemaErrors
+from pandera.errors import SchemaError, SchemaErrors
 
 from cable_thermal_model import CableLayer, CircuitType, ModelFactory, StaticEnvAir, StaticEnvSoil
 from cable_thermal_model.cable_configuration.cable_circuit import (
@@ -17,8 +19,11 @@ from cable_thermal_model.cable_configuration.schemas.circuit_schemas import (
     CircuitInAirFromCableIdInputSchema,
     CircuitInSoilFromCableIdInputSchema,
 )
+from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.model.cables.enum_classes_cable import PipeFillMaterial, PipeMaterial
 from cable_thermal_model.model.model_air import ModelAir, StateAir
 from cable_thermal_model.model.model_soil import StateSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelAir
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
 
@@ -52,6 +57,7 @@ def test_model_steady_state(
         data={
             "ambient_temperature": 30.0,
             "load_c": load,
+            "solar_radiation_intensity": 0.0,
         },
     )
 
@@ -89,7 +95,32 @@ def test_model_steady_state(
     assert np.isclose(total_heat_generation, heat_flow_for_sheath)
 
 
-def test_single_cable_in_air_compare_to_soil(scenario_steady_state: pd.DataFrame):
+def test_model_air_solar_radiation_increases_sheath_temperature(single_circuit_in_air_env, scenario_steady_state_air):
+    """Solar radiation in the scenario should increase the cable sheath temperature."""
+    scenario = deepcopy(scenario_steady_state_air)
+
+    def run_model(solar_radiation_intensity: float) -> float:
+        scenario["solar_radiation_intensity"] = solar_radiation_intensity
+
+        model = ModelAir(static_env=single_circuit_in_air_env)
+        solution = model.run(scenario)
+
+        return solution.result["c1"][CablePosition.TrefoilTop][CableLayer.Sheath].iloc[-1]
+
+    sheath_temp_0 = run_model(solar_radiation_intensity=0.0)
+    sheath_temp_100 = run_model(solar_radiation_intensity=100.0)
+    sheath_temp_1000 = run_model(solar_radiation_intensity=1000.0)
+
+    assert sheath_temp_1000 > sheath_temp_100 > sheath_temp_0
+    assert pytest.approx(sheath_temp_0, abs=1e-1) == 50.6
+    assert pytest.approx(sheath_temp_100, abs=1e-1) == 52.2
+    assert pytest.approx(sheath_temp_1000, abs=1e-1) == 66.0
+
+
+def test_single_cable_in_air_compare_to_soil(
+    scenario_steady_state_soil: pd.DataFrame,
+    scenario_steady_state_air: pd.DataFrame,
+):
     """Compare single cables in air and soil.
 
     When we ignore the effect of temperature-dependent resistance, the heat flux at the cable boundary should be
@@ -116,20 +147,16 @@ def test_single_cable_in_air_compare_to_soil(scenario_steady_state: pd.DataFrame
         )
     )
 
-    # Add load to the scenario
-    load = 575.0
-    scenario_steady_state["load_c1"] = load
-
     # Compute the steady state solution for both environments
     model_soil = ModelFactory.create_model(static_env_soil)
     steady_state_soil = model_soil.run(
-        scenario_steady_state,
+        scenario_steady_state_soil,
         run_options={"temperature_dependent_electric_resistance": False},
     ).state
 
     model_air = ModelFactory.create_model(static_env_air)
     steady_state_air = model_air.run(
-        scenario_steady_state.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"]),
+        scenario_steady_state_air,
         run_options={"temperature_dependent_electric_resistance": False},
     ).state
 
@@ -200,6 +227,20 @@ def test_model_air_validate_scenario_raises_for_unused_soil_columns(single_circu
         model.run(scenario)
 
 
+def test_scenario_model_air_rejects_negative_solar_radiation():
+    """Solar radiation intensity must be non-negative."""
+    scenario = pd.DataFrame(
+        index=pd.timedelta_range("0 days", "1 hour", periods=2),
+        data={
+            "ambient_temperature": 30.0,
+            "solar_radiation_intensity": -1.0,
+        },
+    )
+
+    with pytest.raises(SchemaError):
+        ScenarioModelAir.validate(scenario)
+
+
 def test_model_air_validate_state(single_core_cable_xlpe):
     """Test the _validate_state method of ModelAir."""
     # Create a minimal ModelAir instance for testing
@@ -215,7 +256,7 @@ def test_model_air_validate_state(single_core_cable_xlpe):
 
     scenario = pd.DataFrame(
         index=pd.timedelta_range("0 days", "1 hour", periods=2),
-        data={"ambient_temperature": 30.0, f"load_{circuit_name}": 100.0},
+        data={"ambient_temperature": 30.0, f"load_{circuit_name}": 100.0, "solar_radiation_intensity": 0.0},
     )
 
     model = ModelAir(env)
@@ -261,3 +302,65 @@ def test_use_wrong_static_env_type():
         ),
     ):
         ModelAir(static_env=StaticEnvSoil())
+
+
+@pytest.mark.parametrize("pipe_outer_diameter,pipe_absorption_factor", [(None, None), (110.0, 0.4)])
+@pytest.mark.parametrize(
+    "cable_id,cable_outer_diameter,cable_absorption_factor",
+    [("YMeKrvaslqwd 12/20kV 3x240 Alrm + as50", 76.4, 0.4), ("GPLK 10/10 kV 3x185 Al", 67.0, 0.8)],
+)
+def test_cable_without_load_with_solar_radiation(
+    pipe_outer_diameter, pipe_absorption_factor, cable_id, cable_outer_diameter, cable_absorption_factor
+):
+    """Test a cable without load but with solar radiation."""
+    env = StaticEnvAir()
+    circuit_name = "test_circuit"
+
+    ambient_temperature = 30.0
+    solar_radiation_intensity = 100.0
+
+    pipe = (
+        PipeInputSchema(
+            outer_radius=pipe_outer_diameter / 2e3, material=PipeMaterial.PE, fill_material=PipeFillMaterial.Air
+        )
+        if pipe_outer_diameter is not None
+        else None
+    )
+
+    env.add_circuit_from_cable_id(
+        CircuitInAirFromCableIdInputSchema(
+            cable_id=cable_id,
+            circuit_name=circuit_name,
+            circuit_type=CircuitType.Single,
+            pipe=pipe,
+        )
+    )
+
+    scenario = pd.DataFrame(
+        index=pd.timedelta_range("0 days", "240 hour", periods=10),
+        data={
+            "ambient_temperature": ambient_temperature,
+            f"load_{circuit_name}": 0.0,
+            "solar_radiation_intensity": solar_radiation_intensity,
+        },
+    )
+
+    model = ModelAir(env)
+
+    temperature_result = model.run(scenario, initial_state=None).result
+    sheath_temperature = temperature_result[circuit_name][CablePosition.Single][CableLayer.Sheath].iloc[-1]
+
+    assert sheath_temperature > ambient_temperature
+
+    Z, C_G, E = (0.21, 0.60, 3.94)
+    D_e = pipe_outer_diameter / 1e3 if pipe_outer_diameter is not None else cable_outer_diameter / 1e3
+    h = Z / D_e**C_G + E
+
+    T_4 = 1 / (np.pi * D_e * h * (sheath_temperature - ambient_temperature) ** (1 / 4))
+
+    W_dissipation = (sheath_temperature - ambient_temperature) / T_4
+
+    expected_absorption_factor = (
+        pipe_absorption_factor if pipe_absorption_factor is not None else cable_absorption_factor
+    )
+    assert pytest.approx(W_dissipation) == expected_absorption_factor * D_e * solar_radiation_intensity

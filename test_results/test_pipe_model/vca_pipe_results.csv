@@ -1,4 +1,4 @@
-cable_type,pipe_fill_type,pipe_outer_radius,sdr,current,conductor_temperature,sheath_temperature,pipe_temperature
+cable_type,pipe_fill_material,pipe_outer_radius,sdr,current,conductor_temperature,sheath_temperature,pipe_temperature
 YMeKrvaslqwd 12/20kV 1x630 Alrm + as50,water,55,11,748.3, 90.0, 76.7, 68.4
 YMeKrvaslqwd 12/20kV 1x630 Alrm + as50,water,55,17.6,759.0,90.0,76.3,69.9
 YMeKrvaslqwd 12/20kV 1x630 Alrm + as50,water,62.5,11, 746.4, 90.0, 76.6, 68.0

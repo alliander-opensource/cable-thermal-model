@@ -99,6 +99,7 @@ nav:
       - Finite difference method:
         - Overview: theoretical_documentation/finite_difference.md
         - Heat sources: theoretical_documentation/heat_sources.md
+        - Boundary condition for cables in air: theoretical_documentation/boundary_condition_cables_in_air.md
       - Stateful computations: theoretical_documentation/stateful_computations.md
 
 plugins:

@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from cable_thermal_model.cable_configuration.schemas.pipe_schemas import PipeInputSchema
+from cable_thermal_model.utils.read_material_properties import read_material_properties
 
 
 class Pipe:
@@ -28,13 +29,28 @@ class Pipe:
         path = Path(__file__).parent.parent.parent.parent.resolve()
         self.outer_radius_cable = outer_radius_cable
         self.sdr = pipe_input.sdr
-        self.fill_mat_df = (
+        self.fill_type = pipe_input.fill_material
+
+        filling_materials_df = (
             pd.read_csv(path / "data" / "pipe_filling_material_properties.csv", sep=";")
             .set_index("material")
-            .loc[pipe_input.fill_type]
+            .apply(pd.to_numeric)
         )
 
-        self.pipe_fill_cap = float(self.fill_mat_df["volumetric specific heat"])  # type: ignore[arg-type]
+        self.convection_parameters = (
+            filling_materials_df.at[self.fill_type, "U"],
+            filling_materials_df.at[self.fill_type, "V"],
+            filling_materials_df.at[self.fill_type, "Y"],
+        )
+
+        self.fill_thermal_capacity = filling_materials_df.at[self.fill_type, "volumetric specific heat"]
+
+        materials_df = read_material_properties().apply(pd.to_numeric)
+
+        self.material = pipe_input.material
+        self.thermal_resistivity = materials_df.at[self.material.value, "thermal resistivity"]
+        self.thermal_capacity = materials_df.at[self.material.value, "volumetric specific heat"]
+
         self.trefoil_circuit_in_single_pipe = pipe_input.trefoil_circuit_in_single_pipe
 
         self.radius_factor = 2 / np.sqrt(3) + 1 if self.trefoil_circuit_in_single_pipe else 1
@@ -146,9 +162,7 @@ class Pipe:
         """
         De = self.outer_radius_cable * self.radius_factor * 2e3
 
-        U = self.fill_mat_df["U"]
-        V = self.fill_mat_df["V"]
-        Y = self.fill_mat_df["Y"]
+        U, V, Y = self.convection_parameters
         T4 = U / (1 + 0.1 * (V + Y * T) * De)
 
         return T4
