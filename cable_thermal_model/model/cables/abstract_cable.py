@@ -807,7 +807,7 @@ class AbstractCable:
     def get_cable_screen_loss_factor(self, Ts: float, Tc: float) -> float:
         """Returns the screen loss factor for the cable.
 
-        THe screen loss factor describes the ratio
+        The screen loss factor describes the ratio
         of heat generated in the screen relative to the conductor.
 
         The screen loss factor describes what proportion of the heat

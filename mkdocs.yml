@@ -96,7 +96,9 @@ nav:
       - Measurement points: examples/measurement_points.ipynb
   - Theoretical Documentation:
       - The heat equation: theoretical_documentation/heat_equation.md
-      - Finite difference method: theoretical_documentation/finite_difference.md
+      - Finite difference method:
+        - Overview: theoretical_documentation/finite_difference.md
+        - Heat sources: theoretical_documentation/heat_sources.md
       - Stateful computations: theoretical_documentation/stateful_computations.md
 
 plugins:
