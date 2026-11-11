@@ -1,0 +1,1351 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Simulate thermal behavior of power and distribution cables." name="description"/>
+<meta content="Contributors to the Cable Thermal Model project" name="author"/>
+<link href="https://alliander-opensource.github.io/cable-thermal-model/theoretical_documentation/heat_sources/" rel="canonical"/>
+<link href="../finite_difference/" rel="prev"/>
+<link href="../stateful_computations/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.8.0" name="generator"/>
+<title>Heat sources - Cable Thermal Model</title>
+<link href="../../assets/stylesheets/main.57a0d79d.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.fb2fffe2.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../stylesheets/extra.css" rel="stylesheet"/>
+<link href="https://unpkg.com/katex@0.16.42/dist/katex.min.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#internal-heat-generation">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Cable Thermal Model" class="md-header__button md-logo" data-md-component="logo" href="../.." title="Cable Thermal Model">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.05 3.5a3.52 3.52 0 0 0 0 4.97l8.49 8.48c.58.59.58 1.55 0 2.12-.59.59-1.54.59-2.13 0l-4.24-4.24 1.06-1.06-3.53-3.54-.36.36-1.41-1.42a1.02 1.02 0 0 0-1.43 0l-1.4 1.42c-.39.41-.39 1.02 0 1.41l1.4 1.41-.34.36L6.7 17.3l1.06-1.06L12 20.5a3.53 3.53 0 0 0 4.95 0c1.37-1.38 1.37-3.6 0-4.96L8.46 7.05c-.58-.59-.58-1.55 0-2.12.59-.59 1.54-.59 2.13 0l4.24 4.24-1.06 1.06 3.53 3.54.36-.36 1.41 1.42c.39.39 1.03.39 1.43 0l1.4-1.42c.39-.41.39-1.02 0-1.41l-1.4-1.41.34-.36L17.3 6.7l-1.06 1.06L12 3.5a3.53 3.53 0 0 0-4.95 0m-4.24 7.79 1.41-1.41 1.42 1.41-1.42 1.42m14.14 0 1.42-1.42 1.41 1.42-1.41 1.41Z"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Cable Thermal Model
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Heat sources
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+</label>
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="light-blue" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="green" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to system preference" class="md-option" data-md-color-accent="light-blue" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="green" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to system preference">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 256 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/alliander-opensource/cable-thermal-model" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    alliander-opensource/cable-thermal-model
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Cable Thermal Model" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="Cable Thermal Model">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.05 3.5a3.52 3.52 0 0 0 0 4.97l8.49 8.48c.58.59.58 1.55 0 2.12-.59.59-1.54.59-2.13 0l-4.24-4.24 1.06-1.06-3.53-3.54-.36.36-1.41-1.42a1.02 1.02 0 0 0-1.43 0l-1.4 1.42c-.39.41-.39 1.02 0 1.41l1.4 1.41-.34.36L6.7 17.3l1.06-1.06L12 20.5a3.53 3.53 0 0 0 4.95 0c1.37-1.38 1.37-3.6 0-4.96L8.46 7.05c-.58-.59-.58-1.55 0-2.12.59-.59 1.54-.59 2.13 0l4.24 4.24-1.06 1.06 3.53 3.54.36-.36 1.41 1.42c.39.39 1.03.39 1.43 0l1.4-1.42c.39-.41.39-1.02 0-1.41l-1.4-1.41.34-.36L17.3 6.7l-1.06 1.06L12 3.5a3.53 3.53 0 0 0-4.95 0m-4.24 7.79 1.41-1.41 1.42 1.41-1.42 1.42m14.14 0 1.42-1.42 1.41 1.42-1.41 1.41Z"></path></svg>
+</a>
+    Cable Thermal Model
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/alliander-opensource/cable-thermal-model" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    alliander-opensource/cable-thermal-model
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    
+  
+    Welcome to Cable Thermal Model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Get Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Get Started
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../get_started/installation_and_overview/">
+<span class="md-ellipsis">
+    
+  
+    Installation and overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../get_started/model_input/">
+<span class="md-ellipsis">
+    
+  
+    Model input
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/">
+<span class="md-ellipsis">
+    
+  
+    cable_thermal_model
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    cable_thermal_model
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    cable_configuration
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_1_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    cable_configuration
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/cable_builder/">
+<span class="md-ellipsis">
+    
+  
+    cable_builder
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/cable_circuit/">
+<span class="md-ellipsis">
+    
+  
+    cable_circuit
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/cable_spec_parsers/">
+<span class="md-ellipsis">
+    
+  
+    cable_spec_parsers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_1_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_1_4" id="__nav_3_1_1_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    enums
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_1_4_label" class="md-nav" data-md-level="4">
+<label class="md-nav__title" for="__nav_3_1_1_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    enums
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/enums/circuit_enums/">
+<span class="md-ellipsis">
+    
+  
+    circuit_enums
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_1_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_1_5" id="__nav_3_1_1_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    schemas
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_1_5_label" class="md-nav" data-md-level="4">
+<label class="md-nav__title" for="__nav_3_1_1_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    schemas
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/cable_input_schemas/">
+<span class="md-ellipsis">
+    
+  
+    cable_input_schemas
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/cable_layer_input_schemas/">
+<span class="md-ellipsis">
+    
+  
+    cable_layer_input_schemas
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/circuit_schemas/">
+<span class="md-ellipsis">
+    
+  
+    circuit_schemas
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/cable_configuration/schemas/pipe_schemas/">
+<span class="md-ellipsis">
+    
+  
+    pipe_schemas
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    environment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_1_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    environment
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/environment/measurement_point/">
+<span class="md-ellipsis">
+    
+  
+    measurement_point
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/environment/static_env/">
+<span class="md-ellipsis">
+    
+  
+    static_env
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/environment/static_env_air/">
+<span class="md-ellipsis">
+    
+  
+    static_env_air
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/environment/static_env_soil/">
+<span class="md-ellipsis">
+    
+  
+    static_env_soil
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    model
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_3_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_1_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    model
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/abstract_model/">
+<span class="md-ellipsis">
+    
+  
+    abstract_model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_3_2" id="__nav_3_1_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    cables
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_3_2_label" class="md-nav" data-md-level="4">
+<label class="md-nav__title" for="__nav_3_1_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    cables
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/abstract_cable/">
+<span class="md-ellipsis">
+    
+  
+    abstract_cable
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable/">
+<span class="md-ellipsis">
+    
+  
+    cable
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable_air/">
+<span class="md-ellipsis">
+    
+  
+    cable_air
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable_soil/">
+<span class="md-ellipsis">
+    
+  
+    cable_soil
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/cable_trefoil_circuit_single_pipe/">
+<span class="md-ellipsis">
+    
+  
+    cable_trefoil_circuit_single_pipe
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/enum_classes_cable/">
+<span class="md-ellipsis">
+    
+  
+    enum_classes_cable
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/pipe/">
+<span class="md-ellipsis">
+    
+  
+    pipe
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/cables/type_guards/">
+<span class="md-ellipsis">
+    
+  
+    type_guards
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/model/">
+<span class="md-ellipsis">
+    
+  
+    model
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/model_air/">
+<span class="md-ellipsis">
+    
+  
+    model_air
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/model_factory/">
+<span class="md-ellipsis">
+    
+  
+    model_factory
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/model_soil/">
+<span class="md-ellipsis">
+    
+  
+    model_soil
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_3_7" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/schemas/">
+<span class="md-ellipsis">
+    
+  
+    schemas
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_3_1_3_7" id="__nav_3_1_3_7_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_3_7_label" class="md-nav" data-md-level="4">
+<label class="md-nav__title" for="__nav_3_1_3_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    schemas
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/schemas/model_input_schemas/">
+<span class="md-ellipsis">
+    
+  
+    model_input_schemas
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/schemas/model_output_schemas/">
+<span class="md-ellipsis">
+    
+  
+    model_output_schemas
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/schemas/run_options/">
+<span class="md-ellipsis">
+    
+  
+    run_options
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/model/schemas/state_schemas/">
+<span class="md-ellipsis">
+    
+  
+    state_schemas
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_4" id="__nav_3_1_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_4_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_1_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/utils/exceptions/">
+<span class="md-ellipsis">
+    
+  
+    exceptions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/utils/str_utils/">
+<span class="md-ellipsis">
+    
+  
+    str_utils
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_1_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_1_5" id="__nav_3_1_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    validation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_1_5_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_1_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    validation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/validation/cable_analysis/">
+<span class="md-ellipsis">
+    
+  
+    cable_analysis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api_reference/cable_thermal_model/validation/iec_60287_parameter_extractor/">
+<span class="md-ellipsis">
+    
+  
+    iec_60287_parameter_extractor
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Developer Guidelines
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer Guidelines
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../developer_guidelines/class_diagram/">
+<span class="md-ellipsis">
+    
+  
+    Class diagram
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../developer_guidelines/math_and_physics/">
+<span class="md-ellipsis">
+    
+  
+    Math and physics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../schemas/">
+<span class="md-ellipsis">
+    
+  
+    Schemas
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../developer_guidelines/workflows/">
+<span class="md-ellipsis">
+    
+  
+    Workflows
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/example_calculation/">
+<span class="md-ellipsis">
+    
+  
+    Example calculation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/build_cable_example/">
+<span class="md-ellipsis">
+    
+  
+    Building a cable object
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/external_heat_sources_example/">
+<span class="md-ellipsis">
+    
+  
+    External heat sources
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/measurement_points/">
+<span class="md-ellipsis">
+    
+  
+    Measurement Points
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Theoretical Documentation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Theoretical Documentation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../heat_equation/">
+<span class="md-ellipsis">
+    
+  
+    The heat equation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Finite difference method
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_6_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Finite difference method
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../finite_difference/">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Heat sources
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Heat sources
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#alternating-currents">
+<span class="md-ellipsis">
+      
+        Alternating currents
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heat-generation-in-cable-screen">
+<span class="md-ellipsis">
+      
+        Heat generation in cable screen
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-heat-to-cable-layers">
+<span class="md-ellipsis">
+      
+        Adding heat to cable layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#electrical-resistance">
+<span class="md-ellipsis">
+      
+        Electrical resistance
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stateful_computations/">
+<span class="md-ellipsis">
+    
+  
+    Stateful computations
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#alternating-currents">
+<span class="md-ellipsis">
+      
+        Alternating currents
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#heat-generation-in-cable-screen">
+<span class="md-ellipsis">
+      
+        Heat generation in cable screen
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-heat-to-cable-layers">
+<span class="md-ellipsis">
+      
+        Adding heat to cable layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#electrical-resistance">
+<span class="md-ellipsis">
+      
+        Electrical resistance
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<!--
+SPDX-FileCopyrightText: Contributors to the Cable Thermal Model project
+
+SPDX-License-Identifier: MPL-2.0
+-->
+<h1 id="internal-heat-generation">Internal heat generation</h1>
+<p>As a directed electrical current of magnitude <span class="arithmatex">\(I\)</span> passes through a power cable heat is generated in its conductor according to Ohm's law
+$$
+P = I^2R\,,
+$$
+where <span class="arithmatex">\(R\)</span> is the electrical resistance per meter (<span class="arithmatex">\(\Omega/m\)</span>) and <span class="arithmatex">\(P\)</span> denotes the heat loss per meter (<span class="arithmatex">\(W/m\)</span>).
+<span class="arithmatex">\(R\)</span> is calculated as
+$$
+R = \rho_{elec}/A_{nom}\,,
+$$
+where <span class="arithmatex">\(\rho_{elec}\)</span> (see <a href="#electrical-resistance">Electrical resistance</a>) is the <em>electrical resistance</em> of the conductor material and <span class="arithmatex">\(A_{nom}\)</span> is the nominal cross sectional area of the cable conductor as specified in the IEC-60228 norm <em>Conductors for insulated cables</em>.</p>
+<h3 id="alternating-currents">Alternating currents</h3>
+<p>In practice, we are dealing with AC currents instead of DC currents most of the time. Therefore we apply correction factors that take into account the alternating current skin and proximity effects. These corrections are based on the 60287-1-1 IEC norm Section 5.1.3 and Section 5.1.5 for the skin and proximity effect respectively.</p>
+<h3 id="heat-generation-in-cable-screen">Heat generation in cable screen</h3>
+<p>When dealing with alternating currents, the alternating magnetic field induces currents in the cable screen (when present). We model the heat loss in the cable screen as a fraction of the heat loss in the cable conductor. This fraction is specified in Section 5.3 by the 60287-1-1 IEC norm and depends on the geometry of the cable, the circuit configuration and the bonding type.</p>
+<h3 id="adding-heat-to-cable-layers">Adding heat to cable layers</h3>
+<p>In Cable Thermal Model we distribute the heat generation evenly across a cable layer. For a specific cable layer (typically the conductor or screen) this means that</p>
+<p>$$
+W_{int, i} = P_{layer}/A_{layer}\,\text{ for each } i \text { inside the cable layer.}
+$$
+Here <span class="arithmatex">\(A_{layer}\)</span> denotes the surface area of the cable layer and <span class="arithmatex">\(W_{int}\)</span> denotes the internal heating vector, see <a href="../finite_difference/">Finite difference method</a>.</p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> Here we use the surface area of the layer as modelled in CTM, instead of the equivalent surface area used to calculate the heat generation for conductors mentioned above. If <span class="arithmatex">\(r_{inner}\)</span> and <span class="arithmatex">\(r_{outer}\)</span> denote the inner and outer radius of the cable layer, the area is thus given by $ A_{layer} = \pi(r_{outer}^2-r_{inner}^2)$.</p>
+</blockquote>
+<h3 id="electrical-resistance">Electrical resistance</h3>
+<p>The electrical resistance <span class="arithmatex">\(\rho_{elec}\)</span> of the conductor material is dependent on the temperature and computed as
+$$
+\rho_{elec} = \rho_{20}\big(1+\alpha(T-20)\big)\,,
+$$
+where <span class="arithmatex">\(\alpha\)</span> denotes the <em>temperature coefficient</em> of the conductor material and <span class="arithmatex">\(\rho_{20}\)</span> is the electrical resistance of the conductor material at 20 °C. Both constants <span class="arithmatex">\(\alpha\)</span> and <span class="arithmatex">\(\rho_{20}\)</span> can be found in the <code>material_properties.csv</code> file inside the <code>data</code> directory.</p>
+<h1 id="external-heat-sources">External heat sources</h1>
+<p>As heat produced by a single cable dissipates through the ground, it also heats nearby cables. When modelling a 2-dimensional environment as a 2-dimensional grid, one can place all the heat sources in this grid and the heat equation automatically accounts for mutual heating of cables. However, in the implementation of Cable Thermal Model we use a 1-dimenional radial grid, which is only suitable for temperature changed which are radially symmetric. Of course, mutual heating of cables is not radially symmetric. Therefore, we approximate mutual heating using an algorithm that we describe below.</p>
+<h2 id="the-algorithm">The algorithm</h2>
+<p>We use an example to illustrate the algorithm that we are using a 1-dimensional approach to compensate for the fact that we are modelling a situation that is not radially symmetric. In the example we consider two cables A and B as depicted below.</p>
+<div class="center-drawio">
+<p><div class="mxgraph" data-mxgraph='{"toolbar-position": "bottom", "toolbar-nohide": "0", "tooltips": "1", "border": 5, "resize": "1", "edit": "_blank", "lightbox": "1", "toolbar": "pages tags zoom layers lightbox", "xml": "&lt;mxfile host=\"app.diagrams.net\"&gt;\n  &lt;diagram name=\"Pagina-1\" id=\"KeuP88Ucmyi0Sg7LaEjM\"&gt;\n    &lt;mxGraphModel dx=\"1849\" dy=\"530\" grid=\"1\" gridSize=\"10\" guides=\"1\" tooltips=\"1\" connect=\"1\" arrows=\"1\" fold=\"1\" page=\"1\" pageScale=\"1\" pageWidth=\"827\" pageHeight=\"1169\" math=\"0\" shadow=\"0\"&gt;\n      &lt;root&gt;\n        &lt;mxCell id=\"0\"/&gt;\n        &lt;mxCell id=\"1\" parent=\"0\"/&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-1\" parent=\"1\" style=\"rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"300\" width=\"750\" x=\"-40\" y=\"100\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-8\" connectable=\"0\" parent=\"1\" style=\"group\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"80\" width=\"80\" x=\"100\" y=\"260\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-3\" parent=\"DYtJmCBVCcO8pBjQKPg0-8\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"80\" width=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-4\" parent=\"DYtJmCBVCcO8pBjQKPg0-8\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"70\" width=\"70\" x=\"5\" y=\"5\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-5\" parent=\"DYtJmCBVCcO8pBjQKPg0-8\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"60\" width=\"60\" x=\"10\" y=\"10\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-7\" parent=\"DYtJmCBVCcO8pBjQKPg0-8\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"30\" width=\"30\" x=\"25\" y=\"25\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-9\" connectable=\"0\" parent=\"1\" style=\"group\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"80\" width=\"80\" x=\"460\" y=\"200\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-10\" parent=\"DYtJmCBVCcO8pBjQKPg0-9\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"80\" width=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-11\" parent=\"DYtJmCBVCcO8pBjQKPg0-9\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"70\" width=\"70\" x=\"5\" y=\"5\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-12\" parent=\"DYtJmCBVCcO8pBjQKPg0-9\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"60\" width=\"60\" x=\"10\" y=\"10\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-13\" parent=\"DYtJmCBVCcO8pBjQKPg0-9\" style=\"ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;\" value=\"\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"30\" width=\"30\" x=\"25\" y=\"25\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-15\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;\" value=\"Cable A\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"30\" width=\"60\" x=\"110\" y=\"225\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"DYtJmCBVCcO8pBjQKPg0-16\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;\" value=\"Cable B\" vertex=\"1\"&gt;\n          &lt;mxGeometry height=\"30\" width=\"60\" x=\"470\" y=\"160\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n      &lt;/root&gt;\n    &lt;/mxGraphModel&gt;\n  &lt;/diagram&gt;\n&lt;/mxfile&gt;"}' style="max-width:100%;border:1px solid transparent;"></div></p>
+</div>
+<h3 id="step-1-internal-heating">Step 1. Internal heating</h3>
+<p>We first consider the two cables separately and calculate the temperature of the cables and the surrounding soil according to method explained on <a href="../finite_difference/">Finite difference method</a>. Let <span class="arithmatex">\(\theta'_A(r)\)</span> and <span class="arithmatex">\(\theta'_B(r)\)</span> denote the solutions at radius <span class="arithmatex">\(r\)</span> of cables A and B respectively.</p>
+<h3 id="step-2-mutual-heating-and-mirror-cables">Step 2. Mutual heating and mirror cables</h3>
+<p>In the second step we truncate each cable so that only the gridpoints internal to the cable and a single soil gridpoint remain. Moreover, for each cable we consider a <em>mirror image</em> of that cable as if it were above the ground. Starting with cable A, we calculate all the distances to the other cables (now four in total) as depicted in the image below. See also Figure 1 in IEC norm 60287-2-1.</p>
+<div class="center-drawio">
+<p><div class="mxgraph" data-mxgraph="{&quot;toolbar-position&quot;: &quot;bottom&quot;, &quot;toolbar-nohide&quot;: &quot;0&quot;, &quot;tooltips&quot;: &quot;1&quot;, &quot;border&quot;: 5, &quot;resize&quot;: &quot;1&quot;, &quot;edit&quot;: &quot;_blank&quot;, &quot;lightbox&quot;: &quot;1&quot;, &quot;toolbar&quot;: &quot;pages tags zoom layers lightbox&quot;, &quot;xml&quot;: &quot;&lt;mxfile host=\&quot;app.diagrams.net\&quot;&gt;\n  &lt;diagram name=\&quot;Pagina-1\&quot; id=\&quot;KeuP88Ucmyi0Sg7LaEjM\&quot;&gt;\n    &lt;mxGraphModel dx=\&quot;2044\&quot; dy=\&quot;1800\&quot; grid=\&quot;1\&quot; gridSize=\&quot;10\&quot; guides=\&quot;1\&quot; tooltips=\&quot;1\&quot; connect=\&quot;1\&quot; arrows=\&quot;1\&quot; fold=\&quot;1\&quot; page=\&quot;1\&quot; pageScale=\&quot;1\&quot; pageWidth=\&quot;827\&quot; pageHeight=\&quot;1169\&quot; math=\&quot;0\&quot; shadow=\&quot;0\&quot;&gt;\n      &lt;root&gt;\n        &lt;mxCell id=\&quot;0\&quot;/&gt;\n        &lt;mxCell id=\&quot;1\&quot; parent=\&quot;0\&quot;/&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; connectable=\&quot;0\&quot; parent=\&quot;1\&quot; style=\&quot;group;flipH=0;legacyAnchorPoints=0;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;300\&quot; width=\&quot;750\&quot; x=\&quot;-30\&quot; y=\&quot;60\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-1\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; style=\&quot;rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;flipH=1;legacyAnchorPoints=0;flipV=0;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;300\&quot; width=\&quot;750\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-8\&quot; connectable=\&quot;0\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; style=\&quot;group;flipH=1;legacyAnchorPoints=0;flipV=0;rotation=360;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;80\&quot; width=\&quot;80\&quot; x=\&quot;140\&quot; y=\&quot;160\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-3\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-8\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;80\&quot; width=\&quot;80\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-4\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-8\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;70\&quot; width=\&quot;70\&quot; x=\&quot;5\&quot; y=\&quot;5\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-5\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-8\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;60\&quot; width=\&quot;60\&quot; x=\&quot;10\&quot; y=\&quot;10\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-7\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-8\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;30\&quot; x=\&quot;25\&quot; y=\&quot;25\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-9\&quot; connectable=\&quot;0\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; style=\&quot;group;flipH=1;legacyAnchorPoints=0;flipV=0;rotation=360;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;80\&quot; width=\&quot;80\&quot; x=\&quot;500\&quot; y=\&quot;100\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-10\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-9\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;80\&quot; width=\&quot;80\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-11\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-9\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;70\&quot; width=\&quot;70\&quot; x=\&quot;5\&quot; y=\&quot;5\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-12\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-9\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;60\&quot; width=\&quot;60\&quot; x=\&quot;10\&quot; y=\&quot;10\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-13\&quot; parent=\&quot;DYtJmCBVCcO8pBjQKPg0-9\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;30\&quot; x=\&quot;25\&quot; y=\&quot;25\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-15\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; style=\&quot;text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;flipH=1;legacyAnchorPoints=0;flipV=0;direction=east;\&quot; value=\&quot;Cable A\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;60\&quot; x=\&quot;150\&quot; y=\&quot;125\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;DYtJmCBVCcO8pBjQKPg0-16\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; style=\&quot;text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;flipH=1;legacyAnchorPoints=0;flipV=0;direction=east;\&quot; value=\&quot;Cable B\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;60\&quot; x=\&quot;510\&quot; y=\&quot;60\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-45\&quot; edge=\&quot;1\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; source=\&quot;DYtJmCBVCcO8pBjQKPg0-7\&quot; style=\&quot;endArrow=classic;startArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;\&quot; target=\&quot;DYtJmCBVCcO8pBjQKPg0-13\&quot; value=\&quot;\&quot;&gt;\n          &lt;mxGeometry height=\&quot;50\&quot; relative=\&quot;1\&quot; width=\&quot;50\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;260\&quot; y=\&quot;40\&quot; as=\&quot;sourcePoint\&quot;/&gt;\n            &lt;mxPoint x=\&quot;310\&quot; y=\&quot;-10\&quot; as=\&quot;targetPoint\&quot;/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-49\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-2\&quot; style=\&quot;text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;\&quot; value=\&quot;d\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;60\&quot; x=\&quot;345\&quot; y=\&quot;135\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-31\&quot; connectable=\&quot;0\&quot; parent=\&quot;1\&quot; style=\&quot;group;flipH=0;legacyAnchorPoints=0;flipV=1;fillColor=#cce5ff;strokeColor=#36393d;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;300\&quot; width=\&quot;750\&quot; x=\&quot;-30\&quot; y=\&quot;-240\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-32\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-31\&quot; style=\&quot;rounded=0;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#36393d;flipH=1;legacyAnchorPoints=0;flipV=0;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;300\&quot; width=\&quot;750\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-33\&quot; connectable=\&quot;0\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-31\&quot; style=\&quot;group;flipH=1;legacyAnchorPoints=0;flipV=0;rotation=360;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;105\&quot; width=\&quot;120\&quot; x=\&quot;140\&quot; y=\&quot;60\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-34\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-33\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;80\&quot; width=\&quot;80\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-35\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-33\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;70\&quot; width=\&quot;70\&quot; x=\&quot;5\&quot; y=\&quot;5\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-36\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-33\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;60\&quot; width=\&quot;60\&quot; x=\&quot;10\&quot; y=\&quot;10\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-37\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-33\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;30\&quot; x=\&quot;25\&quot; y=\&quot;25\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-43\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-33\&quot; style=\&quot;text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;flipH=1;legacyAnchorPoints=0;flipV=0;direction=east;\&quot; value=\&quot;Cable A'\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;60\&quot; x=\&quot;60\&quot; y=\&quot;75\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-38\&quot; connectable=\&quot;0\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-31\&quot; style=\&quot;group;flipH=1;legacyAnchorPoints=0;flipV=0;rotation=360;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;80\&quot; width=\&quot;80\&quot; x=\&quot;500\&quot; y=\&quot;120\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-39\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-38\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;80\&quot; width=\&quot;80\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-40\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-38\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;70\&quot; width=\&quot;70\&quot; x=\&quot;5\&quot; y=\&quot;5\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-41\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-38\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;60\&quot; width=\&quot;60\&quot; x=\&quot;10\&quot; y=\&quot;10\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-42\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-38\&quot; style=\&quot;ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;rotation=360;direction=east;\&quot; value=\&quot;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;30\&quot; x=\&quot;25\&quot; y=\&quot;25\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-44\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-31\&quot; style=\&quot;text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;flipH=1;legacyAnchorPoints=0;flipV=0;direction=east;\&quot; value=\&quot;Cable B'\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;60\&quot; x=\&quot;570\&quot; y=\&quot;190\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-50\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-31\&quot; style=\&quot;text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;\&quot; value=\&quot;d&amp;lt;sub&amp;gt;A,A'&amp;lt;/sub&amp;gt;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;60\&quot; x=\&quot;170\&quot; y=\&quot;250\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-66\&quot; parent=\&quot;h36nyDuMzlOeqOVMxPUo-31\&quot; style=\&quot;text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;\&quot; value=\&quot;d&amp;lt;sub&amp;gt;A,B'&amp;lt;/sub&amp;gt;\&quot; vertex=\&quot;1\&quot;&gt;\n          &lt;mxGeometry height=\&quot;30\&quot; width=\&quot;60\&quot; x=\&quot;440\&quot; y=\&quot;260\&quot; as=\&quot;geometry\&quot;/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-46\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot; style=\&quot;endArrow=classic;startArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;entryX=0.5;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;\&quot; target=\&quot;h36nyDuMzlOeqOVMxPUo-42\&quot; value=\&quot;\&quot;&gt;\n          &lt;mxGeometry height=\&quot;50\&quot; relative=\&quot;1\&quot; width=\&quot;50\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;150\&quot; y=\&quot;260\&quot; as=\&quot;sourcePoint\&quot;/&gt;\n            &lt;mxPoint x=\&quot;340\&quot; y=\&quot;70\&quot; as=\&quot;targetPoint\&quot;/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\&quot;h36nyDuMzlOeqOVMxPUo-47\&quot; edge=\&quot;1\&quot; parent=\&quot;1\&quot; style=\&quot;endArrow=classic;startArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;entryX=0.5;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;\&quot; target=\&quot;h36nyDuMzlOeqOVMxPUo-37\&quot; value=\&quot;\&quot;&gt;\n          &lt;mxGeometry height=\&quot;50\&quot; relative=\&quot;1\&quot; width=\&quot;50\&quot; as=\&quot;geometry\&quot;&gt;\n            &lt;mxPoint x=\&quot;150\&quot; y=\&quot;260\&quot; as=\&quot;sourcePoint\&quot;/&gt;\n            &lt;mxPoint x=\&quot;340\&quot; y=\&quot;70\&quot; as=\&quot;targetPoint\&quot;/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n      &lt;/root&gt;\n    &lt;/mxGraphModel&gt;\n  &lt;/diagram&gt;\n&lt;/mxfile&gt;&quot;}" style="max-width:100%;border:1px solid transparent;"></div></p>
+</div>
+<p>We then solve a system of linear equations for a second time, but for the truncated cable instead.
+This second solve does not include any internal heat generation (so <span class="arithmatex">\(W_{int}=0\)</span>).
+Furthermore, at the cable boundary, the boundary of the truncated domain, the temperature does not necessarily correspond to the ambient temperature.
+We have to use a different outer boundary condition instead.
+Instead of setting it to zero, which would correspond to the ambient temperature, we use the solution from Step 1 of cable B at distance <span class="arithmatex">\(d\)</span>. Note that in reality, the temperature of cable B at the sheath of cable A will be higher at points on the sheath that are closer to cable B and lower at points that are further away from cable B. However, the temperature at distance <span class="arithmatex">\(d\)</span> provides a good average and is also used by the IEC norms implementing mutual heating.</p>
+<p>To further compensate for the fact that we assume the the temperature of the ground surface equals the ambient temperature, we <em>substract</em> the solutions from Step 1 of cable A and cable B at distances <span class="arithmatex">\(d_{A,A'}\)</span> and <span class="arithmatex">\(d_{A,B'}\)</span>  respectively. The boundary condition is thus given by</p>
+<div class="arithmatex">\[
+\theta'_{B}(d)-\theta'_{A}(d_{A,A'})-\theta'_{B}(d_{A,B'})\,.
+\]</div>
+<p>We repeat this calculation for cable B, resulting in <em>mutual heating solutions</em> <span class="arithmatex">\(\theta''_{A}(r)\)</span> and <span class="arithmatex">\(\theta''_B(r)\)</span>, for <span class="arithmatex">\(r\)</span> less than the respective cable radii.</p>
+<h3 id="step-3-add-the-results">Step 3. Add the results</h3>
+<p>Finally, we add the solutions of Step 1 and Step 2 to the ambient temperature <span class="arithmatex">\(T_{amb}\)</span> to obtain the final solution. For instance, for cable A we get the solution</p>
+<div class="arithmatex">\[
+T_A(r) = \theta'_A(r) + \theta''_A(r) + T_{amb}\,,
+\]</div>
+<p>for <span class="arithmatex">\(r\)</span> less than the radius of cable A.</p>
+<h3 id="step-4-repeat">Step 4. Repeat.</h3>
+<p>The above steps are repeated for each timestep</p>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+<script src="../../javascripts/katex.js"></script>
+<script src="https://unpkg.com/katex@0.16.42/dist/katex.min.js"></script>
+<script src="https://unpkg.com/katex@0.16.42/dist/contrib/auto-render.min.js"></script>
+<script src="https://viewer.diagrams.net/js/viewer-static.min.js"></script></body>
+</html>

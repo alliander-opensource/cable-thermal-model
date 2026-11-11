@@ -1,0 +1,49 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Pagina-1" id="KeuP88Ucmyi0Sg7LaEjM">
+    <mxGraphModel dx="1849" dy="530" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="" vertex="1">
+          <mxGeometry height="300" width="750" x="-40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-8" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="80" width="80" x="100" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-3" parent="DYtJmCBVCcO8pBjQKPg0-8" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="80" width="80" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-4" parent="DYtJmCBVCcO8pBjQKPg0-8" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;" value="" vertex="1">
+          <mxGeometry height="70" width="70" x="5" y="5" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-5" parent="DYtJmCBVCcO8pBjQKPg0-8" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-7" parent="DYtJmCBVCcO8pBjQKPg0-8" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="25" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-9" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="80" width="80" x="460" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-10" parent="DYtJmCBVCcO8pBjQKPg0-9" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="80" width="80" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-11" parent="DYtJmCBVCcO8pBjQKPg0-9" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;" value="" vertex="1">
+          <mxGeometry height="70" width="70" x="5" y="5" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-12" parent="DYtJmCBVCcO8pBjQKPg0-9" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-13" parent="DYtJmCBVCcO8pBjQKPg0-9" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;fillColor=#eeeeee;strokeColor=#36393d;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="25" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-15" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Cable A" vertex="1">
+          <mxGeometry height="30" width="60" x="110" y="225" as="geometry" />
+        </mxCell>
+        <mxCell id="DYtJmCBVCcO8pBjQKPg0-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Cable B" vertex="1">
+          <mxGeometry height="30" width="60" x="470" y="160" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
