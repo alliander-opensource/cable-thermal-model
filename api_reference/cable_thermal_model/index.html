@@ -1799,6 +1799,34 @@
   
   
     <li class="md-nav__item">
+      <a href="utils/read_material_properties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    read_material_properties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="utils/str_utils/" class="md-nav__link">
         
   
@@ -2464,6 +2492,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theoretical_documentation/boundary_condition_cables_in_air/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Boundary condition for cables in air
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2704,10 +2760,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cable_thermal_model.PipeFillType" class="md-nav__link">
+  <a href="#cable_thermal_model.PipeFillMaterial" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PipeFillType
+        PipeFillMaterial
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cable_thermal_model.PipeMaterial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PipeMaterial
       
     </span>
   </a>
@@ -3769,10 +3836,10 @@ for the circuit in air, including a Cable instance.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>cable_thermal_model/model/cables/enum_classes_cable.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">soil_layers</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Return a list of all soil layers."""</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">layer</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">cls</span> <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Soil"</span><span class="p">)]</span>
@@ -3794,8 +3861,8 @@ for the circuit in air, including a Cable instance.</p>
 
 
 
-<h2 id="cable_thermal_model.PipeFillType" class="doc doc-heading">
-            <span class="doc doc-object-name doc-class-name">PipeFillType</span>
+<h2 id="cable_thermal_model.PipeFillMaterial" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">PipeFillMaterial</span>
 
 
 </h2>
@@ -3803,11 +3870,59 @@ for the circuit in air, including a Cable instance.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="enum.StrEnum">StrEnum</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="Material (cable_thermal_model.model.cables.enum_classes_cable.Material)" href="model/cables/enum_classes_cable/#cable_thermal_model.model.cables.enum_classes_cable.Material">Material</a></code></p>
 
 
 
         <p>Enum class for possible types of material filling the pipe surrounding a cable.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cable_thermal_model.PipeMaterial" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">PipeMaterial</span>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Material (cable_thermal_model.model.cables.enum_classes_cable.Material)" href="model/cables/enum_classes_cable/#cable_thermal_model.model.cables.enum_classes_cable.Material">Material</a></code></p>
+
+
+
+        <p>Enum class for possible materials of pipes.</p>
 
 
 

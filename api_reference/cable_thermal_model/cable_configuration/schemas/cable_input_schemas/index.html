@@ -2072,6 +2072,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../utils/read_material_properties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    read_material_properties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../utils/str_utils/" class="md-nav__link">
         
   
@@ -2724,6 +2752,34 @@
     
   
     Heat sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../theoretical_documentation/boundary_condition_cables_in_air/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Boundary condition for cables in air
   
 
     
@@ -5216,7 +5272,7 @@ schema.</p>
 
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="nf">check_pvc_insulation_voltage_level</span><span class="p">()</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">check_pvc_insulation_voltage_level</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="typing.Self">Self</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5236,7 +5292,8 @@ the sheath material is updated to PVC_above_35kV. This material has a higher the
       </thead>
       <tbody>
           <tr class="doc-section-item">
-<td><code>self</code></td>            <td>
+<td><code>CableConstructionalInputSchema</code></td>            <td>
+                  <code><span title="typing.Self">Self</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5266,14 +5323,14 @@ the sheath material is updated to PVC_above_35kV. This material has a higher the
 <span class="normal">590</span>
 <span class="normal">591</span>
 <span class="normal">592</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">check_pvc_insulation_voltage_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_pvc_insulation_voltage_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Check and update PVC sheath material based on insulation voltage level.</span>
 
 <span class="sd">    If the nominal phase voltage of the insulation is 35 kV or higher and the sheath material is PVC,</span>
 <span class="sd">    the sheath material is updated to PVC_above_35kV. This material has a higher thermal resistance.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        self: The updated cable input schema instance.</span>
+<span class="sd">        CableConstructionalInputSchema: The updated cable input schema instance.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">insulation_input</span><span class="o">.</span><span class="n">nominal_phase_voltage</span> <span class="o">&gt;=</span> <span class="mi">35_000</span>

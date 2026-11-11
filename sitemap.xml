@@ -141,6 +141,10 @@
          <lastmod>2026-11-11</lastmod>
     </url>
     <url>
+         <loc>https://alliander-opensource.github.io/cable-thermal-model/api_reference/cable_thermal_model/utils/read_material_properties/</loc>
+         <lastmod>2026-11-11</lastmod>
+    </url>
+    <url>
          <loc>https://alliander-opensource.github.io/cable-thermal-model/api_reference/cable_thermal_model/utils/str_utils/</loc>
          <lastmod>2026-11-11</lastmod>
     </url>
@@ -186,6 +190,10 @@
     </url>
     <url>
          <loc>https://alliander-opensource.github.io/cable-thermal-model/get_started/model_input/</loc>
+         <lastmod>2026-11-11</lastmod>
+    </url>
+    <url>
+         <loc>https://alliander-opensource.github.io/cable-thermal-model/theoretical_documentation/boundary_condition_cables_in_air/</loc>
          <lastmod>2026-11-11</lastmod>
     </url>
     <url>

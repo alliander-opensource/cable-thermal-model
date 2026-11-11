@@ -1890,6 +1890,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../utils/read_material_properties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    read_material_properties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../utils/str_utils/" class="md-nav__link">
         
   
@@ -2555,6 +2583,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../theoretical_documentation/boundary_condition_cables_in_air/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Boundary condition for cables in air
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3021,9 +3077,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>cable_thermal_model/model/cables/cable_air.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span>
@@ -3041,7 +3095,10 @@ of the sparse matrix used in convection boundary condition updates.</p>
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
-<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">conductor</span><span class="p">:</span> <span class="n">CableConductorProperties</span><span class="p">,</span>
     <span class="n">layer_properties</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CableLayer</span><span class="p">,</span> <span class="n">CableLayerProperties</span><span class="p">],</span>
@@ -3061,6 +3118,7 @@ of the sparse matrix used in convection boundary condition updates.</p>
 <span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_params</span><span class="p">:</span> <span class="n">CableConvectionParams</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">convection_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">absorption_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conductor</span><span class="p">,</span> <span class="n">layer_properties</span><span class="p">,</span> <span class="n">layer_metrics</span><span class="p">,</span> <span class="n">cable_type</span><span class="p">,</span> <span class="n">grid_counts</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
