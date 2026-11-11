@@ -2200,6 +2200,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api_reference/cable_thermal_model/utils/read_material_properties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    read_material_properties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api_reference/cable_thermal_model/utils/str_utils/" class="md-nav__link">
         
   
@@ -2852,6 +2880,34 @@
     
   
     Heat sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theoretical_documentation/boundary_condition_cables_in_air/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Boundary condition for cables in air
   
 
     
@@ -3540,8 +3596,15 @@ SPDX-License-Identifier: MPL-2.0
 <td>11.0</td>
 </tr>
 <tr>
-<td><code>fill_type</code></td>
-<td><code>PipeFillType</code></td>
+<td><code>material</code></td>
+<td><code>PipeMaterial</code></td>
+<td>-</td>
+<td>Material of the pipe itself</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><code>fill_material</code></td>
+<td><code>PipeFillMaterial</code></td>
 <td>-</td>
 <td>Material filling the pipe</td>
 <td>Required</td>
@@ -3559,16 +3622,14 @@ SPDX-License-Identifier: MPL-2.0
 <ul>
 <li><strong><code>Air</code></strong>: Air-filled pipe</li>
 <li><strong><code>Water</code></strong>: Water-filled pipe</li>
-<li><strong><code>Sand</code></strong>: Sand-filled pipe</li>
-<li><strong><code>Bentonite</code></strong>: Bentonite-filled pipe</li>
-<li><strong><code>ControlledLowStrengthMaterial</code></strong>: CLSM-filled pipe</li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeInputSchema</span><span class="p">,</span> <span class="n">PipeFillType</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeInputSchema</span><span class="p">,</span> <span class="n">PipeFillMaterial</span><span class="p">,</span> <span class="n">PipeMaterial</span>
 
 <span class="n">pipe</span> <span class="o">=</span> <span class="n">PipeInputSchema</span><span class="p">(</span>
     <span class="n">outer_radius</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>  <span class="c1"># 160 mm outer diameter</span>
-    <span class="n">fill_type</span><span class="o">=</span><span class="n">PipeFillType</span><span class="o">.</span><span class="n">Water</span><span class="p">,</span>
+    <span class="n">material</span><span class="o">=</span><span class="n">PipeMaterial</span><span class="o">.</span><span class="n">PE</span><span class="p">,</span>
+    <span class="n">fill_material</span><span class="o">=</span><span class="n">PipeFillMaterial</span><span class="o">.</span><span class="n">Water</span><span class="p">,</span>
     <span class="n">sdr</span><span class="o">=</span><span class="mf">11.0</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
