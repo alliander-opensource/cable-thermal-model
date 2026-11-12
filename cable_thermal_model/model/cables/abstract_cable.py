@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import logging
+from typing import Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,7 +15,8 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorSurfaceType,
     CableInsulationMaterial,
     CableLayer,
-    CableScreenLossType,
+    CableScreenCirculatingLossType,
+    CableScreenEddyLossType,
     CableType,
     Material,
 )
@@ -132,8 +134,10 @@ class CableLayerMetrics(BaseModel):
         conductor_distance (float): An optional float, applicable for situations with three conductors, where this
             value represents distance between the conductor centers.
         screen_cross_section (float | None): A float representing the cable screen's cross-section size.
-        screen_loss_type (CableScreenLossType | None): A CableScreenLossType object representing the type of screen
-            loss the cable has. This value is used to determine the proper method for calculating the screen loss.
+        screen_circulating_loss_type (CableScreenCirculatingLossType | None):  Method for calculating
+            circulating-current losses in the screen.
+        screen_eddy_loss_type (CableScreenEddyLossType | None): Method for calculating
+            eddy-current losses in the screen.
         armour_cross_section (float | None): A float representing the cross-section size of the cable's armour.
         diameter_over_stranded_conductors (float): A float representing the cable's diagonal spanning the conductors'
             outermost borders.
@@ -158,7 +162,8 @@ class CableLayerMetrics(BaseModel):
 
     # Screen
     screen_cross_section: float | None = Field(title="The cross-section of the earth screen layer")
-    screen_loss_type: CableScreenLossType | None = None
+    screen_circulating_loss_type: CableScreenCirculatingLossType | None = None
+    screen_eddy_loss_type: CableScreenEddyLossType | None = None
 
     # Armour
     armour_cross_section: float | None = Field(title="The cross-section of the armour layer")
@@ -670,6 +675,7 @@ class AbstractCable:
         screen_temperature: float,
         temperature_dependent_electric_resistance: bool,
         ac_current: bool,
+        measured_screen_current: float | None = None,
     ) -> tuple[float, float]:
         """Calculates the heat generation in the conductor based on the load and resistance.
 
@@ -681,6 +687,8 @@ class AbstractCable:
             conductor_temperature (float): The temperature of the conductor in degrees Celsius.
             screen_temperature (float): The temperature of the screen in degrees Celsius.
             temperature_dependent_electric_resistance (bool): Whether to use temperature-dependent electric resistance.
+            measured_screen_current (float | None): Optional RMS screen current in amperes,
+                replacing calculated circulating losses.
 
         Raises:
             ValueError:
@@ -691,6 +699,9 @@ class AbstractCable:
                 conductor and the screen respectively in W/m.
 
         """
+        if measured_screen_current is not None and not ac_current:
+            raise ValueError("Measured screen currents are not supported in DC mode.")
+
         heat_generation_conductor = self.get_heat_generation_conductor(
             ac_current=ac_current,
             load=load,
@@ -704,6 +715,7 @@ class AbstractCable:
                 screen_temperature=screen_temperature,
                 conductor_temperature=conductor_temperature,
                 temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
+                measured_screen_current=measured_screen_current,
             )
             if ac_current
             else 0.0
@@ -762,6 +774,7 @@ class AbstractCable:
         screen_temperature: float,
         conductor_temperature: float,
         temperature_dependent_electric_resistance: bool,
+        measured_screen_current: float | None = None,
     ) -> float:
         """Calculates the heat generation in the screen based on the conductor heat generation and screen loss factor.
 
@@ -772,19 +785,29 @@ class AbstractCable:
             screen_temperature (float): The temperature of the screen in degrees Celsius.
             conductor_temperature (float): The temperature of the conductor in degrees Celsius.
             temperature_dependent_electric_resistance (bool): Whether to use temperature-dependent electric resistance.
+            measured_screen_current (float | None): Optional RMS screen current in amperes.
+                None retains calculated circulating losses.
 
         Returns:
             float: The heat generation in the screen in W/m.
 
         """
-        return heat_generation_conductor * self.get_cable_screen_loss_factor(
-            Ts=screen_temperature
-            if temperature_dependent_electric_resistance
-            else ELECTRIC_RESISTANCE_REFERENCE_TEMPERATURE,
-            Tc=conductor_temperature
-            if temperature_dependent_electric_resistance
-            else ELECTRIC_RESISTANCE_REFERENCE_TEMPERATURE,
+        if not temperature_dependent_electric_resistance:
+            screen_temperature = ELECTRIC_RESISTANCE_REFERENCE_TEMPERATURE
+            conductor_temperature = ELECTRIC_RESISTANCE_REFERENCE_TEMPERATURE
+
+        if measured_screen_current is None:
+            circulating_heat = heat_generation_conductor * self.get_screen_circulating_loss_factor(
+                Ts=screen_temperature, Tc=conductor_temperature
+            )
+        else:
+            circulating_heat = measured_screen_current**2 * self._get_resistance_screen(Ts=screen_temperature)
+
+        eddy_heat = heat_generation_conductor * self.get_screen_eddy_loss_factor(
+            Ts=screen_temperature, Tc=conductor_temperature
         )
+
+        return circulating_heat + eddy_heat
 
     def _get_resistance_screen(self, Ts: float) -> float:
         """Computes the resistance for the screen, based on the screen temperature and known material properties.
@@ -806,43 +829,72 @@ class AbstractCable:
         )
 
     def get_cable_screen_loss_factor(self, Ts: float, Tc: float) -> float:
-        """Returns the screen loss factor for the cable.
+        """Return the combined circulating-current and eddy screen loss factor."""
+        return self.get_screen_circulating_loss_factor(Ts=Ts, Tc=Tc) + self.get_screen_eddy_loss_factor(Ts=Ts, Tc=Tc)
 
-        The screen loss factor describes the ratio
-        of heat generated in the screen relative to the conductor.
+    def get_screen_eddy_loss_factor(self, Ts: float, Tc: float) -> float:
+        """Return only the standards-derived eddy component of the screen loss factor.
 
-        The screen loss factor describes what proportion of the heat
-        generation in the conductor will be generated in the screen layer.
-        For example, if the factor is 0, no heat will be generated in the
-        screen layer by inductance. If the factor is 0.5 and 100 W/m is
-        generated in the conductor, then 50 W/m will be generated in the
-        screen.
-
-        Args:
-            Ts (float): The screen temperature in degrees Celsius.
-            Tc (float): The conductor temperature in degrees Celsius.
-
-        Returns:
-            float: Screen loss factor (ratio of loss in the screen relative to the conductor).
-
+        Bonding, geometry, and Milliken corrections retain their existing applicability.
+        The circulating-current calculation is not evaluated.
         """
-        if self.layer_metrics.screen_loss_type is None:
-            raise ValueError("Screen loss method is not set.")
-        screen_loss_function = getattr(self, self.layer_metrics.screen_loss_type.value)
-        return screen_loss_function(Tc, Ts)
+        match self.layer_metrics.screen_eddy_loss_type:
+            case CableScreenEddyLossType.Zero:
+                return 0.0
+            case CableScreenEddyLossType.RoundOrOvalWithScreen:
+                return self._get_screen_eddy_loss_round_or_oval(Tc=Tc, Ts=Ts)
+            case CableScreenEddyLossType.Sector:
+                return self._get_screen_eddy_loss_sector(Tc=Tc, Ts=Ts)
+            case CableScreenEddyLossType.Trefoil:
+                return self._get_screen_eddy_loss_trefoil(Tc=Tc, Ts=Ts)
+            case CableScreenEddyLossType.LinearLeading:
+                return self._get_screen_eddy_loss_linear_leading(Tc=Tc, Ts=Ts)
+            case CableScreenEddyLossType.LinearCenter:
+                return self._get_screen_eddy_loss_linear_center(Tc=Tc, Ts=Ts)
+            case CableScreenEddyLossType.LinearLagging:
+                return self._get_screen_eddy_loss_linear_lagging(Tc=Tc, Ts=Ts)
+            case CableScreenEddyLossType.TwoSidedTrefoil:
+                return self._get_screen_eddy_loss_two_sided_trefoil(Tc=Tc, Ts=Ts)
+            case CableScreenEddyLossType.TwoSidedLinearLeading:
+                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase="leading")
+            case CableScreenEddyLossType.TwoSidedLinearCenter:
+                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase="center")
+            case CableScreenEddyLossType.TwoSidedLinearLagging:
+                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase="lagging")
+            case CableScreenEddyLossType.GeneralizedTwoSided:
+                if self.conductor.surface_type == CableConductorSurfaceType.Milliken:
+                    raise NotImplementedError("Generalized screen loss not implemented for Milliken cables.")
+                return 0.0
+            case _:
+                raise ValueError("Screen eddy loss method is not set.")
 
-    @staticmethod
-    def _cable_screen_loss_method_return_zero(Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method used when no screen load calculations apply."""
-        _ = (Tc, Ts)  # Fix for unused parameters
-        return 0
+    def get_screen_circulating_loss_factor(self, Ts: float, Tc: float) -> float:
+        """Return the calculated circulating-current component of the screen loss factor."""
+        match self.layer_metrics.screen_circulating_loss_type:
+            case CableScreenCirculatingLossType.Zero:
+                return 0.0
+            case CableScreenCirculatingLossType.Trefoil:
+                return self._get_screen_circulating_loss_trefoil(Tc=Tc, Ts=Ts)
+            case CableScreenCirculatingLossType.LinearLeading:
+                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase="leading")
+            case CableScreenCirculatingLossType.LinearCenter:
+                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase="center")
+            case CableScreenCirculatingLossType.LinearLagging:
+                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase="lagging")
+            case CableScreenCirculatingLossType.GeneralizedLeading:
+                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase_idx=0)
+            case CableScreenCirculatingLossType.GeneralizedCenter:
+                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase_idx=1)
+            case CableScreenCirculatingLossType.GeneralizedLagging:
+                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase_idx=2)
+            case _:
+                raise ValueError("Screen circulating loss method is not set.")
 
-    def _cable_screen_loss_method_round_or_oval_with_screen(self, Tc: float, Ts: float) -> float:
+    def _get_screen_eddy_loss_round_or_oval(self, Tc: float, Ts: float) -> float:
         """The screen loss retrieval method for round or oval-shaped cables with a screen.
 
         Notes:
-            When no screen is present, the _cable_screen_loss_method_return_zero method is used, which is why there is
-            no version of this method ending with ..._without_screen.
+            When no screen is present, the zero eddy-loss case is selected instead.
 
         References:
             - NEN-IEC 60287-1-1 (2007) - [section 2.3.8]
@@ -855,7 +907,7 @@ class AbstractCable:
 
         return lambda1_eddy
 
-    def _cable_screen_loss_method_sector(self, Tc: float, Ts: float) -> float:
+    def _get_screen_eddy_loss_sector(self, Tc: float, Ts: float) -> float:
         """The screen loss retrieval method for sector-shaped cables.
 
         References:
@@ -889,7 +941,7 @@ class AbstractCable:
 
         return lambda1_eddy
 
-    def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_trefoil(self, Tc: float, Ts: float) -> float:
+    def _get_screen_eddy_loss_trefoil(self, Tc: float, Ts: float) -> float:
         """The screen loss retrieval method for cables with cross bonding or one-sided bonding. Trefoil version.
 
         References:
@@ -910,8 +962,8 @@ class AbstractCable:
 
         return lambda1_eddy
 
-    def _cable_screen_loss_method_two_sided_bonding_trefoil(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding. Trefoil version.
+    def _get_screen_circulating_loss_trefoil(self, Tc: float, Ts: float) -> float:
+        """Circulating-current loss for cables with two-sided bonding in trefoil.
 
         Notes:
             Electrical resistances are computed at operating temperature.
@@ -924,22 +976,50 @@ class AbstractCable:
         Rc = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
         Rs = self._get_resistance_screen(Ts)
 
-        lambda1 = Rs / Rc * 1 / (1 + (Rs / self.X) ** 2)
+        return Rs / Rc * 1 / (1 + (Rs / self.X) ** 2)
 
-        # For Milliken conductors, the lambda_1'' term described in section 5.3.1 of the NEN-IEC 60287-1-1 (2023)
-        # cannot be ignored and should be determined according to the method described in section 5.3.6.
-        if self.conductor.surface_type == CableConductorSurfaceType.Milliken:
-            lambda1_eddy = self._cable_screen_loss_method_cross_bonding_or_one_sided_bonding_trefoil(Tc=Tc, Ts=Ts)
-            CM1 = Rs / self.X
-            CF = type(self)._get_correction_factor_milliken(CM1=CM1, CN=CM1)
+    def _get_screen_eddy_loss_two_sided_trefoil(self, Tc: float, Ts: float) -> float:
+        """Apply the two-sided trefoil Milliken correction from IEC 60287-1-1:2023, section 5.3.6.
 
-            lambda1 += CF * lambda1_eddy
+        The base eddy calculation is evaluated only for Milliken conductors.
+        """
+        if self.conductor.surface_type != CableConductorSurfaceType.Milliken:
+            return 0.0
 
-        return lambda1
+        resistance_screen = self._get_resistance_screen(Ts)
+        cm1 = cn = resistance_screen / self.X
+        correction = type(self)._get_correction_factor_milliken(CM1=cm1, CN=cn)
 
-    def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(
-        self, Tc: float, Ts: float
+        return correction * self._get_screen_eddy_loss_trefoil(Tc=Tc, Ts=Ts)
+
+    def _get_screen_eddy_loss_two_sided_linear(
+        self, Tc: float, Ts: float, *, phase: Literal["leading", "center", "lagging"]
     ) -> float:
+        """Apply the two-sided linear Milliken correction from IEC 60287-1-1:2023, section 5.3.6.
+
+        The base eddy calculation is evaluated only for Milliken conductors.
+        """
+        if self.conductor.surface_type != CableConductorSurfaceType.Milliken:
+            return 0.0
+
+        match phase:
+            case "leading":
+                eddy_factor = self._get_screen_eddy_loss_linear_leading(Tc=Tc, Ts=Ts)
+            case "center":
+                eddy_factor = self._get_screen_eddy_loss_linear_center(Tc=Tc, Ts=Ts)
+            case "lagging":
+                eddy_factor = self._get_screen_eddy_loss_linear_lagging(Tc=Tc, Ts=Ts)
+            case _:
+                raise ValueError(f"Unknown phase: {phase}")
+
+        resistance_screen = self._get_resistance_screen(Ts)
+        cm1 = resistance_screen / (self.X + self.Xm)
+        cn = resistance_screen / (self.X - self.Xm / 3)
+        correction = type(self)._get_correction_factor_milliken(CM1=cm1, CN=cn)
+
+        return correction * eddy_factor
+
+    def _get_screen_eddy_loss_linear_leading(self, Tc: float, Ts: float) -> float:
         """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
 
         Linear version, conductor carrying the leading phase.
@@ -968,9 +1048,7 @@ class AbstractCable:
 
         return lambda1_eddy
 
-    def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_lagging(
-        self, Tc: float, Ts: float
-    ) -> float:
+    def _get_screen_eddy_loss_linear_lagging(self, Tc: float, Ts: float) -> float:
         """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
 
         Linear version, conductor carrying the lagging phase.
@@ -995,7 +1073,7 @@ class AbstractCable:
 
         return lambda1_eddy
 
-    def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_center(self, Tc: float, Ts: float) -> float:
+    def _get_screen_eddy_loss_linear_center(self, Tc: float, Ts: float) -> float:
         """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
 
         Linear version, center conductor.
@@ -1019,10 +1097,10 @@ class AbstractCable:
 
         return lambda1_eddy
 
-    def _cable_screen_loss_method_two_sided_bonding_linear_leading(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding.
-
-        Linear version, conductor carrying the leading phase.
+    def _get_screen_circulating_loss_linear(
+        self, Tc: float, Ts: float, *, phase: Literal["leading", "center", "lagging"]
+    ) -> float:
+        """Circulating-current loss for a phase in a two-sided linear arrangement.
 
         Notes:
             Lambda1 gives sheath losses relative to conductor losses in W/m.
@@ -1032,156 +1110,36 @@ class AbstractCable:
             - NEN-IEC 60287-1-1 (2007) - [section 2.3.3]
 
         """
-        Rc = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
-        Rs = self._get_resistance_screen(Ts)
+        resistance_conductor = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
+        resistance_screen = self._get_resistance_screen(Ts)
+        reactance_neutral = self.X - self.Xm / 3
+        neutral_term = reactance_neutral**2 / (resistance_screen**2 + reactance_neutral**2)
 
-        P = self.X + self.Xm
-        Q = self.X - self.Xm / 3
+        if phase == "center":
+            return resistance_screen / resistance_conductor * neutral_term
 
-        lambda1 = (
-            Rs
-            / Rc
-            * (
-                0.75 * P**2 / (Rs**2 + P**2)
-                + 0.25 * Q**2 / (Rs**2 + Q**2)
-                - 2 * Rs * P * Q * self.Xm / (3**0.5 * (Rs**2 + P**2) * (Rs**2 + Q**2))
-            )
+        reactance_positive = self.X + self.Xm
+        positive_term = reactance_positive**2 / (resistance_screen**2 + reactance_positive**2)
+        cross_term = (
+            2
+            * resistance_screen
+            * reactance_positive
+            * reactance_neutral
+            * self.Xm
+            / (3**0.5 * (resistance_screen**2 + reactance_positive**2) * (resistance_screen**2 + reactance_neutral**2))
         )
+        if phase == "leading":
+            cross_term = -cross_term
 
-        # For Milliken conductors, the lambda_1'' term described in section 5.3.1 of the NEN-IEC 60287-1-1 (2023)
-        # cannot be ignored and should be determined according to the method described in section 5.3.6.
-        if self.conductor.surface_type == CableConductorSurfaceType.Milliken:
-            lambda1_eddy = self._cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(
-                Tc=Tc, Ts=Ts
-            )
+        return resistance_screen / resistance_conductor * (0.75 * positive_term + 0.25 * neutral_term + cross_term)
 
-            CM1 = Rs / P
-            CN = Rs / Q
-            CF = type(self)._get_correction_factor_milliken(CM1=CM1, CN=CN)
-
-            lambda1 += CF * lambda1_eddy
-
-        return lambda1
-
-    def _cable_screen_loss_method_two_sided_bonding_linear_lagging(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding.
-
-        Linear version, conductor carrying the lagging phase.
-
-        Notes:
-            Lambda1 gives sheath losses relative to conductor losses in W/m.
-            Electrical resistances are computed at operating temperature.
-
-        References:
-            - NEN-IEC 60287-1-1 (2007) - [section 2.3.3]
-
-        """
-        Rc = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
-        Rs = self._get_resistance_screen(Ts)
-
-        P = self.X + self.Xm
-        Q = self.X - self.Xm / 3
-
-        lambda1 = (
-            Rs
-            / Rc
-            * (
-                0.75 * P**2 / (Rs**2 + P**2)
-                + 0.25 * Q**2 / (Rs**2 + Q**2)
-                + 2 * Rs * P * Q * self.Xm / (3**0.5 * (Rs**2 + P**2) * (Rs**2 + Q**2))
-            )
-        )
-
-        # For Milliken conductors, the lambda_1'' term described in section 5.3.1 of the NEN-IEC 60287-1-1 (2023)
-        # cannot be ignored and should be determined according to the method described in section 5.3.6.
-        if self.conductor.surface_type == CableConductorSurfaceType.Milliken:
-            lambda1_eddy = (
-                self._cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_lagging(Tc=Tc, Ts=Ts) ** 2
-            )
-
-            CM1 = Rs / P
-            CN = Rs / Q
-            CF = type(self)._get_correction_factor_milliken(CM1=CM1, CN=CN)
-
-            lambda1 += CF * lambda1_eddy
-
-        return lambda1
-
-    def _cable_screen_loss_method_two_sided_bonding_linear_center(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding.
-
-        Linear version, center conductor.
-
-        Notes:
-            Lambda1 gives sheath losses relative to conductor losses in W/m.
-            Electrical resistances are computed at operating temperature.
-
-        References:
-            - NEN-IEC 60287-1-1 (2007) - [section 2.3.3]
-
-        """
-        Rc = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
-        Rs = self._get_resistance_screen(Ts)
-
-        P = self.X + self.Xm
-        Q = self.X - self.Xm / 3
-
-        lambda1 = Rs / Rc * Q**2 / (Rs**2 + Q**2)
-
-        # For Milliken conductors, the lambda_1'' term described in section 5.3.1 of the NEN-IEC 60287-1-1 (2023)
-        # cannot be ignored and should be determined according to the method described in section 5.3.6.
-        if self.conductor.surface_type == CableConductorSurfaceType.Milliken:
-            lambda1_eddy = self._cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_center(Tc=Tc, Ts=Ts)
-
-            CM1 = Rs / P
-            CN = Rs / Q
-            CF = type(self)._get_correction_factor_milliken(CM1=CM1, CN=CN)
-
-            lambda1 += CF * lambda1_eddy
-
-        return lambda1
-
-    def _cable_screen_loss_method_two_sided_bonding_leading(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding.
-
-        Generalized version, leading phase.
-
-        References:
-            - NEN-IEC 60287-1-3
-
-        """
-        lambda1 = self._cable_screen_loss_method_two_sided_bonding(Tc=Tc, Ts=Ts, phase_idx=0)
-
-        return lambda1
-
-    def _cable_screen_loss_method_two_sided_bonding_center(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding.
-
-        Generalized version, center phase.
-
-        References:
-            - NEN-IEC 60287-1-3
-
-        """
-        lambda1 = self._cable_screen_loss_method_two_sided_bonding(Tc=Tc, Ts=Ts, phase_idx=1)
-
-        return lambda1
-
-    def _cable_screen_loss_method_two_sided_bonding_lagging(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding.
-
-        Generalized version, lagging phase.
-
-        References:
-            - NEN-IEC 60287-1-3
-
-        """
-        lambda1 = self._cable_screen_loss_method_two_sided_bonding(Tc=Tc, Ts=Ts, phase_idx=2)
-
-        return lambda1
-
-    def _cable_screen_loss_method_two_sided_bonding(self, Tc: float, Ts: float, phase_idx: int) -> float:
-        """The screen loss retrieval method for cables with two-sided bonding. Generalized version.
+    def _get_screen_circulating_loss_generalized(
+        self,
+        Tc: float,
+        Ts: float,
+        phase_idx: int,
+    ) -> float:
+        """Generalized circulating-current loss for cables with two-sided bonding.
 
         References:
             - NEN-IEC 60287-1-3
@@ -1227,20 +1185,6 @@ class AbstractCable:
             A[i, i + 1] -= Rs * weighted_screen_resistance_factor
 
         return np.linalg.solve(A, b)
-
-    def _cable_screen_loss_method_single_cable_oil_pressure_or_xlpe(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for single cables. Oil Pressure or XLPE cables version."""
-        if CableLayer.Screen in self.layers:
-            return self._cable_screen_loss_method_round_or_oval_with_screen(Tc=Tc, Ts=Ts)
-        else:
-            return type(self)._cable_screen_loss_method_return_zero(Tc=Tc, Ts=Ts)
-
-    def _cable_screen_loss_method_single_cable_pilc(self, Tc: float, Ts: float) -> float:
-        """The screen loss retrieval method for single cables. PILC version."""
-        if CableLayer.Screen in self.layers:
-            return self._cable_screen_loss_method_sector(Tc=Tc, Ts=Ts)
-        else:
-            return type(self)._cable_screen_loss_method_return_zero(Tc=Tc, Ts=Ts)
 
     def _get_lambda1_eddy(self, Ts: float, Tc: float, lambda0: float, delta_one_plus_delta_two: float) -> float:
         """Calculates the lambda1 eddy value for the screen loss calculation.

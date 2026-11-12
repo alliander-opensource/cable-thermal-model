@@ -11,6 +11,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Optional per-cable RMS screen-current scenario columns for circulating-current heating,
+  retaining standards-derived eddy losses and calculated circulating losses for unmeasured cables.
+
+### Changed
+
+- Breaking: replace `CableScreenLossType` and `CableLayerMetrics.screen_loss_type` with
+    independent `CableScreenCirculatingLossType` / `screen_circulating_loss_type` and
+    `CableScreenEddyLossType` / `screen_eddy_loss_type` selections. Circuit initialization
+    is now named `initialize_screen_loss_types()`. The total-factor getter remains the sum
+    of the independently calculated components.
+
+### Fixed
+
+- Corrected the Milliken lagging eddy loss calculation to apply the correction factor to
+    the base eddy factor without squaring it.
+
 ## [2.2.1](https://github.com/alliander-opensource/cable-thermal-model/compare/v2.2.0...v2.2.1) (2026-09-09)
 
 

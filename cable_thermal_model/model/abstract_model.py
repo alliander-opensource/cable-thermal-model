@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from typing import Generic
 
 import pandas as pd
@@ -10,8 +11,10 @@ import pandera.pandas as pa
 from pandera.typing import DataFrame
 
 from cable_thermal_model.environment.static_env import StaticEnvT
+from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
+from cable_thermal_model.model.cables.enum_classes_cable import CableLayer
 from cable_thermal_model.model.schemas import ModelOutputSchema
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelT
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelT, get_screen_current_column
 from cable_thermal_model.model.schemas.run_options import ModelRunOptionsT
 from cable_thermal_model.model.schemas.state_schemas import StateT
 from cable_thermal_model.utils.str_utils import tab_lines
@@ -37,10 +40,31 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         self.static_env = static_env
         self._set_run_options(run_options=None)
 
-    def _validate_scenario(self, scenario: pd.DataFrame) -> DataFrame[ScenarioModelT]:
+    def _validate_screen_current_columns(self, scenario: pd.DataFrame, ac_current: bool) -> Mapping[str, object]:
+        """Validate optional measured screen-current columns for this model."""
+        screen_columns = {
+            get_screen_current_column(key): pos_cable for key, pos_cable in self.static_env.get_cables().items()
+        }
+        duplicate_screen_columns = set(scenario.columns[scenario.columns.duplicated()]) & screen_columns.keys()
+        if duplicate_screen_columns:
+            raise ValueError(f"Measured screen-current columns must be unique: {sorted(duplicate_screen_columns)}.")
+
+        for column, pos_cable in screen_columns.items():
+            if column not in scenario.columns:
+                continue
+            if not ac_current:
+                raise ValueError(f"Measured screen-current column '{column}' is not supported in DC mode.")
+            if isinstance(pos_cable.cable, CableTrefoilCircuitSinglePipe):
+                raise ValueError(f"Measured screen-current column '{column}' is not supported for shared-pipe trefoil.")
+            if CableLayer.Screen not in pos_cable.cable.layers:
+                raise ValueError(f"Measured screen-current column '{column}' requires a cable with a metallic screen.")
+
+        return screen_columns
+
+    def _validate_scenario(self, scenario: pd.DataFrame, ac_current: bool) -> DataFrame[ScenarioModelT]:
         """Validates that the scenario DataFrame contains all required columns and no missing values.
 
-        This method validates the scenario against the AbstractScenarioSchema and also checks that the static
+        This method validates the scenario against the AbstractScenarioModel and also checks that the static
         environment has a matching load column for each circuit.
 
         Raises:
@@ -48,8 +72,13 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
                 missing, or there are missing values in the scenario.
 
         """
+        screen_columns = self._validate_screen_current_columns(scenario, ac_current=ac_current)
+
         scenario_schema = self._scenario_model_class.to_schema().add_columns(
-            {f"load_{circuit_name}": pa.Column(float) for circuit_name in self.static_env.circuits}
+            {
+                **{f"load_{circuit_name}": pa.Column(float) for circuit_name in self.static_env.circuits},
+                **{column: pa.Column(float, required=False) for column in screen_columns},
+            }
         )
         scenario_schema.strict = True
         scenario_schema.validate(scenario)
@@ -88,8 +117,8 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
             ValueError: If the provided initial state does not match the model environment.
 
         """
-        validated_scenario = self._validate_scenario(scenario=scenario)
         self._set_run_options(run_options=run_options)
+        validated_scenario = self._validate_scenario(scenario=scenario, ac_current=self.run_options.ac_current)
 
         self._validate_initial_state(initial_state=initial_state)
 

@@ -6,7 +6,11 @@ import numpy as np
 
 from cable_thermal_model.cable_configuration.cable_circuit import CableKey, CablePosition
 from cable_thermal_model.model.cables.cable_soil import CableSoil
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
+from cable_thermal_model.model.cables.enum_classes_cable import (
+    CableLayer,
+    CableScreenCirculatingLossType,
+    CableScreenEddyLossType,
+)
 from cable_thermal_model.model.model_soil import ModelSoil
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
@@ -67,7 +71,8 @@ def test_build_cable_fixture(TB880_case_10_fd_cable: CableSoil):
 
 
 def test_calculate_loss_for_lead_sheath(TB880_case_10_fd_cable: CableSoil):
-    TB880_case_10_fd_cable.layer_metrics.screen_loss_type = CableScreenLossType.SingleCablePILC
+    TB880_case_10_fd_cable.layer_metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.Zero
+    TB880_case_10_fd_cable.layer_metrics.screen_eddy_loss_type = CableScreenEddyLossType.Sector
 
     # 14.4 step 1.
     assert np.isclose(TB880_case_10_fd_cable._get_resistance_screen(Ts=20), 8.9629362689e-4, rtol=RELATIVE_TOLERANCE)

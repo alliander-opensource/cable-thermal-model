@@ -44,7 +44,8 @@ from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInAir
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableLayer,
-    CableScreenLossType,
+    CableScreenCirculatingLossType,
+    CableScreenEddyLossType,
     PipeFillMaterial,
     PipeMaterial,
 )
@@ -55,8 +56,8 @@ from tests.conftest import test_cable_fixtures
 
 @pytest.mark.parametrize("load", [250.0, 500.0, 1000.0])
 def test_get_heat_generation_conductor_and_screen(three_core_cable_pilc: CableSoil, load: float):
-    # Set the screen loss function.
-    three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter
+    three_core_cable_pilc.layer_metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.LinearCenter
+    three_core_cable_pilc.layer_metrics.screen_eddy_loss_type = CableScreenEddyLossType.TwoSidedLinearCenter
     no_load_heat_generation_conductor, no_load_heat_generation_screen = (
         three_core_cable_pilc.get_heat_generation_conductor_and_screen(
             load=0.0,
@@ -102,7 +103,8 @@ def test_get_heat_generation_conductor_and_screen(three_core_cable_pilc: CableSo
 
 
 def test_get_finite_difference_vector_for_state(three_core_cable_pilc: CableSoil):
-    three_core_cable_pilc.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter
+    three_core_cable_pilc.layer_metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.LinearCenter
+    three_core_cable_pilc.layer_metrics.screen_eddy_loss_type = CableScreenEddyLossType.TwoSidedLinearCenter
 
     conductor_temperature = 50.0
     screen_temperature = 40.0

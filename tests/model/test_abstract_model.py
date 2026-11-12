@@ -12,7 +12,8 @@ from pydantic_core import ValidationError
 from cable_thermal_model.cable_configuration.cable_circuit import CableKey, CablePosition, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel
 from cable_thermal_model.model.model_soil import ModelSoil
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil, get_screen_current_column
+from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 from cable_thermal_model.model.schemas.state_schemas import State, StateSoil
 
 
@@ -229,10 +230,80 @@ def test_validate_scenario(
 def test_valid_scenario(model: ModelSoil, scenario_constant: pd.DataFrame):
     """Tests whether a valid scenario is accepted by the model."""
     # Should not raise any exceptions
-    validated_scenario = model._validate_scenario(scenario_constant)
+    validated_scenario = model._validate_scenario(scenario_constant, ac_current=model.run_options.ac_current)
 
     # The validated scenario should be a valid DataFrame[ScenarioModelSoil]
     ScenarioModelSoil.validate(validated_scenario)
+
+
+@pytest.mark.parametrize("ac_current", [True, False])
+def test_validate_scenario_uses_supplied_ac_current(
+    model: ModelSoil, scenario_constant: pd.DataFrame, ac_current: bool
+):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = 0.0
+    model._set_run_options(run_options=ModelSoilRunOptions(ac_current=not ac_current))
+
+    if ac_current:
+        validated_scenario = model._validate_scenario(scenario, ac_current=ac_current)
+        assert validated_scenario is scenario
+    else:
+        with pytest.raises(ValueError, match="not supported in DC mode"):
+            model._validate_scenario(scenario, ac_current=ac_current)
+
+
+@pytest.mark.parametrize("current", [-25.0, 0.0, 25, "25.0"])
+def test_optional_measured_screen_current_column(model, scenario_constant, current):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = current
+    original = scenario.copy(deep=True)
+
+    result = model.run(scenario)
+
+    assert result.result.shape[0] == len(scenario)
+    pd.testing.assert_frame_equal(scenario, original)
+
+
+@pytest.mark.parametrize("current", [np.nan, "not-a-current"])
+def test_invalid_measured_screen_current_column(model, scenario_constant, current):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = current
+
+    with pytest.raises((SchemaError, SchemaErrors)):
+        model.run(scenario)
+
+
+def test_unknown_measured_screen_current_column(model, scenario_constant):
+    scenario = scenario_constant.copy()
+    scenario["screen_current_c1_unknown_position"] = 25.0
+
+    with pytest.raises((SchemaError, SchemaErrors), match="screen_current_c1_unknown_position"):
+        model.run(scenario)
+
+
+def test_duplicate_measured_screen_current_column(model, scenario_constant):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    column = get_screen_current_column(cable_key)
+    scenario[column] = 25.0
+    scenario = pd.concat([scenario, scenario[[column]]], axis=1)
+
+    with pytest.raises(ValueError, match="must be unique"):
+        model.run(scenario)
+
+
+def test_measured_screen_current_column_in_dc_mode(model, scenario_constant):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = 0.0
+
+    with pytest.raises(ValueError, match="DC mode"):
+        model.run(scenario, run_options={"ac_current": False})
+
+    assert model.run(scenario).result.shape[0] == len(scenario)
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])
