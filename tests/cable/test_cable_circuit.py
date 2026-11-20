@@ -30,7 +30,7 @@ Questions / TODO's:
     - The class CableCircuit itself has no declaration of "cables", but all three implementations carry the singular
        [Cable] type as its hinted content and implement it as a list of [Cable] objects.
 
-    - CableCircuit sub-classes need to properly order methods, especially [initialize_screen_loss_functions()] for
+    - CableCircuit sub-classes need to properly order methods, especially [initialize_screen_loss_types()] for
        greater clarity.
 
     - The CircuitBuilder class has no real grounds to be a class. It's only contents are two methods, which hold the
@@ -41,12 +41,6 @@ Questions / TODO's:
     - Tests currently use "fd_objects.py" as a source of fixtures. However the import is currently done as a
        "from ... import *" import, which obfuscates what actually is being imported and generates a lot of linting
        issues. Ideally we'd import these files in a more official manner.
-
-    - The SingleCable class method [initialize_screen_loss_functions()] ends with an if-branch statement for each cable
-       type. However, earlier, a value [max_operating_temperature] is retrieved from a method
-       [_get_operating_temperature()]. This method does nothing more than a single line of code per type, filling in a
-       constant value based on type value. That singular value can be moved into the existing if-branch of
-       [initialize_screen_loss_functions()] if the code for [initialize_screen_loss_functions()] gets re-organized.
 """
 
 import re
@@ -77,7 +71,12 @@ from cable_thermal_model.environment.static_env_soil import StaticEnvSoil
 from cable_thermal_model.model.cables.abstract_cable import WeightedScreenImpedance
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipeInSoil
-from cable_thermal_model.model.cables.enum_classes_cable import CableScreenLossType, PipeFillMaterial, PipeMaterial
+from cable_thermal_model.model.cables.enum_classes_cable import (
+    CableScreenCirculatingLossType,
+    CableScreenEddyLossType,
+    PipeFillMaterial,
+    PipeMaterial,
+)
 
 # CONSTANTS
 _RADIAL_APPROXIMATION_RESOLUTION_IN_METERS = 1e-9
@@ -123,7 +122,7 @@ def test_screen_loss_function_linear_1x630(
             bonding_type=bonding_type,
         )
     )
-    test_circuit.initialize_screen_loss_functions()
+    test_circuit.initialize_screen_loss_types()
 
     for circuit_cable, Ts, Tc, l1 in zip(
         test_circuit.cables, screen_temperature, conductor_temperature, expected_lambda1, strict=True
@@ -155,7 +154,7 @@ def test_screen_loss_function_trefoil_1x630(
         cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", cable_class=CableSoil
     )
     circuit = TrefoilCircuit(CircuitInitData(x=0, y=-1, cable=test_cable, circuit_name="c1", bonding_type=bonding_type))
-    circuit.initialize_screen_loss_functions()
+    circuit.initialize_screen_loss_types()
 
     for circuit_cable, Ts, Tc, l1 in zip(
         circuit.cables, screen_temperature, conductor_temperature, expected_lambda1, strict=True
@@ -213,7 +212,7 @@ def test_screen_loss_function_linear(
             bonding_type=bonding_type,
         )  # type: ignore
     )
-    circuit.initialize_screen_loss_functions()
+    circuit.initialize_screen_loss_types()
 
     for circuit_cable, Ts, Tc, l1 in zip(
         circuit.cables, screen_temperature, conductor_temperature, lambda1, strict=True
@@ -256,7 +255,7 @@ def test_screen_loss_function_trefoil(
     """
     test_cable = CableBuilder.build_cable_from_cable_id(cable_id=cable_id, pipe=pipe, cable_class=CableSoil)
     circuit = TrefoilCircuit(CircuitInitData(x=0, y=-1, cable=test_cable, circuit_name="c1"))
-    circuit.initialize_screen_loss_functions()
+    circuit.initialize_screen_loss_types()
     circuit_cable = circuit.cables[0].cable
 
     Ts = screen_temperature
@@ -265,7 +264,7 @@ def test_screen_loss_function_trefoil(
     assert np.isclose(ctm_lambda1, expected_lambda1, rtol=0.02)
 
 
-def test_initialize_screen_loss_functions_with_erroneous_parameters():
+def test_initialize_screen_loss_types_with_erroneous_parameters():
     # Preparation:
     adjusted_single_core_cable = CableBuilder.build_cable_from_cable_id(
         cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50", cable_class=CableSoil
@@ -281,7 +280,7 @@ def test_initialize_screen_loss_functions_with_erroneous_parameters():
 
     # Evaluation:
     with pytest.raises(ValueError) as val_error:
-        test_single_cable.initialize_screen_loss_functions()
+        test_single_cable.initialize_screen_loss_types()
     assert str(val_error.value) == expected_error_string
 
 
@@ -314,7 +313,7 @@ def test_cable_circuit_builder_basic_usage_using_cable():
         [0.01395, 0.0150425, 0.0205425, 0.021635, 0.022, 0.022785, 0.026],
         atol=_RADIAL_APPROXIMATION_RESOLUTION_IN_METERS,
     )
-    # Verify initialize_screen_loss_functions
+    # Verify initialize_screen_loss_types
     assert np.isclose(ctm_lambda1, 0.107, rtol=0.02)
 
 
@@ -385,19 +384,25 @@ def test_symmetric_sheath_currents_invalid_input():
 
 
 @pytest.mark.parametrize(
-    "bonding_type, expected_screen_loss_type, weighted_reactance_matrix",
+    "bonding_type, expected_circulating_loss_type, expected_eddy_loss_type, weighted_reactance_matrix",
     [
-        (BondingType.NoBonding, CableScreenLossType.ReturnZero, None),
-        (BondingType.CrossBonding, CableScreenLossType.CrossBondingOrOneSidedBondingTrefoil, None),
-        (BondingType.OneSided, CableScreenLossType.CrossBondingOrOneSidedBondingTrefoil, None),
-        (BondingType.TwoSided, CableScreenLossType.TwoSidedBondingTrefoil, None),
-        (BondingType.TwoSided, CableScreenLossType.TwoSidedBondingCenter, np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])),
+        (BondingType.NoBonding, CableScreenCirculatingLossType.Zero, CableScreenEddyLossType.Zero, None),
+        (BondingType.CrossBonding, CableScreenCirculatingLossType.Zero, CableScreenEddyLossType.Trefoil, None),
+        (BondingType.OneSided, CableScreenCirculatingLossType.Zero, CableScreenEddyLossType.Trefoil, None),
+        (BondingType.TwoSided, CableScreenCirculatingLossType.Trefoil, CableScreenEddyLossType.TwoSidedTrefoil, None),
+        (
+            BondingType.TwoSided,
+            CableScreenCirculatingLossType.GeneralizedCenter,
+            CableScreenEddyLossType.GeneralizedTwoSided,
+            np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),
+        ),
     ],
 )
 def test_trefoil_in_single_pipe_screen_loss_function(
     single_core_cable_xlpe: CableSoil,
     bonding_type: BondingType,
-    expected_screen_loss_type: CableScreenLossType,
+    expected_circulating_loss_type: CableScreenCirculatingLossType,
+    expected_eddy_loss_type: CableScreenEddyLossType,
     weighted_reactance_matrix: np.ndarray | None,
 ):
     test_circuit = TrefoilCircuitInSinglePipe(
@@ -419,10 +424,11 @@ def test_trefoil_in_single_pipe_screen_loss_function(
         else None
     )
 
-    test_circuit.initialize_screen_loss_functions()
+    test_circuit.initialize_screen_loss_types()
     circuit_cable = test_circuit.cables[0].cable
 
-    assert circuit_cable.layer_metrics.screen_loss_type == expected_screen_loss_type
+    assert circuit_cable.layer_metrics.screen_circulating_loss_type == expected_circulating_loss_type
+    assert circuit_cable.layer_metrics.screen_eddy_loss_type == expected_eddy_loss_type
 
 
 def test_trefoil_in_single_pipe_screen_loss_function_non_symmetric_matrix(
@@ -437,6 +443,10 @@ def test_trefoil_in_single_pipe_screen_loss_function_non_symmetric_matrix(
             bonding_type=BondingType.TwoSided,
         )
     )
+    test_circuit.initialize_screen_loss_types()
+    metrics = test_circuit.cables[0].cable.layer_metrics
+    previous_cases = (metrics.screen_circulating_loss_type, metrics.screen_eddy_loss_type)
+
     # Set a non-symmetric weighted reactance matrix
     test_circuit.weighted_screen_impedance = WeightedScreenImpedance(
         weighted_reactance_matrix=np.array([[1.0, -1.0, 0.0], [0.0, 1.0, 1.0]]),
@@ -447,7 +457,143 @@ def test_trefoil_in_single_pipe_screen_loss_function_non_symmetric_matrix(
         NotImplementedError,
         match="Non-symmetric sheath currents are not supported for trefoil circuit in a single pipe.",
     ):
-        test_circuit.initialize_screen_loss_functions()
+        test_circuit.initialize_screen_loss_types()
+
+    assert (metrics.screen_circulating_loss_type, metrics.screen_eddy_loss_type) == previous_cases
+
+
+@pytest.mark.parametrize("weighted", [False, True])
+@pytest.mark.parametrize(
+    "invalid_matrix, expected_exception",
+    [
+        (np.array([[1.0, -1.0, 0.0], [0.0, 1.0, 1.0]]), NotImplementedError),
+        (np.zeros((2, 2)), ValueError),
+    ],
+)
+def test_rejected_single_pipe_impedance_preserves_state(
+    single_core_cable_xlpe, weighted, invalid_matrix, expected_exception
+):
+    circuit = TrefoilCircuitInSinglePipe(
+        CircuitInitData(
+            x=0,
+            y=0,
+            cable=single_core_cable_xlpe,
+            circuit_name="impedance_update",
+            bonding_type=BondingType.TwoSided,
+        )
+    )
+    previous_impedance = (
+        WeightedScreenImpedance(
+            weighted_reactance_matrix=np.array([[1e-4, -1e-4, 0.0], [0.0, 1e-4, -1e-4]]),
+            weighted_resistance_factor=1.0,
+        )
+        if weighted
+        else None
+    )
+    circuit.set_weighted_screen_impedance(previous_impedance)
+    cable = circuit.cables[0].cable
+    metrics = cable.layer_metrics
+    previous_cases = (metrics.screen_circulating_loss_type, metrics.screen_eddy_loss_type)
+    previous_loss = cable.get_cable_screen_loss_factor(Ts=40.0, Tc=50.0)
+    assert previous_loss > 0.0
+
+    with pytest.raises(expected_exception):
+        circuit.set_weighted_screen_impedance(
+            WeightedScreenImpedance(weighted_reactance_matrix=invalid_matrix, weighted_resistance_factor=1.0)
+        )
+
+    assert circuit.weighted_screen_impedance is previous_impedance
+    assert cable.weighted_screen_impedance is previous_impedance
+    assert (metrics.screen_circulating_loss_type, metrics.screen_eddy_loss_type) == previous_cases
+    assert cable.get_cable_screen_loss_factor(Ts=40.0, Tc=50.0) == pytest.approx(previous_loss)
+
+
+@pytest.mark.parametrize(
+    "circuit_class, circuit_type",
+    [
+        (LinearCircuit, CircuitType.Linear),
+        (LinearCircuit, CircuitType.LinearVertical),
+        (TrefoilCircuit, CircuitType.Trefoil),
+        (TrefoilCircuitInSinglePipe, CircuitType.Trefoil),
+    ],
+)
+@pytest.mark.parametrize("bonding_type", list(BondingType))
+@pytest.mark.parametrize("weighted", [False, True])
+def test_independent_screen_loss_selection_and_refresh(
+    single_core_cable_xlpe, circuit_class, circuit_type, bonding_type, weighted
+):
+    circuit = circuit_class(
+        CircuitInitData(
+            x=0.0,
+            y=0.0,
+            y_ref=CircuitYReference.Center,
+            circuit_type=circuit_type,
+            cable=single_core_cable_xlpe,
+            circuit_name="screen_loss_selection",
+            bonding_type=bonding_type,
+        )
+    )
+    if circuit_class is LinearCircuit:
+        circulating_cases = (
+            CableScreenCirculatingLossType.LinearLeading,
+            CableScreenCirculatingLossType.LinearCenter,
+            CableScreenCirculatingLossType.LinearLagging,
+        )
+        eddy_cases = (
+            CableScreenEddyLossType.LinearLeading,
+            CableScreenEddyLossType.LinearCenter,
+            CableScreenEddyLossType.LinearLagging,
+        )
+        two_sided_eddy_cases = (
+            CableScreenEddyLossType.TwoSidedLinearLeading,
+            CableScreenEddyLossType.TwoSidedLinearCenter,
+            CableScreenEddyLossType.TwoSidedLinearLagging,
+        )
+    else:
+        circulating_cases = (CableScreenCirculatingLossType.Trefoil,) * len(circuit.cables)
+        eddy_cases = (CableScreenEddyLossType.Trefoil,) * len(circuit.cables)
+        two_sided_eddy_cases = (CableScreenEddyLossType.TwoSidedTrefoil,) * len(circuit.cables)
+
+    generalized_cases = (
+        (CableScreenCirculatingLossType.GeneralizedCenter,)
+        if circuit_class is TrefoilCircuitInSinglePipe
+        else (
+            CableScreenCirculatingLossType.GeneralizedLeading,
+            CableScreenCirculatingLossType.GeneralizedCenter,
+            CableScreenCirculatingLossType.GeneralizedLagging,
+        )
+    )
+    impedance = WeightedScreenImpedance(
+        weighted_reactance_matrix=np.array([[1e-4, -1e-4, 0.0], [0.0, 1e-4, -1e-4]]),
+        weighted_resistance_factor=1.0,
+    )
+    circuit.set_weighted_screen_impedance(impedance if weighted else None)
+    for phase_idx, pos_cable in enumerate(circuit.cables):
+        metrics = pos_cable.cable.layer_metrics
+        if bonding_type == BondingType.TwoSided:
+            assert metrics.screen_circulating_loss_type == (
+                generalized_cases[phase_idx] if weighted else circulating_cases[phase_idx]
+            )
+            assert metrics.screen_eddy_loss_type == (
+                CableScreenEddyLossType.GeneralizedTwoSided if weighted else two_sided_eddy_cases[phase_idx]
+            )
+        else:
+            assert metrics.screen_circulating_loss_type == CableScreenCirculatingLossType.Zero
+            assert metrics.screen_eddy_loss_type == (
+                CableScreenEddyLossType.Zero if bonding_type == BondingType.NoBonding else eddy_cases[phase_idx]
+            )
+
+    circuit.set_weighted_screen_impedance(None)
+    if bonding_type == BondingType.TwoSided:
+        for phase_idx, pos_cable in enumerate(circuit.cables):
+            assert pos_cable.cable.layer_metrics.screen_circulating_loss_type == circulating_cases[phase_idx]
+            assert pos_cable.cable.layer_metrics.screen_eddy_loss_type == two_sided_eddy_cases[phase_idx]
+
+    circuit.bonding = BondingType.NoBonding
+    circuit.initialize_screen_loss_types()
+    for pos_cable in circuit.cables:
+        assert pos_cable.cable.layer_metrics.screen_circulating_loss_type == CableScreenCirculatingLossType.Zero
+        assert pos_cable.cable.layer_metrics.screen_eddy_loss_type == CableScreenEddyLossType.Zero
 
 
 def test_get_relative_screen_distances_trefoil_in_single_pipe(

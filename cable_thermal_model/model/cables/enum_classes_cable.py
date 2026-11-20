@@ -220,31 +220,34 @@ class CableLayer(StrEnum):
         return [layer for layer in cls if layer.name.startswith("Soil")]
 
 
-class CableScreenLossType(StrEnum):
-    """Enum class for possible cable screen loss types."""
+class CableScreenCirculatingLossType(StrEnum):
+    """Cases for circulating-current screen losses."""
 
-    ReturnZero = "_cable_screen_loss_method_return_zero"
-    RoundOrOvalShapedWithScreen = "_cable_screen_loss_method_round_or_oval_with_screen"
-    SectorShaped = "_cable_screen_loss_method_sector"
-    CrossBondingOrOneSidedBondingTrefoil = "_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_trefoil"
-    CrossBondingOrOneSidedBondingLinearLeading = (
-        "_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading"
-    )
-    CrossBondingOrOneSidedBondingLinearCenter = (
-        "_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_center"
-    )
-    CrossBondingOrOneSidedBondingLinearLagging = (
-        "_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_lagging"
-    )
-    TwoSidedBondingTrefoil = "_cable_screen_loss_method_two_sided_bonding_trefoil"
-    TwoSidedBondingLinearLeading = "_cable_screen_loss_method_two_sided_bonding_linear_leading"
-    TwoSidedBondingLinearCenter = "_cable_screen_loss_method_two_sided_bonding_linear_center"
-    TwoSidedBondingLinearLagging = "_cable_screen_loss_method_two_sided_bonding_linear_lagging"
-    TwoSidedBondingLeading = "_cable_screen_loss_method_two_sided_bonding_leading"
-    TwoSidedBondingCenter = "_cable_screen_loss_method_two_sided_bonding_center"
-    TwoSidedBondingLagging = "_cable_screen_loss_method_two_sided_bonding_lagging"
-    SingleCableOilPressureOrXLPE = "_cable_screen_loss_method_single_cable_oil_pressure_or_xlpe"
-    SingleCablePILC = "_cable_screen_loss_method_single_cable_pilc"
+    Zero = "zero"
+    Trefoil = "trefoil"
+    LinearLeading = "linear_leading"
+    LinearCenter = "linear_center"
+    LinearLagging = "linear_lagging"
+    GeneralizedLeading = "generalized_leading"
+    GeneralizedCenter = "generalized_center"
+    GeneralizedLagging = "generalized_lagging"
+
+
+class CableScreenEddyLossType(StrEnum):
+    """Cases for eddy-current screen losses."""
+
+    Zero = "zero"
+    RoundOrOvalWithScreen = "round_or_oval_with_screen"
+    Sector = "sector"
+    Trefoil = "trefoil"
+    LinearLeading = "linear_leading"
+    LinearCenter = "linear_center"
+    LinearLagging = "linear_lagging"
+    TwoSidedTrefoil = "two_sided_trefoil"
+    TwoSidedLinearLeading = "two_sided_linear_leading"
+    TwoSidedLinearCenter = "two_sided_linear_center"
+    TwoSidedLinearLagging = "two_sided_linear_lagging"
+    GeneralizedTwoSided = "generalized_two_sided"
 
 
 class CableConductorHeatSourceAt(StrEnum):

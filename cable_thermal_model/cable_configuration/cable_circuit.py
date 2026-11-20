@@ -22,7 +22,11 @@ from cable_thermal_model.model.cables.cable import (
     Cable,
 )
 from cable_thermal_model.model.cables.cable_trefoil_circuit_single_pipe import CableTrefoilCircuitSinglePipe
-from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, CableScreenLossType
+from cable_thermal_model.model.cables.enum_classes_cable import (
+    CableLayer,
+    CableScreenCirculatingLossType,
+    CableScreenEddyLossType,
+)
 from cable_thermal_model.utils.str_utils import tab_lines
 
 
@@ -177,20 +181,16 @@ class CableCircuit(ABC):
         return f"Circuit {self.circuit_name}\n" + tab_lines(circuit_info)
 
     @abstractmethod
-    def initialize_screen_loss_functions(self) -> None:
-        """Determines the screen loss functions for the cables in a configuration.
+    def initialize_screen_loss_types(self) -> None:
+        """Configure which screen-loss calculations the circuit's cables will use.
 
-        The screen loss functions for the cables in a configuration are then added as attributes of
-        the cable instances in the configuration. These functions depend on
-        the temperature T and compute the factor that described the
-        proportion of the heat generation (loss) in the screen relative to
-        the heat generation in the conductor. For example, if this
-        factor is 0, no heat is generated in the screen. If the factor is
-        0.5 and 400W/m is generated in the conductor, then 200W/m is
-        generated in the screen.
+        Select circulating-current and eddy-current calculation types based on the
+        circuit, bonding, and weighted screen impedance. Store them in each cable's
+        layer metrics for use by its loss calculations. Called when the circuit is
+        built and when set_weighted_screen_impedance updates the impedance.
         """
         raise NotImplementedError(
-            f"Method initialize_screen_loss_functions not implemented for class based on CableCircuit: "
+            f"Method initialize_screen_loss_types not implemented for class based on CableCircuit: "
             f"{self.__class__.__name__}"
         )
 
@@ -274,7 +274,7 @@ class CableCircuit(ABC):
         self.weighted_screen_impedance = weighted_screen_impedance
         for cable in self.cables:
             cable.cable.weighted_screen_impedance = weighted_screen_impedance
-        self.initialize_screen_loss_functions()
+        self.initialize_screen_loss_types()
 
     def validate_no_screen_no_bonding(self, bonding_type: BondingType, cable: Cable):
         """Validate that if no screen is present, no bonding is applied."""
@@ -324,22 +324,32 @@ class SingleCable(CableCircuit):
     def _get_cable_centers(self) -> dict[CablePosition, tuple[float, float]]:
         return {CablePosition.Single: (self.x, self.y)}
 
-    def initialize_screen_loss_functions(self):
-        """Determines the screen loss functions for single cable configurations."""
+    def initialize_screen_loss_types(self):
+        """Set screen-loss calculation types for the single cable in this circuit.
+
+        Raises:
+            ValueError: If the cable type is unsupported.
+
+        Limitations:
+            - SL cables are not modeled.
+                (IEC 60287-1-1:2023, 5.3.11 armoured / 5.3.2 unarmoured)
+
+        References:
+            - NEN-IEC 60287-1-1 (2023), section 5.3.9: screen eddy-current losses
+              for three-core cables with a common sheath.
+        """
         cable = self.cables[0].cable
 
-        # Screen currents in case of round or oval conductors
+        cable.layer_metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.Zero
         if cable.cable_type in (CableType.XLPE, CableType.OilPressure):
-            if CableLayer.Screen in cable.layers:
-                self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.SingleCableOilPressureOrXLPE
-            else:  # If no screen is present do not add screen currents.
-                self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
-
-        # Calculation of the screen currents in case of sector shaped conductors
+            eddy_loss_type = CableScreenEddyLossType.RoundOrOvalWithScreen
         elif cable.cable_type == CableType.PILC:
-            self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.SingleCablePILC
+            eddy_loss_type = CableScreenEddyLossType.Sector
         else:
             raise ValueError(f"CableType: {cable.cable_type} not supported.")
+        cable.layer_metrics.screen_eddy_loss_type = (
+            eddy_loss_type if CableLayer.Screen in cable.layers else CableScreenEddyLossType.Zero
+        )
 
 
 class LinearCircuit(CableCircuit):
@@ -409,39 +419,55 @@ class LinearCircuit(CableCircuit):
             cable_centers=cable_centers,
         )
 
-    def initialize_screen_loss_functions(self):
-        """Determines the screen loss functions for the cables in a linear configuration."""
-        if self.bonding == BondingType.NoBonding:
-            self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
-            self.cables[1].cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
-            self.cables[2].cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
+    def initialize_screen_loss_types(self):
+        """Set circulating and eddy current calculation types for each cable in a linear configuration.
 
-        elif self.bonding in (BondingType.CrossBonding, BondingType.OneSided):
-            # Calculation of the eddy currents in the earthing sheath based on the
-            # IEC 60287-1-1:2023 - par 5.3.7.1
-            self.cables[
-                0
-            ].cable.layer_metrics.screen_loss_type = CableScreenLossType.CrossBondingOrOneSidedBondingLinearLeading
-            self.cables[
-                1
-            ].cable.layer_metrics.screen_loss_type = CableScreenLossType.CrossBondingOrOneSidedBondingLinearCenter
-            self.cables[
-                2
-            ].cable.layer_metrics.screen_loss_type = CableScreenLossType.CrossBondingOrOneSidedBondingLinearLagging
+        Limitations:
+            - Cross-bonded minor-section imbalance losses are not modeled
+                (IEC 60287-1-1:2023, 5.3.7.2).
+            - Generalized two-sided losses for Milliken conductors are not supported
+                (IEC 60287-1-1:2023, 5.3.6; IEC 60287-1-3).
 
-        elif self.bonding == BondingType.TwoSided:
-            # Compute lambda1 based on NEN 60287-1-1. Lambda1 gives sheath losses relative to conductor losses in W/m.
-
-            # Section 2.3.3 from NEN 60287-1-1. Note that the electrical resistances are computed at operating
-            # temperature.
-            if self.weighted_screen_impedance is not None:
-                self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLeading
-                self.cables[1].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingCenter
-                self.cables[2].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLagging
-            else:
-                self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearLeading
-                self.cables[1].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearCenter
-                self.cables[2].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLinearLagging
+        References:
+            - NEN-IEC 60287-1-1 (2023), section 5.3.7.1: eddy-current losses for
+                single-point-bonded and cross-bonded cables.
+            - NEN-IEC 60287-1-1 (2023), section 5.3.7.2: circulating-current losses for
+                single-point-bonded and balanced cross-bonded cables.
+            - NEN-IEC 60287-1-1 (2023), section 5.3.4: circulating-current losses for
+                flat, untransposed cables bonded at both ends.
+            - NEN-IEC 60287-1-1 (2023), section 5.3.6: Milliken conductor correction to
+                two-sided eddy-current losses.
+            - NEN-IEC 60287-1-3: generalized circulating-current losses.
+        """
+        for phase_idx, pos_cable in enumerate(self.cables):
+            metrics = pos_cable.cable.layer_metrics
+            metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.Zero
+            metrics.screen_eddy_loss_type = CableScreenEddyLossType.Zero
+            if self.bonding in (BondingType.CrossBonding, BondingType.OneSided):
+                metrics.screen_eddy_loss_type = (
+                    CableScreenEddyLossType.LinearLeading,
+                    CableScreenEddyLossType.LinearCenter,
+                    CableScreenEddyLossType.LinearLagging,
+                )[phase_idx]
+            elif self.bonding == BondingType.TwoSided:
+                if self.weighted_screen_impedance is not None:
+                    metrics.screen_circulating_loss_type = (
+                        CableScreenCirculatingLossType.GeneralizedLeading,
+                        CableScreenCirculatingLossType.GeneralizedCenter,
+                        CableScreenCirculatingLossType.GeneralizedLagging,
+                    )[phase_idx]
+                    metrics.screen_eddy_loss_type = CableScreenEddyLossType.GeneralizedTwoSided
+                else:
+                    metrics.screen_circulating_loss_type = (
+                        CableScreenCirculatingLossType.LinearLeading,
+                        CableScreenCirculatingLossType.LinearCenter,
+                        CableScreenCirculatingLossType.LinearLagging,
+                    )[phase_idx]
+                    metrics.screen_eddy_loss_type = (
+                        CableScreenEddyLossType.TwoSidedLinearLeading,
+                        CableScreenEddyLossType.TwoSidedLinearCenter,
+                        CableScreenEddyLossType.TwoSidedLinearLagging,
+                    )[phase_idx]
 
 
 class TrefoilCircuit(CableCircuit):
@@ -496,41 +522,32 @@ class TrefoilCircuit(CableCircuit):
             cable_centers=cable_centers,
         )
 
-    def initialize_screen_loss_functions(self):
-        """Determines the screen loss functions for the cables in a trefoil configuration."""
-        if self.bonding == BondingType.NoBonding:
-            self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
-            self.cables[1].cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
-            self.cables[2].cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
+    def initialize_screen_loss_types(self):
+        """Set circulating-current and eddy-current calculation types for each cable in a trefoil configuration.
 
-        elif self.bonding in (BondingType.CrossBonding, BondingType.OneSided):
-            # Calculation of the eddy currents in the earthing sheath based on the
-            # IEC 60287-1-1:2023 - par 5.3.7.1
-            self.cables[
-                0
-            ].cable.layer_metrics.screen_loss_type = CableScreenLossType.CrossBondingOrOneSidedBondingTrefoil
-            self.cables[
-                1
-            ].cable.layer_metrics.screen_loss_type = CableScreenLossType.CrossBondingOrOneSidedBondingTrefoil
-            self.cables[
-                2
-            ].cable.layer_metrics.screen_loss_type = CableScreenLossType.CrossBondingOrOneSidedBondingTrefoil
-
-        elif self.bonding == BondingType.TwoSided:
-            # Compute lambda1 based on section 5.3 from NEN 60287-1-1 (2023).
-            # Lambda1 gives sheath losses relative to conductor losses in W/m.
-
-            # Note that the electrical resistances are computed at operating temperature.
-
-            if self.weighted_screen_impedance is not None:
-                self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLeading
-                self.cables[1].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingCenter
-                self.cables[2].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingLagging
-
-            else:
-                self.cables[0].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingTrefoil
-                self.cables[1].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingTrefoil
-                self.cables[2].cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingTrefoil
+        Limitations:
+            - Cross-bonded minor-section imbalance losses are not modeled
+                (IEC 60287-1-1:2023, 5.3.7.2).
+            - Generalized two-sided losses for Milliken conductors are not supported
+                (IEC 60287-1-1:2023, 5.3.6; IEC 60287-1-3).
+        """
+        for phase_idx, pos_cable in enumerate(self.cables):
+            metrics = pos_cable.cable.layer_metrics
+            metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.Zero
+            metrics.screen_eddy_loss_type = CableScreenEddyLossType.Zero
+            if self.bonding in (BondingType.CrossBonding, BondingType.OneSided):
+                metrics.screen_eddy_loss_type = CableScreenEddyLossType.Trefoil
+            elif self.bonding == BondingType.TwoSided:
+                if self.weighted_screen_impedance is not None:
+                    metrics.screen_circulating_loss_type = (
+                        CableScreenCirculatingLossType.GeneralizedLeading,
+                        CableScreenCirculatingLossType.GeneralizedCenter,
+                        CableScreenCirculatingLossType.GeneralizedLagging,
+                    )[phase_idx]
+                    metrics.screen_eddy_loss_type = CableScreenEddyLossType.GeneralizedTwoSided
+                else:
+                    metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.Trefoil
+                    metrics.screen_eddy_loss_type = CableScreenEddyLossType.TwoSidedTrefoil
 
 
 class TrefoilCircuitInSinglePipe(SingleCable):
@@ -553,32 +570,52 @@ class TrefoilCircuitInSinglePipe(SingleCable):
     def _get_cable_centers(self) -> dict[CablePosition, tuple[float, float]]:
         return {CablePosition.TrefoilCircuitInSinglePipe: (self.x, self.y)}
 
-    def initialize_screen_loss_functions(self):
-        """Determines the screen loss functions for the equivalent cable in a trefoil circuit in a single pipe.
+    def _validate_weighted_screen_impedance(self, weighted_screen_impedance: WeightedScreenImpedance | None) -> None:
+        """Reject unsupported sheath currents before changing circuit or cable state."""
+        if (
+            self.bonding == BondingType.TwoSided
+            and weighted_screen_impedance is not None
+            and not self.symmetric_sheath_currents(weighted_screen_impedance.weighted_reactance_matrix)
+        ):
+            raise NotImplementedError(
+                "Non-symmetric sheath currents are not supported for trefoil circuit in a single pipe."
+            )
+
+    def set_weighted_screen_impedance(self, weighted_screen_impedance: WeightedScreenImpedance | None):
+        """Validate the proposed impedance before updating the circuit and cable loss cases."""
+        self._validate_weighted_screen_impedance(weighted_screen_impedance)
+        super().set_weighted_screen_impedance(weighted_screen_impedance)
+
+    def initialize_screen_loss_types(self):
+        """Set circulating-current and eddy-current loss types for the equivalent cable.
+
+        Limitations:
+            - Cross-bonded minor-section imbalance losses are not modeled
+                (IEC 60287-1-1:2023, 5.3.7.2).
 
         Raises:
-            NotImplementedError: If the sheath currents are not symmetric.
-
+            ValueError: If two-sided bonding uses a weighted reactance matrix
+                whose shape is not (2, 3).
+            NotImplementedError: If two-sided bonding uses weighted screen
+                impedance that produces non-symmetric sheath currents.
         """
-        cable = self.cables[0].cable
-
-        if self.bonding == BondingType.NoBonding:
-            cable.layer_metrics.screen_loss_type = CableScreenLossType.ReturnZero
-
-        elif self.bonding in (BondingType.CrossBonding, BondingType.OneSided):
-            cable.layer_metrics.screen_loss_type = CableScreenLossType.CrossBondingOrOneSidedBondingTrefoil
+        self._validate_weighted_screen_impedance(self.weighted_screen_impedance)
+        circulating_loss_type = CableScreenCirculatingLossType.Zero
+        eddy_loss_type = CableScreenEddyLossType.Zero
+        if self.bonding in (BondingType.CrossBonding, BondingType.OneSided):
+            eddy_loss_type = CableScreenEddyLossType.Trefoil
 
         elif self.bonding == BondingType.TwoSided:
             if self.weighted_screen_impedance is None:
-                cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingTrefoil
-                return
+                circulating_loss_type = CableScreenCirculatingLossType.Trefoil
+                eddy_loss_type = CableScreenEddyLossType.TwoSidedTrefoil
+            else:
+                circulating_loss_type = CableScreenCirculatingLossType.GeneralizedCenter
+                eddy_loss_type = CableScreenEddyLossType.GeneralizedTwoSided
 
-            if not self.symmetric_sheath_currents(self.weighted_screen_impedance.weighted_reactance_matrix):
-                raise NotImplementedError(
-                    "Non-symmetric sheath currents are not supported for trefoil circuit in a single pipe."
-                )
-
-            cable.layer_metrics.screen_loss_type = CableScreenLossType.TwoSidedBondingCenter
+        metrics = self.cables[0].cable.layer_metrics
+        metrics.screen_circulating_loss_type = circulating_loss_type
+        metrics.screen_eddy_loss_type = eddy_loss_type
 
     def get_relative_screen_distances(self) -> np.ndarray:
         """Returns the relative screen distances for a trefoil circuit with touching cables."""
@@ -669,7 +706,7 @@ class CircuitBuilder:
         else:
             raise TypeError(f"Circuit type {circuit_input.circuit_type} not supported.")
 
-        circuit.initialize_screen_loss_functions()
+        circuit.initialize_screen_loss_types()
 
         return circuit
 

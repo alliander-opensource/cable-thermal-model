@@ -12,27 +12,39 @@ This project uses Pandera for runtime validation of DataFrames and for type anno
 The project currently defines Pandera DataFrame schemas in two places.
 
 1. Input scenario schemas in `cable_thermal_model/model/schemas/model_input_schemas.py`:
-1. `AbstractScenarioSchema`: shared scenario checks for all models.
-1. `ScenarioSchemaAir`: currently the same checks as `AbstractScenarioSchema` (reserved for future air-specific checks).
-1. `ScenarioSchemaSoil`: extends the abstract schema and adds required soil columns and numeric checks for those columns.
+1. `AbstractScenarioModel`: shared scenario checks for all models.
+1. `ScenarioModelAir`: adds required, nonnegative `solar_radiation_intensity`.
+1. `ScenarioModelSoil`: adds required soil thermal resistivity and capacity columns.
 
 2. Output result schema in `cable_thermal_model/model/schemas/model_output_schemas.py`:
 -. `TemperatureResultSchema`: validates the model result DataFrame shape and content.
 
 ## When Validation Happens
 
-Validation occurs in two phases: input scenario validation and output result validation. Input validation happens at model construction time and whenever the scenario is replaced. This means invalid input is rejected early, before running thermal computations.
+Validation occurs in two phases: input scenario validation and output result validation.
+Input validation happens at the start of each `model.run(scenario)` call, before thermal computations.
 Output validation happens at the end of each model run.
 
+The model extends the base input schema with required `load_<circuit_name>` columns
+and optional `screen_current_<circuit_name>_<position>` columns for known cable keys.
+Unknown columns are rejected. Screen-current inputs must be finite, nonnegative RMS
+amperes over the interval ending at their timestamp. The first row is initialization-only.
+Absent columns retain calculated circulating losses; zero is a measurement, not absence.
+Eddy losses remain standards-derived. Measurements are rejected for DC runs, screenless
+cables, and equivalent shared-pipe trefoil models. See
+[measured screen currents](get_started/model_input.md#optional-measured-screen-currents)
+for the loss equation and measurement assumptions.
 
 ## Explicit Validation Outside Models
 
-Some utilities and examples also call schema validation explicitly before model creation. For example, a scenario can be validated with:
+Some utilities and examples also validate the base environmental schema explicitly:
 
-- `ScenarioSchemaAir.validate(df)` for air use cases,
-- `ScenarioSchemaSoil.validate(df)` for soil use cases.
+- `ScenarioModelAir.validate(df)` for air use cases,
+- `ScenarioModelSoil.validate(df)` for soil use cases.
 
-This is optional for callers, because model initialization will validate again.
+These classes are defined in `cable_thermal_model.model.schemas.model_input_schemas`.
+Standalone validation does not check environment-specific cable keys, circuit loads,
+or screen-current compatibility. `model.run()` performs those checks automatically.
 
 ## Note on Other "Schemas" in the Codebase
 

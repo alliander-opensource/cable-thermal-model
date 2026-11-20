@@ -195,21 +195,74 @@ scenario = pd.DataFrame(
 )
 ```
 
-### Scenario Validation
+### Optional Measured Screen Currents
 
-You can validate your scenario before running the model:
+For AC cables with a metallic screen, add an optional column named
+`screen_current_<circuit_name>_<position>`, using the cable position from `CableKey`.
+For example, `screen_current_circuit_1_trefoil_top` supplies the top cable's screen current
+in a trefoil circuit named `circuit_1`. Circuit names containing underscores are supported.
 
-Validation is also performed automatically as the first step of `model.run()`, so manual validation is optional.
+Each value is an RMS screen current in amperes over the interval
+ending at that timestamp, exactly like `load_<circuit_name>`.
+
+Measurements replace only the circulating-current contribution:
+
+$$
+W_s =
+\underbrace{I_{s,\mathrm{measured}}^2 R_s(T_s)}_{\text{measured circulating-current loss}}
++
+\underbrace{W_c\lambda_{\mathrm{eddy}}}_{\text{calculated eddy-current loss}}
+$$
+
+Here, $W_s$ is total screen loss, $I_{s,\mathrm{measured}}$ is the measured RMS
+screen current, $R_s(T_s)$ is screen resistance at screen temperature, $W_c$ is
+conductor loss calculated from the circuit load, and $\lambda_{\mathrm{eddy}}$ is the
+eddy-current loss factor. Losses are in W/m and screen resistance is in ohm/m.
+
+- An absent column retains calculated circulating losses for that cable, using the existing standards model.
+- An explicit zero suppresses circulating losses.
+- A measured current through a common screen is applied once, not multiplied by the number of conductors.
+- Measurement columns for screenless cables, DC runs, and equivalent three-cables-in-one-pipe models are rejected.
+
+This example measures only the top screen; the other two cables retain calculated losses:
 
 ```python
-from cable_thermal_model.model.schemas import ScenarioSchemaSoil, ScenarioSchemaAir
+import pandas as pd
 
-# For soil environments
-validated_scenario = ScenarioSchemaSoil(scenario)
+from cable_thermal_model import CircuitType, ModelFactory, StaticEnvSoil
+from cable_thermal_model.cable_configuration.schemas.circuit_schemas import CircuitInSoilFromCableIdInputSchema
 
-# For air environments
-validated_scenario = ScenarioSchemaAir(scenario)
+environment = StaticEnvSoil()
+environment.add_circuit_from_cable_id(
+    CircuitInSoilFromCableIdInputSchema(
+        circuit_name="circuit_1",
+        cable_id="YMeKrvaslqwd 12/20kV 1x630 Alrm + as50",
+        circuit_type=CircuitType.Trefoil,
+        x=0.0,
+        y=-1.0,
+    )
+)
+scenario = pd.DataFrame(
+    {
+        "load_circuit_1": [200.0, 250.0, 300.0],
+        "screen_current_circuit_1_trefoil_top": [0.0, 25.0, 30.0],
+        "ambient_temperature": 15.0,
+        "soil_thermal_resistivity": 0.75,
+        "soil_thermal_capacity": 2e6,
+    },
+    index=pd.date_range("2026-01-01", periods=3, freq="1h"),
+)
+model = ModelFactory.create_model(environment)
+output = model.run(scenario)
 ```
+
+### Scenario Validation
+
+`model.run(scenario)` validates required environmental inputs, circuit load columns,
+and optional per-cable screen-current columns before computation. Unknown columns
+are rejected. Standalone `ScenarioModelSoil.validate()` and `ScenarioModelAir.validate()`
+check their base environmental schemas, but do not perform the environment-dependent
+cable and circuit checks applied by `run()`.
 
 ## Complete Example
 
