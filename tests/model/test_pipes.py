@@ -28,8 +28,8 @@ from cable_thermal_model.validation.cable_analysis import CableAnalysis
 from tests.conftest import vca_pipe_results
 
 
-@pytest.mark.parametrize("measured_screen_current", [None, 0.0])
-def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state_soil: pd.DataFrame, measured_screen_current):
+@pytest.mark.parametrize("custom_screen_current", [None, 0.0])
+def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state_soil: pd.DataFrame, custom_screen_current):
     """Test that a trefoil cable in a single pipe in soil behaves as expected."""
     static_env = StaticEnvSoil()
     static_env.add_circuit_from_cable_id(
@@ -51,10 +51,10 @@ def test_trefoil_in_single_pipe_heat_flow(scenario_steady_state_soil: pd.DataFra
 
     # Compute the steady state solution
     model = ModelFactory.create_model(static_env)
-    if measured_screen_current is not None:
+    if custom_screen_current is not None:
         scenario = scenario_steady_state_soil.copy()
         cable_key = next(iter(static_env.get_cables()))
-        scenario[get_screen_current_column(cable_key)] = measured_screen_current
+        scenario[get_screen_current_column(cable_key)] = custom_screen_current
         with pytest.raises(ValueError, match="shared-pipe trefoil"):
             model.run(scenario)
         return

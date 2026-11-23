@@ -257,7 +257,7 @@ def test_validate_scenario_uses_supplied_ac_current(
 
 @pytest.mark.parametrize("environment", ["single_circuit_env", "single_circuit_in_air_env"])
 @pytest.mark.parametrize("measured_count", [0, 1, 2, 3])
-def test_partial_measured_screen_currents_warning(environment, measured_count, request, scenario_constant, mocker):
+def test_partial_custom_screen_currents_warning(environment, measured_count, request, scenario_constant, mocker):
     model = ModelFactory.create_model(request.getfixturevalue(environment))
     scenario = scenario_constant.copy()
     if environment == "single_circuit_in_air_env":
@@ -284,7 +284,7 @@ def test_partial_measured_screen_currents_warning(environment, measured_count, r
             )
 
 
-def test_partial_measured_screen_currents_warn_per_circuit(two_circuit_env, scenario_constant_multi, mocker):
+def test_partial_custom_screen_currents_warn_per_circuit(two_circuit_env, scenario_constant_multi, mocker):
     model = ModelFactory.create_model(two_circuit_env)
     circuit_columns = {}
     for cable_key in two_circuit_env.get_cables():
@@ -303,7 +303,7 @@ def test_partial_measured_screen_currents_warn_per_circuit(two_circuit_env, scen
 
 
 @pytest.mark.parametrize("current", [-25.0, 0.0, 25, "25.0"])
-def test_optional_measured_screen_current_column(model, scenario_constant, current):
+def test_optional_custom_screen_current_column(model, scenario_constant, current):
     scenario = scenario_constant.copy()
     cable_key = next(iter(model.static_env.get_cables()))
     scenario[get_screen_current_column(cable_key)] = current
@@ -316,7 +316,7 @@ def test_optional_measured_screen_current_column(model, scenario_constant, curre
 
 
 @pytest.mark.parametrize("current", [np.nan, "not-a-current"])
-def test_invalid_measured_screen_current_column(model, scenario_constant, current):
+def test_invalid_custom_screen_current_column(model, scenario_constant, current):
     scenario = scenario_constant.copy()
     cable_key = next(iter(model.static_env.get_cables()))
     scenario[get_screen_current_column(cable_key)] = current
@@ -329,7 +329,7 @@ def test_invalid_measured_screen_current_column(model, scenario_constant, curren
     assert not caught
 
 
-def test_unknown_measured_screen_current_column(model, scenario_constant):
+def test_unknown_custom_screen_current_column(model, scenario_constant):
     scenario = scenario_constant.copy()
     scenario["screen_current_c1_unknown_position"] = 25.0
 
@@ -337,7 +337,7 @@ def test_unknown_measured_screen_current_column(model, scenario_constant):
         model.run(scenario)
 
 
-def test_duplicate_measured_screen_current_column(model, scenario_constant):
+def test_duplicate_custom_screen_current_column(model, scenario_constant):
     scenario = scenario_constant.copy()
     cable_key = next(iter(model.static_env.get_cables()))
     column = get_screen_current_column(cable_key)
@@ -348,7 +348,7 @@ def test_duplicate_measured_screen_current_column(model, scenario_constant):
         model.run(scenario)
 
 
-def test_measured_screen_current_column_in_dc_mode(model, scenario_constant):
+def test_custom_screen_current_column_in_dc_mode(model, scenario_constant):
     scenario = scenario_constant.copy()
     cable_key = next(iter(model.static_env.get_cables()))
     scenario[get_screen_current_column(cable_key)] = 0.0

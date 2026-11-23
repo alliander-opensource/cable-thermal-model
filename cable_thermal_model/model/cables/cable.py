@@ -590,7 +590,7 @@ class Cable(AbstractCable):
         load: float,
         ac_current: bool,
         temperature_dependent_electric_resistance: bool,
-        measured_screen_current: float | None = None,
+        custom_screen_current: float | None = None,
     ) -> None:
         """Build the finite difference vector for a specific thermal state and circuit load.
 
@@ -599,10 +599,10 @@ class Cable(AbstractCable):
             load (float): The electrical load in amperes.
             ac_current (bool): Whether AC conductor losses are included.
             temperature_dependent_electric_resistance (bool): Whether resistance depends on temperature.
-            measured_screen_current (float | None): Optional RMS screen current in amperes.
+            custom_screen_current (float | None): Optional RMS screen current in amperes.
 
         """
-        if measured_screen_current is not None and (not ac_current or CableLayer.Screen not in self.layers):
+        if custom_screen_current is not None and (not ac_current or CableLayer.Screen not in self.layers):
             raise ValueError("Measured screen current requires an AC cable with a metallic screen.")
 
         conductor_temperature = self._get_mean_temperature_cable_layer(
@@ -620,7 +620,7 @@ class Cable(AbstractCable):
                 conductor_temperature=conductor_temperature,
                 screen_temperature=screen_temperature,
                 temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
-                measured_screen_current=measured_screen_current,
+                custom_screen_current=custom_screen_current,
             )
 
             self._update_vector_with_heat_generation_for_layer(

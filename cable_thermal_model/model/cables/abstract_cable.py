@@ -675,7 +675,7 @@ class AbstractCable:
         screen_temperature: float,
         temperature_dependent_electric_resistance: bool,
         ac_current: bool,
-        measured_screen_current: float | None = None,
+        custom_screen_current: float | None = None,
     ) -> tuple[float, float]:
         """Calculates the heat generation in the conductor based on the load and resistance.
 
@@ -687,7 +687,7 @@ class AbstractCable:
             conductor_temperature (float): The temperature of the conductor in degrees Celsius.
             screen_temperature (float): The temperature of the screen in degrees Celsius.
             temperature_dependent_electric_resistance (bool): Whether to use temperature-dependent electric resistance.
-            measured_screen_current (float | None): Optional RMS screen current in amperes,
+            custom_screen_current (float | None): Optional RMS screen current in amperes,
                 replacing calculated circulating losses.
 
         Raises:
@@ -699,7 +699,7 @@ class AbstractCable:
                 conductor and the screen respectively in W/m.
 
         """
-        if measured_screen_current is not None and not ac_current:
+        if custom_screen_current is not None and not ac_current:
             raise ValueError("Measured screen currents are not supported in DC mode.")
 
         heat_generation_conductor = self.get_heat_generation_conductor(
@@ -715,7 +715,7 @@ class AbstractCable:
                 screen_temperature=screen_temperature,
                 conductor_temperature=conductor_temperature,
                 temperature_dependent_electric_resistance=temperature_dependent_electric_resistance,
-                measured_screen_current=measured_screen_current,
+                custom_screen_current=custom_screen_current,
             )
             if ac_current
             else 0.0
@@ -774,7 +774,7 @@ class AbstractCable:
         screen_temperature: float,
         conductor_temperature: float,
         temperature_dependent_electric_resistance: bool,
-        measured_screen_current: float | None = None,
+        custom_screen_current: float | None = None,
     ) -> float:
         """Calculates the heat generation in the screen based on the conductor heat generation and screen loss factor.
 
@@ -785,7 +785,7 @@ class AbstractCable:
             screen_temperature (float): The temperature of the screen in degrees Celsius.
             conductor_temperature (float): The temperature of the conductor in degrees Celsius.
             temperature_dependent_electric_resistance (bool): Whether to use temperature-dependent electric resistance.
-            measured_screen_current (float | None): Optional RMS screen current in amperes.
+            custom_screen_current (float | None): Optional RMS screen current in amperes.
                 None retains calculated circulating losses.
 
         Returns:
@@ -796,12 +796,12 @@ class AbstractCable:
             screen_temperature = ELECTRIC_RESISTANCE_REFERENCE_TEMPERATURE
             conductor_temperature = ELECTRIC_RESISTANCE_REFERENCE_TEMPERATURE
 
-        if measured_screen_current is None:
+        if custom_screen_current is None:
             circulating_heat = heat_generation_conductor * self.get_screen_circulating_loss_factor(
                 Ts=screen_temperature, Tc=conductor_temperature
             )
         else:
-            circulating_heat = measured_screen_current**2 * self._get_resistance_screen(Ts=screen_temperature)
+            circulating_heat = custom_screen_current**2 * self._get_resistance_screen(Ts=screen_temperature)
 
         eddy_heat = heat_generation_conductor * self.get_screen_eddy_loss_factor(
             Ts=screen_temperature, Tc=conductor_temperature

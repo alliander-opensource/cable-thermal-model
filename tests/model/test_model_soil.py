@@ -1022,7 +1022,7 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
         model._validate_initial_state(invalid_state)
 
 
-def test_measured_screen_current_requires_a_screen(simple_cable, scenario_constant):
+def test_custom_screen_current_requires_a_screen(simple_cable, scenario_constant):
     environment = StaticEnvSoil()
     environment.add_circuit_from_cable(
         CircuitInSoilFromCableInputSchema(x=0, y=-0.8, circuit_name="c1", cable=simple_cable)

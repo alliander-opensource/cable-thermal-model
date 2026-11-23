@@ -219,7 +219,7 @@ def screen_current_model_and_scenario(request):
     return model_class(environment), scenario
 
 
-def test_measured_screen_currents_are_dispatched_independently(screen_current_model_and_scenario):
+def test_custom_screen_currents_are_dispatched_independently(screen_current_model_and_scenario):
     model, scenario = screen_current_model_and_scenario
     model.run(scenario)
     temperature_state = model._build_initial_state(ambient_temperature=10.0).temperature
@@ -235,12 +235,12 @@ def test_measured_screen_currents_are_dispatched_independently(screen_current_mo
 
     for cable_key, pos_cable in model.cables_in_environment.items():
         pos_cable.cable._update_heating_vector.assert_called_once()
-        assert pos_cable.cable._update_heating_vector.call_args.kwargs["measured_screen_current"] == currents.get(
+        assert pos_cable.cable._update_heating_vector.call_args.kwargs["custom_screen_current"] == currents.get(
             cable_key
         )
 
 
-def test_measured_screen_current_heats_at_zero_conductor_load(screen_current_model_and_scenario):
+def test_custom_screen_current_heats_at_zero_conductor_load(screen_current_model_and_scenario):
     model, scenario = screen_current_model_and_scenario
     scenario["load_c1"] = 0.0
     cable_key = next(iter(model.static_env.get_cables()))
@@ -255,7 +255,7 @@ def test_measured_screen_current_heats_at_zero_conductor_load(screen_current_mod
     assert measured.result[screen_column].iloc[0] == reference.result[screen_column].iloc[0]
 
 
-def test_measured_screen_current_uses_interval_ending_at_timestamp(screen_current_model_and_scenario):
+def test_custom_screen_current_uses_interval_ending_at_timestamp(screen_current_model_and_scenario):
     model, scenario = screen_current_model_and_scenario
     cable_key = next(iter(model.static_env.get_cables()))
     column = get_screen_current_column(cable_key)
@@ -278,7 +278,7 @@ def test_measured_screen_current_uses_interval_ending_at_timestamp(screen_curren
     pd.testing.assert_frame_equal(changed_first_row.result, full_output.result)
 
 
-def test_measured_screen_currents_do_not_persist_between_runs(screen_current_model_and_scenario):
+def test_custom_screen_currents_do_not_persist_between_runs(screen_current_model_and_scenario):
     model, scenario = screen_current_model_and_scenario
     measured_scenario = scenario.copy()
     cable_keys = list(model.static_env.get_cables())

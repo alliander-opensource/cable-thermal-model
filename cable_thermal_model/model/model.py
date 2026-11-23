@@ -236,14 +236,14 @@ class Model(
         for cable_key, pos_cable in self.cables_in_environment.items():
             circuit_name = cable_key.circuit_name
             conductor_load = circuit_loads[circuit_name]
-            measured_screen_current = scenario_row.get(get_screen_current_column(cable_key))
+            custom_screen_current = scenario_row.get(get_screen_current_column(cable_key))
 
             pos_cable.cable._update_heating_vector(
                 temperature_grid=temperature_state[cable_key],
                 load=conductor_load,
                 ac_current=self.run_options.ac_current,
                 temperature_dependent_electric_resistance=self.run_options.temperature_dependent_electric_resistance,
-                measured_screen_current=float(measured_screen_current) if measured_screen_current is not None else None,
+                custom_screen_current=float(custom_screen_current) if custom_screen_current is not None else None,
             )
 
     @abstractmethod

@@ -361,7 +361,7 @@ def test_measured_screen_heating(
         screen_temperature=40.0,
         temperature_dependent_electric_resistance=temperature_dependent,
         ac_current=True,
-        measured_screen_current=measured_current,
+        custom_screen_current=measured_current,
     )
     screen_temperature = 40.0 if temperature_dependent else 20.0
     conductor_temperature = 60.0 if temperature_dependent else 20.0
@@ -388,13 +388,13 @@ def test_measured_common_screen_heating_is_not_multiplied_by_conductor_count(thr
         screen_temperature=40.0,
         conductor_temperature=60.0,
         temperature_dependent_electric_resistance=True,
-        measured_screen_current=25.0,
+        custom_screen_current=25.0,
     )
 
     assert screen_heat == pytest.approx(25.0**2 * cable._get_resistance_screen(Ts=40.0))
 
 
-def test_measured_screen_current_rejected_in_dc_mode(single_core_cable_xlpe):
+def test_custom_screen_current_rejected_in_dc_mode(single_core_cable_xlpe):
     with pytest.raises(ValueError, match="DC mode"):
         single_core_cable_xlpe.get_heat_generation_conductor_and_screen(
             load=500.0,
@@ -402,7 +402,7 @@ def test_measured_screen_current_rejected_in_dc_mode(single_core_cable_xlpe):
             screen_temperature=40.0,
             temperature_dependent_electric_resistance=True,
             ac_current=False,
-            measured_screen_current=0.0,
+            custom_screen_current=0.0,
         )
 
 
@@ -461,5 +461,5 @@ def test_generalized_milliken_remains_unsupported(single_core_cable_xlpe, measur
             screen_temperature=40.0,
             conductor_temperature=50.0,
             temperature_dependent_electric_resistance=True,
-            measured_screen_current=measured_current,
+            custom_screen_current=measured_current,
         )
