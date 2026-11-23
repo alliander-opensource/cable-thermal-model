@@ -195,7 +195,7 @@ scenario = pd.DataFrame(
 )
 ```
 
-### Optional Measured Screen Currents
+### Optional Custom Screen Currents
 
 For AC cables with a metallic screen, add an optional column named
 `screen_current_<circuit_name>_<position>`, using the cable position from `CableKey`.
@@ -205,27 +205,27 @@ in a trefoil circuit named `circuit_1`. Circuit names containing underscores are
 Each value is an RMS screen current in amperes over the interval
 ending at that timestamp, exactly like `load_<circuit_name>`.
 
-Measurements replace only the circulating-current contribution:
+The provided screen currents replace only the circulating-current contribution:
 
 $$
 W_s =
-\underbrace{I_{s,\mathrm{measured}}^2 R_s(T_s)}_{\text{measured circulating-current loss}}
+\underbrace{I_{s,\mathrm{custom}}^2 R_s(T_s)}_{\text{custom circulating-current loss}}
 +
 \underbrace{W_c\lambda_{\mathrm{eddy}}}_{\text{calculated eddy-current loss}}
 $$
 
-Here, $W_s$ is total screen loss, $I_{s,\mathrm{measured}}$ is the measured RMS
+Here, $W_s$ is total screen loss, $I_{s,\mathrm{custom}}$ is the custom RMS
 screen current, $R_s(T_s)$ is screen resistance at screen temperature, $W_c$ is
 conductor loss calculated from the circuit load, and $\lambda_{\mathrm{eddy}}$ is the
 eddy-current loss factor. Losses are in W/m and screen resistance is in ohm/m.
 
 - An absent column retains calculated circulating losses for that cable, using the existing standards model.
-- Providing screen-current columns for some but not all cables in a circuit issues a `UserWarning` (though warning filters may suppress it). Unmeasured cables retain calculated circulating losses.
+- Providing screen-current columns for some but not all cables in a circuit issues a `UserWarning` (though warning filters may suppress it). Cables without screen-current columns retain calculated circulating losses.
 - An explicit zero suppresses circulating losses.
-- A measured current through a common screen is applied once, not multiplied by the number of conductors.
-- Measurement columns for screenless cables, DC runs, and equivalent three-cables-in-one-pipe models are rejected.
+- A custom current through a common screen is applied once, not multiplied by the number of conductors.
+- Screen-current columns for screenless cables, DC runs, and equivalent three-cables-in-one-pipe models are rejected.
 
-This example measures the screens of all three cables in the trefoil circuit:
+This example supplies custom screen currents for all three cables in the trefoil circuit:
 
 ```python
 import pandas as pd

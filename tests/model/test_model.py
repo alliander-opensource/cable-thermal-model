@@ -248,11 +248,11 @@ def test_custom_screen_current_heats_at_zero_conductor_load(screen_current_model
     reference = model.run(scenario, run_options=run_options)
     scenario[get_screen_current_column(cable_key)] = 100.0
 
-    measured = model.run(scenario, run_options=run_options)
+    custom_current_output = model.run(scenario, run_options=run_options)
 
     screen_column = (cable_key.circuit_name, cable_key.cable_position, CableLayer.Screen)
-    assert measured.result[screen_column].iloc[-1] > reference.result[screen_column].iloc[-1]
-    assert measured.result[screen_column].iloc[0] == reference.result[screen_column].iloc[0]
+    assert custom_current_output.result[screen_column].iloc[-1] > reference.result[screen_column].iloc[-1]
+    assert custom_current_output.result[screen_column].iloc[0] == reference.result[screen_column].iloc[0]
 
 
 def test_custom_screen_current_uses_interval_ending_at_timestamp(screen_current_model_and_scenario):
@@ -280,15 +280,15 @@ def test_custom_screen_current_uses_interval_ending_at_timestamp(screen_current_
 
 def test_custom_screen_currents_do_not_persist_between_runs(screen_current_model_and_scenario):
     model, scenario = screen_current_model_and_scenario
-    measured_scenario = scenario.copy()
+    custom_current_scenario = scenario.copy()
     cable_keys = list(model.static_env.get_cables())
     for cable_key, current in zip(cable_keys, [0.0, 25.0, 100.0], strict=True):
-        measured_scenario[get_screen_current_column(cable_key)] = current
+        custom_current_scenario[get_screen_current_column(cable_key)] = current
 
-    first_measured = model.run(measured_scenario)
-    unmeasured = model.run(scenario)
-    repeated_measured = model.run(measured_scenario)
-    fresh_unmeasured = model.__class__(model.static_env).run(scenario)
+    first_custom_current = model.run(custom_current_scenario)
+    without_custom_current = model.run(scenario)
+    repeated_custom_current = model.run(custom_current_scenario)
+    fresh_without_custom_current = model.__class__(model.static_env).run(scenario)
 
-    pd.testing.assert_frame_equal(unmeasured.result, fresh_unmeasured.result)
-    pd.testing.assert_frame_equal(repeated_measured.result, first_measured.result)
+    pd.testing.assert_frame_equal(without_custom_current.result, fresh_without_custom_current.result)
+    pd.testing.assert_frame_equal(repeated_custom_current.result, first_custom_current.result)

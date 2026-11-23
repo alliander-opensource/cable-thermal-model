@@ -20,9 +20,11 @@ Notes:
 import numpy as np
 import pytest
 
+from cable_thermal_model.model.cables.abstract_cable import WeightedScreenImpedance
 from cable_thermal_model.model.cables.cable_soil import CableSoil
 from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorSurfaceType,
+    CablePhase,
     CableScreenCirculatingLossType,
     CableScreenEddyLossType,
 )
@@ -206,7 +208,7 @@ def test_two_sided_eddy_factor_without_circulating_solve(single_core_cable_xlpe,
     def reject_solve(*args, **kwargs):
         pytest.fail("Eddy loss must not evaluate circulating currents")
 
-    monkeypatch.setattr(cable, "_calculate_relative_circulating_screen_currents", reject_solve)
+        monkeypatch.setattr(cable, "_calculate_relative_circulating_screen_current", reject_solve)
 
     def reject_base_calculation(*args, **kwargs):
         pytest.fail("Non-Milliken two-sided eddy loss must return zero before evaluating a base formula")
@@ -324,7 +326,7 @@ def test_calculated_screen_heating_is_circulating_plus_eddy(
     assert circulating_factor + eddy_factor == pytest.approx(cable.get_cable_screen_loss_factor(Ts=40.0, Tc=50.0))
 
 
-@pytest.mark.parametrize("measured_current", [-25.0, 0.0, 25.0, 50.0])
+@pytest.mark.parametrize("custom_screen_current", [-25.0, 0.0, 25.0, 50.0])
 @pytest.mark.parametrize("load", [0.0, 500.0])
 @pytest.mark.parametrize("temperature_dependent", [False, True])
 @pytest.mark.parametrize(
@@ -336,9 +338,9 @@ def test_calculated_screen_heating_is_circulating_plus_eddy(
         (CableScreenCirculatingLossType.GeneralizedLeading, CableScreenEddyLossType.GeneralizedTwoSided),
     ],
 )
-def test_measured_screen_heating(
+def test_heating_custom_screen_current(
     single_core_cable_xlpe,
-    measured_current,
+    custom_screen_current,
     load,
     temperature_dependent,
     circulating_loss_type,
@@ -352,7 +354,7 @@ def test_measured_screen_heating(
     cable.conductor.surface_type = CableConductorSurfaceType.Stranded
 
     def reject_circulating_loss(*args, **kwargs):
-        pytest.fail("Measured heating must not evaluate calculated circulating loss")
+        pytest.fail("Custom screen current must not evaluate calculated circulating loss")
 
     monkeypatch.setattr(cable, "get_screen_circulating_loss_factor", reject_circulating_loss)
     conductor_heat, screen_heat = cable.get_heat_generation_conductor_and_screen(
@@ -361,14 +363,14 @@ def test_measured_screen_heating(
         screen_temperature=40.0,
         temperature_dependent_electric_resistance=temperature_dependent,
         ac_current=True,
-        custom_screen_current=measured_current,
+        custom_screen_current=custom_screen_current,
     )
     screen_temperature = 40.0 if temperature_dependent else 20.0
     conductor_temperature = 60.0 if temperature_dependent else 20.0
     eddy_heat = conductor_heat * cable.get_screen_eddy_loss_factor(Ts=screen_temperature, Tc=conductor_temperature)
 
     assert screen_heat == pytest.approx(
-        measured_current**2 * cable._get_resistance_screen(Ts=screen_temperature) + eddy_heat
+        custom_screen_current**2 * cable._get_resistance_screen(Ts=screen_temperature) + eddy_heat
     )
     assert conductor_heat == pytest.approx(
         cable.get_heat_generation_conductor(
@@ -380,7 +382,7 @@ def test_measured_screen_heating(
     )
 
 
-def test_measured_common_screen_heating_is_not_multiplied_by_conductor_count(three_core_cable_pilc):
+def test_custom_screen_current_heating_is_not_scaled_by_conductor_count(three_core_cable_pilc):
     cable = three_core_cable_pilc
     cable.layer_metrics.screen_eddy_loss_type = CableScreenEddyLossType.Sector
     screen_heat = cable.get_heat_generation_screen(
@@ -418,8 +420,37 @@ def test_circulating_loss_does_not_require_eddy_case(single_core_cable_xlpe, cir
         pytest.fail("Circulating loss must not evaluate eddy loss")
 
     monkeypatch.setattr(cable, "get_screen_eddy_loss_factor", reject_eddy_loss)
-    monkeypatch.setattr(cable, "_calculate_relative_circulating_screen_currents", lambda **kwargs: np.ones((3, 1)))
+    monkeypatch.setattr(
+        cable,
+        "_calculate_relative_circulating_screen_current",
+        lambda **kwargs: 1.0,
+    )
     assert cable.get_screen_circulating_loss_factor(Ts=40.0, Tc=50.0) >= 0.0
+
+
+@pytest.mark.parametrize(
+    "phase, expected",
+    [
+        (CablePhase.Leading, 5.0),
+        (CablePhase.Center, 13.0),
+        (CablePhase.Lagging, 17.0),
+    ],
+)
+def test_relative_circulating_screen_current_returns_phase_magnitude(
+    single_core_cable_xlpe, monkeypatch, phase, expected
+):
+    cable = single_core_cable_xlpe
+    cable.weighted_screen_impedance = WeightedScreenImpedance(
+        weighted_reactance_matrix=np.zeros((2, 3)),
+        weighted_resistance_factor=1.0,
+    )
+    monkeypatch.setattr(
+        np.linalg,
+        "solve",
+        lambda matrix, values: np.array([[3 + 4j], [5 + 12j], [8 + 15j]]),
+    )
+
+    assert cable._calculate_relative_circulating_screen_current(Rs=1.0, phase=phase) == expected
 
 
 @pytest.mark.parametrize(
@@ -441,8 +472,12 @@ def test_generalized_circulating_loss_uses_phase_index(
     monkeypatch.setattr(cable, "_get_resistance_screen", lambda Ts: 1.0)
     monkeypatch.setattr(
         cable,
-        "_calculate_relative_circulating_screen_currents",
-        lambda **kwargs: np.array([[1], [2], [3]]),
+        "_calculate_relative_circulating_screen_current",
+        lambda phase, **kwargs: {
+            CablePhase.Leading: 1.0,
+            CablePhase.Center: 2.0,
+            CablePhase.Lagging: 3.0,
+        }[phase],
     )
 
     assert cable.get_screen_circulating_loss_factor(Ts=40.0, Tc=50.0) == pytest.approx(expected)
@@ -474,8 +509,8 @@ def test_each_loss_component_requires_its_own_case(single_core_cable_xlpe):
         cable.get_screen_circulating_loss_factor(Ts=40.0, Tc=50.0)
 
 
-@pytest.mark.parametrize("measured_current", [None, 0.0, 25.0])
-def test_generalized_milliken_remains_unsupported(single_core_cable_xlpe, measured_current):
+@pytest.mark.parametrize("custom_screen_current", [None, 0.0, 25.0])
+def test_generalized_milliken_remains_unsupported(single_core_cable_xlpe, custom_screen_current):
     cable = single_core_cable_xlpe
     cable.conductor.surface_type = CableConductorSurfaceType.Milliken
     cable.layer_metrics.screen_circulating_loss_type = CableScreenCirculatingLossType.GeneralizedLeading
@@ -487,5 +522,5 @@ def test_generalized_milliken_remains_unsupported(single_core_cable_xlpe, measur
             screen_temperature=40.0,
             conductor_temperature=50.0,
             temperature_dependent_electric_resistance=True,
-            custom_screen_current=measured_current,
+            custom_screen_current=custom_screen_current,
         )

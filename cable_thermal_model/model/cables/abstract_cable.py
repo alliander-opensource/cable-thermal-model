@@ -700,7 +700,7 @@ class AbstractCable:
 
         """
         if custom_screen_current is not None and not ac_current:
-            raise ValueError("Measured screen currents are not supported in DC mode.")
+            raise ValueError("Custom screen currents are not supported in DC mode.")
 
         heat_generation_conductor = self.get_heat_generation_conductor(
             ac_current=ac_current,
@@ -1147,21 +1147,12 @@ class AbstractCable:
         Rc = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
         Rs = self._get_resistance_screen(Ts)
 
-        match phase:
-            case CablePhase.Leading:
-                phase_idx = 0
-            case CablePhase.Center:
-                phase_idx = 1
-            case CablePhase.Lagging:
-                phase_idx = 2
-            case _:
-                raise ValueError(f"Unknown phase: {phase}")
-
-        lambda1 = Rs / Rc * abs(self._calculate_relative_circulating_screen_currents(Rs=Rs)[phase_idx][0]) ** 2
+        relative_currents = self._calculate_relative_circulating_screen_currents(Rs=Rs)
+        lambda1 = Rs / Rc * relative_currents[phase] ** 2
 
         return lambda1
 
-    def _calculate_relative_circulating_screen_currents(self, Rs: float):
+    def _calculate_relative_circulating_screen_currents(self, Rs: float) -> dict[CablePhase, float]:
         """Determines the ratio between the circulating sheath currents and the conductor current (|Is|/|Ic|).
 
         Uses numpy.linalg.solve to solve the linear system of equations Ax = b
@@ -1190,7 +1181,14 @@ class AbstractCable:
             A[i, i] += Rs * weighted_screen_resistance_factor
             A[i, i + 1] -= Rs * weighted_screen_resistance_factor
 
-        return np.linalg.solve(A, b)
+        relative_currents = np.linalg.solve(A, b)
+        magnitudes = np.abs(relative_currents[:, 0])
+        phases = (CablePhase.Leading, CablePhase.Center, CablePhase.Lagging)
+        
+        return {
+            phase: float(magnitude)
+            for phase, magnitude in zip(phases, magnitudes, strict=True)
+        }
 
     def _get_lambda1_eddy(self, Ts: float, Tc: float, lambda0: float, delta_one_plus_delta_two: float) -> float:
         """Calculates the lambda1 eddy value for the screen loss calculation.

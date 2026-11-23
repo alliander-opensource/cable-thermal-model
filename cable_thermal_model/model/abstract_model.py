@@ -41,38 +41,37 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         self._set_run_options(run_options=None)
 
     def _validate_screen_current_columns(self, scenario: pd.DataFrame, ac_current: bool) -> set[str]:
-        """Validate optional measured screen-current columns for this model."""
+        """Validate optional custom screen-current columns in the scenario."""
         screen_columns = {
             get_screen_current_column(key): pos_cable for key, pos_cable in self.static_env.get_cables().items()
         }
         duplicate_screen_columns = set(scenario.columns[scenario.columns.duplicated()]) & screen_columns.keys()
         if duplicate_screen_columns:
-            raise ValueError(f"Measured screen-current columns must be unique: {sorted(duplicate_screen_columns)}.")
+            raise ValueError(f"Custom screen-current columns must be unique: {sorted(duplicate_screen_columns)}.")
 
         for column, pos_cable in screen_columns.items():
             if column not in scenario.columns:
                 continue
             if not ac_current:
-                raise ValueError(f"Measured screen-current column '{column}' is not supported in DC mode.")
+                raise ValueError(f"Custom screen-current column '{column}' is not supported in DC mode.")
             if isinstance(pos_cable.cable, CableTrefoilCircuitSinglePipe):
-                raise ValueError(f"Measured screen-current column '{column}' is not supported for shared-pipe trefoil.")
+                raise ValueError(f"Custom screen-current column '{column}' is not supported for shared-pipe trefoil.")
             if CableLayer.Screen not in pos_cable.cable.layers:
-                raise ValueError(f"Measured screen-current column '{column}' requires a cable with a metallic screen.")
+                raise ValueError(f"Custom screen-current column '{column}' requires a cable with a metallic screen.")
 
         return set(screen_columns)
 
     def _warn_partial_screen_current_coverage(self, scenario: pd.DataFrame) -> None:
-        """Warn when screen-current measurements cover only part of a circuit."""
+        """Warn when custom screen-current columns in the scenario cover only part of a circuit."""
         for circuit_name, circuit in self.static_env.circuits.items():
             cable_count = len(circuit.cables)
-            measured_count = sum(
+            custom_count = sum(
                 get_screen_current_column(pos_cable.key) in scenario.columns for pos_cable in circuit.cables
             )
-            if 0 < measured_count < cable_count:
+            if 0 < custom_count < cable_count:
                 warnings.warn(
-                    f"Circuit '{circuit_name}' has custom screen currents for {measured_count} of {cable_count} "
-                    "cables. The remaining cables use calculated circulating losses; their currents are not "
-                    "adjusted to match the measurements.",
+                    f"Circuit '{circuit_name}' has custom screen currents for {custom_count} of {cable_count} "
+                    "cables. The remaining cables use calculated circulating losses.",
                     UserWarning,
                     stacklevel=4,
                 )

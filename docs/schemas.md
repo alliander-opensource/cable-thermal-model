@@ -29,11 +29,11 @@ The model extends the base input schema with required `load_<circuit_name>` colu
 and optional `screen_current_<circuit_name>_<position>` columns for known cable keys.
 Unknown columns are rejected. Screen-current inputs must be finite, nonnegative RMS
 amperes over the interval ending at their timestamp. The first row is initialization-only.
-Absent columns retain calculated circulating losses; zero is a measurement, not absence.
-Eddy losses remain standards-derived. Measurements are rejected for DC runs, screenless
+Absent columns retain calculated circulating losses. Zero is an explicit custom current, not absence.
+Eddy losses remain standards-derived. Custom-current columns are rejected for DC runs, screenless
 cables, and equivalent shared-pipe trefoil models. See
-[measured screen currents](get_started/model_input.md#optional-measured-screen-currents)
-for the loss equation and measurement assumptions.
+[custom screen currents](get_started/model_input.md#optional-custom-screen-currents)
+for the loss equation and input assumptions.
 
 ## Explicit Validation Outside Models
 

@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Optional per-cable RMS screen-current scenario columns for circulating-current heating,
-  retaining standards-derived eddy losses and calculated circulating losses for unmeasured cables.
+    retaining standards-derived eddy losses and calculated circulating losses for cables without custom currents.
 
 ### Changed
 

@@ -603,7 +603,7 @@ class Cable(AbstractCable):
 
         """
         if custom_screen_current is not None and (not ac_current or CableLayer.Screen not in self.layers):
-            raise ValueError("Measured screen current requires an AC cable with a metallic screen.")
+            raise ValueError("Custom screen current requires an AC cable with a metallic screen.")
 
         conductor_temperature = self._get_mean_temperature_cable_layer(
             temperature_grid=temperature_grid, layer=CableLayer.Conductor

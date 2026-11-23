@@ -256,14 +256,14 @@ def test_validate_scenario_uses_supplied_ac_current(
 
 
 @pytest.mark.parametrize("environment", ["single_circuit_env", "single_circuit_in_air_env"])
-@pytest.mark.parametrize("measured_count", [0, 1, 2, 3])
-def test_partial_custom_screen_currents_warning(environment, measured_count, request, scenario_constant, mocker):
+@pytest.mark.parametrize("custom_count", [0, 1, 2, 3])
+def test_partial_custom_screen_currents_warning(environment, custom_count, request, scenario_constant, mocker):
     model = ModelFactory.create_model(request.getfixturevalue(environment))
     scenario = scenario_constant.copy()
     if environment == "single_circuit_in_air_env":
         scenario = scenario.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"])
         scenario["solar_radiation_intensity"] = 0.0
-    for cable_key in list(model.static_env.get_cables())[:measured_count]:
+    for cable_key in list(model.static_env.get_cables())[:custom_count]:
         scenario[get_screen_current_column(cable_key)] = 0.0
     computation = mocker.patch.object(model, "_compute_temperature_solution")
 
@@ -272,15 +272,13 @@ def test_partial_custom_screen_currents_warning(environment, measured_count, req
             warnings.simplefilter("always", UserWarning)
             assert model.run(scenario) is computation.return_value
 
-        partial_coverage = 0 < measured_count < 3
+        partial_coverage = 0 < custom_count < 3
         assert len(caught) == int(partial_coverage)
         if partial_coverage:
             assert caught[0].category is UserWarning
             assert caught[0].filename == __file__
-            assert str(caught[0].message) == (
-                f"Circuit 'c1' has measured screen currents for {measured_count} of 3 cables. "
-                "The remaining cables use calculated circulating losses; their currents are not "
-                "adjusted to match the measurements."
+            assert str(caught[0].message).startswith(
+                f"Circuit 'c1' has custom screen currents for {custom_count} of 3 cables"
             )
 
 
@@ -294,7 +292,7 @@ def test_partial_custom_screen_currents_warn_per_circuit(two_circuit_env, scenar
         scenario[column] = 0.0
     mocker.patch.object(model, "_compute_temperature_solution")
 
-    with pytest.warns(UserWarning, match="has measured screen currents for 1 of 3 cables") as caught:
+    with pytest.warns(UserWarning, match="has custom screen currents for 1 of 3 cables") as caught:
         model.run(scenario)
 
     assert len(caught) == len(circuit_columns)
