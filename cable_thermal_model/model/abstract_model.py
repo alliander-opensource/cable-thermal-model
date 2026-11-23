@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import warnings
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
 from typing import Generic
 
 import pandas as pd
@@ -40,7 +40,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         self.static_env = static_env
         self._set_run_options(run_options=None)
 
-    def _validate_screen_current_columns(self, scenario: pd.DataFrame, ac_current: bool) -> Mapping[str, object]:
+    def _validate_screen_current_columns(self, scenario: pd.DataFrame, ac_current: bool) -> set[str]:
         """Validate optional measured screen-current columns for this model."""
         screen_columns = {
             get_screen_current_column(key): pos_cable for key, pos_cable in self.static_env.get_cables().items()
@@ -59,7 +59,23 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
             if CableLayer.Screen not in pos_cable.cable.layers:
                 raise ValueError(f"Measured screen-current column '{column}' requires a cable with a metallic screen.")
 
-        return screen_columns
+        return set(screen_columns)
+
+    def _warn_partial_screen_current_coverage(self, scenario: pd.DataFrame) -> None:
+        """Warn when screen-current measurements cover only part of a circuit."""
+        for circuit_name, circuit in self.static_env.circuits.items():
+            cable_count = len(circuit.cables)
+            measured_count = sum(
+                get_screen_current_column(pos_cable.key) in scenario.columns for pos_cable in circuit.cables
+            )
+            if 0 < measured_count < cable_count:
+                warnings.warn(
+                    f"Circuit '{circuit_name}' has measured screen currents for {measured_count} of {cable_count} "
+                    "cables. The remaining cables use calculated circulating losses; their currents are not "
+                    "adjusted to match the measurements.",
+                    UserWarning,
+                    stacklevel=4,
+                )
 
     def _validate_scenario(self, scenario: pd.DataFrame, ac_current: bool) -> DataFrame[ScenarioModelT]:
         """Validates that the scenario DataFrame contains all required columns and no missing values.
@@ -73,7 +89,6 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
 
         """
         screen_columns = self._validate_screen_current_columns(scenario, ac_current=ac_current)
-
         scenario_schema = self._scenario_model_class.to_schema().add_columns(
             {
                 **{f"load_{circuit_name}": pa.Column(float) for circuit_name in self.static_env.circuits},
@@ -82,6 +97,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
         )
         scenario_schema.strict = True
         scenario_schema.validate(scenario)
+        self._warn_partial_screen_current_coverage(scenario)
 
         # As we validate the scenario schema, we can safely return the scenario.
         # Initializing DataFrame[ScenarioModelT] would be double validation, so we use type: ignore to bypass it.

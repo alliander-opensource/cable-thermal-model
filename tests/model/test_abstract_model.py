@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -11,6 +12,7 @@ from pydantic_core import ValidationError
 
 from cable_thermal_model.cable_configuration.cable_circuit import CableKey, CablePosition, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel
+from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.model_soil import ModelSoil
 from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil, get_screen_current_column
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
@@ -253,6 +255,53 @@ def test_validate_scenario_uses_supplied_ac_current(
             model._validate_scenario(scenario, ac_current=ac_current)
 
 
+@pytest.mark.parametrize("environment", ["single_circuit_env", "single_circuit_in_air_env"])
+@pytest.mark.parametrize("measured_count", [0, 1, 2, 3])
+def test_partial_measured_screen_currents_warning(environment, measured_count, request, scenario_constant, mocker):
+    model = ModelFactory.create_model(request.getfixturevalue(environment))
+    scenario = scenario_constant.copy()
+    if environment == "single_circuit_in_air_env":
+        scenario = scenario.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"])
+        scenario["solar_radiation_intensity"] = 0.0
+    for cable_key in list(model.static_env.get_cables())[:measured_count]:
+        scenario[get_screen_current_column(cable_key)] = 0.0
+    computation = mocker.patch.object(model, "_compute_temperature_solution")
+
+    for _ in range(2):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", UserWarning)
+            assert model.run(scenario) is computation.return_value
+
+        partial_coverage = 0 < measured_count < 3
+        assert len(caught) == int(partial_coverage)
+        if partial_coverage:
+            assert caught[0].category is UserWarning
+            assert caught[0].filename == __file__
+            assert str(caught[0].message) == (
+                f"Circuit 'c1' has measured screen currents for {measured_count} of 3 cables. "
+                "The remaining cables use calculated circulating losses; their currents are not "
+                "adjusted to match the measurements."
+            )
+
+
+def test_partial_measured_screen_currents_warn_per_circuit(two_circuit_env, scenario_constant_multi, mocker):
+    model = ModelFactory.create_model(two_circuit_env)
+    circuit_columns = {}
+    for cable_key in two_circuit_env.get_cables():
+        circuit_columns.setdefault(cable_key.circuit_name, get_screen_current_column(cable_key))
+    scenario = scenario_constant_multi.copy()
+    for column in circuit_columns.values():
+        scenario[column] = 0.0
+    mocker.patch.object(model, "_compute_temperature_solution")
+
+    with pytest.warns(UserWarning, match="has measured screen currents for 1 of 3 cables") as caught:
+        model.run(scenario)
+
+    assert len(caught) == len(circuit_columns)
+    for warning, circuit_name in zip(caught, circuit_columns, strict=True):
+        assert f"Circuit '{circuit_name}'" in str(warning.message)
+
+
 @pytest.mark.parametrize("current", [-25.0, 0.0, 25, "25.0"])
 def test_optional_measured_screen_current_column(model, scenario_constant, current):
     scenario = scenario_constant.copy()
@@ -272,8 +321,12 @@ def test_invalid_measured_screen_current_column(model, scenario_constant, curren
     cable_key = next(iter(model.static_env.get_cables()))
     scenario[get_screen_current_column(cable_key)] = current
 
-    with pytest.raises((SchemaError, SchemaErrors)):
-        model.run(scenario)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", UserWarning)
+        with pytest.raises((SchemaError, SchemaErrors)):
+            model.run(scenario)
+
+    assert not caught
 
 
 def test_unknown_measured_screen_current_column(model, scenario_constant):

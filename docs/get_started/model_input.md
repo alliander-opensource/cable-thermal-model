@@ -220,11 +220,12 @@ conductor loss calculated from the circuit load, and $\lambda_{\mathrm{eddy}}$ i
 eddy-current loss factor. Losses are in W/m and screen resistance is in ohm/m.
 
 - An absent column retains calculated circulating losses for that cable, using the existing standards model.
+- Providing screen-current columns for some but not all cables in a circuit issues a `UserWarning` (though warning filters may suppress it). Unmeasured cables retain calculated circulating losses.
 - An explicit zero suppresses circulating losses.
 - A measured current through a common screen is applied once, not multiplied by the number of conductors.
 - Measurement columns for screenless cables, DC runs, and equivalent three-cables-in-one-pipe models are rejected.
 
-This example measures only the top screen; the other two cables retain calculated losses:
+This example measures the screens of all three cables in the trefoil circuit:
 
 ```python
 import pandas as pd
@@ -246,6 +247,8 @@ scenario = pd.DataFrame(
     {
         "load_circuit_1": [200.0, 250.0, 300.0],
         "screen_current_circuit_1_trefoil_top": [0.0, 25.0, 30.0],
+        "screen_current_circuit_1_trefoil_left": [0.0, 24.0, 29.0],
+        "screen_current_circuit_1_trefoil_right": [0.0, 26.0, 31.0],
         "ambient_temperature": 15.0,
         "soil_thermal_resistivity": 0.75,
         "soil_thermal_capacity": 2e6,
