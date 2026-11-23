@@ -422,6 +422,32 @@ def test_circulating_loss_does_not_require_eddy_case(single_core_cable_xlpe, cir
     assert cable.get_screen_circulating_loss_factor(Ts=40.0, Tc=50.0) >= 0.0
 
 
+@pytest.mark.parametrize(
+    "circulating_loss_type, expected",
+    [
+        (CableScreenCirculatingLossType.GeneralizedLeading, 1.0),
+        (CableScreenCirculatingLossType.GeneralizedCenter, 4.0),
+        (CableScreenCirculatingLossType.GeneralizedLagging, 9.0),
+    ],
+)
+def test_generalized_circulating_loss_uses_phase_index(
+    single_core_cable_xlpe, circulating_loss_type, expected, monkeypatch
+):
+    cable = single_core_cable_xlpe
+    cable.layer_metrics.conductor_distance = 0.1
+    cable.layer_metrics.screen_circulating_loss_type = circulating_loss_type
+    cable.conductor.surface_type = CableConductorSurfaceType.Stranded
+    monkeypatch.setattr(cable, "get_ac_resistance_conductor", lambda **kwargs: 1.0)
+    monkeypatch.setattr(cable, "_get_resistance_screen", lambda Ts: 1.0)
+    monkeypatch.setattr(
+        cable,
+        "_calculate_relative_circulating_screen_currents",
+        lambda **kwargs: np.array([[1], [2], [3]]),
+    )
+
+    assert cable.get_screen_circulating_loss_factor(Ts=40.0, Tc=50.0) == pytest.approx(expected)
+
+
 def test_eddy_loss_does_not_require_circulating_case(single_core_cable_xlpe):
     cable = single_core_cable_xlpe
     cable.layer_metrics.conductor_distance = 0.1

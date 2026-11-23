@@ -220,6 +220,14 @@ class CableLayer(StrEnum):
         return [layer for layer in cls if layer.name.startswith("Soil")]
 
 
+class CablePhase(StrEnum):
+    """Phase positions used by linear and generalized screen-loss calculations."""
+
+    Leading = "leading"
+    Center = "center"
+    Lagging = "lagging"
+
+
 class CableScreenCirculatingLossType(StrEnum):
     """Cases for circulating-current screen losses."""
 

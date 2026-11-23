@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import logging
-from typing import Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -15,6 +14,7 @@ from cable_thermal_model.model.cables.enum_classes_cable import (
     CableConductorSurfaceType,
     CableInsulationMaterial,
     CableLayer,
+    CablePhase,
     CableScreenCirculatingLossType,
     CableScreenEddyLossType,
     CableType,
@@ -856,11 +856,11 @@ class AbstractCable:
             case CableScreenEddyLossType.TwoSidedTrefoil:
                 return self._get_screen_eddy_loss_two_sided_trefoil(Tc=Tc, Ts=Ts)
             case CableScreenEddyLossType.TwoSidedLinearLeading:
-                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase="leading")
+                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase=CablePhase.Leading)
             case CableScreenEddyLossType.TwoSidedLinearCenter:
-                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase="center")
+                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase=CablePhase.Center)
             case CableScreenEddyLossType.TwoSidedLinearLagging:
-                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase="lagging")
+                return self._get_screen_eddy_loss_two_sided_linear(Tc=Tc, Ts=Ts, phase=CablePhase.Lagging)
             case CableScreenEddyLossType.GeneralizedTwoSided:
                 if self.conductor.surface_type == CableConductorSurfaceType.Milliken:
                     raise NotImplementedError("Generalized screen loss not implemented for Milliken cables.")
@@ -876,17 +876,17 @@ class AbstractCable:
             case CableScreenCirculatingLossType.Trefoil:
                 return self._get_screen_circulating_loss_trefoil(Tc=Tc, Ts=Ts)
             case CableScreenCirculatingLossType.LinearLeading:
-                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase="leading")
+                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase=CablePhase.Leading)
             case CableScreenCirculatingLossType.LinearCenter:
-                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase="center")
+                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase=CablePhase.Center)
             case CableScreenCirculatingLossType.LinearLagging:
-                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase="lagging")
+                return self._get_screen_circulating_loss_linear(Tc=Tc, Ts=Ts, phase=CablePhase.Lagging)
             case CableScreenCirculatingLossType.GeneralizedLeading:
-                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase_idx=0)
+                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase=CablePhase.Leading)
             case CableScreenCirculatingLossType.GeneralizedCenter:
-                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase_idx=1)
+                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase=CablePhase.Center)
             case CableScreenCirculatingLossType.GeneralizedLagging:
-                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase_idx=2)
+                return self._get_screen_circulating_loss_generalized(Tc=Tc, Ts=Ts, phase=CablePhase.Lagging)
             case _:
                 raise ValueError("Screen circulating loss method is not set.")
 
@@ -992,9 +992,7 @@ class AbstractCable:
 
         return correction * self._get_screen_eddy_loss_trefoil(Tc=Tc, Ts=Ts)
 
-    def _get_screen_eddy_loss_two_sided_linear(
-        self, Tc: float, Ts: float, *, phase: Literal["leading", "center", "lagging"]
-    ) -> float:
+    def _get_screen_eddy_loss_two_sided_linear(self, Tc: float, Ts: float, *, phase: CablePhase) -> float:
         """Apply the two-sided linear Milliken correction from IEC 60287-1-1:2023, section 5.3.6.
 
         The base eddy calculation is evaluated only for Milliken conductors.
@@ -1003,11 +1001,11 @@ class AbstractCable:
             return 0.0
 
         match phase:
-            case "leading":
+            case CablePhase.Leading:
                 eddy_factor = self._get_screen_eddy_loss_linear_leading(Tc=Tc, Ts=Ts)
-            case "center":
+            case CablePhase.Center:
                 eddy_factor = self._get_screen_eddy_loss_linear_center(Tc=Tc, Ts=Ts)
-            case "lagging":
+            case CablePhase.Lagging:
                 eddy_factor = self._get_screen_eddy_loss_linear_lagging(Tc=Tc, Ts=Ts)
             case _:
                 raise ValueError(f"Unknown phase: {phase}")
@@ -1097,9 +1095,7 @@ class AbstractCable:
 
         return lambda1_eddy
 
-    def _get_screen_circulating_loss_linear(
-        self, Tc: float, Ts: float, *, phase: Literal["leading", "center", "lagging"]
-    ) -> float:
+    def _get_screen_circulating_loss_linear(self, Tc: float, Ts: float, *, phase: CablePhase) -> float:
         """Circulating-current loss for a phase in a two-sided linear arrangement.
 
         Notes:
@@ -1115,7 +1111,7 @@ class AbstractCable:
         reactance_neutral = self.X - self.Xm / 3
         neutral_term = reactance_neutral**2 / (resistance_screen**2 + reactance_neutral**2)
 
-        if phase == "center":
+        if phase == CablePhase.Center:
             return resistance_screen / resistance_conductor * neutral_term
 
         reactance_positive = self.X + self.Xm
@@ -1128,7 +1124,7 @@ class AbstractCable:
             * self.Xm
             / (3**0.5 * (resistance_screen**2 + reactance_positive**2) * (resistance_screen**2 + reactance_neutral**2))
         )
-        if phase == "leading":
+        if phase == CablePhase.Leading:
             cross_term = -cross_term
 
         return resistance_screen / resistance_conductor * (0.75 * positive_term + 0.25 * neutral_term + cross_term)
@@ -1137,7 +1133,7 @@ class AbstractCable:
         self,
         Tc: float,
         Ts: float,
-        phase_idx: int,
+        phase: CablePhase,
     ) -> float:
         """Generalized circulating-current loss for cables with two-sided bonding.
 
@@ -1150,6 +1146,16 @@ class AbstractCable:
 
         Rc = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
         Rs = self._get_resistance_screen(Ts)
+
+        match phase:
+            case CablePhase.Leading:
+                phase_idx = 0
+            case CablePhase.Center:
+                phase_idx = 1
+            case CablePhase.Lagging:
+                phase_idx = 2
+            case _:
+                raise ValueError(f"Unknown phase: {phase}")
 
         lambda1 = Rs / Rc * abs(self._calculate_relative_circulating_screen_currents(Rs=Rs)[phase_idx][0]) ** 2
 
