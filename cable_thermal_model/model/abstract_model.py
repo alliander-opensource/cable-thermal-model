@@ -70,7 +70,7 @@ class AbstractModel(ABC, Generic[ModelRunOptionsT, StateT, ScenarioModelT, Stati
             )
             if 0 < measured_count < cable_count:
                 warnings.warn(
-                    f"Circuit '{circuit_name}' has measured screen currents for {measured_count} of {cable_count} "
+                    f"Circuit '{circuit_name}' has custom screen currents for {measured_count} of {cable_count} "
                     "cables. The remaining cables use calculated circulating losses; their currents are not "
                     "adjusted to match the measurements.",
                     UserWarning,
