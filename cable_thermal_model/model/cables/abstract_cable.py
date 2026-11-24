@@ -1184,11 +1184,8 @@ class AbstractCable:
         relative_currents = np.linalg.solve(A, b)
         magnitudes = np.abs(relative_currents[:, 0])
         phases = (CablePhase.Leading, CablePhase.Center, CablePhase.Lagging)
-        
-        return {
-            phase: float(magnitude)
-            for phase, magnitude in zip(phases, magnitudes, strict=True)
-        }
+
+        return {phase: float(magnitude) for phase, magnitude in zip(phases, magnitudes, strict=True)}
 
     def _get_lambda1_eddy(self, Ts: float, Tc: float, lambda0: float, delta_one_plus_delta_two: float) -> float:
         """Calculates the lambda1 eddy value for the screen loss calculation.
