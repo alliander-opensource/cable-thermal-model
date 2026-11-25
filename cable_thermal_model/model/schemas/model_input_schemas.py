@@ -2,13 +2,21 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import pandas as pd
 import pandera.pandas as pa
 
+if TYPE_CHECKING:
+    from cable_thermal_model.cable_configuration.cable_circuit import CableKey
+
 THERMAL_RESISTIVITY_COLUMN = "soil_thermal_resistivity"
 THERMAL_CAPACITY_COLUMN = "soil_thermal_capacity"
+
+
+def get_screen_current_column(cable_key: "CableKey") -> str:
+    """Return the optional scenario column for a cable's RMS screen current."""
+    return f"screen_current_{cable_key.circuit_name}_{cable_key.cable_position.value}"
 
 
 # Input model for scenario dataframe:
@@ -19,7 +27,11 @@ class AbstractScenarioModel(pa.DataFrameModel):
     - Index: datetime (time series)
     - Columns:
         - load_<circuit_name> (float): load in Amperes for each circuit (e.g., load_circuit1, load_circuit2, etc.)
+        - screen_current_<circuit_name>_<position> (optional float): RMS screen current in amperes for a cable.
         - ambient_temperature (float): ambient temperature in degrees Celsius
+
+    Load and screen-current values describe the interval ending at their timestamp.
+    The first row initializes the simulation; it does not drive a preceding interval.
     """
 
     ambient_temperature: pa.typing.Series[float]

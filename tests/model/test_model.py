@@ -13,6 +13,7 @@ from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import ModelAir
 from cable_thermal_model.model.model_soil import ModelSoil
 from cable_thermal_model.model.schemas import StateAir
+from cable_thermal_model.model.schemas.model_input_schemas import get_screen_current_column
 
 
 @pytest.mark.parametrize("model_class", [ModelAir, ModelSoil])
@@ -202,3 +203,92 @@ def test_validate_scenario_accepts_integer_numeric_columns(model: ModelSoil):
 
     result = model.run(scenario)
     assert result.result.shape[0] == scenario.shape[0]
+
+
+@pytest.fixture(params=["air", "soil"])
+def screen_current_model_and_scenario(request):
+    environment_fixture = "single_circuit_in_air_env" if request.param == "air" else "single_circuit_env"
+    environment = request.getfixturevalue(environment_fixture)
+    model_class = ModelAir if request.param == "air" else ModelSoil
+    data = {"load_c1": 575.0, "ambient_temperature": 10.0}
+    if request.param == "air":
+        data["solar_radiation_intensity"] = 0.0
+    else:
+        data.update(soil_thermal_resistivity=0.75, soil_thermal_capacity=2e6)
+    scenario = pd.DataFrame(index=pd.to_timedelta([0, 5, 20, 60], unit="min"), data=data)
+    return model_class(environment), scenario
+
+
+def test_custom_screen_currents_are_dispatched_independently(screen_current_model_and_scenario):
+    model, scenario = screen_current_model_and_scenario
+    model.run(scenario)
+    temperature_state = model._build_initial_state(ambient_temperature=10.0).temperature
+    cable_keys = list(model.cables_in_environment)
+    currents = {cable_keys[0]: 0.0, cable_keys[1]: 25.0}
+    scenario_row = scenario.iloc[1].copy()
+    for cable_key, current in currents.items():
+        scenario_row[get_screen_current_column(cable_key)] = current
+    for pos_cable in model.cables_in_environment.values():
+        pos_cable.cable._update_heating_vector = MagicMock(wraps=pos_cable.cable._update_heating_vector)
+
+    model._update_heating_vectors(temperature_state=temperature_state, scenario_row=scenario_row)
+
+    for cable_key, pos_cable in model.cables_in_environment.items():
+        pos_cable.cable._update_heating_vector.assert_called_once()
+        assert pos_cable.cable._update_heating_vector.call_args.kwargs["custom_screen_current"] == currents.get(
+            cable_key
+        )
+
+
+def test_custom_screen_current_heats_at_zero_conductor_load(screen_current_model_and_scenario):
+    model, scenario = screen_current_model_and_scenario
+    scenario["load_c1"] = 0.0
+    cable_key = next(iter(model.static_env.get_cables()))
+    run_options = {"neglect_dielectric_loss": True, "extra_solution_layers": [CableLayer.Screen]}
+    reference = model.run(scenario, run_options=run_options)
+    scenario[get_screen_current_column(cable_key)] = 100.0
+
+    custom_current_output = model.run(scenario, run_options=run_options)
+
+    screen_column = (cable_key.circuit_name, cable_key.cable_position, CableLayer.Screen)
+    assert custom_current_output.result[screen_column].iloc[-1] > reference.result[screen_column].iloc[-1]
+    assert custom_current_output.result[screen_column].iloc[0] == reference.result[screen_column].iloc[0]
+
+
+def test_custom_screen_current_uses_interval_ending_at_timestamp(screen_current_model_and_scenario):
+    model, scenario = screen_current_model_and_scenario
+    cable_key = next(iter(model.static_env.get_cables()))
+    column = get_screen_current_column(cable_key)
+    scenario[column] = [999.0, 0.0, 100.0, 25.0]
+    full_output = model.run(scenario)
+
+    initial_state = None
+    interval_results = []
+    for step_index in range(1, len(scenario)):
+        interval = scenario.iloc[step_index - 1 : step_index + 1].copy()
+        interval[column] = scenario[column].iloc[step_index]
+        output = model.run(interval, initial_state=initial_state)
+        interval_results.append(output.result if initial_state is None else output.result.iloc[1:])
+        initial_state = output.state
+
+    pd.testing.assert_frame_equal(pd.concat(interval_results), full_output.result, rtol=1e-10, atol=1e-10)
+
+    scenario.loc[scenario.index[0], column] = 0.0
+    changed_first_row = model.run(scenario)
+    pd.testing.assert_frame_equal(changed_first_row.result, full_output.result)
+
+
+def test_custom_screen_currents_do_not_persist_between_runs(screen_current_model_and_scenario):
+    model, scenario = screen_current_model_and_scenario
+    custom_current_scenario = scenario.copy()
+    cable_keys = list(model.static_env.get_cables())
+    for cable_key, current in zip(cable_keys, [0.0, 25.0, 100.0], strict=True):
+        custom_current_scenario[get_screen_current_column(cable_key)] = current
+
+    first_custom_current = model.run(custom_current_scenario)
+    without_custom_current = model.run(scenario)
+    repeated_custom_current = model.run(custom_current_scenario)
+    fresh_without_custom_current = model.__class__(model.static_env).run(scenario)
+
+    pd.testing.assert_frame_equal(without_custom_current.result, fresh_without_custom_current.result)
+    pd.testing.assert_frame_equal(repeated_custom_current.result, first_custom_current.result)

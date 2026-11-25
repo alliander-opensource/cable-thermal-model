@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -11,8 +12,10 @@ from pydantic_core import ValidationError
 
 from cable_thermal_model.cable_configuration.cable_circuit import CableKey, CablePosition, PosCable
 from cable_thermal_model.model.abstract_model import AbstractModel
+from cable_thermal_model.model.model_factory import ModelFactory
 from cable_thermal_model.model.model_soil import ModelSoil
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil, get_screen_current_column
+from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 from cable_thermal_model.model.schemas.state_schemas import State, StateSoil
 
 
@@ -229,10 +232,129 @@ def test_validate_scenario(
 def test_valid_scenario(model: ModelSoil, scenario_constant: pd.DataFrame):
     """Tests whether a valid scenario is accepted by the model."""
     # Should not raise any exceptions
-    validated_scenario = model._validate_scenario(scenario_constant)
+    validated_scenario = model._validate_scenario(scenario_constant, ac_current=model.run_options.ac_current)
 
     # The validated scenario should be a valid DataFrame[ScenarioModelSoil]
     ScenarioModelSoil.validate(validated_scenario)
+
+
+@pytest.mark.parametrize("ac_current", [True, False])
+def test_validate_scenario_uses_supplied_ac_current(
+    model: ModelSoil, scenario_constant: pd.DataFrame, ac_current: bool
+):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = 0.0
+    model._set_run_options(run_options=ModelSoilRunOptions(ac_current=not ac_current))
+
+    if ac_current:
+        validated_scenario = model._validate_scenario(scenario, ac_current=ac_current)
+        assert validated_scenario is scenario
+    else:
+        with pytest.raises(ValueError, match="not supported in DC mode"):
+            model._validate_scenario(scenario, ac_current=ac_current)
+
+
+@pytest.mark.parametrize("environment", ["single_circuit_env", "single_circuit_in_air_env"])
+@pytest.mark.parametrize("custom_count", [0, 1, 2, 3])
+def test_partial_custom_screen_currents_warning(environment, custom_count, request, scenario_constant, mocker):
+    model = ModelFactory.create_model(request.getfixturevalue(environment))
+    scenario = scenario_constant.copy()
+    if environment == "single_circuit_in_air_env":
+        scenario = scenario.drop(columns=["soil_thermal_resistivity", "soil_thermal_capacity"])
+        scenario["solar_radiation_intensity"] = 0.0
+    for cable_key in list(model.static_env.get_cables())[:custom_count]:
+        scenario[get_screen_current_column(cable_key)] = 0.0
+    computation = mocker.patch.object(model, "_compute_temperature_solution")
+
+    for _ in range(2):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", UserWarning)
+            assert model.run(scenario) is computation.return_value
+
+        partial_coverage = 0 < custom_count < 3
+        assert len(caught) == int(partial_coverage)
+        if partial_coverage:
+            assert caught[0].category is UserWarning
+            assert caught[0].filename == __file__
+            assert str(caught[0].message).startswith(
+                f"Circuit 'c1' has custom screen currents for {custom_count} of 3 cables"
+            )
+
+
+def test_partial_custom_screen_currents_warn_per_circuit(two_circuit_env, scenario_constant_multi, mocker):
+    model = ModelFactory.create_model(two_circuit_env)
+    circuit_columns = {}
+    for cable_key in two_circuit_env.get_cables():
+        circuit_columns.setdefault(cable_key.circuit_name, get_screen_current_column(cable_key))
+    scenario = scenario_constant_multi.copy()
+    for column in circuit_columns.values():
+        scenario[column] = 0.0
+    mocker.patch.object(model, "_compute_temperature_solution")
+
+    with pytest.warns(UserWarning, match="has custom screen currents for 1 of 3 cables") as caught:
+        model.run(scenario)
+
+    assert len(caught) == len(circuit_columns)
+    for warning, circuit_name in zip(caught, circuit_columns, strict=True):
+        assert f"Circuit '{circuit_name}'" in str(warning.message)
+
+
+@pytest.mark.parametrize("current", [-25.0, 0.0, 25, "25.0"])
+def test_optional_custom_screen_current_column(model, scenario_constant, current):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = current
+    original = scenario.copy(deep=True)
+
+    result = model.run(scenario)
+
+    assert result.result.shape[0] == len(scenario)
+    pd.testing.assert_frame_equal(scenario, original)
+
+
+@pytest.mark.parametrize("current", [np.nan, "not-a-current"])
+def test_invalid_custom_screen_current_column(model, scenario_constant, current):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = current
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", UserWarning)
+        with pytest.raises((SchemaError, SchemaErrors)):
+            model.run(scenario)
+
+    assert not caught
+
+
+def test_unknown_custom_screen_current_column(model, scenario_constant):
+    scenario = scenario_constant.copy()
+    scenario["screen_current_c1_unknown_position"] = 25.0
+
+    with pytest.raises((SchemaError, SchemaErrors), match="screen_current_c1_unknown_position"):
+        model.run(scenario)
+
+
+def test_duplicate_custom_screen_current_column(model, scenario_constant):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    column = get_screen_current_column(cable_key)
+    scenario[column] = 25.0
+    scenario = pd.concat([scenario, scenario[[column]]], axis=1)
+
+    with pytest.raises(ValueError, match="must be unique"):
+        model.run(scenario)
+
+
+def test_custom_screen_current_column_in_dc_mode(model, scenario_constant):
+    scenario = scenario_constant.copy()
+    cable_key = next(iter(model.static_env.get_cables()))
+    scenario[get_screen_current_column(cable_key)] = 0.0
+
+    with pytest.raises(ValueError, match="DC mode"):
+        model.run(scenario, run_options={"ac_current": False})
+
+    assert model.run(scenario).result.shape[0] == len(scenario)
 
 
 @pytest.mark.parametrize("temperature_dependent_electric_resistance", [True, False])

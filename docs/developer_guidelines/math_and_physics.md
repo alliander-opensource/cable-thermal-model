@@ -34,10 +34,10 @@ In these cases a clear link between the source documents and the code takes prec
 A good example of code where these guidelines would apply can be found in:
 /cable_thermal_model/model/cables/abstract_cable.py
 
-For this example we'll look at an older version of the method "_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading" and how it should be altered:
+For this example we'll look at an older version of the method "_get_screen_eddy_loss_linear_leading" and how it should be altered:
 
 ```python
-def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(self, Tc: float, Ts: float) -> float:
+def _get_screen_eddy_loss_linear_leading(self, Tc: float, Ts: float) -> float:
     """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
     Linear version, conductor carrying the leading phase.
 
@@ -91,7 +91,7 @@ Some improvements still need to be made though:
 Resulting in the following adjusted method:
 
 ```python
-def _cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading(self, Tc: float, Ts: float) -> float:
+def _get_screen_eddy_loss_linear_leading(self, Tc: float, Ts: float) -> float:
     """The screen loss retrieval method for cables with cross bonding or one-sided bonding.
 
     Linear version, conductor carrying the leading phase.

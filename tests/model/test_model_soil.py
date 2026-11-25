@@ -35,7 +35,7 @@ from cable_thermal_model.model.cables.enum_classes_cable import CableLayer, Pipe
 from cable_thermal_model.model.model import Model
 from cable_thermal_model.model.model_air import StateAir
 from cable_thermal_model.model.model_soil import ModelSoil, StateSoil
-from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil
+from cable_thermal_model.model.schemas.model_input_schemas import ScenarioModelSoil, get_screen_current_column
 from cable_thermal_model.model.schemas.run_options import ModelSoilRunOptions
 from cable_thermal_model.validation.cable_analysis import CableAnalysis
 
@@ -1020,6 +1020,19 @@ def test_model_soil_validate_state(three_core_cable_xlpe):
 
     with pytest.raises(ValueError, match="ModelSoil requires a StateSoil instance, but received StateAir"):
         model._validate_initial_state(invalid_state)
+
+
+def test_custom_screen_current_requires_a_screen(simple_cable, scenario_constant):
+    environment = StaticEnvSoil()
+    environment.add_circuit_from_cable(
+        CircuitInSoilFromCableInputSchema(x=0, y=-0.8, circuit_name="c1", cable=simple_cable)
+    )
+    cable_key = next(iter(environment.get_cables()))
+    scenario = scenario_constant.copy()
+    scenario[get_screen_current_column(cable_key)] = 0.0
+
+    with pytest.raises(ValueError, match="metallic screen"):
+        ModelSoil(environment).run(scenario)
 
 
 def test_cable_without_screen(simple_cable: CableSoil):
