@@ -208,7 +208,7 @@ def test_two_sided_eddy_factor_without_circulating_solve(single_core_cable_xlpe,
     def reject_solve(*args, **kwargs):
         pytest.fail("Eddy loss must not evaluate circulating currents")
 
-    monkeypatch.setattr(cable, "_calculate_relative_circulating_screen_currents", reject_solve)
+    monkeypatch.setattr(cable, "_calculate_relative_circulating_screen_current", reject_solve)
 
     def reject_base_calculation(*args, **kwargs):
         pytest.fail("Non-Milliken two-sided eddy loss must return zero before evaluating a base formula")
@@ -422,8 +422,8 @@ def test_circulating_loss_does_not_require_eddy_case(single_core_cable_xlpe, cir
     monkeypatch.setattr(cable, "get_screen_eddy_loss_factor", reject_eddy_loss)
     monkeypatch.setattr(
         cable,
-        "_calculate_relative_circulating_screen_currents",
-        lambda **kwargs: dict.fromkeys(CablePhase, 1.0),
+        "_calculate_relative_circulating_screen_current",
+        lambda **kwargs: 1.0,
     )
     assert cable.get_screen_circulating_loss_factor(Ts=40.0, Tc=50.0) >= 0.0
 
@@ -450,7 +450,9 @@ def test_relative_circulating_screen_current_returns_phase_magnitude(
         lambda matrix, values: np.array([[3 + 4j], [5 + 12j], [8 + 15j]]),
     )
 
-    assert cable._calculate_relative_circulating_screen_currents(Rs=1.0)[phase] == expected
+    relative_current = cable._calculate_relative_circulating_screen_current(Rs=1.0, phase=phase)
+    assert isinstance(relative_current, float)
+    assert relative_current == expected
 
 
 @pytest.mark.parametrize(
@@ -472,12 +474,12 @@ def test_generalized_circulating_loss_uses_phase_index(
     monkeypatch.setattr(cable, "_get_resistance_screen", lambda Ts: 1.0)
     monkeypatch.setattr(
         cable,
-        "_calculate_relative_circulating_screen_currents",
-        lambda **kwargs: {
+        "_calculate_relative_circulating_screen_current",
+        lambda *, Rs, phase: {
             CablePhase.Leading: 1.0,
             CablePhase.Center: 2.0,
             CablePhase.Lagging: 3.0,
-        },
+        }[phase],
     )
 
     assert cable.get_screen_circulating_loss_factor(Ts=40.0, Tc=50.0) == pytest.approx(expected)

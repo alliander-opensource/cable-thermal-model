@@ -1147,13 +1147,13 @@ class AbstractCable:
         Rc = self.get_ac_resistance_conductor(Tc=Tc, s=self.s)
         Rs = self._get_resistance_screen(Ts)
 
-        relative_currents = self._calculate_relative_circulating_screen_currents(Rs=Rs)
-        lambda1 = Rs / Rc * relative_currents[phase] ** 2
+        relative_current = self._calculate_relative_circulating_screen_current(Rs=Rs, phase=phase)
+        lambda1 = Rs / Rc * relative_current**2
 
         return lambda1
 
-    def _calculate_relative_circulating_screen_currents(self, Rs: float) -> dict[CablePhase, float]:
-        """Determines the ratio between the circulating sheath currents and the conductor current (|Is|/|Ic|).
+    def _calculate_relative_circulating_screen_current(self, Rs: float, phase: CablePhase) -> float:
+        """Determine the circulating sheath-to-conductor current ratio (|Is|/|Ic|) for the requested phase.
 
         Uses numpy.linalg.solve to solve the linear system of equations Ax = b
 
@@ -1182,10 +1182,10 @@ class AbstractCable:
             A[i, i + 1] -= Rs * weighted_screen_resistance_factor
 
         relative_currents = np.linalg.solve(A, b)
-        magnitudes = np.abs(relative_currents[:, 0])
         phases = (CablePhase.Leading, CablePhase.Center, CablePhase.Lagging)
+        current_ratio = np.abs(relative_currents[phases.index(phase), 0])
 
-        return {phase: float(magnitude) for phase, magnitude in zip(phases, magnitudes, strict=True)}
+        return float(current_ratio)
 
     def _get_lambda1_eddy(self, Ts: float, Tc: float, lambda0: float, delta_one_plus_delta_two: float) -> float:
         """Calculates the lambda1 eddy value for the screen loss calculation.
