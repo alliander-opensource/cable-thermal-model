@@ -688,6 +688,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#optional-custom-screen-currents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional Custom Screen Currents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#scenario-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3237,6 +3248,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#optional-custom-screen-currents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional Custom Screen Currents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#scenario-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3718,17 +3740,68 @@ SPDX-License-Identifier: MPL-2.0
     <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"1h"</span><span class="p">),</span>
 <span class="p">)</span>
 </code></pre></div>
-<h3 id="scenario-validation">Scenario Validation</h3>
-<p>You can validate your scenario before running the model:</p>
-<p>Validation is also performed automatically as the first step of <code>model.run()</code>, so manual validation is optional.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.model.schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScenarioSchemaSoil</span><span class="p">,</span> <span class="n">ScenarioSchemaAir</span>
+<h3 id="optional-custom-screen-currents">Optional Custom Screen Currents</h3>
+<p>For AC cables with a metallic screen, add an optional column named
+<code>screen_current_&lt;circuit_name&gt;_&lt;position&gt;</code>, using the cable position from <code>CableKey</code>.
+For example, <code>screen_current_circuit_1_trefoil_top</code> supplies the top cable's screen current
+in a trefoil circuit named <code>circuit_1</code>. Circuit names containing underscores are supported.</p>
+<p>Each value is an RMS screen current in amperes over the interval
+ending at that timestamp, exactly like <code>load_&lt;circuit_name&gt;</code>.</p>
+<p>The provided screen currents replace only the circulating-current contribution:</p>
+<div class="arithmatex">\[
+W_s =
+\underbrace{I_{s,\mathrm{custom}}^2 R_s(T_s)}_{\text{custom circulating-current loss}}
++
+\underbrace{W_c\lambda_{\mathrm{eddy}}}_{\text{calculated eddy-current loss}}
+\]</div>
+<p>Here, <span class="arithmatex">\(W_s\)</span> is total screen loss, <span class="arithmatex">\(I_{s,\mathrm{custom}}\)</span> is the custom RMS
+screen current, <span class="arithmatex">\(R_s(T_s)\)</span> is screen resistance at screen temperature, <span class="arithmatex">\(W_c\)</span> is
+conductor loss calculated from the circuit load, and <span class="arithmatex">\(\lambda_{\mathrm{eddy}}\)</span> is the
+eddy-current loss factor. Losses are in W/m and screen resistance is in ohm/m.</p>
+<ul>
+<li>An absent column retains calculated circulating losses for that cable, using the existing standards model.</li>
+<li>Providing screen-current columns for some but not all cables in a circuit issues a <code>UserWarning</code> (though warning filters may suppress it). Cables without screen-current columns retain calculated circulating losses.</li>
+<li>An explicit zero suppresses circulating losses.</li>
+<li>A custom current through a common screen is applied once, not multiplied by the number of conductors.</li>
+<li>Screen-current columns for screenless cables, DC runs, and equivalent three-cables-in-one-pipe models are rejected.</li>
+</ul>
+<p>This example supplies custom screen currents for all three cables in the trefoil circuit:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="c1"># For soil environments</span>
-<span class="n">validated_scenario</span> <span class="o">=</span> <span class="n">ScenarioSchemaSoil</span><span class="p">(</span><span class="n">scenario</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitType</span><span class="p">,</span> <span class="n">ModelFactory</span><span class="p">,</span> <span class="n">StaticEnvSoil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cable_thermal_model.cable_configuration.schemas.circuit_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircuitInSoilFromCableIdInputSchema</span>
 
-<span class="c1"># For air environments</span>
-<span class="n">validated_scenario</span> <span class="o">=</span> <span class="n">ScenarioSchemaAir</span><span class="p">(</span><span class="n">scenario</span><span class="p">)</span>
+<span class="n">environment</span> <span class="o">=</span> <span class="n">StaticEnvSoil</span><span class="p">()</span>
+<span class="n">environment</span><span class="o">.</span><span class="n">add_circuit_from_cable_id</span><span class="p">(</span>
+    <span class="n">CircuitInSoilFromCableIdInputSchema</span><span class="p">(</span>
+        <span class="n">circuit_name</span><span class="o">=</span><span class="s2">"circuit_1"</span><span class="p">,</span>
+        <span class="n">cable_id</span><span class="o">=</span><span class="s2">"YMeKrvaslqwd 12/20kV 1x630 Alrm + as50"</span><span class="p">,</span>
+        <span class="n">circuit_type</span><span class="o">=</span><span class="n">CircuitType</span><span class="o">.</span><span class="n">Trefoil</span><span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">scenario</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"load_circuit_1"</span><span class="p">:</span> <span class="p">[</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">250.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">],</span>
+        <span class="s2">"screen_current_circuit_1_trefoil_top"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">25.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
+        <span class="s2">"screen_current_circuit_1_trefoil_left"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">24.0</span><span class="p">,</span> <span class="mf">29.0</span><span class="p">],</span>
+        <span class="s2">"screen_current_circuit_1_trefoil_right"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">26.0</span><span class="p">,</span> <span class="mf">31.0</span><span class="p">],</span>
+        <span class="s2">"ambient_temperature"</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">,</span>
+        <span class="s2">"soil_thermal_resistivity"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+        <span class="s2">"soil_thermal_capacity"</span><span class="p">:</span> <span class="mf">2e6</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s2">"2026-01-01"</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"1h"</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ModelFactory</span><span class="o">.</span><span class="n">create_model</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">scenario</span><span class="p">)</span>
 </code></pre></div>
+<h3 id="scenario-validation">Scenario Validation</h3>
+<p><code>model.run(scenario)</code> validates required environmental inputs, circuit load columns,
+and optional per-cable screen-current columns before computation. Unknown columns
+are rejected. Standalone <code>ScenarioModelSoil.validate()</code> and <code>ScenarioModelAir.validate()</code>
+check their base environmental schemas, but do not perform the environment-dependent
+cable and circuit checks applied by <code>run()</code>.</p>
 <h2 id="complete-example">Complete Example</h2>
 <p>Here's a minimal complete example for a cable in soil:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>

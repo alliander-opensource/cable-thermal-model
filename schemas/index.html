@@ -2753,10 +2753,10 @@ SPDX-License-Identifier: MPL-2.0
 <p>The project currently defines Pandera DataFrame schemas in two places.</p>
 <ol>
 <li>Input scenario schemas in <code>cable_thermal_model/model/schemas/model_input_schemas.py</code>:</li>
-<li><code>AbstractScenarioSchema</code>: shared scenario checks for all models.</li>
-<li><code>ScenarioSchemaAir</code>: currently the same checks as <code>AbstractScenarioSchema</code> (reserved for future air-specific checks).</li>
+<li><code>AbstractScenarioModel</code>: shared scenario checks for all models.</li>
+<li><code>ScenarioModelAir</code>: adds required, nonnegative <code>solar_radiation_intensity</code>.</li>
 <li>
-<p><code>ScenarioSchemaSoil</code>: extends the abstract schema and adds required soil columns and numeric checks for those columns.</p>
+<p><code>ScenarioModelSoil</code>: adds required soil thermal resistivity and capacity columns.</p>
 </li>
 <li>
 <p>Output result schema in <code>cable_thermal_model/model/schemas/model_output_schemas.py</code>:
@@ -2764,15 +2764,27 @@ SPDX-License-Identifier: MPL-2.0
 </li>
 </ol>
 <h2 id="when-validation-happens">When Validation Happens</h2>
-<p>Validation occurs in two phases: input scenario validation and output result validation. Input validation happens at model construction time and whenever the scenario is replaced. This means invalid input is rejected early, before running thermal computations.
+<p>Validation occurs in two phases: input scenario validation and output result validation.
+Input validation happens at the start of each <code>model.run(scenario)</code> call, before thermal computations.
 Output validation happens at the end of each model run.</p>
+<p>The model extends the base input schema with required <code>load_&lt;circuit_name&gt;</code> columns
+and optional <code>screen_current_&lt;circuit_name&gt;_&lt;position&gt;</code> columns for known cable keys.
+Unknown columns are rejected. Screen-current inputs must be finite, nonnegative RMS
+amperes over the interval ending at their timestamp. The first row is initialization-only.
+Absent columns retain calculated circulating losses. Zero is an explicit custom current, not absence.
+Eddy losses remain standards-derived. Custom-current columns are rejected for DC runs, screenless
+cables, and equivalent shared-pipe trefoil models. See
+<a href="../get_started/model_input/#optional-custom-screen-currents">custom screen currents</a>
+for the loss equation and input assumptions.</p>
 <h2 id="explicit-validation-outside-models">Explicit Validation Outside Models</h2>
-<p>Some utilities and examples also call schema validation explicitly before model creation. For example, a scenario can be validated with:</p>
+<p>Some utilities and examples also validate the base environmental schema explicitly:</p>
 <ul>
-<li><code>ScenarioSchemaAir.validate(df)</code> for air use cases,</li>
-<li><code>ScenarioSchemaSoil.validate(df)</code> for soil use cases.</li>
+<li><code>ScenarioModelAir.validate(df)</code> for air use cases,</li>
+<li><code>ScenarioModelSoil.validate(df)</code> for soil use cases.</li>
 </ul>
-<p>This is optional for callers, because model initialization will validate again.</p>
+<p>These classes are defined in <code>cable_thermal_model.model.schemas.model_input_schemas</code>.
+Standalone validation does not check environment-specific cable keys, circuit loads,
+or screen-current compatibility. <code>model.run()</code> performs those checks automatically.</p>
 <h2 id="note-on-other-schemas-in-the-codebase">Note on Other "Schemas" in the Codebase</h2>
 <p>Not every <code>*schema*</code> module uses Pandera. Many input and state schemas are Pydantic models (for example cable construction input schemas, circuit input schemas, pipe schemas, run options, and state models). In short:</p>
 <ol>

@@ -2750,8 +2750,8 @@ SPDX-License-Identifier: MPL-2.0
 <h2 id="examples">Examples</h2>
 <p>A good example of code where these guidelines would apply can be found in:
 /cable_thermal_model/model/cables/abstract_cable.py</p>
-<p>For this example we'll look at an older version of the method "_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading" and how it should be altered:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ts</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<p>For this example we'll look at an older version of the method "_get_screen_eddy_loss_linear_leading" and how it should be altered:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_get_screen_eddy_loss_linear_leading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ts</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""The screen loss retrieval method for cables with cross bonding or one-sided bonding.</span>
 <span class="sd">    Linear version, conductor carrying the leading phase.</span>
 
@@ -2788,7 +2788,7 @@ SPDX-License-Identifier: MPL-2.0
 <li>The NEN IEC needs to be referenced in the References section.</li>
 </ul>
 <p>Resulting in the following adjusted method:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_cable_screen_loss_method_cross_bonding_or_one_sided_bonding_linear_leading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ts</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_get_screen_eddy_loss_linear_leading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ts</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""The screen loss retrieval method for cables with cross bonding or one-sided bonding.</span>
 
 <span class="sd">    Linear version, conductor carrying the leading phase.</span>
